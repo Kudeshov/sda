@@ -1,5 +1,20 @@
 import React, { useState, useEffect } from 'react'
-import { DataGrid, ruRU } from '@mui/x-data-grid'
+//import { DataGrid, ruRU, gridFilteredSortedRowIdsSelector, GridCsvGetRowsToExportParams, GridCsvExportOptions } from '@mui/x-data-grid'
+import {
+  DataGrid, 
+  ruRU,
+  GridToolbarContainer,
+  GridToolbarContainerProps,
+  GridToolbarExportContainer,
+  GridCsvExportMenuItem,
+  GridCsvExportOptions,
+  GridExportMenuItemProps,
+  useGridApiContext,
+  gridFilteredSortedRowIdsSelector,
+  gridVisibleColumnFieldsSelector,
+  GridApi,
+  GridToolbarExport
+} from '@mui/x-data-grid';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import { FormControl } from "@mui/material";
@@ -18,6 +33,88 @@ import Collapse from '@mui/material/Collapse';
 import CloseIcon from '@mui/icons-material/Close';
 import * as XLSX from 'xlsx';
 import CircularProgress from '@material-ui/core/CircularProgress';
+
+
+const getJson = (apiRef: React.MutableRefObject<GridApi>) => {
+  // Select rows and columns
+  const filteredSortedRowIds = gridFilteredSortedRowIdsSelector(apiRef);
+  const visibleColumnsField = gridVisibleColumnFieldsSelector(apiRef);
+
+  // Format the data. Here we only keep the value
+  const data = filteredSortedRowIds.map((id) => {
+    const row: Record<string, any> = {};
+    visibleColumnsField.forEach((field) => {
+      row[field] = apiRef.current.getCellParams(id, field).value;
+    });
+    return row;
+  });
+
+  // Stringify with some indentation
+  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify#parameters
+  return JSON.stringify(data, null, 2);
+};
+
+const exportBlob = (blob: Blob, filename: string) => {
+  // Save the blob in a json file
+  const url = URL.createObjectURL(blob);
+
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.click();
+
+  setTimeout(() => {
+    URL.revokeObjectURL(url);
+  });
+};
+
+const JsonExportMenuItem = (props: GridExportMenuItemProps<{}>) => {
+  const apiRef = useGridApiContext();
+
+  const { hideMenu } = props;
+
+  return (
+    <MenuItem
+      onClick={() => {
+        const jsonString = getJson(apiRef);
+        const blob = new Blob([jsonString], {
+          type: 'text/json',
+        });
+        exportBlob(blob, 'DataGrid_demo.json');
+
+        // Hide the export menu after the export
+        hideMenu?.();
+      }}
+    >
+      Export JSON
+    </MenuItem>
+  );
+};
+
+const csvOptions: GridCsvExportOptions = { delimiter: ';' };
+
+const CustomExportButton = (props: ButtonProps) => (
+  <GridToolbarExportContainer {...props}>
+    <GridCsvExportMenuItem options={csvOptions} />
+    <JsonExportMenuItem />
+  </GridToolbarExportContainer>
+);
+
+const CustomToolbar = (props: GridToolbarContainerProps) => (
+  <GridToolbarContainer {...props}>
+    <CustomExportButton />
+  </GridToolbarContainer>
+);
+
+function CustomToolbar1() {
+  const apiRef = useGridApiContext();
+
+  return (
+    <GridToolbarContainer>
+      <GridToolbarExport csvOptions={{ delimiter: ';', utf8WithBom: true, getRowsToExport: () => gridFilteredSortedRowIdsSelector(apiRef) }} />
+    </GridToolbarContainer>
+  );
+}
 
 var alertText = "Сообщение";
 var alertSeverity = "info";
@@ -254,6 +351,8 @@ const columns = [
 ]
 
 const [openAlert, setOpenAlert] = React.useState(false, '');
+const getFilteredRows = ({ apiRef }: GridCsvGetRowsToExportParams) =>
+  gridFilteredSortedRowIdsSelector(apiRef);
 
   return (
     <div style={{ height: 550, width: 1500 }}>
@@ -276,8 +375,16 @@ const [openAlert, setOpenAlert] = React.useState(false, '');
           descr: false,
           actions: false,
         }}
+//        loading={loading}
+        components={{ Toolbar: CustomToolbar1  }}
         onRowClick={handleRowClick} {...tableData} 
-        onselectionChange={handleRowClick} {...tableData}  
+        onselectionChange={handleRowClick} {...tableData}
+        onSelectionModelChange={(ids) => {
+          //setSelectionModel(ids);
+          
+          console.log('filtered rows');
+          //console.log(getRowsToExport:getFilteredRows);
+        }}  
       />
       </div>
       <p/>
