@@ -50,7 +50,7 @@ const DataTablePeopleClass = () => {
     setValueFullName( params.row.fullname || "" );
     setValueExternalDS(`${params.row.external_ds}`);
     setValueDescr( params.row.descr  || "" );
-    reloadDataSrc();
+    reloadDataSrc(`${params.row.id}`);
   };
 
   const [tableData, setTableData] = useState([])
@@ -223,10 +223,10 @@ const DataTablePeopleClass = () => {
     }
   };
 
-  const reloadDataSrc = async () => {
+  const reloadDataSrc = async (qqq) => {
     setIsLoading(true);
     try {
-      const response = await  fetch(`/data_source_class?table_name=people_class&rec_id=${valueId??0}`, {
+      const response = await  fetch(`/data_source_class?table_name=people_class&rec_id=${qqq??0}`, {
         method: 'GET',
         headers: {
           'Content-Type': 'Application/json',
@@ -241,7 +241,7 @@ const DataTablePeopleClass = () => {
       setTableDataSrc(result);
     } catch (err) {
     } finally {
-      //setIsLoading(false);
+      setIsLoading(false);
     }
   };
 
