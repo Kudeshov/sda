@@ -18,6 +18,7 @@ import Collapse from '@mui/material/Collapse';
 import CloseIcon from '@mui/icons-material/Close';
 import * as XLSX from 'xlsx';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import { DataTableDataSourceClass } from './dt_data_source_class';
 
 var alertText = "Сообщение";
 var alertSeverity = "info";
@@ -43,7 +44,7 @@ const DataTablePeopleClass = () => {
   const [valueExternalDS, setValueExternalDS] = React.useState();
   const [isLoading, setIsLoading] = React.useState(false);
 
-  const handleRowClick: GridEventListener<'rowClick'>  = (params) => {
+const handleRowClick: GridEventListener<'rowClick'>  = (params) => {
     setValueID(`${params.row.id}`);
     setValueTitle(`${params.row.title}`);
     setValueShortName(`${params.row.shortname}`);
@@ -51,7 +52,7 @@ const DataTablePeopleClass = () => {
     setValueExternalDS(`${params.row.external_ds}`);
     setValueDescr( params.row.descr  || "" );
     reloadDataSrc(`${params.row.id}`);
-  };
+  }; 
 
   const [tableData, setTableData] = useState([])
   const [tableDataSrc, setTableDataSrc] = useState([])
@@ -244,8 +245,6 @@ const DataTablePeopleClass = () => {
       setIsLoading(false);
     }
   };
-
-
 /////////////////////////////////////////
 const [open, setOpen] = React.useState(false); 
 const handleClickDelete = () => {
@@ -284,7 +283,7 @@ const columns = [
     headerName: 'Действие',
     type: 'actions',
     width: 150,
-    renderCell: (params) => <DataSourceActions {...{ params }} />,
+    // renderCell: (params) => <DataSourceActions {...{ params }} />,
   },
 ]
 
@@ -295,10 +294,8 @@ const columns_src = [
   { field: 'name_src', headerName: 'Название', width: 280 },
 ]
 
-
-
 const [openAlert, setOpenAlert] = React.useState(false, '');
-
+console.log('return ( ' );
   return (
     <div style={{ height: 550, width: 1500 }}>
     <table style={{ height: 550, width: 1400 }} >
@@ -318,7 +315,7 @@ const [openAlert, setOpenAlert] = React.useState(false, '');
           actions: false,
         }}
         onRowClick={handleRowClick} {...tableData} 
-        onselectionChange={handleRowClick} {...tableData}  
+        //onselectionChange={handleRowClick} {...tableData}  
       />
       </div>
       <p/>
@@ -338,8 +335,14 @@ const [openAlert, setOpenAlert] = React.useState(false, '');
   <p/>
   <TextField  id="ch_name" sx={{ width: '40ch' }} label="Обозначение"  variant="outlined" value={valueTitle} defaultValue=" " onChange={e => setValueTitle(e.target.value)}/>
   <p/>
+   <div style={{ height: 300, width: 728 }}>
+     <DataTableDataSourceClass table_name="people_class" rec_id={valueId} />
+   </div>
+  <p/>
 
-      <div style={{ height: 400, width: 728 }}>
+
+{/*unblock*/}
+{/*       <div style={{ height: 400, width: 728 }}>
       <DataGrid
         localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
         rowHeight={25}
@@ -356,7 +359,7 @@ const [openAlert, setOpenAlert] = React.useState(false, '');
       //  onselectionChange={handleRowClick} {...tableData}  
       />
       </div>
-      <p/>
+      <p/> */}
 
   <TextField  id="ch_shortname" sx={{ width: '40ch' }} label="Краткое название"  variant="outlined" value={valueShortName} defaultValue=" " onChange={e => setValueShortName(e.target.value)}/>
   <p/>
@@ -365,7 +368,7 @@ const [openAlert, setOpenAlert] = React.useState(false, '');
 {/*   <TextField  id="ch_external_ds" sx={{ width: '80ch' }} label="Внешний источник"  variant="outlined" value={valueExternalDS} defaultValue=" " onChange={e => setValueExternalDS(e.target.value)}/>
   <p/>
  */}
-     <FormControl sx={{ width: '40ch' }}>
+{/*      <FormControl sx={{ width: '40ch' }}>
         <InputLabel id="demo-controlled-open-select-label">Тип источника</InputLabel>
         <Select
           labelId="demo-controlled-open-select-label"
@@ -382,13 +385,10 @@ const [openAlert, setOpenAlert] = React.useState(false, '');
               {option.label ?? option.value}
             </MenuItem>
           );
-      })}
-{/*           <MenuItem value={'0'}>Целевая БД</MenuItem>
-          <MenuItem value={'1'}>Внешний источник</MenuItem>
- */}          
+      })}        
         </Select>
       </FormControl>  
-  <p/> 
+  <p/> */} 
 
   <TextField  id="ch_descr" sx={{ width: '80ch' }} label="Комментарий" multiline maxRows={4} variant="outlined" value={valueDescr} defaultValue=" " onChange={e => setValueDescr(e.target.value)}/>
   <p/> 
