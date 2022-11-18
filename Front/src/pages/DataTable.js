@@ -28,7 +28,7 @@ const DataTable = () => {
   const [valueId, setValueID] = React.useState();
   const [valueTitle, setValueTitle] = React.useState();
   const [valueAtomicNum, setValueAtomicNum] = React.useState();
-  const [isLoading, setIsLoading] = React.useState(false);
+ // const [isLoading, setIsLoading] = React.useState(false);
 
   const handleRowClick: GridEventListener<'rowClick'> = (params) => {
   //  setFieldValue("ch_name","test");
@@ -55,7 +55,7 @@ const DataTable = () => {
       title: valueTitle,
       atomic_num: valueAtomicNum
    });
-   setIsLoading(true);
+   //setIsLoading(true);
    console.log(js);
    try {
      const response = await fetch('http://localhost:3001/chelement/'+valueId, {
@@ -77,13 +77,14 @@ const DataTable = () => {
         alertText =  'Запись с кодом '+valueId+' успешно сохранена';
         setOpenAlert(true);  
       }
-     const result = await response.json();
+     //const result = 
+     await response.json();
      //console.log('result is: ', JSON.stringify(result, null, 4));
      //setData(result);
    } catch (err) {
      //setErr(err.message);
    } finally {
-     setIsLoading(false);
+     //setIsLoading(false);
      reloadData();        
    }
  };
@@ -95,7 +96,7 @@ const DataTable = () => {
          title: valueTitle,
          atomic_num: valueAtomicNum
       });
-      setIsLoading(true);
+      //setIsLoading(true);
       console.log(js);
       try {
         const response = await fetch('http://localhost:3001/chelement/', {
@@ -123,7 +124,7 @@ const DataTable = () => {
         alertSeverity = 'error';
         setOpenAlert(true);
       } finally {
-        setIsLoading(false);
+        //setIsLoading(false);
         reloadData();  
       }
     };
@@ -136,7 +137,7 @@ const DataTable = () => {
          title: valueTitle,
          atomic_num: valueAtomicNum
       });
-      setIsLoading(true);
+      //setIsLoading(true);
       console.log(js);
       try {
         const response = await fetch('http://localhost:3001/chelement/'+valueId, {
@@ -164,7 +165,7 @@ const DataTable = () => {
       } catch (err) {
         //setErr(err.message);
       } finally {
-        setIsLoading(false);
+        //setIsLoading(false);
         reloadData();
         //setOpenAlert(true);
       }
@@ -184,7 +185,7 @@ const DataTable = () => {
   }
 
   const reloadData = async () => {
-    setIsLoading(true);
+    //setIsLoading(true);
     try {
       const response = await fetch("/chelement");
       if (!response.ok) {
@@ -196,7 +197,7 @@ const DataTable = () => {
     } catch (err) {
       //setErr(err.message);
     } finally {
-      setIsLoading(false);
+      //setIsLoading(false);
     }
   };
 

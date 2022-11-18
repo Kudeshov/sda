@@ -1,4 +1,4 @@
-import { globalJson, DataTablePeopleClass } from './dt_people_class';
+import { DataTablePeopleClass } from './dt_people_class';
 
 function Coeff() {
   return (

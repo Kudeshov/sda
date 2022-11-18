@@ -4,15 +4,15 @@ import {
   DataGrid, 
   ruRU,
   GridToolbarContainer,
-  GridToolbarContainerProps,
-  GridToolbarExportContainer,
-  GridCsvExportMenuItem,
-  GridCsvExportOptions,
-  GridExportMenuItemProps,
+//  GridToolbarContainerProps,
+//  GridToolbarExportContainer,
+//  GridCsvExportMenuItem,
+//  GridCsvExportOptions,
+//  GridExportMenuItemProps,
   useGridApiContext,
   gridFilteredSortedRowIdsSelector,
-  gridVisibleColumnFieldsSelector,
-  GridApi,
+//  gridVisibleColumnFieldsSelector,
+//  GridApi,
   GridToolbarExport
 } from '@mui/x-data-grid';
 import TextField from '@mui/material/TextField';
@@ -34,7 +34,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import * as XLSX from 'xlsx';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
-
+/* 
 const getJson = (apiRef: React.MutableRefObject<GridApi>) => {
   // Select rows and columns
   const filteredSortedRowIds = gridFilteredSortedRowIdsSelector(apiRef);
@@ -67,8 +67,10 @@ const exportBlob = (blob: Blob, filename: string) => {
     URL.revokeObjectURL(url);
   });
 };
+ */
 
-const JsonExportMenuItem = (props: GridExportMenuItemProps<{}>) => {
+
+/* const JsonExportMenuItem = (props: GridExportMenuItemProps<{}>) => {
   const apiRef = useGridApiContext();
 
   const { hideMenu } = props;
@@ -91,20 +93,20 @@ const JsonExportMenuItem = (props: GridExportMenuItemProps<{}>) => {
   );
 };
 
-const csvOptions: GridCsvExportOptions = { delimiter: ';' };
+const csvOptions: GridCsvExportOptions = { delimiter: ';' }; */
 
-const CustomExportButton = (props: ButtonProps) => (
+/* const CustomExportButton = (props: ButtonProps) => (
   <GridToolbarExportContainer {...props}>
     <GridCsvExportMenuItem options={csvOptions} />
     <JsonExportMenuItem />
   </GridToolbarExportContainer>
 );
-
-const CustomToolbar = (props: GridToolbarContainerProps) => (
+ */
+/* const CustomToolbar = (props: GridToolbarContainerProps) => (
   <GridToolbarContainer {...props}>
     <CustomExportButton />
   </GridToolbarContainer>
-);
+); */
 
 function CustomToolbar1() {
   const apiRef = useGridApiContext();
@@ -187,7 +189,8 @@ const DataTableDataSource = () => {
         alertText =  'Запись с кодом '+valueId+' успешно сохранена';
         setOpenAlert(true);  
       }
-     const result = await response.json();
+     //const result = 
+     await response.json();
    } catch (err) {
      //setErr(err.message);
    } finally {
@@ -351,8 +354,8 @@ const columns = [
 ]
 
 const [openAlert, setOpenAlert] = React.useState(false, '');
-const getFilteredRows = ({ apiRef }: GridCsvGetRowsToExportParams) =>
-  gridFilteredSortedRowIdsSelector(apiRef);
+//const getFilteredRows = ({ apiRef }: GridCsvGetRowsToExportParams) =>
+//  gridFilteredSortedRowIdsSelector(apiRef);
 
   return (
     <div style={{ height: 550, width: 1500 }}>
@@ -360,7 +363,6 @@ const getFilteredRows = ({ apiRef }: GridCsvGetRowsToExportParams) =>
     <tr>
       <td style={{ height: 550, width: 800, verticalAlign: 'top' }}>
       <div style={{ height: 400, width: 728 }}>
-        <p/>
       <DataGrid
 //        componentsProps={{ toolbar: { csvOptions } }}
         localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
@@ -399,7 +401,6 @@ const getFilteredRows = ({ apiRef }: GridCsvGetRowsToExportParams) =>
 {/*       <td style={{ height: 550, width: 10 }}>      
       </td> */}
       <td style={{ height: 550, width: 700, verticalAlign: 'top' }}>
-  <p/>
   <TextField  id="ch_id" label="Id" sx={{ width: '12ch' }} variant="outlined" value={valueId} defaultValue=" " onChange={e => setValueID(e.target.value)}/>
   <p/>
   <TextField  id="ch_name" sx={{ width: '40ch' }} label="Обозначение"  variant="outlined" value={valueTitle} defaultValue=" " onChange={e => setValueTitle(e.target.value)}/>

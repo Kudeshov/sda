@@ -1,15 +1,9 @@
-import { Typography } from "@material-ui/core";
 import { Link } from "react-router-dom";
 import React from "react";
 import {
-  AppBar,
   Toolbar,
-  CssBaseline,
   makeStyles,
-  useTheme,
-  useMediaQuery,
 } from "@material-ui/core";
-import { Box } from "@mui/material";
 
 const useStyles = makeStyles((theme) => ({
   navlinks: {

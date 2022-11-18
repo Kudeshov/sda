@@ -5,11 +5,11 @@ import {
   CssBaseline,
   Typography,
   makeStyles,
-  useTheme,
-  useMediaQuery,
+//  useTheme,
+ // useMediaQuery, 
 } from "@material-ui/core";
 import { Link } from "react-router-dom";
-import DrawerComponent from "./Drawer";
+//import DrawerComponent from "./Drawer";
 
 const useStyles = makeStyles((theme) => ({
   navlinks: {
@@ -35,8 +35,8 @@ const useStyles = makeStyles((theme) => ({
 
 function Navbar() {
   const classes = useStyles();
-  const theme = useTheme();
-  const isMobile = useMediaQuery(theme.breakpoints.down("md"));
+  //const theme = useTheme();
+  //const isMobile = useMediaQuery(theme.breakpoints.down("md"));
 
   return (
     <AppBar position="static">

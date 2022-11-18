@@ -1,4 +1,4 @@
-import { globalJson, DataTableDataSource } from './dt_data_source';
+import { DataTableDataSource } from './dt_data_source';
 
 function Sources() {
   return (
