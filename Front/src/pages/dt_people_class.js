@@ -24,6 +24,9 @@ import CloseIcon from '@mui/icons-material/Close';
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { DataTableDataSourceClass } from './dt_data_source_class';
 import { withStyles } from "@material-ui/core/styles";
+import SaveIcon from '@mui/icons-material/Save';
+import CreateIcon from '@mui/icons-material/Create';
+import DeleteIcon from '@mui/icons-material/Delete';
 
 var alertText = "Сообщение";
 var alertSeverity = "info";
@@ -226,7 +229,17 @@ useEffect(() => {
       } finally {
         setIsLoading(false);
         reloadData();
-        setSelectionModel(1);
+        //console.log(valueId );
+        //var idx = tableData.findIndex(x => x.id === valueId);
+        console.log( 'tableData[0].id' );
+        console.log( tableData[0].id );
+        setSelectionModel(tableData[0].id );  
+        setValueID(`${tableData[0].id}`);
+        setValueTitle(`${tableData[0].title}`);
+        setValueNameRus(`${tableData[0].name_rus}`);
+        setValueNameEng( tableData[0].name_eng || "" );
+        setValueDescrRus(`${tableData[0].descr_rus}`);
+        setValueDescrEng(`${tableData[0].descr_eng}` );
         //setOpenAlert(true);
       }
     };  
@@ -421,15 +434,15 @@ const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
   <p/> 
   <TextField  id="ch_descr_rus" sx={{ width: '110ch' }} label="Комментарий (англ.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrEng} defaultValue=" " onChange={e => setValueDescrEng(e.target.value)}/>
   <p/>
-  <Button  variant="outlined" onClick={handleClearClick}/* {() => setDisabled(!disabled)} */>Новая запись</Button>
+  <Button  variant="outlined" startIcon={<CreateIcon />} onClick={handleClearClick}/* {() => setDisabled(!disabled)} */>Новая запись</Button>
   &nbsp;&nbsp;&nbsp;&nbsp;
-  <Button variant="outlined" onClick={()=>saveRec()}>
+  <Button variant="outlined" startIcon={<SaveIcon />} onClick={()=>saveRec()}>
     	  Сохранить
 	</Button>&nbsp;&nbsp;&nbsp;&nbsp;
   {/* <Button variant="outlined" onClick={()=>addRec()}>
     	  Добавить
 	</Button>&nbsp;&nbsp;&nbsp;&nbsp; */}
-  <Button variant="outlined" onClick={()=>handleClickDelete()}>
+  <Button variant="outlined" startIcon={<DeleteIcon />} onClick={()=>handleClickDelete()}>
     	  Удалить
 	</Button>
   <p/>
