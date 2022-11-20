@@ -7,6 +7,7 @@ import {
   gridFilteredSortedRowIdsSelector,
   GridToolbarExport
 } from '@mui/x-data-grid';
+
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
@@ -26,6 +27,7 @@ import { withStyles } from "@material-ui/core/styles";
 
 var alertText = "Сообщение";
 var alertSeverity = "info";
+var lastAddedId = 0;
 
 /* const downloadExcel = (data) => {
   console.log(data);
@@ -60,10 +62,10 @@ const handleRowClick/* : GridEventListener<'rowClick'>  */ = (params) => {
     //reloadDataSrc(`${params.row.id}`);
   }; 
 
-  const handleClearClick/* : GridEventListener<'rowClick'> */  = (params) => {
+  const handleClearClick  = (params) => {
     setValueID(``);
     setValueTitle(``);
-  //  setValueNameRus(``);
+    setValueNameRus(``);
     setValueNameEng( "" );
     setValueDescrRus(``);
     setValueDescrEng(`` );
@@ -93,16 +95,23 @@ useEffect(() => {
 ///////////////////////////////////////////////////////////////////  SAVE  /////////////////////
   const saveRec = async () => {
     const js = JSON.stringify({
+      id: valueId,
       title: valueTitle,
-     // shortname: valueShortName,
-     // fullname: valueFullName,
-     // external_ds: valueExternalDS,
-     // descr: valueDescr         
-   });
-   setIsLoading(true);
-   console.log(js);
-   try {
-     const response = await fetch('http://localhost:3001/people_class/'+valueId, {
+      name_rus: valueNameRus,
+      name_eng: valueNameEng,
+      descr_rus: valueDescrRus,
+      descr_eng: valueDescrEng         
+    });
+    console.log('saverec');
+    if (!valueId) {
+      addRec();
+      return;
+    }
+
+    setIsLoading(true);
+    console.log(js);
+    try {
+      const response = await fetch('http://localhost:3001/people_class/'+valueId, {
        method: 'PUT',
        body: js,
        headers: {
@@ -118,28 +127,29 @@ useEffect(() => {
       else
       {
         alertSeverity = "success";
-        alertText =  'Запись с кодом '+valueId+' успешно сохранена';
+        alertText = await response.text();
         setOpenAlert(true);  
       }
-     //const result = 
-     await response.json();
    } catch (err) {
-     //setErr(err.message);
+    alertText = err.message;
+    alertSeverity = 'error';
+    setOpenAlert(true);
    } finally {
      setIsLoading(false);
-     reloadData();        
+     reloadData();      
+     
    }
  };
 /////////////////////////////////////////////////////////////////// ADDREC ///////////////////// 
   const addRec = async ()  => {
-      console.log('addrec clicked');
+      console.log('addrec executed');
       const js = JSON.stringify({
-         id: valueId,
-         title: valueTitle,
-       //  shortname: valueShortName,
-       //  fullname: valueFullName,
-       //  external_ds: valueExternalDS,
-       //  descr: valueDescr         
+        id: valueId,
+        title: valueTitle,
+        name_rus: valueNameRus,
+        name_eng: valueNameEng,
+        descr_rus: valueDescrRus,
+        descr_eng: valueDescrEng         
       });
       setIsLoading(true);
       console.log(js);
@@ -161,7 +171,10 @@ useEffect(() => {
         else
         {
           alertSeverity = "success";
-          alertText =  'Запись с кодом '+valueId+' успешно добавлена';
+          alertText =  await response.text();
+          lastAddedId = parseInt( alertText.substr(alertText.lastIndexOf('ID:') + 3, 20)); 
+          console.log(lastAddedId);
+          setValueID(lastAddedId);
           setOpenAlert(true);  
         }
       } catch (err) {
@@ -170,7 +183,8 @@ useEffect(() => {
         setOpenAlert(true);
       } finally {
         setIsLoading(false);
-        reloadData();  
+        reloadData();
+        setSelectionModel(lastAddedId);  
       }
     };
 
@@ -201,7 +215,7 @@ useEffect(() => {
         else
         {
           alertSeverity = "success";
-          alertText =  'Запись с кодом '+valueId+' успешно удалена';
+          alertText = await response.text();
           setOpenAlert(true);  
         }
         //const result = await response.json();
@@ -212,6 +226,7 @@ useEffect(() => {
       } finally {
         setIsLoading(false);
         reloadData();
+        setSelectionModel(1);
         //setOpenAlert(true);
       }
     };  
@@ -219,9 +234,9 @@ useEffect(() => {
 /////////////////////////////////////////////////////////////////// RELOAD /////////////////////
 
   const reloadDataAlert =  async () => {
-    reloadData();
     alertSeverity = "info";
     alertText =  'Данные успешно обновлены';
+    reloadData();
     setOpenAlert(true);        
   }
 
@@ -229,9 +244,12 @@ useEffect(() => {
     setIsLoading(true);
     try {
       const response = await fetch("/people_class");
-      if (!response.ok) {
+       if (!response.ok) {
+        alertText =  'Ошибка при обновлении данных';
+        alertSeverity = "false";
+        setOpenAlert(true);  
         throw new Error(`Error! status: ${response.status}`);
-      }
+      }  
       const result = await response.json();
       setTableData(result);
     } catch (err) {
@@ -289,7 +307,7 @@ const handleCloseYes = () => {
   }; */
 /////////////////////////////////////////  
 const columns = [
-  { field: 'id', headerName: 'ID', width: 60 },
+  { field: 'id', headerName: 'ID', width: 80 },
   { field: 'title', headerName: 'Обозначение', width: 180, hideable: false },
   { field: 'name_rus', headerName: 'Название (рус.яз)', width: 180 },
   { field: 'name_eng', headerName: 'Название (англ.яз)', width: 180 },
@@ -314,7 +332,7 @@ const DarkerDisabledTextField = withStyles({
   root: {
     marginRight: 8,
     "& .MuiInputBase-root.Mui-disabled": {
-      color: "rgba(128, 128, 128, 0.1)" // (default alpha is 0.38)
+      color: "rgba(255, 0, 0, 0.7)" // (default alpha is 0.38)
     }
   }
 })(TextField);
@@ -339,10 +357,12 @@ const handleChange1 = (event: React.ChangeEvent<HTMLInputElement>) => {
 }; */
 //console.log('return ( ' );
 
-const [name, setName] = React.useState('Cat in the Hat');
+/* const [name, setName] = React.useState('Cat in the Hat');
 const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
   setName(event.target.value);
 };
+ */
+  const [selectionModel, setSelectionModel] = React.useState([]);
 
   return (
     <div style={{ height: 550, width: 1500 }}>
@@ -356,6 +376,10 @@ const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         rowHeight={25}
         rows={tableData}
         columns={columns}
+        onSelectionModelChange={(newSelectionModel) => {
+          setSelectionModel(newSelectionModel);
+        }}
+        selectionModel={selectionModel}        
         initialState={{
           columns: {
             columnVisibilityModel: {
@@ -365,31 +389,27 @@ const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
             },
           },
         }}        
-
         onRowClick={handleRowClick} {...tableData} 
-
       />
       </div>
       <p/>
 
       <Button variant="outlined" onClick={()=>reloadDataAlert()}>
-    	  Обновить данные
+    	   Обновить данные
 	    </Button>     
       </td>
 
       <td style={{ height: 550, width: 900, verticalAlign: 'top' }}>
 
 
-  <Button onClick={ handleClearClick /* () => setDisabled(!disabled) */}>Редактировать</Button>
-  <br />
-  <TextField
+{/*   <TextField
         id="outlined-name"
         label="Name"
         value={name}
         onChange={handleChange}
       />
-  <p/>    
-  <DarkerDisabledTextField  id="ch_id" /* disabled={disabled} */ label="Id" sx={{ width: '12ch' }} variant="outlined" value={valueId} size="small" defaultValue=" " onChange={e => setValueID(e.target.value)}/>
+  <p/>     */}
+  <DarkerDisabledTextField  id="ch_id"  disabled={true} label="Id" sx={{ width: '12ch' }} variant="outlined" value={valueId} size="small" defaultValue=" " onChange={e => setValueID(e.target.value)}/>
   &nbsp;&nbsp;&nbsp;
   <TextField  id="ch_name" sx={{ width: '40ch' }} label="Обозначение" size="small" variant="outlined" value={valueTitle} defaultValue=" " onChange={e => setValueTitle(e.target.value)}/>
   <p/>
@@ -401,12 +421,14 @@ const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
   <p/> 
   <TextField  id="ch_descr_rus" sx={{ width: '110ch' }} label="Комментарий (англ.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrEng} defaultValue=" " onChange={e => setValueDescrEng(e.target.value)}/>
   <p/>
+  <Button  variant="outlined" onClick={handleClearClick}/* {() => setDisabled(!disabled)} */>Новая запись</Button>
+  &nbsp;&nbsp;&nbsp;&nbsp;
   <Button variant="outlined" onClick={()=>saveRec()}>
     	  Сохранить
 	</Button>&nbsp;&nbsp;&nbsp;&nbsp;
-  <Button variant="outlined" onClick={()=>addRec()}>
+  {/* <Button variant="outlined" onClick={()=>addRec()}>
     	  Добавить
-	</Button>&nbsp;&nbsp;&nbsp;&nbsp;
+	</Button>&nbsp;&nbsp;&nbsp;&nbsp; */}
   <Button variant="outlined" onClick={()=>handleClickDelete()}>
     	  Удалить
 	</Button>
@@ -414,6 +436,8 @@ const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
   <div style={{ height: 200, width: 750 }}>
      <DataTableDataSourceClass table_name="people_class" rec_id={valueId} />
   </div>
+
+
 {/*unblock*/}
 {/*       <div style={{ height: 400, width: 728 }}>
       <DataGrid

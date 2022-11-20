@@ -20,7 +20,6 @@ var globalJson = [
   { field: 'atomic_num', headerName: 'Atomic Num', width: 100 }
 ]
 
-
 var alertText = "Сообщение";
 var alertSeverity = "info";
 

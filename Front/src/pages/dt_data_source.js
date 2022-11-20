@@ -186,7 +186,7 @@ const DataTableDataSource = () => {
       else
       {
         alertSeverity = "success";
-        alertText =  'Запись с кодом '+valueId+' успешно сохранена';
+        alertText =  await response.text();
         setOpenAlert(true);  
       }
      //const result = 
@@ -229,7 +229,7 @@ const DataTableDataSource = () => {
         else
         {
           alertSeverity = "success";
-          alertText =  'Запись с кодом '+valueId+' успешно добавлена';
+          alertText =  await response.text();
           setOpenAlert(true);  
         }
       } catch (err) {

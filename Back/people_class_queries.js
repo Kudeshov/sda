@@ -26,11 +26,11 @@ pool.on('error', function (err, client) {
     console.error('idle client error', err.message, err.stack);
 });
 
+
 const getPeopleClass = (request, response) => {
   pool.query('SELECT pc.*, pcn1.name name_rus, pcn2.name name_eng, pcn1.descr descr_rus, pcn2.descr descr_eng FROM nucl.people_class pc '+
-  'join nucl.people_class_nls pcn1 on pc.id=pcn1.people_class_id and pcn1.lang_id=1 '+
-  'join nucl.people_class_nls pcn2 on pc.id=pcn2.people_class_id '+
-  'and pcn2.lang_id=2 '+
+  'left join nucl.people_class_nls pcn1 on pc.id=pcn1.people_class_id and pcn1.lang_id=1 '+
+  'left join nucl.people_class_nls pcn2 on pc.id=pcn2.people_class_id and pcn2.lang_id=2 '+
   'ORDER BY pc.id ASC', (error, results) => {
     if (error) {
       throw error
@@ -40,8 +40,11 @@ const getPeopleClass = (request, response) => {
 }
 
 const getPeopleClassById = (request, response) => {
-  const id = parseInt(request.params.id)
-  pool.query('SELECT * FROM nucl.data_source WHERE id = $1', [id], (error, results) => {
+  const id = parseInt(request.params.id||0);
+  pool.query('SELECT pc.*, pcn1.name name_rus, pcn2.name name_eng, pcn1.descr descr_rus, pcn2.descr descr_eng FROM nucl.people_class pc '+
+  'left join nucl.people_class_nls pcn1 on pc.id=pcn1.people_class_id and pcn1.lang_id=1 '+
+  'left join nucl.people_class_nls pcn2 on pc.id=pcn2.people_class_id and pcn2.lang_id=2 '+
+  'where pc.id = $1', [id], (error, results) => {
     if (error) {
       throw error
     }
@@ -50,55 +53,322 @@ const getPeopleClassById = (request, response) => {
 }
 
 const createPeopleClass = (request, response) => {
-  console.log(  request );
-  const { id, title, shortname, fullname, descr, external_ds } = request.body;
-
-  pool.query('INSERT INTO nucl.data_source (id, title, shortname, fullname, descr, external_ds) VALUES ($1, $2, $3, $4, $5, $6)', [id, title, shortname, fullname, descr, external_ds], (error, results) => {
-    if (error) {
-      response.status(400).send(`Источник данных не добавлен: ${error.message}`);
-    } else {
-      response.status(201).send(`Источник данных добавлен, ID: ${results.insertId}`)
+  pool.connect((err, client, done) => {
+    const shouldAbort = (err, response) => {
+      if (err) {
+        console.error('Ошибка создания записи', err.message)
+        const { errormsg } = err.message;
+        console.error('Rollback')
+        client.query('ROLLBACK', err => {
+          console.error('Rollback прошел')
+          if (err) {
+            console.error('Ошибка при откате транзакции')
+            response.status(400).send('Ошибка при откате транзакции');
+            return;
+          }
+          else {
+            console.error('Транзакция отменена')
+          }
+        })
+        response.status(400).send(`Ошибка: ` + err.message);
+        // release the client back to the pool
+        done()
+      }
+      return !!err
     }
+
+    const { title, name_rus, name_eng, descr_rus, descr_eng } = request.body;
+    client.query('BEGIN', err => {
+      if (shouldAbort(err, response)) return;
+      client.query('INSERT INTO nucl.people_class( title ) VALUES ($1) RETURNING id', [title], (err, res) => {
+        if (shouldAbort(err, response)) return;      
+        const { id } = res.rows[0];
+        console.log('Id = '+id);
+        client.query('INSERT INTO nucl.people_class_nls( name, descr, people_class_id, lang_id ) '+
+                  'VALUES ($1, $2, $3, 1)', [name_rus, descr_rus, id], (err, res) => {
+          console.log('rus добавляется');         
+          if (shouldAbort(err, response)) return;
+          console.log('rus добавлен');
+          client.query('INSERT INTO nucl.people_class_nls( name, descr, people_class_id, lang_id ) '+
+          'VALUES ($1, $2, $3, 2)', [name_eng, descr_eng, id], (err, res) => {
+            console.log('eng добавляется');  
+            if (shouldAbort(err, response)) return;
+            console.log('eng добавлен');
+            console.log('начинаем Commit');     
+            client.query('COMMIT', err => {
+              if (err) {
+                console.error('Ошибка при подтверждении транзакции', err.stack);
+                response.status(400).send('Ошибка при подтверждении транзакции', err.stack);
+              }
+              else {
+                console.log(`Тип облучаемых лиц добавлен, ID: ${id}`); 
+                response.status(201).send(`Тип облучаемых лиц добавлен, ID: ${id}`);
+              }
+              done()
+            })
+          }); 
+        });
+      })
+    })
   })
 }
 
 const deletePeopleClass = (request, response) => {
+  pool.connect((err, client, done) => {
+    const shouldAbort = (err, response) => {
+      if (err) {
+        console.error('Ошибка удаления записи', err.message)
+        const { errormsg } = err.message;
+        console.error('Rollback')
+        client.query('ROLLBACK', err => {
+          console.error('Rollback прошел')
+          if (err) {
+            console.error('Ошибка при откате транзакции')
+            response.status(400).send('Ошибка при откате транзакции');
+            return;
+          }
+          else {
+            console.error('Транзакция отменена')
+          }
+        })
+        response.status(400).send(`Ошибка: ` + err.message);
+        // release the client back to the pool
+        done()
+      }
+      return !!err
+    }
+
+    const id = parseInt(request.params.id||0);
+
+    client.query('BEGIN', err => {
+      if (shouldAbort(err, response)) return;
+      client.query('DELETE FROM nucl.people_class_nls WHERE people_class_id = $1', [id], (err, res) => {
+        if (shouldAbort(err, response)) return;      
+        console.log('Id = '+id);
+        client.query('DELETE FROM nucl.people_class WHERE id = $1', [id], (err, res) => {
+          console.log('DELETE FROM nucl.people_class');         
+          if (shouldAbort(err, response)) return;
+          console.log('DELETE FROM nucl.people_class готово');
+            client.query('COMMIT', err => {
+              if (err) {
+                console.error('Ошибка при подтверждении транзакции', err.stack);
+                response.status(400).send('Ошибка при подтверждении транзакции', err.stack);
+              }
+              else {
+                console.log(`Тип облучаемых лиц удален, ID: ${id}`); 
+                if (res.rowCount == 1)
+                  response.status(200).send(`Тип облучаемых лиц ${id} удален; cтрок удалено: ${res.rowCount} `);
+                if (res.rowCount == 0)
+                  response.status(400).send(`Запись с кодом ${id} не найдена `)
+                //response.status(200).send(`Тип облучаемых лиц удален, ID: ${id}`);
+              }
+              done()
+            })
+         // }); 
+        });
+      })
+    })
+  })
+}
+
+
+/*
+const deletePeopleClass = (request, response) => {
   const id = parseInt(request.params.id)
   const { title, atomic_num } = request.body
-
-  pool.query('DELETE FROM nucl.data_source WHERE id = $1', [id], (error, results) => {
+  pool.query('DELETE FROM nucl.people_class_nls WHERE people_class_id = $1', [id], (error, results) => {
     if (error) {
-      response.status(400).send(`Источник данных не удален: ${error.message}`);
+      response.status(400).send(`Тип облучаемых лиц (языковые ресурсы) не удален: ${error.message}`);
+    }
+    else {
+      //response.status(200).send(`Источник данных удален, ID: ${id} : удалено строк: ${results.rowCount} `)
+      //if (results.rowCount == 1)
+      //  response.status(200).send(`Тип облучаемых лиц (языковые ресурсы)  ${id} удален: cтрок удалено: ${results.rowCount} `);
+      //if (results.rowCount == 0)
+      //  response.status(400).send(`Запись с кодом ${id} не найдена `)
+    }
+  })
+
+  pool.query('DELETE FROM nucl.people_class WHERE id = $1', [id], (error, results) => {
+    if (error) {
+      response.status(400).send(`Тип облучаемых лиц не удален: ${error.message}`);
     }
     else {
       //response.status(200).send(`Источник данных удален, ID: ${id} : удалено строк: ${results.rowCount} `)
       if (results.rowCount == 1)
-        response.status(200).send(`Источник данных ${id} удален: cтрок удалено: ${results.rowCount} `);
+        response.status(200).send(`Тип облучаемых лиц ${id} удален: cтрок удалено: ${results.rowCount} `);
       if (results.rowCount == 0)
         response.status(400).send(`Запись с кодом ${id} не найдена `)
     }
-  })
+  }) 
 }
+*/
 
+/*
 const updatePeopleClass = (request, response) => {
   const id = parseInt(request.params.id)
-  const { title, shortname, fullname, descr, external_ds } = request.body
-//  console.log( 'id='+id );
-
+  const { title, name_rus, name_eng, descr_rus, descr_eng } = request.body
+  console.log( 'updatePeopleClass id='+id );
   pool.query(
-    'UPDATE nucl.data_source SET title = $1, shortname = $2, fullname = $3, descr = $4, external_ds = $5 WHERE id = $6',
-    [title, shortname, fullname, descr, external_ds, id],
+    'UPDATE nucl.people_class SET title = $1 WHERE id = $2; '+
+    'UPDATE nucl.people_class_nls SET name = $3, descr=$4 WHERE people_class_id = $5 and lang_id=$6; '+
+    'UPDATE nucl.people_class_nls SET name = $7, descr=$8 WHERE people_class_id = $9 and lang_id=$10; ',
+    [title, id, name_rus, descr_rus, id, 1, name_eng, descr_eng, id, 2],
     (error, results) => {
       if (error) 
       {
-        response.status(400).send(`Источник данных с кодом ${id} не изменен: ${error.message} `)
+        console.log( 'дерьмо' ); 
+        response.status(400).send(`Тип облучаемых лиц с кодом ${id} не изменен: ${error.message} `);
+        return;
+      }
+      else
+      {
+       // if (results.rowCount == 1)
+       //   response.status(200).send(`Тип облучаемых лиц ${id} изменен. Строк изменено: ${results.rowCount} `);
+       console.log( 'хорошо' ); 
+       if (results.rowCount == 0) 
+        {
+          console.log( 'нуль' ); 
+          response.status(400).send(`Тип облучаемых лиц с кодом ${id} не найден `);
+          return;
+        }
+        else 
+        {
+          response.status(200).send(`Тип облучаемых лиц (англ.) ${id} изменен. Строк изменено: ${results.rowCount} `);
+        }
+      }
+    }
+  )
+}
+*/
+
+const updatePeopleClass = (request, response) => {
+  pool.connect((err, client, done) => {
+    const shouldAbort = (err, response) => {
+      if (err) {
+        console.error('Ошибка изменения записи', err.message)
+        const { errormsg } = err.message;
+        console.error('Rollback')
+        client.query('ROLLBACK', err => {
+          console.error('Rollback прошел')
+          if (err) {
+            console.error('Ошибка при откате транзакции')
+            response.status(400).send('Ошибка при откате транзакции');
+            return;
+          }
+          else {
+            console.error('Транзакция отменена')
+          }
+        })
+        response.status(400).send(`Ошибка: ` + err.message);
+        // release the client back to the pool
+        done()
+      }
+      return !!err
+    }
+    //id
+    const id = parseInt(request.params.id);
+    const { title, name_rus, name_eng, descr_rus, descr_eng } = request.body;
+    client.query('BEGIN', err => {
+      if (shouldAbort(err, response)) return;
+      client.query('UPDATE nucl.people_class SET title = $1 WHERE id = $2', [title, id], (err, res) => {
+        if (shouldAbort(err, response)) return;      
+        // const { id } = res.rows[0];
+        //console.log('Id = '+id);
+        client.query('UPDATE nucl.people_class_nls SET name = $1, descr=$2 WHERE people_class_id = $3 and lang_id=$4', 
+                     [name_rus, descr_rus, id, 1], (err, res) => {
+          console.log('rus изменяется');         
+          if (shouldAbort(err, response)) return;
+          console.log('rus изменен');
+          client.query('UPDATE nucl.people_class_nls SET name = $1, descr=$2 WHERE people_class_id = $3 and lang_id=$4', 
+                     [name_eng, descr_eng, id, 2], (err, res) => {
+            console.log('eng изменяется');  
+            if (shouldAbort(err, response)) return;
+            console.log('eng изменен');
+            console.log('начинаем Commit');     
+            client.query('COMMIT', err => {
+              if (err) {
+                console.error('Ошибка при подтверждении транзакции', err.stack);
+                response.status(400).send('Ошибка при подтверждении транзакции', err.stack);
+              }
+              else {
+                console.log(`Тип облучаемых лиц изменен, ID: ${id}`); 
+                response.status(200).send(`Тип облучаемых лиц изменен, ID: ${id}`);
+              }
+              done()
+            })
+          }); 
+        });
+      })
+    })
+  })
+}
+ 
+const updatePeopleClass1 = (request, response) => {
+  const id = parseInt(request.params.id)
+  const { title, name_rus, name_eng, descr_rus, descr_eng } = request.body
+  console.log( 'updatePeopleClass id='+id );
+
+  pool.query(
+    'UPDATE nucl.people_class SET title = $1 WHERE id = $2',
+    [title, id],
+    (error, results) => {
+      if (error) 
+      {
+        response.status(400).send(`Тип облучаемых лиц с кодом ${id} не изменен: ${error.message} `);
+        return;
+      }
+      else
+      {
+       // if (results.rowCount == 1)
+       //   response.status(200).send(`Тип облучаемых лиц ${id} изменен. Строк изменено: ${results.rowCount} `);
+        if (results.rowCount == 0) 
+        {
+          response.status(400).send(`Тип облучаемых лиц с кодом ${id} не найден `);
+          return;
+        }
+      }
+    }
+  )
+  pool.query(
+    'UPDATE nucl.people_class_nls SET name = $1, descr=$2 WHERE people_class_id = $3 and lang_id=$4',
+    [name_rus, descr_rus, id, 1],
+    (error, results) => {
+      if (error) 
+      {
+        response.status(400).send(`Тип облучаемых лиц (рус.) с кодом ${id} не изменен: ${error.message} `);
+        return;
+      }
+      else
+      {
+       // if (results.rowCount == 1)
+       //   response.status(200).send(`Тип облучаемых лиц (рус.) ${id} изменен. Строк изменено: ${results.rowCount} `);
+        if (results.rowCount == 0)
+        {
+          response.status(400).send(`Тип облучаемых лиц (рус.) с кодом ${id} не найден `);
+          return;
+        }
+      }
+    }
+  )
+  pool.query(
+    'UPDATE nucl.people_class_nls SET name = $1, descr=$2 WHERE people_class_id = $3 and lang_id=$4',
+    [name_eng, descr_eng, id, 2],
+    (error, results) => {
+      if (error) 
+      {
+        response.status(400).send(`Тип облучаемых лиц (англ.) с кодом ${id} не изменен: ${error.message} `);
+        return;
       }
       else
       {
         if (results.rowCount == 1)
-          response.status(200).send(`Источник данных ${id} изменен. Строк изменено: ${results.rowCount} `);
+          response.status(200).send(`Тип облучаемых лиц (англ.) ${id} изменен. Строк изменено: ${results.rowCount} `);
         if (results.rowCount == 0)
-          response.status(400).send(`Источник данных с кодом ${id} не найден `)
+        {
+          response.status(400).send(`Тип облучаемых лиц (англ.) с кодом ${id} не найден `);
+          return;
+        }
       }
     }
   )

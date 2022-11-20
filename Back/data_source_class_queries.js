@@ -33,7 +33,7 @@ const getDataSourceClass = (request, response) => {
   //const table_name = 'people_class'; //request.params.table_name;
   pool.query('SELECT data_source_class.*, data_source.title  FROM nucl.data_source_class '+
     'JOIN nucl.data_source on data_source.id = data_source_class.data_source_id ' +
-    'where table_name = $1 and rec_id = $2', [table_name, rec_id], (error, results) => {
+    'where table_name = $1 and rec_id = $2', [table_name, rec_id||0], (error, results) => {
     if (error) {
       throw error
     }

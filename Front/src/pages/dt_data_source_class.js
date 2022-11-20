@@ -11,7 +11,7 @@ function DataTableDataSourceClass(props)  {
       .then((data) => setTableDataSrc(data));
       //console.log('data=', tableDataSrc);
       //setNameState(nameState);
-  }, [props])
+  }, [ props.rec_id /* props */])
 
 const columns_src = [
   { field: 'id', headerName: 'Код', width: 60 },
