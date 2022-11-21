@@ -14,6 +14,11 @@ import { FormControl } from "@mui/material";
 import { InputLabel } from "@mui/material";
 import { Select } from "@mui/material";
 import { MenuItem } from "@mui/material";
+import { Box, IconButton } from '@mui/material';
+import Alert from '@mui/material/Alert';
+import Collapse from '@mui/material/Collapse';
+import CloseIcon from '@mui/icons-material/Close';
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 var alertText = "Сообщение";
 var alertSeverity = "info";
@@ -28,7 +33,6 @@ function DataTableDataSourceClass(props)  {
   };
 
   const handleClickAdd = () => {
-
     console.log('handleClickAdd lastRecID');
     console.log(lastRecID);    
     console.log('handleClickAdd props.rec_id');
@@ -51,7 +55,6 @@ function DataTableDataSourceClass(props)  {
     setOpen(false);
   };
 
-
   //const [nameState , setNameState] = useState(props);  //alert(props);
   const [tableDataSrcClass, setTableDataSrcClass] = useState([])
   const [tableDataSrc, setTableDataSrc] = useState([])
@@ -59,10 +62,13 @@ function DataTableDataSourceClass(props)  {
     lastRecID = props.rec_id;
     console.log('lastRecID =');
     console.log(lastRecID);
+    setIsLoading(true);
     fetch(`/data_source_class?table_name=people_class&rec_id=${props.rec_id??0}`)
       .then((data) => data.json())
       .then((data) => setTableDataSrcClass(data));
+    setIsLoading(false);
     }, [ props.rec_id /* props */])
+
 
   useEffect(() => {
     fetch(`/data_source`)
@@ -89,12 +95,25 @@ const [valueTitleSrc, setValueTitleSrc] = React.useState();
 const [valueNameSrc, setValueNameSrc] = React.useState();
 const [isLoading, setIsLoading] = React.useState(false);
 const [openAlert, setOpenAlert] = React.useState(false, '');
-/* const [valueNameRus, setValueNameRus] = React.useState([""]);
-const [valueNameEng, setValueNameEng] = React.useState();
-const [valueDescrEng, setValueDescrEng] = React.useState();
-const [valueDescrRus, setValueDescrRus] = React.useState();
 
- */
+useEffect(() => {
+  if ((!isLoading) && (tableDataSrcClass) && (tableDataSrcClass.length)) {
+    setSelection(false);
+    console.log('перегруз груза '+tableDataSrcClass[0].id);
+    setSelectionModel(tableDataSrcClass[0].id);
+    setValueID(`${tableDataSrcClass[0].id}`);
+    setValueDataSourceId(`${tableDataSrcClass[0].data_source_id}`);
+    setValueTableName(`${tableDataSrcClass[0].table_name}`);
+    setValueRecID(`${tableDataSrcClass[0].rec_id}`);
+    setValueTitleSrc(`${tableDataSrcClass[0].title_src}`);
+    setValueNameSrc(`${tableDataSrcClass[0].name_src}`);  
+  }
+  else
+  {
+    console.log('перегруз груза говкно'); 
+    setSelection(true);
+  }  
+}, [ isLoading, tableDataSrcClass] ); 
 
 const reloadDataSrcClass = async () => {
   setIsLoading(true);
@@ -292,16 +311,53 @@ const handleRowClick/* : GridEventListener<'rowClick'>  */ = (params) => {
   setValueTitleSrc(`${params.row.title_src}`);
   setValueNameSrc(`${params.row.name_src}`);  
 }; 
+
+const [select, setSelection] = useState([]);
+
+const [selectionModel, setSelectionModel] = React.useState([]);
+
+/* const handleRowSelection = (newSelection) => {
+   // prints correct indexes of selected rows
+   // console.log('selection');
+   // console.log(e.selectionModel);
+    // missing the first row selected
+    //setSelection(e.selectionModel);
+    //console.log('select');
+    //console.log(select);
+     
+  setSelection (newSelection.selectionModel);
+     
+} */
+
+/* const handleCheckSelect = () => {
+  alert(selectionModel);
+  console.log('selection model');
+  console.log(selectionModel);
+}; */
+
+/* useEffect(() => {
+  setSelection(select);
+  console.log('select');
+  console.log(select); // <-- The state is updated
+}, [select]);
+ */
   return (
     <div style={{ height: 270, width: 850 }}>
-      <table cellSpacing={0} cellPadding={0} style={{ height: 270, width: 850, verticalAlign: 'top' }} border="0"><tr>
+      <table cellSpacing={0} cellPadding={0} style={{ height: 270, width: 850, verticalAlign: 'top' }} border="0"><tbody><tr>
         <td style={{ height: 270, width: 750, verticalAlign: 'top' }}>
       <DataGrid
         localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
         rowHeight={25}
         columns={columns_src}
         rows={tableDataSrcClass}
+        disableMultipleSelection={true}
         onRowClick={handleRowClick} {...tableDataSrcClass} 
+        hideFooterSelectedRowCount={true}
+        selectionModel={selectionModel}
+        onSelectionModelChange={(newSelectionModel) => {
+          setSelectionModel(newSelectionModel);
+        }}
+        //onSelectionModelChange = {handleRowSelection}
         initialState={{
           columns: {
             columnVisibilityModel: {
@@ -314,12 +370,55 @@ const handleRowClick/* : GridEventListener<'rowClick'>  */ = (params) => {
        // onselectionChange={handleRowClick} {...tableDataSrc}  
       /></td>
       <td style={{ height: 270, width: 100, verticalAlign: 'top' }}>
-      <Button onClick={handleClickAdd} startIcon={<AddBoxIcon />}></Button>
+      <Button onClick={handleClickAdd} startIcon={<AddBoxIcon />} title="Добавить связь с источником данных"></Button>
       <p/>
-      <Button onClick={handleClickEdit} startIcon={<EditIcon />}></Button>
+      <Button disabled={select} /* {!tableDataSrcClass.length}  */onClick={handleClickEdit} startIcon={<EditIcon />} title="Редактировать связь с источником данных"></Button>
       <p/>
-      <Button onClick={()=>handleClickDelete()} startIcon={<DeleteIcon />}></Button>
-      </td></tr></table>
+      <Button disabled={select}  onClick={()=>handleClickDelete()} startIcon={<DeleteIcon />} title="Удалить связь с источником данных"></Button>
+{/*       //<p/>
+      //<Button  onClick={()=>handleCheckSelect()} title="Проверка выборки">ФФФ</Button> */}
+      </td></tr></tbody></table>
+
+      <Box sx={{ width: '100%' }}>
+      <Collapse in={openAlert}>
+        <Alert
+          severity={alertSeverity}
+          action={
+            <IconButton
+              aria-label="close"
+              color="inherit"
+              size="small"
+              onClick={() => {
+                setOpenAlert(false);
+              }}
+            >
+              <CloseIcon fontSize="inherit" />
+            </IconButton>
+          }
+          sx={{ mb: 2 }}
+        >
+          {alertText}
+        </Alert>
+      </Collapse>
+      <div style={{
+      marginLeft: '40%',
+      }}>
+      {isLoading && <CircularProgress/>} 
+      {/*       {!isLoading && <h3>Successfully API Loaded Data</h3>} */}
+      </div>
+
+{/*       <Button
+        disabled={openAlert}
+        variant="outlined"
+        onClick={() => {
+          setOpenAlert(true);
+        }}
+      >
+        На жми!
+      </Button> */}
+    </Box>
+
+
       <Dialog open={open} onClose={handleCloseNo} /* style={{ height: 500, width: 600 }} */   /*  sx={{ width: 800 }}  */  
                fullWidth={false} 
                maxWidth="800px" 
@@ -356,7 +455,7 @@ const handleRowClick/* : GridEventListener<'rowClick'>  */ = (params) => {
             margin="dense"
             id="title"
             label="Обозначение"
-            value={valueTitleSrc}
+            value={valueTitleSrc || ''}
             fullWidth
             onChange={e => setValueTitleSrc(e.target.value)}
           />
@@ -365,7 +464,7 @@ const handleRowClick/* : GridEventListener<'rowClick'>  */ = (params) => {
             variant="outlined"
             id="name_src"
             label="Название"
-            value={valueNameSrc}
+            value={valueNameSrc || ''}
             fullWidth
             onChange={e => setValueNameSrc(e.target.value)}
           />        
@@ -379,7 +478,7 @@ const handleRowClick/* : GridEventListener<'rowClick'>  */ = (params) => {
       <Dialog
       open={openConfirmDelete}
       onClose={handleCloseConfirmDelete}
-      fullWidth={400}
+      fullWidth={true}
   >
       <DialogTitle>
           Внимание

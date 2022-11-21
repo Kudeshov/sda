@@ -23,6 +23,7 @@ function Decay() {
     <div className="App">
     <center><h1>Химические элементы</h1></center> 
     <table>
+    <tbody>
     <tr>
 {/*       <td width="300">
 
@@ -80,6 +81,7 @@ function Decay() {
 
       </td>
     </tr>
+    </tbody>
     </table>   
     </div>
   );

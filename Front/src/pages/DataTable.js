@@ -57,7 +57,7 @@ const DataTable = () => {
    //setIsLoading(true);
    console.log(js);
    try {
-     const response = await fetch('http://localhost:3001/chelement/'+valueId, {
+     const response = await fetch('/chelement/'+valueId, {
        method: 'PUT',
        body: js,
        headers: {
@@ -98,7 +98,7 @@ const DataTable = () => {
       //setIsLoading(true);
       console.log(js);
       try {
-        const response = await fetch('http://localhost:3001/chelement/', {
+        const response = await fetch('/chelement/', {
           method: 'POST',
           body: js,
           headers: {
@@ -139,7 +139,7 @@ const DataTable = () => {
       //setIsLoading(true);
       console.log(js);
       try {
-        const response = await fetch('http://localhost:3001/chelement/'+valueId, {
+        const response = await fetch('/chelement/'+valueId, {
           method: 'DELETE',
           body: js,
           headers: {
@@ -317,7 +317,7 @@ const columns = [
   <Dialog
       open={open}
       onClose={handleClose}
-      fullWidth={400}
+      fullWidth={true}
   >
       <DialogTitle>
           Внимание

@@ -170,7 +170,7 @@ const DataTableDataSource = () => {
    setIsLoading(true);
    console.log(js);
    try {
-     const response = await fetch('http://localhost:3001/data_source/'+valueId, {
+     const response = await fetch('/data_source/'+valueId, {
        method: 'PUT',
        body: js,
        headers: {
@@ -212,7 +212,7 @@ const DataTableDataSource = () => {
       setIsLoading(true);
       console.log(js);
       try {
-        const response = await fetch('http://localhost:3001/data_source/', {
+        const response = await fetch('/data_source/', {
           method: 'POST',
           body: js,
           headers: {
@@ -253,7 +253,7 @@ const DataTableDataSource = () => {
       setIsLoading(true);
       console.log(js);
       try {
-        const response = await fetch('http://localhost:3001/data_source/'+valueId, {
+        const response = await fetch('/data_source/'+valueId, {
           method: 'DELETE',
           body: js,
           headers: {
@@ -359,7 +359,7 @@ const [openAlert, setOpenAlert] = React.useState(false, '');
 
   return (
     <div style={{ height: 550, width: 1500 }}>
-    <table style={{ height: 550, width: 1400 }} >
+    <table style={{ height: 550, width: 1400 }} ><tbody>
     <tr>
       <td style={{ height: 550, width: 800, verticalAlign: 'top' }}>
       <div style={{ height: 400, width: 728 }}>
@@ -401,13 +401,13 @@ const [openAlert, setOpenAlert] = React.useState(false, '');
 {/*       <td style={{ height: 550, width: 10 }}>      
       </td> */}
       <td style={{ height: 550, width: 700, verticalAlign: 'top' }}>
-  <TextField  id="ch_id" label="Id" sx={{ width: '12ch' }} variant="outlined" value={valueId} defaultValue=" " onChange={e => setValueID(e.target.value)}/>
+  <TextField  id="ch_id" label="Id" sx={{ width: '12ch' }} variant="outlined" value={valueId || ''} /* defaultValue=" "  */onChange={e => setValueID(e.target.value)}/>
   <p/>
-  <TextField  id="ch_name" sx={{ width: '40ch' }} label="Обозначение"  variant="outlined" value={valueTitle} defaultValue=" " onChange={e => setValueTitle(e.target.value)}/>
+  <TextField  id="ch_name" sx={{ width: '40ch' }} label="Обозначение"  variant="outlined" value={valueTitle || ''} /* defaultValue=" "  */onChange={e => setValueTitle(e.target.value)}/>
   <p/>
-  <TextField  id="ch_shortname" sx={{ width: '40ch' }} label="Краткое название"  variant="outlined" value={valueShortName} defaultValue=" " onChange={e => setValueShortName(e.target.value)}/>
+  <TextField  id="ch_shortname" sx={{ width: '40ch' }} label="Краткое название"  variant="outlined" value={valueShortName || ''} /* defaultValue=" " */ onChange={e => setValueShortName(e.target.value)}/>
   <p/>
-  <TextField  id="ch_fullname" sx={{ width: '80ch' }} label="Полное название"  variant="outlined" value={valueFullName} defaultValue=" " onChange={e => setValueFullName(e.target.value)}/>
+  <TextField  id="ch_fullname" sx={{ width: '80ch' }} label="Полное название"  variant="outlined" value={valueFullName || ''} /* defaultValue=" " */ onChange={e => setValueFullName(e.target.value)}/>
   <p/>
 {/*   <TextField  id="ch_external_ds" sx={{ width: '80ch' }} label="Внешний источник"  variant="outlined" value={valueExternalDS} defaultValue=" " onChange={e => setValueExternalDS(e.target.value)}/>
   <p/>
@@ -437,7 +437,7 @@ const [openAlert, setOpenAlert] = React.useState(false, '');
       </FormControl>  
   <p/> 
 
-  <TextField  id="ch_descr" sx={{ width: '80ch' }} label="Комментарий" multiline maxRows={4} variant="outlined" value={valueDescr} defaultValue=" " onChange={e => setValueDescr(e.target.value)}/>
+  <TextField  id="ch_descr" sx={{ width: '80ch' }} label="Комментарий" multiline maxRows={4} variant="outlined"   value={valueDescr || ''}   /* defaultValue=" "  */onChange={e => setValueDescr(e.target.value)}/>
   <p/> 
   <Button variant="outlined" onClick={()=>saveRec()}>
     	  Сохранить
@@ -450,6 +450,7 @@ const [openAlert, setOpenAlert] = React.useState(false, '');
 	</Button>
     </td>
   </tr>
+  </tbody>
   </table>
 
   <Box sx={{ width: '100%' }}>
@@ -495,7 +496,7 @@ const [openAlert, setOpenAlert] = React.useState(false, '');
   <Dialog
       open={open}
       onClose={handleClose}
-      fullWidth={400}
+      fullWidth={true}
   >
       <DialogTitle>
           Внимание

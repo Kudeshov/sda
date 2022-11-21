@@ -5,6 +5,7 @@ function Sources() {
     <div className="App">
     <center><h3>Источники данных</h3></center> 
     <table>
+    <tbody>
     <tr>
       <td width="60">
         &nbsp;
@@ -13,6 +14,7 @@ function Sources() {
         <DataTableDataSource />
      </td>
     </tr>
+    </tbody>
     </table>   
     </div>
   );

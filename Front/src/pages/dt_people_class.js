@@ -31,7 +31,7 @@ import AddIconBox from '@mui/icons-material/AddBox';
 
 var alertText = "Сообщение";
 var alertSeverity = "info";
-var lastAddedId = 0;
+var lastId = 0;
 
 /* const downloadExcel = (data) => {
   console.log(data);
@@ -53,6 +53,39 @@ const DataTablePeopleClass = () => {
   const [valueDescrEng, setValueDescrEng] = React.useState();
   const [valueDescrRus, setValueDescrRus] = React.useState();
   const [isLoading, setIsLoading] = React.useState(false);
+  const [tableData, setTableData] = useState([]) 
+
+  useEffect(() => {
+    if ((!isLoading) && (tableData) && (tableData.length)) {
+      //alert(tableData.length);
+    //  alert(tableData[0].id);
+      //reloadDataSrc(`tableData[0].id`);
+      if (!lastId) 
+      {
+        lastId = tableData[0].id;
+        console.log('перегруз груза '+tableData[0].id);
+        setSelectionModel(tableData[0].id);
+        setValueID(`${tableData[0].id}`);
+        setValueTitle(`${tableData[0].title}`);
+        setValueNameRus(`${tableData[0].name_rus}`);
+        setValueNameEng( tableData[0].name_eng || "" );
+        setValueDescrRus(`${tableData[0].descr_rus}`);
+        setValueDescrEng(`${tableData[0].descr_eng}` );
+      }
+      else
+      {
+        console.log('lastId '+lastId);
+      }
+    }
+      
+   /*  setSelectionModel
+    lastRecID = props.rec_id;
+    console.log('lastRecID =');
+    console.log(lastRecID);
+    fetch(`/data_source_class?table_name=people_class&rec_id=${props.rec_id??0}`)
+      .then((data) => data.json())
+      .then((data) => setTableDataSrcClass(data)); */
+    }, [ isLoading, tableData] );
 
 //var valueNameRus = "1";  
 
@@ -60,7 +93,7 @@ const handleRowClick/* : GridEventListener<'rowClick'>  */ = (params) => {
     setValueID(`${params.row.id}`);
     setValueTitle(`${params.row.title}`);
     setValueNameRus(`${params.row.name_rus}`);
-    setValueNameEng( params.row.name_eng || "" );
+    setValueNameEng(`${params.row.name_eng}`);
     setValueDescrRus(`${params.row.descr_rus}`);
     setValueDescrEng(`${params.row.descr_eng}` );
     //reloadDataSrc(`${params.row.id}`);
@@ -76,11 +109,11 @@ const handleRowClick/* : GridEventListener<'rowClick'>  */ = (params) => {
   //  reloadDataSrc(`${params.row.id}`);
   }; 
 
-const [tableData, setTableData] = useState([])
 useEffect(() => {
   fetch("/people_class")
     .then((data) => data.json())
-    .then((data) => setTableData(data))     
+    .then((data) => setTableData(data))
+    .then((data) => {console.log('fetch ok'); console.log(data)} ); 
 }, [])
   
 /*   const [tableDataSrc, setTableDataSrc] = useState([])
@@ -115,7 +148,7 @@ useEffect(() => {
     setIsLoading(true);
     console.log(js);
     try {
-      const response = await fetch('http://localhost:3001/people_class/'+valueId, {
+      const response = await fetch('/people_class/'+valueId, {
        method: 'PUT',
        body: js,
        headers: {
@@ -141,7 +174,6 @@ useEffect(() => {
    } finally {
      setIsLoading(false);
      reloadData();      
-     
    }
  };
 /////////////////////////////////////////////////////////////////// ADDREC ///////////////////// 
@@ -158,7 +190,7 @@ useEffect(() => {
       setIsLoading(true);
       console.log(js);
       try {
-        const response = await fetch('http://localhost:3001/people_class/', {
+        const response = await fetch('/people_class/', {
           method: 'POST',
           body: js,
           headers: {
@@ -176,9 +208,9 @@ useEffect(() => {
         {
           alertSeverity = "success";
           alertText =  await response.text();
-          lastAddedId = parseInt( alertText.substr(alertText.lastIndexOf('ID:') + 3, 20)); 
-          console.log(lastAddedId);
-          setValueID(lastAddedId);
+          lastId = parseInt( alertText.substr(alertText.lastIndexOf('ID:') + 3, 20)); 
+          console.log(lastId);
+          setValueID(lastId);
           setOpenAlert(true);  
         }
       } catch (err) {
@@ -188,7 +220,7 @@ useEffect(() => {
       } finally {
         setIsLoading(false);
         reloadData();
-        setSelectionModel(lastAddedId);  
+        setSelectionModel(lastId);  
       }
     };
 
@@ -203,7 +235,7 @@ useEffect(() => {
       setIsLoading(true);
       console.log(js);
       try {
-        const response = await fetch('http://localhost:3001/people_class/'+valueId, {
+        const response = await fetch('/people_class/'+valueId, {
           method: 'DELETE',
           body: js,
           headers: {
@@ -353,6 +385,7 @@ const DarkerDisabledTextField = withStyles({
 
 //const [disabled, setDisabled] = React.useState(true);
 const [openAlert, setOpenAlert] = React.useState(false, '');
+//const [loading, setLoading] = React.useState(false);
 
 function CustomToolbar1() {
   const apiRef = useGridApiContext();
@@ -380,15 +413,17 @@ const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 
   return (
     <div style={{ height: 550, width: 1500 }}>
-    <table border = "0" style={{ height: 550, width: 1500 }} >
+    <table border = "0" style={{ height: 550, width: 1500 }} ><tbody>
     <tr>
       <td style={{ height: 550, width: 600, verticalAlign: 'top' }}>
       <div style={{ height: 400, width: 585 }}>
       <DataGrid
         components={{ Toolbar: CustomToolbar1  }}
+        hideFooterSelectedRowCount={true}
         localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
         rowHeight={25}
         rows={tableData}
+        loading={isLoading}
         columns={columns}
         onSelectionModelChange={(newSelectionModel) => {
           setSelectionModel(newSelectionModel);
@@ -423,17 +458,17 @@ const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         onChange={handleChange}
       />
   <p/>     */}
-  <DarkerDisabledTextField  id="ch_id"  disabled={true} label="Id" sx={{ width: '12ch' }} variant="outlined" value={valueId} size="small" defaultValue=" " onChange={e => setValueID(e.target.value)}/>
+  <DarkerDisabledTextField  id="ch_id"  disabled={true} label="Id" sx={{ width: '12ch' }} variant="outlined" value={valueId || ''} size="small" /* defaultValue=" " */ onChange={e => setValueID(e.target.value)}/>
   &nbsp;&nbsp;&nbsp;
-  <TextField  id="ch_name" sx={{ width: '40ch' }} label="Обозначение" size="small" variant="outlined" value={valueTitle} defaultValue=" " onChange={e => setValueTitle(e.target.value)}/>
+  <TextField  id="ch_name" sx={{ width: '40ch' }} label="Обозначение" size="small" variant="outlined" value={valueTitle || ''} /* defaultValue=" " */ onChange={e => setValueTitle(e.target.value)}/>
   <p/>
-  <TextField  id="ch_name_rus" sx={{ width: '40ch' }}  size="small" label="Название (рус.яз)"  variant="outlined"  value={valueNameRus}  defaultValue=" "  onChange={e => setValueNameRus(e.target.value)} />
+  <TextField  id="ch_name_rus" sx={{ width: '40ch' }}  size="small" label="Название (рус.яз)"  variant="outlined"  value={valueNameRus || ''}  /* defaultValue=" "  */ onChange={e => setValueNameRus(e.target.value)} />
   &nbsp;&nbsp;&nbsp;
-  <TextField  id="ch_name_eng" sx={{ width: '40ch' }} size="small" label="Название (англ.яз)"  variant="outlined" value={valueNameEng} defaultValue=" " onChange={e => setValueNameEng(e.target.value)}/>
+  <TextField  id="ch_name_eng" sx={{ width: '40ch' }} size="small" label="Название (англ.яз)"  variant="outlined" value={valueNameEng || ''} /* defaultValue=" " */ onChange={e => setValueNameEng(e.target.value)}/>
   <p/>
-  <TextField  id="ch_descr_rus" sx={{ width: '110ch' }} label="Комментарий (рус.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrRus} defaultValue=" " onChange={e => setValueDescrRus(e.target.value)}/>
+  <TextField  id="ch_descr_rus" sx={{ width: '110ch' }} label="Комментарий (рус.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrRus || ''} /* defaultValue=" " */ onChange={e => setValueDescrRus(e.target.value)}/>
   <p/> 
-  <TextField  id="ch_descr_rus" sx={{ width: '110ch' }} label="Комментарий (англ.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrEng} defaultValue=" " onChange={e => setValueDescrEng(e.target.value)}/>
+  <TextField  id="ch_descr_rus" sx={{ width: '110ch' }} label="Комментарий (англ.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrEng || ''} /* defaultValue=" " */ onChange={e => setValueDescrEng(e.target.value)}/>
   <p/>
   <Button  variant="outlined" startIcon={<AddIconBox />} onClick={handleClearClick}/* {() => setDisabled(!disabled)} */>Новая запись</Button>
   &nbsp;&nbsp;&nbsp;&nbsp;
@@ -499,6 +534,7 @@ const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
   <p/> */} 
     </td>
   </tr>
+  </tbody>
   </table>
 
   <Box sx={{ width: '100%' }}>
@@ -544,7 +580,7 @@ const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
   <Dialog
       open={open}
       onClose={handleClose}
-      fullWidth={400}
+      fullWidth={true}
   >
       <DialogTitle>
           Внимание

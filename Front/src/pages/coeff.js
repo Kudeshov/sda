@@ -5,6 +5,7 @@ function Coeff() {
     <div className="App">
     <center><h3>Типы облучаемых лиц</h3></center> 
     <table>
+      <tbody>
     <tr>
       <td width="60">
         &nbsp;
@@ -13,6 +14,7 @@ function Coeff() {
         <DataTablePeopleClass />
      </td>
     </tr>
+    </tbody>
     </table>   
     </div>
   );
