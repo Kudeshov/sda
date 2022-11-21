@@ -29,8 +29,6 @@ pool.on('error', function (err, client) {
 const getDataSourceClass = (request, response) => {
   const { rec_id, table_name } = request.query;
   console.log( request.query );  
-  //const rec_id = 1; //parseInt(request.params.rec_id);
-  //const table_name = 'people_class'; //request.params.table_name;
   pool.query('SELECT data_source_class.*, data_source.title  FROM nucl.data_source_class '+
     'JOIN nucl.data_source on data_source.id = data_source_class.data_source_id ' +
     'where table_name = $1 and rec_id = $2', [table_name, rec_id||0], (error, results) => {
@@ -52,27 +50,28 @@ const getDataSourceClassById = (request, response) => {
 }
 
 const createDataSourceClass = (request, response) => {
-  console.log(  request );
-  const { id, title, shortname, fullname, descr, external_ds } = request.body;
+  console.log( request.body );
+  //id":126,"data_source_id":1,"table_name":"people_class","rec_id":1,"title_src":"public","name_src":null,"title":"IBRAE"
+  const { data_source_id, table_name, rec_id, title_src, name_src } = request.body;
 
-  pool.query('INSERT INTO nucl.data_source (id, title, shortname, fullname, descr, external_ds) VALUES ($1, $2, $3, $4, $5, $6)', [id, title, shortname, fullname, descr, external_ds], (error, results) => {
+  pool.query('INSERT INTO nucl.data_source_class (data_source_id, table_name, rec_id, title_src, name_src) VALUES ($1, $2, $3, $4, $5)', [data_source_id, table_name, rec_id, title_src, name_src], (error, results) => {
     if (error) {
-      response.status(400).send(`Источник данных не добавлен: ${error.message}`);
+      response.status(400).send(`Связь с источником данных не добавлена: ${error.message}`);
     } else {
-      response.status(201).send(`Источник данных добавлен, ID: ${results.insertId}`)
+      response.status(201).send(`Связь с источником данных добавлена, ID: ${results.insertId}`)
     }
   })
 }
 
 const deleteDataSourceClass = (request, response) => {
   const id = parseInt(request.params.id)
-  pool.query('DELETE FROM nucl.data_source WHERE id = $1', [id], (error, results) => {
+  pool.query('DELETE FROM nucl.data_source_class WHERE id = $1', [id], (error, results) => {
     if (error) {
-      response.status(400).send(`Источник данных не удален: ${error.message}`);
+      response.status(400).send(`Связь с источником данных не удалена: ${error.message}`);
     }
     else {
       if (results.rowCount == 1)
-        response.status(200).send(`Источник данных ${id} удален: cтрок удалено: ${results.rowCount} `);
+        response.status(200).send(`Связь с источником данных ${id} удалена: cтрок удалено: ${results.rowCount} `);
       if (results.rowCount == 0)
         response.status(400).send(`Запись с кодом ${id} не найдена `)
     }
@@ -81,23 +80,24 @@ const deleteDataSourceClass = (request, response) => {
 
 const updateDataSourceClass = (request, response) => {
   const id = parseInt(request.params.id)
-  const { title, shortname, fullname, descr, external_ds } = request.body
-//  console.log( 'id='+id );
+  const { data_source_id, table_name, title_src, name_src } = request.body;
 
-  pool.query(
-    'UPDATE nucl.data_source SET title = $1, shortname = $2, fullname = $3, descr = $4, external_ds = $5 WHERE id = $6',
-    [title, shortname, fullname, descr, external_ds, id],
+  console.log( 'updateDataSourceClass id='+id );
+  //id":126,"data_source_id":1,"table_name":"people_class","rec_id":1,"title_src":"public","name_src":null,"title":"IBRAE"
+  pool.query( //поля table_name rec_id не должны меняться
+    'UPDATE nucl.data_source_class SET title_src = $1, name_src = $2, table_name = $3, data_source_id = $4 where id = $5',
+    [title_src, name_src, table_name, data_source_id, id ],
     (error, results) => {
       if (error) 
       {
-        response.status(400).send(`Источник данных с кодом ${id} не изменен: ${error.message} `)
+        response.status(400).send(`Связь с источником данных с кодом ${id} не изменена: ${error.message} `)
       }
       else
       {
         if (results.rowCount == 1)
-          response.status(200).send(`Источник данных ${id} изменен. Строк изменено: ${results.rowCount} `);
+          response.status(200).send(`Связь с источником данных ${id} изменена. Строк изменено: ${results.rowCount} `);
         if (results.rowCount == 0)
-          response.status(400).send(`Источник данных с кодом ${id} не найден `)
+          response.status(400).send(`Связь с источником данных с кодом ${id} не найдена`)
       }
     }
   )

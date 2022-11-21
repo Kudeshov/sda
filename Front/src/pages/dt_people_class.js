@@ -25,8 +25,9 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import { DataTableDataSourceClass } from './dt_data_source_class';
 import { withStyles } from "@material-ui/core/styles";
 import SaveIcon from '@mui/icons-material/Save';
-import CreateIcon from '@mui/icons-material/Create';
+import RefreshIcon from '@mui/icons-material/Refresh';
 import DeleteIcon from '@mui/icons-material/Delete';
+import AddIconBox from '@mui/icons-material/AddBox';
 
 var alertText = "Сообщение";
 var alertSeverity = "info";
@@ -407,7 +408,7 @@ const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
       </div>
       <p/>
 
-      <Button variant="outlined" onClick={()=>reloadDataAlert()}>
+      <Button variant="outlined" startIcon={<RefreshIcon />} onClick={()=>reloadDataAlert()}>
     	   Обновить данные
 	    </Button>     
       </td>
@@ -434,7 +435,7 @@ const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
   <p/> 
   <TextField  id="ch_descr_rus" sx={{ width: '110ch' }} label="Комментарий (англ.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrEng} defaultValue=" " onChange={e => setValueDescrEng(e.target.value)}/>
   <p/>
-  <Button  variant="outlined" startIcon={<CreateIcon />} onClick={handleClearClick}/* {() => setDisabled(!disabled)} */>Новая запись</Button>
+  <Button  variant="outlined" startIcon={<AddIconBox />} onClick={handleClearClick}/* {() => setDisabled(!disabled)} */>Новая запись</Button>
   &nbsp;&nbsp;&nbsp;&nbsp;
   <Button variant="outlined" startIcon={<SaveIcon />} onClick={()=>saveRec()}>
     	  Сохранить
@@ -446,7 +447,7 @@ const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     	  Удалить
 	</Button>
   <p/>
-  <div style={{ height: 200, width: 750 }}>
+  <div style={{ height: 300, width: 750 }}>
      <DataTableDataSourceClass table_name="people_class" rec_id={valueId} />
   </div>
 

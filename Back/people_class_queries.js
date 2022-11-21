@@ -26,7 +26,6 @@ pool.on('error', function (err, client) {
     console.error('idle client error', err.message, err.stack);
 });
 
-
 const getPeopleClass = (request, response) => {
   pool.query('SELECT pc.*, pcn1.name name_rus, pcn2.name name_eng, pcn1.descr descr_rus, pcn2.descr descr_eng FROM nucl.people_class pc '+
   'left join nucl.people_class_nls pcn1 on pc.id=pcn1.people_class_id and pcn1.lang_id=1 '+

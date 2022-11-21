@@ -63,6 +63,9 @@ app.delete('/people_class/:id', pc_q.deletePeopleClass); //delete
 
 //data_source_class_queries
 app.get('/data_source_class', dsc_q.getDataSourceClass);           //list all
+app.post('/data_source_class', dsc_q.createDataSourceClass);       //create
+app.put('/data_source_class/:id', dsc_q.updateDataSourceClass);    //update
+app.delete('/data_source_class/:id', dsc_q.deleteDataSourceClass); //delete 
 /* app.get('/data_source_class/:id', dsc_q.getDataSourceClassById);   //list 1
 app.post('/data_source_class', dsc_q.createDataSourceClass);       //create
 app.put('/data_source_class/:id', dsc_q.updateDataSourceClass);    //update
