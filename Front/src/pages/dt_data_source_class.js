@@ -73,11 +73,11 @@ function DataTableDataSourceClass(props)  {
 
 const columns_src = [
   { field: 'id', headerName: 'Код', width: 60 },
-  { field: 'data_source_id', headerName: 'Код источника данных', width: 60 },
-  { field: 'table_name', headerName: 'Имя таблицы БД', width: 60 },
-  { field: 'rec_id', headerName: 'Идентификатор записи в таблице table_name', width: 60 },
+  { field: 'data_source_id', headerName: 'Код источника данных', width: 100 },
+  { field: 'table_name', headerName: 'Имя таблицы БД', width: 180 },
+  { field: 'rec_id', headerName: `Идентификатор записи в таблице ${props.table_name}`, width: 100 },
   { field: 'title', headerName: 'Источник', width: 200 },
-  { field: 'title_src', headerName: 'Обозначение', width: 180 },
+  { field: 'title_src', headerName: 'Обозначение', width: 180, hideable: false },
   { field: 'name_src', headerName: 'Название', width: 250 },
 ]
 

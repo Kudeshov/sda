@@ -39,11 +39,14 @@ const DataTablePeopleClass = () => {
   const [valueDescrRus, setValueDescrRus] = React.useState();
   const [isLoading, setIsLoading] = React.useState(false);
   const [tableData, setTableData] = useState([]) 
+  const [selectionModel, setSelectionModel] = React.useState([]);
 
   useEffect(() => {
     if ((!isLoading) && (tableData) && (tableData.length)) {
       if (!lastId) 
       {
+        console.log('lastId '+lastId);
+      //  console.log('selectionModel '+selectionModel||0);
         lastId = tableData[0].id;
         setSelectionModel(tableData[0].id);
         setValueID(`${tableData[0].id}`);
@@ -123,9 +126,10 @@ const DataTablePeopleClass = () => {
         setOpenAlert(true);  
       }
    } catch (err) {
-    alertText = err.message;
-    alertSeverity = 'error';
-    setOpenAlert(true);
+     //throw {message: err.message,status:err.cod};
+     alertText = err.message;
+     alertSeverity = 'error';
+     setOpenAlert(true);
    } finally {
      setIsLoading(false);
      reloadData();      
@@ -229,7 +233,17 @@ const DataTablePeopleClass = () => {
   const reloadDataAlert =  async () => {
     alertSeverity = "info";
     alertText =  'Данные успешно обновлены';
-    reloadData();
+    // await reloadData();
+    try 
+    {
+      await reloadData();
+    } catch(e)
+    {
+      alertSeverity = "error";
+      alertText =  'Ошибка при обновлении данных: '+e.message;      
+      setOpenAlert(true);
+      return;
+    }
     setOpenAlert(true);        
   }
 
@@ -241,9 +255,8 @@ const DataTablePeopleClass = () => {
         console.log('response not ok');
         alertText = `Ошибка при обновлении данных: ${response.status}`;
         alertSeverity = "false";
-        //return;
-        setOpenAlert(true);  
-        //throw new Error(`Error! status: ${response.status}`);
+        const error = response.status + ' (' +response.statusText+')';  
+        throw new Error(`${error}`);
       }
       else
       {  
@@ -251,6 +264,8 @@ const DataTablePeopleClass = () => {
         setTableData(result);
       }
     } catch (err) {
+      console.log('catch err');
+      throw err;
     } finally {
       setIsLoading(false);
     }
@@ -300,8 +315,6 @@ const DataTablePeopleClass = () => {
       </GridToolbarContainer>
     );
   }
-
-  const [selectionModel, setSelectionModel] = React.useState([]);
 
   return (
     <div style={{ height: 550, width: 1500 }}>
