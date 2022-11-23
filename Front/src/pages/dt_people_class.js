@@ -33,6 +33,7 @@ var alertText = "Сообщение";
 var alertSeverity = "info";
 var lastId = 0;
 
+
 /* const downloadExcel = (data) => {
   console.log(data);
     const worksheet = XLSX.utils.json_to_sheet(data);
@@ -60,6 +61,7 @@ const DataTablePeopleClass = () => {
       //alert(tableData.length);
     //  alert(tableData[0].id);
       //reloadDataSrc(`tableData[0].id`);
+      console.log('в начале '+lastId);
       if (!lastId) 
       {
         lastId = tableData[0].id;
@@ -385,7 +387,6 @@ const DarkerDisabledTextField = withStyles({
 
 //const [disabled, setDisabled] = React.useState(true);
 const [openAlert, setOpenAlert] = React.useState(false, '');
-//const [loading, setLoading] = React.useState(false);
 
 function CustomToolbar1() {
   const apiRef = useGridApiContext();
@@ -450,88 +451,33 @@ const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
 
       <td style={{ height: 550, width: 900, verticalAlign: 'top' }}>
 
-
-{/*   <TextField
-        id="outlined-name"
-        label="Name"
-        value={name}
-        onChange={handleChange}
-      />
-  <p/>     */}
-  <DarkerDisabledTextField  id="ch_id"  disabled={true} label="Id" sx={{ width: '12ch' }} variant="outlined" value={valueId || ''} size="small" /* defaultValue=" " */ onChange={e => setValueID(e.target.value)}/>
-  &nbsp;&nbsp;&nbsp;
-  <TextField  id="ch_name" sx={{ width: '40ch' }} label="Обозначение" size="small" variant="outlined" value={valueTitle || ''} /* defaultValue=" " */ onChange={e => setValueTitle(e.target.value)}/>
-  <p/>
-  <TextField  id="ch_name_rus" sx={{ width: '40ch' }}  size="small" label="Название (рус.яз)"  variant="outlined"  value={valueNameRus || ''}  /* defaultValue=" "  */ onChange={e => setValueNameRus(e.target.value)} />
-  &nbsp;&nbsp;&nbsp;
-  <TextField  id="ch_name_eng" sx={{ width: '40ch' }} size="small" label="Название (англ.яз)"  variant="outlined" value={valueNameEng || ''} /* defaultValue=" " */ onChange={e => setValueNameEng(e.target.value)}/>
-  <p/>
-  <TextField  id="ch_descr_rus" sx={{ width: '110ch' }} label="Комментарий (рус.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrRus || ''} /* defaultValue=" " */ onChange={e => setValueDescrRus(e.target.value)}/>
-  <p/> 
-  <TextField  id="ch_descr_rus" sx={{ width: '110ch' }} label="Комментарий (англ.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrEng || ''} /* defaultValue=" " */ onChange={e => setValueDescrEng(e.target.value)}/>
-  <p/>
-  <Button  variant="outlined" startIcon={<AddIconBox />} onClick={handleClearClick}/* {() => setDisabled(!disabled)} */>Новая запись</Button>
-  &nbsp;&nbsp;&nbsp;&nbsp;
-  <Button variant="outlined" startIcon={<SaveIcon />} onClick={()=>saveRec()}>
-    	  Сохранить
-	</Button>&nbsp;&nbsp;&nbsp;&nbsp;
-  {/* <Button variant="outlined" onClick={()=>addRec()}>
-    	  Добавить
-	</Button>&nbsp;&nbsp;&nbsp;&nbsp; */}
-  <Button variant="outlined" startIcon={<DeleteIcon />} onClick={()=>handleClickDelete()}>
-    	  Удалить
-	</Button>
-  <p/>
-  <div style={{ height: 300, width: 750 }}>
-     <DataTableDataSourceClass table_name="people_class" rec_id={valueId} />
-  </div>
-
-
-{/*unblock*/}
-{/*       <div style={{ height: 400, width: 728 }}>
-      <DataGrid
-        localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
-        rowHeight={25}
-        rows={tableDataSrc}
-        columns={columns_src}
-        columnVisibilityModel={{
-          fullname: false,
-          field: false,
-          external_ds: false,
-          descr: false,
-          actions: false,
-        }}
-      //  onRowClick={handleRowClick} {...tableData} 
-      //  onselectionChange={handleRowClick} {...tableData}  
-      />
+      <DarkerDisabledTextField  id="ch_id"  disabled={true} label="Id" sx={{ width: '12ch' }} variant="outlined" value={valueId || ''} size="small" /* defaultValue=" " */ onChange={e => setValueID(e.target.value)}/>
+      &nbsp;&nbsp;&nbsp;
+      <TextField  id="ch_name" sx={{ width: '40ch' }} label="Обозначение" size="small" variant="outlined" value={valueTitle || ''} /* defaultValue=" " */ onChange={e => setValueTitle(e.target.value)}/>
+      <p/>
+      <TextField  id="ch_name_rus" sx={{ width: '40ch' }}  size="small" label="Название (рус.яз)"  variant="outlined"  value={valueNameRus || ''}  /* defaultValue=" "  */ onChange={e => setValueNameRus(e.target.value)} />
+      &nbsp;&nbsp;&nbsp;
+      <TextField  id="ch_name_eng" sx={{ width: '40ch' }} size="small" label="Название (англ.яз)"  variant="outlined" value={valueNameEng || ''} /* defaultValue=" " */ onChange={e => setValueNameEng(e.target.value)}/>
+      <p/>
+      <TextField  id="ch_descr_rus" sx={{ width: '110ch' }} label="Комментарий (рус.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrRus || ''} /* defaultValue=" " */ onChange={e => setValueDescrRus(e.target.value)}/>
+      <p/> 
+      <TextField  id="ch_descr_rus" sx={{ width: '110ch' }} label="Комментарий (англ.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrEng || ''} /* defaultValue=" " */ onChange={e => setValueDescrEng(e.target.value)}/>
+      <p/>
+      <Button  variant="outlined" startIcon={<AddIconBox />} onClick={handleClearClick} Title="Начать ввод новой записи"/* {() => setDisabled(!disabled)} */>Новая запись</Button>
+      &nbsp;&nbsp;&nbsp;&nbsp;
+      <Button variant="outlined" disabled={!valueTitle} startIcon={<SaveIcon />} onClick={()=>saveRec()} Title="Сохранить изменения в БД">
+            Сохранить
+      </Button>&nbsp;&nbsp;&nbsp;&nbsp;
+      {/* <Button variant="outlined" onClick={()=>addRec()}>
+            Добавить
+      </Button>&nbsp;&nbsp;&nbsp;&nbsp; */}
+      <Button variant="outlined" disabled={!valueId} startIcon={<DeleteIcon />} onClick={()=>handleClickDelete()} Title="Удалить запись">
+            Удалить
+      </Button>
+      <p/>
+      <div style={{ height: 300, width: 750 }}>
+        <DataTableDataSourceClass table_name="people_class" rec_id={valueId} />
       </div>
-      <p/> */}
-
-
-{/*   <TextField  id="ch_external_ds" sx={{ width: '80ch' }} label="Внешний источник"  variant="outlined" value={valueExternalDS} defaultValue=" " onChange={e => setValueExternalDS(e.target.value)}/>
-  <p/>
- */}
-{/*      <FormControl sx={{ width: '40ch' }}>
-        <InputLabel id="demo-controlled-open-select-label">Тип источника</InputLabel>
-        <Select
-          labelId="demo-controlled-open-select-label"
-          id="demo-controlled-open-select"
-          value={valueExternalDS  || "" }
-          label="Тип источника"
-          defaultValue={true}
-          onChange={e => setValueExternalDS(e.target.value)}
-        >
-
-      {valuesExtDS?.map(option => {
-          return (
-            <MenuItem key={option.value} value={option.value}>
-              {option.label ?? option.value}
-            </MenuItem>
-          );
-      })}        
-        </Select>
-      </FormControl>  
-  <p/> */} 
     </td>
   </tr>
   </tbody>
@@ -587,12 +533,13 @@ const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
       </DialogTitle>
       <DialogContent>
           <DialogContentText>
-              Вы действительно хотите удалить запись {valueId}?
+              В таблице "Типы облучаемых лиц" предложена к удалению следующая запись:<p/><b>{valueTitle}</b>; Код в БД = <b>{valueId}</b><p/>
+              Вы желаете удалить указанную запись?
           </DialogContentText>
       </DialogContent>
       <DialogActions>
-          <Button onClick={handleClose} autoFocus>Нет</Button>
-          <Button onClick={handleCloseYes} >Да</Button>
+          <Button variant="outlined" onClick={handleClose} autoFocus>Нет</Button>
+          <Button variant="outlined" onClick={handleCloseYes} >Да</Button>
       </DialogActions>
   </Dialog>
      </div>

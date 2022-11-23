@@ -8,6 +8,7 @@ import ClassFunctions from "./pages/class_func";
 import Substance from "./pages/substance";
 import Db from "./pages/db";
 import Coeff from "./pages/coeff";
+ 
 function App() {
   return (
     <Router>
@@ -19,7 +20,9 @@ function App() {
         <Route path="/sources" component={Sources} />
         <Route path="/norms" component={Norms} />
         <Route path="/class_func" component={ClassFunctions} />
-        <Route path="/coeff" component={Coeff} />
+        <Route path="/coeff" component={Coeff} 
+
+        />
         <Route path="/db" component={Db} />
       </Switch>
     </Router>

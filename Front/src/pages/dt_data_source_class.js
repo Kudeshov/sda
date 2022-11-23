@@ -24,6 +24,7 @@ var alertText = "Сообщение";
 var alertSeverity = "info";
 var lastAddedId = 0;
 var lastRecID = 0;
+var lastSrcClassID = 0;
 
 function DataTableDataSourceClass(props)  {
   const [open, setOpen] = React.useState(false);
@@ -60,12 +61,14 @@ function DataTableDataSourceClass(props)  {
   const [tableDataSrc, setTableDataSrc] = useState([])
   useEffect(() => {
     lastRecID = props.rec_id;
-    console.log('lastRecID =');
-    console.log(lastRecID);
+    lastSrcClassID = 0;
+    console.log('useEffect lastRecID ='+lastRecID+ ' lastRecID ='+lastSrcClassID);
+//    console.log(lastRecID);
     setIsLoading(true);
     fetch(`/data_source_class?table_name=people_class&rec_id=${props.rec_id??0}`)
       .then((data) => data.json())
       .then((data) => setTableDataSrcClass(data));
+    lastSrcClassID = 0;
     setIsLoading(false);
     }, [ props.rec_id /* props */])
 
@@ -95,11 +98,16 @@ const [valueTitleSrc, setValueTitleSrc] = React.useState();
 const [valueNameSrc, setValueNameSrc] = React.useState();
 const [isLoading, setIsLoading] = React.useState(false);
 const [openAlert, setOpenAlert] = React.useState(false, '');
+const [selectionModel, setSelectionModel] = React.useState([]);
 
 useEffect(() => {
-  if ((!isLoading) && (tableDataSrcClass) && (tableDataSrcClass.length)) {
+  if ((!isLoading) && (tableDataSrcClass) && (tableDataSrcClass.length) && (selectionModel!==lastSrcClassID) ) {
+   // ((tableDataSrcClass.length) && (!lastSrcClassID)&&(selectionModel!==lastSrcClassID) ) {  
+  lastSrcClassID = tableDataSrcClass[0].id;
     setSelection(false);
-    console.log('перегруз груза '+tableDataSrcClass[0].id);
+    console.log('перегруз груза lastSrcClassID '+lastSrcClassID+ 'tableDataSrcClass[0].id '+tableDataSrcClass[0].id + 
+    'selectionModel '+selectionModel);
+
     setSelectionModel(tableDataSrcClass[0].id);
     setValueID(`${tableDataSrcClass[0].id}`);
     setValueDataSourceId(`${tableDataSrcClass[0].data_source_id}`);
@@ -110,15 +118,18 @@ useEffect(() => {
   }
   else
   {
-    console.log('перегруз груза говкно'); 
-    setSelection(true);
-  }  
-}, [ isLoading, tableDataSrcClass] ); 
+    console.log('перегрузки нет selectionModel '+selectionModel +' lastSrcClassID '+ lastSrcClassID+ ' '+ isLoading+' '+tableDataSrcClass.length + ' aaa '+
+      ((!isLoading) && (tableDataSrcClass) && (tableDataSrcClass.length) && (!lastSrcClassID))
+    ); 
+    setSelection(!lastSrcClassID);
+  }   
+}, [ isLoading, tableDataSrcClass, selectionModel] ); 
 
 const reloadDataSrcClass = async () => {
   setIsLoading(true);
   try {
     lastRecID = props.rec_id;
+    
     console.log('reloadDataSrcClass lastRecID =');
     console.log(lastRecID);
     const response = await fetch(`/data_source_class?table_name=people_class&rec_id=${props.rec_id??0}`);
@@ -129,6 +140,7 @@ const reloadDataSrcClass = async () => {
       throw new Error(`Error! status: ${response.status}`);
     }  
     const result = await response.json();
+    lastSrcClassID = 0;
     setTableDataSrcClass(result);
   } catch (err) {
   } finally {
@@ -314,33 +326,8 @@ const handleRowClick/* : GridEventListener<'rowClick'>  */ = (params) => {
 
 const [select, setSelection] = useState([]);
 
-const [selectionModel, setSelectionModel] = React.useState([]);
 
-/* const handleRowSelection = (newSelection) => {
-   // prints correct indexes of selected rows
-   // console.log('selection');
-   // console.log(e.selectionModel);
-    // missing the first row selected
-    //setSelection(e.selectionModel);
-    //console.log('select');
-    //console.log(select);
-     
-  setSelection (newSelection.selectionModel);
-     
-} */
 
-/* const handleCheckSelect = () => {
-  alert(selectionModel);
-  console.log('selection model');
-  console.log(selectionModel);
-}; */
-
-/* useEffect(() => {
-  setSelection(select);
-  console.log('select');
-  console.log(select); // <-- The state is updated
-}, [select]);
- */
   return (
     <div style={{ height: 270, width: 850 }}>
       <table cellSpacing={0} cellPadding={0} style={{ height: 270, width: 850, verticalAlign: 'top' }} border="0"><tbody><tr>
@@ -357,6 +344,7 @@ const [selectionModel, setSelectionModel] = React.useState([]);
         onSelectionModelChange={(newSelectionModel) => {
           setSelectionModel(newSelectionModel);
         }}
+        loading={isLoading}        
         //onSelectionModelChange = {handleRowSelection}
         initialState={{
           columns: {
@@ -470,8 +458,8 @@ const [selectionModel, setSelectionModel] = React.useState([]);
           />        
           </DialogContent>
         <DialogActions>
-          <Button onClick={handleCloseNo}>Отмена</Button>
-          <Button onClick={handleCloseYes}>Сохранить</Button>
+          <Button variant="outlined" onClick={handleCloseNo}>Отмена</Button>
+          <Button variant="outlined" disabled={!valueTitleSrc||!valueDataSourceId} onClick={handleCloseYes}>Сохранить</Button>
         </DialogActions>
       </Dialog>
 
@@ -485,7 +473,8 @@ const [selectionModel, setSelectionModel] = React.useState([]);
       </DialogTitle>
       <DialogContent>
           <DialogContentText>
-              Вы действительно хотите удалить запись {valueId}?
+              В таблице "Связь с источником данных" предложена к удалению следующая запись:<p/><b>{valueTitleSrc}</b>; Код в БД = <b>{valueId}</b><p/>
+              Вы желаете удалить указанную запись?        
           </DialogContentText>
       </DialogContent>
       <DialogActions>
