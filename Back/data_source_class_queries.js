@@ -53,12 +53,12 @@ const createDataSourceClass = (request, response) => {
   console.log( request.body );
   //id":126,"data_source_id":1,"table_name":"people_class","rec_id":1,"title_src":"public","name_src":null,"title":"IBRAE"
   const { data_source_id, table_name, rec_id, title_src, name_src } = request.body;
-
-  pool.query('INSERT INTO nucl.data_source_class (data_source_id, table_name, rec_id, title_src, name_src) VALUES ($1, $2, $3, $4, $5)', [data_source_id, table_name, rec_id, title_src, name_src], (error, results) => {
+  pool.query('INSERT INTO nucl.data_source_class (data_source_id, table_name, rec_id, title_src, name_src) VALUES ($1, $2, $3, $4, $5) RETURNING id', [data_source_id, table_name, rec_id, title_src, name_src], (error, results) => {
     if (error) {
       response.status(400).send(`Связь с источником данных не добавлена: ${error.message}`);
     } else {
-      response.status(201).send(`Связь с источником данных добавлена, ID: ${results.insertId}`)
+      const { id } = results.rows[0]; 
+      response.status(201).send(`Связь с источником данных добавлена, код: ${id}`)
     }
   })
 }

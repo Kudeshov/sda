@@ -24,7 +24,6 @@ var alertText = "Сообщение";
 var alertSeverity = "info";
 var lastAddedId = 0;
 var lastRecID = 0;
-var lastSrcClassID = 0;
 
 function DataTableDataSourceClass(props)  {
   const [open, setOpen] = React.useState(false);
@@ -34,10 +33,6 @@ function DataTableDataSourceClass(props)  {
   };
 
   const handleClickAdd = () => {
-    console.log('handleClickAdd lastRecID');
-    console.log(lastRecID);    
-    console.log('handleClickAdd props.rec_id');
-    console.log(props.rec_id);    
     setValueID(null);
     setValueDataSourceId(null);
     setValueRecID(props.rec_id);
@@ -56,29 +51,25 @@ function DataTableDataSourceClass(props)  {
     setOpen(false);
   };
 
-  //const [nameState , setNameState] = useState(props);  //alert(props);
   const [tableDataSrcClass, setTableDataSrcClass] = useState([])
   const [tableDataSrc, setTableDataSrc] = useState([])
   useEffect(() => {
     lastRecID = props.rec_id;
-    lastSrcClassID = 0;
-    console.log('useEffect lastRecID ='+lastRecID+ ' lastRecID ='+lastSrcClassID);
-//    console.log(lastRecID);
+    setlastSrcClassID(0);
     setIsLoading(true);
     fetch(`/data_source_class?table_name=people_class&rec_id=${props.rec_id??0}`)
       .then((data) => data.json())
       .then((data) => setTableDataSrcClass(data));
-    lastSrcClassID = 0;
+    setlastSrcClassID(0);
     setIsLoading(false);
-    }, [ props.rec_id /* props */])
+    }, [ props.rec_id])
 
 
   useEffect(() => {
     fetch(`/data_source`)
       .then((data) => data.json())
       .then((data) => setTableDataSrc(data));
-  }, [ /*props.rec_id  props */])
-
+  }, [])
 
 const columns_src = [
   { field: 'id', headerName: 'Код', width: 60 },
@@ -99,31 +90,25 @@ const [valueNameSrc, setValueNameSrc] = React.useState();
 const [isLoading, setIsLoading] = React.useState(false);
 const [openAlert, setOpenAlert] = React.useState(false, '');
 const [selectionModel, setSelectionModel] = React.useState([]);
+const [lastSrcClassID, setlastSrcClassID] = React.useState([0]);
 
 useEffect(() => {
-  if ((!isLoading) && (tableDataSrcClass) && (tableDataSrcClass.length) && (selectionModel!==lastSrcClassID) ) {
-   // ((tableDataSrcClass.length) && (!lastSrcClassID)&&(selectionModel!==lastSrcClassID) ) {  
-  lastSrcClassID = tableDataSrcClass[0].id;
-    setSelection(false);
-    console.log('перегруз груза lastSrcClassID '+lastSrcClassID+ 'tableDataSrcClass[0].id '+tableDataSrcClass[0].id + 
-    'selectionModel '+selectionModel);
-
-    setSelectionModel(tableDataSrcClass[0].id);
-    setValueID(`${tableDataSrcClass[0].id}`);
+  if ((!isLoading) && (tableDataSrcClass) && (tableDataSrcClass.length))
+  {
+    setSelectionModel(tableDataSrcClass[0].id); //выбрать первую строку при перегрузке таблицы
+    setValueID(`${tableDataSrcClass[0].id}`);   //обновить переменные
     setValueDataSourceId(`${tableDataSrcClass[0].data_source_id}`);
     setValueTableName(`${tableDataSrcClass[0].table_name}`);
     setValueRecID(`${tableDataSrcClass[0].rec_id}`);
     setValueTitleSrc(`${tableDataSrcClass[0].title_src}`);
-    setValueNameSrc(`${tableDataSrcClass[0].name_src}`);  
+    setValueNameSrc(`${tableDataSrcClass[0].name_src}`); 
   }
-  else
+  if ((!isLoading) && (tableDataSrcClass) )
   {
-    console.log('перегрузки нет selectionModel '+selectionModel +' lastSrcClassID '+ lastSrcClassID+ ' '+ isLoading+' '+tableDataSrcClass.length + ' aaa '+
-      ((!isLoading) && (tableDataSrcClass) && (tableDataSrcClass.length) && (!lastSrcClassID))
-    ); 
-    setSelection(!lastSrcClassID);
-  }   
-}, [ isLoading, tableDataSrcClass, selectionModel] ); 
+    //обновить блокировку кнопок "Редактировать" и "Удалить" в зависимости от наличия записей в таблице
+    setSelection(!tableDataSrcClass.length);
+  }
+}, [isLoading, tableDataSrcClass, lastSrcClassID]); 
 
 const reloadDataSrcClass = async () => {
   setIsLoading(true);
@@ -140,7 +125,8 @@ const reloadDataSrcClass = async () => {
       throw new Error(`Error! status: ${response.status}`);
     }  
     const result = await response.json();
-    lastSrcClassID = 0;
+    setlastSrcClassID(0);
+    //lastSrcClassID = 0;
     setTableDataSrcClass(result);
   } catch (err) {
   } finally {
@@ -166,8 +152,6 @@ const delRec =  async () => {
   console.log('delrec clicked');
   const js = JSON.stringify({
      id: valueId,
-     //title: valueTitle,
-     //shortname: valueShortName
   });
   setIsLoading(true);
   console.log(js);
@@ -191,29 +175,12 @@ const delRec =  async () => {
       alertText = await response.text();
       setOpenAlert(true);  
     }
-    //const result = await response.json();
-    //console.log('result is: ', JSON.stringify(result, null, 4));
-    //setData(result);
   } catch (err) {
-    //setErr(err.message);
   } finally {
     setIsLoading(false);
     reloadDataSrcClass();
-    //console.log(valueId );
-    //var idx = tableData.findIndex(x => x.id === valueId);
-/*     console.log( 'tableData[0].id' );
-    console.log( tableData[0].id );
-    setSelectionModel(tableData[0].id );  
-    setValueID(`${tableData[0].id}`);
-    setValueTitle(`${tableData[0].title}`);
-    setValueNameRus(`${tableData[0].name_rus}`);
-    setValueNameEng( tableData[0].name_eng || "" );
-    setValueDescrRus(`${tableData[0].descr_rus}`);
-    setValueDescrEng(`${tableData[0].descr_eng}` ); */
- 
   }
 };  
-
 ///////////////////////////////////////////////////////////////////  SAVE  /////////////////////
 const saveRec = async () => {
   const js = JSON.stringify({
@@ -224,21 +191,18 @@ const saveRec = async () => {
     title_src: valueTitleSrc,
     name_src: valueNameSrc         
   });
-  console.log('saverec');
-  if (!valueId) {
+  if (!valueId) { //если значение не задано - добавить запись
     addRec();
     return;
   }
-
   setIsLoading(true);
-  console.log(js);
   try {
     const response = await fetch('/data_source_class/'+valueId, {
-     method: 'PUT',
-     body: js,
-     headers: {
-       'Content-Type': 'Application/json',
-       Accept: '*/*',
+      method: 'PUT',
+      body: js,
+      headers: {
+        'Content-Type': 'Application/json',
+        Accept: '*/*',
      },
    });
    if (!response.ok) {
@@ -261,13 +225,8 @@ const saveRec = async () => {
    reloadDataSrcClass();      
  }
 };
-
 /////////////////////////////////////////////////////////////////// ADDREC ///////////////////// 
 const addRec = async ()  => {
-  console.log('addrec executed');
-
-  console.log('lastRecID');
-  console.log(lastRecID);
   const js = JSON.stringify({
     id: valueId,
     data_source_id: valueDataSourceId,
@@ -276,10 +235,7 @@ const addRec = async ()  => {
     title_src: valueTitleSrc,
     name_src: valueNameSrc         
   });
-  console.log(js);  
   setIsLoading(true);
-
-  
   try {
     const response = await fetch('/data_source_class/', {
       method: 'POST',
@@ -289,7 +245,6 @@ const addRec = async ()  => {
         Accept: '*/*',
       },
     });
-
     if (!response.ok) {
       alertSeverity = 'error';
       alertText = await response.text();
@@ -311,7 +266,6 @@ const addRec = async ()  => {
   } finally {
     setIsLoading(false);
     reloadDataSrcClass(); 
-    //setSelectionModel(lastAddedId);  
   }
 };
 
@@ -325,9 +279,6 @@ const handleRowClick/* : GridEventListener<'rowClick'>  */ = (params) => {
 }; 
 
 const [select, setSelection] = useState([]);
-
-
-
   return (
     <div style={{ height: 270, width: 850 }}>
       <table cellSpacing={0} cellPadding={0} style={{ height: 270, width: 850, verticalAlign: 'top' }} border="0"><tbody><tr>
@@ -345,7 +296,6 @@ const [select, setSelection] = useState([]);
           setSelectionModel(newSelectionModel);
         }}
         loading={isLoading}        
-        //onSelectionModelChange = {handleRowSelection}
         initialState={{
           columns: {
             columnVisibilityModel: {
@@ -355,66 +305,56 @@ const [select, setSelection] = useState([]);
             },
           },
         }}             
-       // onselectionChange={handleRowClick} {...tableDataSrc}  
       /></td>
       <td style={{ height: 270, width: 100, verticalAlign: 'top' }}>
       <Button onClick={handleClickAdd} startIcon={<AddBoxIcon />} title="Добавить связь с источником данных"></Button>
       <p/>
-      <Button disabled={select} /* {!tableDataSrcClass.length}  */onClick={handleClickEdit} startIcon={<EditIcon />} title="Редактировать связь с источником данных"></Button>
+      <Button disabled={select} onClick={handleClickEdit} startIcon={<EditIcon />} title="Редактировать связь с источником данных"></Button>
       <p/>
-      <Button disabled={select}  onClick={()=>handleClickDelete()} startIcon={<DeleteIcon />} title="Удалить связь с источником данных"></Button>
-{/*       //<p/>
-      //<Button  onClick={()=>handleCheckSelect()} title="Проверка выборки">ФФФ</Button> */}
-      </td></tr></tbody></table>
+      <Button disabled={select} onClick={()=>handleClickDelete()} startIcon={<DeleteIcon />} title="Удалить связь с источником данных"></Button>
+      </td></tr>
+      <tr>
+        <td>
+        <Box sx={{ width: '100%' }}>
+        <Collapse in={openAlert}>
+          <Alert
+            severity={alertSeverity}
+            action={
+              <IconButton
+                aria-label="close"
+                color="inherit"
+                size="small"
+                onClick={() => {
+                  setOpenAlert(false);
+                }}
+              >
+                <CloseIcon fontSize="inherit" />
+              </IconButton>
+            }
+            sx={{ mb: 2 }}
+          >
+            {alertText}
+          </Alert>
+        </Collapse>
+        <div style={{
+        marginLeft: '40%',
+        }}>
+        {isLoading && <CircularProgress/>} 
+        {/*       {!isLoading && <h3>Successfully API Loaded Data</h3>} */}
+        </div>
+      </Box>
+        </td>
+      </tr>
+      </tbody></table>
 
-      <Box sx={{ width: '100%' }}>
-      <Collapse in={openAlert}>
-        <Alert
-          severity={alertSeverity}
-          action={
-            <IconButton
-              aria-label="close"
-              color="inherit"
-              size="small"
-              onClick={() => {
-                setOpenAlert(false);
-              }}
-            >
-              <CloseIcon fontSize="inherit" />
-            </IconButton>
-          }
-          sx={{ mb: 2 }}
-        >
-          {alertText}
-        </Alert>
-      </Collapse>
-      <div style={{
-      marginLeft: '40%',
-      }}>
-      {isLoading && <CircularProgress/>} 
-      {/*       {!isLoading && <h3>Successfully API Loaded Data</h3>} */}
-      </div>
-
-{/*       <Button
-        disabled={openAlert}
-        variant="outlined"
-        onClick={() => {
-          setOpenAlert(true);
-        }}
-      >
-        На жми!
-      </Button> */}
-    </Box>
-
-
-      <Dialog open={open} onClose={handleCloseNo} /* style={{ height: 500, width: 600 }} */   /*  sx={{ width: 800 }}  */  
+      <Dialog open={open} onClose={handleCloseNo}  
                fullWidth={false} 
                maxWidth="800px" 
       >
-      <DialogTitle>Источник данных</DialogTitle>  
+      <DialogTitle>Связь с источником данных</DialogTitle>  
         <DialogContent>
           <DialogContentText>
-            Источник данных
+            Задать связь с источником данных
           </DialogContentText>
         <p/>        
         <FormControl sx={{ width: '40ch' }}>
@@ -438,7 +378,6 @@ const [select, setSelection] = useState([]);
           </FormControl>  
           <p/> 
           <TextField
-            autoFocus
             variant="outlined"
             margin="dense"
             id="title"
@@ -478,8 +417,8 @@ const [select, setSelection] = useState([]);
           </DialogContentText>
       </DialogContent>
       <DialogActions>
-          <Button onClick={handleCloseConfirmDelete} autoFocus>Нет</Button>
-          <Button onClick={handleCloseConfirmDeleteYes} >Да</Button>
+          <Button variant="outlined" onClick={handleCloseConfirmDelete} autoFocus>Нет</Button>
+          <Button variant="outlined" onClick={handleCloseConfirmDeleteYes} >Да</Button>
       </DialogActions>
       </Dialog>
       </div>

@@ -170,77 +170,6 @@ const deletePeopleClass = (request, response) => {
   })
 }
 
-
-/*
-const deletePeopleClass = (request, response) => {
-  const id = parseInt(request.params.id)
-  const { title, atomic_num } = request.body
-  pool.query('DELETE FROM nucl.people_class_nls WHERE people_class_id = $1', [id], (error, results) => {
-    if (error) {
-      response.status(400).send(`Тип облучаемых лиц (языковые ресурсы) не удален: ${error.message}`);
-    }
-    else {
-      //response.status(200).send(`Источник данных удален, ID: ${id} : удалено строк: ${results.rowCount} `)
-      //if (results.rowCount == 1)
-      //  response.status(200).send(`Тип облучаемых лиц (языковые ресурсы)  ${id} удален: cтрок удалено: ${results.rowCount} `);
-      //if (results.rowCount == 0)
-      //  response.status(400).send(`Запись с кодом ${id} не найдена `)
-    }
-  })
-
-  pool.query('DELETE FROM nucl.people_class WHERE id = $1', [id], (error, results) => {
-    if (error) {
-      response.status(400).send(`Тип облучаемых лиц не удален: ${error.message}`);
-    }
-    else {
-      //response.status(200).send(`Источник данных удален, ID: ${id} : удалено строк: ${results.rowCount} `)
-      if (results.rowCount == 1)
-        response.status(200).send(`Тип облучаемых лиц ${id} удален: cтрок удалено: ${results.rowCount} `);
-      if (results.rowCount == 0)
-        response.status(400).send(`Запись с кодом ${id} не найдена `)
-    }
-  }) 
-}
-*/
-
-/*
-const updatePeopleClass = (request, response) => {
-  const id = parseInt(request.params.id)
-  const { title, name_rus, name_eng, descr_rus, descr_eng } = request.body
-  console.log( 'updatePeopleClass id='+id );
-  pool.query(
-    'UPDATE nucl.people_class SET title = $1 WHERE id = $2; '+
-    'UPDATE nucl.people_class_nls SET name = $3, descr=$4 WHERE people_class_id = $5 and lang_id=$6; '+
-    'UPDATE nucl.people_class_nls SET name = $7, descr=$8 WHERE people_class_id = $9 and lang_id=$10; ',
-    [title, id, name_rus, descr_rus, id, 1, name_eng, descr_eng, id, 2],
-    (error, results) => {
-      if (error) 
-      {
-        console.log( 'дерьмо' ); 
-        response.status(400).send(`Тип облучаемых лиц с кодом ${id} не изменен: ${error.message} `);
-        return;
-      }
-      else
-      {
-       // if (results.rowCount == 1)
-       //   response.status(200).send(`Тип облучаемых лиц ${id} изменен. Строк изменено: ${results.rowCount} `);
-       console.log( 'хорошо' ); 
-       if (results.rowCount == 0) 
-        {
-          console.log( 'нуль' ); 
-          response.status(400).send(`Тип облучаемых лиц с кодом ${id} не найден `);
-          return;
-        }
-        else 
-        {
-          response.status(200).send(`Тип облучаемых лиц (англ.) ${id} изменен. Строк изменено: ${results.rowCount} `);
-        }
-      }
-    }
-  )
-}
-*/
-
 const updatePeopleClass = (request, response) => {
   pool.connect((err, client, done) => {
     const shouldAbort = (err, response) => {
@@ -303,7 +232,7 @@ const updatePeopleClass = (request, response) => {
   })
 }
  
-const updatePeopleClass1 = (request, response) => {
+/* const updatePeopleClass1 = (request, response) => {
   const id = parseInt(request.params.id)
   const { title, name_rus, name_eng, descr_rus, descr_eng } = request.body
   console.log( 'updatePeopleClass id='+id );
@@ -371,7 +300,7 @@ const updatePeopleClass1 = (request, response) => {
       }
     }
   )
-}
+} */
 
 module.exports = {
   getPeopleClass,

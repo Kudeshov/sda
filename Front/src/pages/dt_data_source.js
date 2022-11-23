@@ -409,9 +409,6 @@ const [openAlert, setOpenAlert] = React.useState(false, '');
   <p/>
   <TextField  id="ch_fullname" sx={{ width: '80ch' }} label="Полное название"  variant="outlined" value={valueFullName || ''} /* defaultValue=" " */ onChange={e => setValueFullName(e.target.value)}/>
   <p/>
-{/*   <TextField  id="ch_external_ds" sx={{ width: '80ch' }} label="Внешний источник"  variant="outlined" value={valueExternalDS} defaultValue=" " onChange={e => setValueExternalDS(e.target.value)}/>
-  <p/>
- */}
      <FormControl sx={{ width: '40ch' }}>
         <InputLabel id="demo-controlled-open-select-label">Тип источника</InputLabel>
         <Select
