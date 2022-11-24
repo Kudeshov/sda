@@ -24,16 +24,9 @@ const pc_q = require('./people_class_queries');
 const dsc_q = require('./data_source_class_queries');
 
 const { Pool } = require('pg');
-var msg = 'a';
-var config = {
-    user: 'postgres', 
-    database: 'sda', 
-    password: 'system', 
-    host: 'localhost', 
-    port: 5432, 
-    max: 10, // max number of clients in the pool
-    idleTimeoutMillis: 30000
-};
+//var msg = 'a';
+var config = require('./config.json');
+
 const pool = new Pool(config);
 pool.on('error', function (err, client) {
     console.error('idle client error', err.message, err.stack);
@@ -45,7 +38,6 @@ app.get('/chelement/:id', ch_q.getChelementById);   //list 1
 app.post('/chelement', ch_q.createChelement);       //create
 app.put('/chelement/:id', ch_q.updateChelement);    //update
 app.delete('/chelement/:id', ch_q.deleteChelement); //delete
-//app.delete('/chelement/:id', (req, res) =>{ ch_q.deleteChelement(req, res);});
 
 //DATA_SOURCE interface
 app.get('/data_source', ds_q.getDataSource);           //list all

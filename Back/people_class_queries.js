@@ -12,15 +12,9 @@ app.use(
 
 const { Pool } = require('pg');
 const e = require('express');
-var config = {
-    user: 'postgres', 
-    database: 'sda', 
-    password: 'system', 
-    host: 'localhost', 
-    port: 5432, 
-    max: 10,  
-    idleTimeoutMillis: 30000
-};
+
+var config = require('./config.json');
+
 const pool = new Pool(config);
 pool.on('error', function (err, client) {
     console.error('idle client error', err.message, err.stack);

@@ -7,15 +7,7 @@ const fs = require("fs");
 
 const { Pool } = require('pg');
 var msg = 'a';
-var config = {
-    user: 'postgres', 
-    database: 'ers_russia', 
-    password: 'system', 
-    host: 'localhost', 
-    port: 5432, 
-    max: 10, // max number of clients in the pool
-    idleTimeoutMillis: 30000
-};
+var config = require('./config.json');
 const pool = new Pool(config);
 pool.on('error', function (err, client) {
     console.error('idle client error', err.message, err.stack);
