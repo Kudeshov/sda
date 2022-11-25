@@ -5,11 +5,14 @@ import {
   GridToolbarContainer,
   useGridApiContext,
   gridFilteredSortedRowIdsSelector,
-  GridToolbarExport
+//  GridToolbarExport, 
+//  GridToolbar
 } from '@mui/x-data-grid';
 
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
+//import { makeStyles } from "@material-ui/core";
+
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
@@ -24,52 +27,107 @@ import { DataTableDataSourceClass } from './dt_data_source_class';
 import SaveIcon from '@mui/icons-material/Save';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import DeleteIcon from '@mui/icons-material/Delete';
-import AddIconBox from '@mui/icons-material/AddBox';
+//import AddIconBox from '@mui/icons-material/AddBox';
+import UndoIcon from '@mui/icons-material/Undo';
+import AddIcon from '@mui/icons-material/Add';
+import SaveAltIcon from '@mui/icons-material/SaveAlt';
+//import { TroubleshootSharp } from '@mui/icons-material';
 
 var alertText = "Сообщение";
 var alertSeverity = "info";
 var lastId = 0;
 
 const DataTablePeopleClass = () => {
+
+  useEffect(() => {
+    console.log('run after mount?');
+    //handleCancelClick();
+    //setEditStarted(true);
+    //setEditStarted(false);
+  }, [ ]); // <-- empty array means 'run once'
+
   const [valueId, setValueID] = React.useState();
   const [valueTitle, setValueTitle] = React.useState();
+  const [valueTitleInitial, setValueTitleInitial] = React.useState();
   const [valueNameRus, setValueNameRus] = React.useState([""]);
+  const [valueNameRusInitial, setValueNameRusInitial] = React.useState();
   const [valueNameEng, setValueNameEng] = React.useState();
   const [valueDescrEng, setValueDescrEng] = React.useState();
   const [valueDescrRus, setValueDescrRus] = React.useState();
   const [isLoading, setIsLoading] = React.useState(false);
-  const [tableData, setTableData] = useState([]) 
+  const [tableData, setTableData] = useState([]); 
   const [selectionModel, setSelectionModel] = React.useState([]);
+  const [editStarted, setEditStarted] = useState([false]);
+
+/*   useEffect = (() => {
+    // console.log('valueId '+valueId);
+   // console.log('selectionModel '+selectionModel);
+    //const selectedIDs =  new Set(selectionModel);
+    //console.log('useEffect'+selectionModel[0]);
+   // const selectedRowData = tableData.filter((row) => selectedIDs.has(row.id));
+     console.log(1);
+  // if (selectedRowData.length)
+    {
+      //setEditStarted( valueTitle!==selectedRowData[0].title )
+      //setValueID(`${selectedRowData[0].id}`);
+      //setValueTitle(`${selectedRowData[0].title}`);
+      //setValueNameRus(`${selectedRowData[0].name_rus}`);
+      //setValueNameEng(`${selectedRowData[0].name_eng}` );
+      //setValueDescrRus(`${selectedRowData[0].descr_rus}`);
+      //setValueDescrEng(`${selectedRowData[0].descr_eng}` );
+    } 
+    
+  }, [selectionModel, valueTitle]); 
+ */
+
+  useEffect(() => {
+    setEditStarted((valueTitleInitial!==valueTitle)||(valueNameRusInitial!==valueNameRus));
+    }, [valueTitleInitial, valueTitle, valueNameRusInitial, valueNameRus]); 
 
   useEffect(() => {
     if ((!isLoading) && (tableData) && (tableData.length)) {
       if (!lastId) 
       {
-        console.log('lastId '+lastId);
+        console.log('isLoading, tableData ON lastId '+lastId);
       //  console.log('selectionModel '+selectionModel||0);
         lastId = tableData[0].id;
         setSelectionModel(tableData[0].id);
         setValueID(`${tableData[0].id}`);
         setValueTitle(`${tableData[0].title}`);
+        setValueTitleInitial(`${tableData[0].title}`);       
         setValueNameRus(`${tableData[0].name_rus}`);
+        setValueNameRusInitial(`${tableData[0].name_rus}`);
         setValueNameEng( tableData[0].name_eng || "" );
         setValueDescrRus(`${tableData[0].descr_rus}`);
         setValueDescrEng(`${tableData[0].descr_eng}` );
       }
       else
       {
-        console.log('lastId '+lastId);
+        console.log('isLoading, tableData OFF lastId '+lastId + ' tableData.length) ' + tableData.length + 'isLoading'+isLoading);
       }
     }
     }, [ isLoading, tableData] );
 
   const handleRowClick = (params) => {
-    setValueID(`${params.row.id}`);
-    setValueTitle(`${params.row.title}`);
-    setValueNameRus(`${params.row.name_rus}`);
-    setValueNameEng(`${params.row.name_eng}`);
-    setValueDescrRus(`${params.row.descr_rus}`);
-    setValueDescrEng(`${params.row.descr_eng}` );
+
+   // if (valueId!== params.row.id) 
+    if (editStarted)
+    {
+      //if (window.confirm("Запись была отредактирована. Сохранить?")) 
+      handleClickSave(params);
+    } 
+    else 
+    {
+      console.log(params);
+      setValueID(`${params.row.id}`);
+      setValueTitle(`${params.row.title}`);
+      setValueTitleInitial(`${params.row.title}`);
+      setValueNameRus(`${params.row.name_rus}`);
+      setValueNameRusInitial(`${params.row.name_rus}`);
+      setValueNameEng(`${params.row.name_eng}`);
+      setValueDescrRus(`${params.row.descr_rus}`);
+      setValueDescrEng(`${params.row.descr_eng}` );
+    }
   }; 
 
   const handleClearClick  = (params) => {
@@ -85,7 +143,7 @@ const DataTablePeopleClass = () => {
     fetch("/people_class")
       .then((data) => data.json())
       .then((data) => setTableData(data))
-      .then((data) => {console.log('fetch ok'); console.log(data)} ); 
+      .then((data) => {console.log('fetch ok'); console.log(data); lastId = 0;} ); 
   }, [])
 
   ///////////////////////////////////////////////////////////////////  SAVE  /////////////////////
@@ -132,7 +190,8 @@ const DataTablePeopleClass = () => {
      setOpenAlert(true);
    } finally {
      setIsLoading(false);
-     reloadData();      
+     reloadData();     
+
    }
  };
 /////////////////////////////////////////////////////////////////// ADDREC ///////////////////// 
@@ -179,7 +238,11 @@ const DataTablePeopleClass = () => {
     } finally {
       setIsLoading(false);
       reloadData();
-      setSelectionModel(lastId);  
+      setSelectionModel(lastId);
+      //Refresh initial state
+      console.log('Refresh initial '+valueTitle+' '+valueNameRus);
+      setValueTitleInitial(valueTitle);
+      setValueNameRusInitial(valueNameRus);
     }
   };
 
@@ -221,10 +284,12 @@ const DataTablePeopleClass = () => {
       setSelectionModel(tableData[0].id );  
       setValueID(`${tableData[0].id}`);
       setValueTitle(`${tableData[0].title}`);
+      setValueTitleInitial(`${tableData[0].title}`);
       setValueNameRus(`${tableData[0].name_rus}`);
-      setValueNameEng( tableData[0].name_eng || "" );
+      setValueNameRusInitial(`${tableData[0].name_rus}`);
+      setValueNameEng(`${tableData[0].name_eng}`);
       setValueDescrRus(`${tableData[0].descr_rus}`);
-      setValueDescrEng(`${tableData[0].descr_eng}` );
+      setValueDescrEng(`${tableData[0].descr_eng}`);
     }
   };  
 
@@ -272,22 +337,40 @@ const DataTablePeopleClass = () => {
   };
 
   /////////////////////////////////////////
-  const [open, setOpen] = React.useState(false); 
+  const [openDel, setOpenDel] = React.useState(false); 
+  const [openSave, setOpenSave] = React.useState(false); 
+
   const handleClickDelete = () => {
-    setOpen(true);
+    setOpenDel(true);
   };
 
-  const handleClose = () => {
-    setOpen(false);
+  const handleCloseDelNo = () => {
+    setOpenDel(false);
   };
 
-  const handleCloseYes = () => {
-    setOpen(false);
+  const handleCloseDelYes = () => {
+    setOpenDel(false);
     delRec();
   };
+
+  const handleClickSave = () => {
+    setOpenSave(true);
+  };
+
+  const handleCloseSaveNo = () => {
+    setOpenSave(false);
+    handleCancelClick();
+  };
+  const handleCloseSaveYes = () => {
+    setOpenSave(false);
+    saveRec();
+    handleCancelClick();
+  };
+
+
   //////////////////////////////////////////////////////// ACTIONS ///////////////////////////////
   const columns = [
-    { field: 'id', headerName: 'ID', width: 80 },
+    { field: 'id', headerName: 'Код', width: 80 },
     { field: 'title', headerName: 'Обозначение', width: 180, hideable: false },
     { field: 'name_rus', headerName: 'Название (рус.яз)', width: 180 },
     { field: 'name_eng', headerName: 'Название (англ.яз)', width: 180 },
@@ -306,13 +389,56 @@ const DataTablePeopleClass = () => {
 
   const [openAlert, setOpenAlert] = React.useState(false, '');
 
+  const handleCancelClick = () => 
+  {
+    console.log('selectionModel');
+    console.log(selectionModel);
+    //console.log('selectionModel='+selectionModel.row.id);
+    
+    const selectedIDs = new Set(selectionModel);
+    console.log(selectedIDs);
+    const selectedRowData = tableData.filter((row) => selectedIDs.has(row.id));
+    console.log(selectedRowData);
+
+    if (selectedRowData.length)
+    {
+      setValueID(`${selectedRowData[0].id}`);
+      setValueTitle(`${selectedRowData[0].title}`);
+      setValueTitleInitial(`${selectedRowData[0].title}`);
+      setValueNameRus(`${selectedRowData[0].name_rus}`);
+      setValueNameRusInitial(`${selectedRowData[0].name_rus}`);
+      setValueNameEng(`${selectedRowData[0].name_eng}` );
+      setValueDescrRus(`${selectedRowData[0].descr_rus}`);
+      setValueDescrEng(`${selectedRowData[0].descr_eng}` );
+    }
+  }
+
   function CustomToolbar1() {
     const apiRef = useGridApiContext();
+    const handleExport = (options: GridCsvExportOptions) =>
+      apiRef.current.exportDataAsCsv(options);
 
     return (
       <GridToolbarContainer>
-        <GridToolbarExport csvOptions={{ delimiter: ';', utf8WithBom: true, getRowsToExport: () => gridFilteredSortedRowIdsSelector(apiRef) }} />
-      </GridToolbarContainer>
+        <IconButton onClick={()=>handleClearClick()}  color="primary" size="small" Title="Создать запись"><AddIcon/></IconButton>
+        <IconButton onClick={()=>saveRec()}  color="primary" size="small" Title="Сохранить запись в БД"><SaveIcon /></IconButton>
+        <IconButton onClick={()=>handleClickDelete()}  color="primary" size="small" Title="Удалить запись"><DeleteIcon /></IconButton>
+        <IconButton onClick={()=>handleCancelClick()} disabled={!editStarted} color="primary" size="small" Title="Отменить редактирование"><UndoIcon /></IconButton>
+        <IconButton onClick={()=>reloadDataAlert()} color="primary" size="small" Title="Обновить данные"><RefreshIcon /></IconButton>
+        <IconButton onClick={()=>handleExport({ delimiter: ';', utf8WithBom: true, getRowsToExport: () => gridFilteredSortedRowIdsSelector(apiRef) })} color="primary" size="small" Title="Сохранить в формате CSV"><SaveAltIcon /></IconButton>
+{/*         <Button {...buttonAddProps} sx={{ width: 10, padding: 0, margin: 0 }} onClick={()=>handleClearClick()} Title="Создать запись"></Button>
+        <Button {...buttonSaveProps} onClick={()=>saveRec()}  Title="Сохранить запись в БД"></Button>
+        <Button {...buttonDelProps} onClick={()=>handleClickDelete()} Title="Удалить запись"></Button>
+        <Button {...buttonUndoProps} Title="Отменить редактирование"></Button>
+        <Button {...buttonRefreshProps} onClick={()=>reloadDataAlert()} Title="Обновить данные"></Button>
+        <Button
+        style={{ maxWidth: "44px", minWidth: "44px" }}
+        classes={{ startIcon: classes.startICon }}
+        variant="outlined"
+        startIcon={<Add />}
+        ></Button>     */}    
+{/*         <GridToolbarExport Name="asd" csvOptions={{ delimiter: ';', utf8WithBom: true, getRowsToExport: () => gridFilteredSortedRowIdsSelector(apiRef) }} />
+ */}      </GridToolbarContainer>
     );
   }
 
@@ -323,7 +449,7 @@ const DataTablePeopleClass = () => {
       <td style={{ height: 550, width: 600, verticalAlign: 'top' }}>
       <div style={{ height: 400, width: 585 }}>
       <DataGrid
-        components={{ Toolbar: CustomToolbar1  }}
+        components={{ Toolbar: CustomToolbar1 }}
         hideFooterSelectedRowCount={true}
         localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
         rowHeight={25}
@@ -373,15 +499,18 @@ const DataTablePeopleClass = () => {
       </div> */}
       </Box>
 
-      <p/>
+{/*       <p/>
       <Button variant="outlined" startIcon={<RefreshIcon />} onClick={()=>reloadDataAlert()}>
     	   Обновить данные
-	    </Button>     
+	    </Button>      */}
+
+
+
       </td>
 
       <td style={{ height: 550, width: 900, verticalAlign: 'top' }}>
 
-      <TextField  id="ch_id"  disabled={true} label="Id" sx={{ width: '12ch' }} variant="outlined" value={valueId || ''} size="small" /* defaultValue=" " */ onChange={e => setValueID(e.target.value)}/>
+      <TextField  id="ch_id"  disabled={true} label="Код" sx={{ width: '12ch' }} variant="outlined" value={valueId || ''} size="small" /* defaultValue=" " */ onChange={e => setValueID(e.target.value)}/>
       &nbsp;&nbsp;&nbsp;
       <TextField  id="ch_name" sx={{ width: '40ch' }} label="Обозначение" size="small" variant="outlined" value={valueTitle || ''} /* defaultValue=" " */ onChange={e => setValueTitle(e.target.value)}/>
       <p/>
@@ -389,20 +518,21 @@ const DataTablePeopleClass = () => {
       &nbsp;&nbsp;&nbsp;
       <TextField  id="ch_name_eng" sx={{ width: '40ch' }} size="small" label="Название (англ.яз)"  variant="outlined" value={valueNameEng || ''} /* defaultValue=" " */ onChange={e => setValueNameEng(e.target.value)}/>
       <p/>
-      <TextField  id="ch_descr_rus" sx={{ width: '110ch' }} label="Комментарий (рус.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrRus || ''} /* defaultValue=" " */ onChange={e => setValueDescrRus(e.target.value)}/>
+      <TextField  id="ch_descr_rus" sx={{ width: '100ch' }} label="Комментарий (рус.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrRus || ''} /* defaultValue=" " */ onChange={e => setValueDescrRus(e.target.value)}/>
       <p/> 
-      <TextField  id="ch_descr_rus" sx={{ width: '110ch' }} label="Комментарий (англ.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrEng || ''} /* defaultValue=" " */ onChange={e => setValueDescrEng(e.target.value)}/>
-      <p/>
-      <Button  variant="outlined" startIcon={<AddIconBox />} onClick={handleClearClick} Title="Начать ввод новой записи"/* {() => setDisabled(!disabled)} */>Новая запись</Button>
+      <TextField  id="ch_descr_rus" sx={{ width: '100ch' }} label="Комментарий (англ.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrEng || ''} /* defaultValue=" " */ onChange={e => setValueDescrEng(e.target.value)}/>
+{/*       <p/>
+
+      <Button  variant="outlined" startIcon={<AddIconBox />} onClick={handleClearClick} Title="Начать ввод новой записи">Новая запись</Button>
       &nbsp;&nbsp;&nbsp;&nbsp;
       <Button variant="outlined" disabled={!valueTitle} startIcon={<SaveIcon />} onClick={()=>saveRec()} Title="Сохранить изменения в БД">
             Сохранить
       </Button>&nbsp;&nbsp;&nbsp;&nbsp;
       <Button variant="outlined" disabled={!valueId} startIcon={<DeleteIcon />} onClick={()=>handleClickDelete()} Title="Удалить запись">
             Удалить
-      </Button>
+      </Button> */}
       <p/>
-      <div style={{ height: 300, width: 750 }}>
+      <div style={{ height: 300, width: 800 }}>
         <DataTableDataSourceClass table_name="people_class" rec_id={valueId} />
       </div>
     </td>
@@ -410,23 +540,41 @@ const DataTablePeopleClass = () => {
   </tbody>
   </table>
 
-  <Dialog open={open} onClose={handleClose} fullWidth={true}>
+  <Dialog open={openDel} onClose={handleCloseDelNo} fullWidth={true}>
       <DialogTitle>
           Внимание
       </DialogTitle>
       <DialogContent>
           <DialogContentText>
-              В таблице "Типы облучаемых лиц" предложена к удалению следующая запись:<p/><b>{valueTitle}</b>; Код в БД = <b>{valueId}</b><p/>
-              Вы желаете удалить указанную запись?
+          В таблице "Типы облучаемых лиц" предложена к удалению следующая запись:<p/><b>{valueTitle}</b>; Код в БД = <b>{valueId}</b><p/>
+          Вы желаете удалить указанную запись?
           </DialogContentText>
       </DialogContent>
       <DialogActions>
-          <Button variant="outlined" onClick={handleClose} autoFocus>Нет</Button>
-          <Button variant="outlined" onClick={handleCloseYes} >Да</Button>
+          <Button variant="outlined" onClick={handleCloseDelNo} autoFocus>Нет</Button>
+          <Button variant="outlined" onClick={handleCloseDelYes} >Да</Button>
       </DialogActions>
   </Dialog>
-     </div>
+ 
+  <Dialog open={openSave} onClose={handleCloseSaveNo} fullWidth={true}>
+  <DialogTitle>
+      Внимание
+  </DialogTitle>
+  <DialogContent>
+      <DialogContentText>
+          В запись таблицы "Типы облучаемых лиц" с кодом <b>{valueId}</b> внесены изменения.<p/>
+          {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p/>
+          {valueNameRus === valueNameRusInitial ? '' : 'Название (рус. яз): '+valueNameRus+'; ' }<p/>
+          <p/>Вы желаете сохранить указанную запись?
+      </DialogContentText>
+  </DialogContent>
+  <DialogActions>
+      <Button variant="outlined" onClick={handleCloseSaveNo} autoFocus>Нет</Button>
+      <Button variant="outlined" onClick={handleCloseSaveYes} >Да</Button>
+  </DialogActions>
+</Dialog>
+ </div>     
   )
 }
 
-export { DataTablePeopleClass }
+export { DataTablePeopleClass, lastId }

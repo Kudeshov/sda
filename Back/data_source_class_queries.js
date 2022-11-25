@@ -21,7 +21,9 @@ pool.on('error', function (err, client) {
 const getDataSourceClass = (request, response) => {
   const { rec_id, table_name } = request.query;
   console.log( request.query );  
-  pool.query('SELECT data_source_class.*, data_source.title  FROM nucl.data_source_class '+
+  pool.query(
+    'SELECT data_source_class.*, data_source.title, data_source.shortname, '+
+    'data_source.fullname, data_source.descr, data_source.external_ds FROM nucl.data_source_class '+  
     'JOIN nucl.data_source on data_source.id = data_source_class.data_source_id ' +
     'where table_name = $1 and rec_id = $2', [table_name, rec_id||0], (error, results) => {
     if (error) {

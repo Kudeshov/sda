@@ -2,7 +2,8 @@ import React,  { useState, useEffect } from 'react'
 import { DataGrid, ruRU } from '@mui/x-data-grid'
 import Button from '@mui/material/Button';
 import EditIcon from '@mui/icons-material/Edit';
-import AddBoxIcon from '@mui/icons-material/AddBox';
+import AddIcon from '@mui/icons-material/Add';
+import InfoIcon from '@mui/icons-material/Info';
 import DeleteIcon from '@mui/icons-material/Delete';
 import TextField from '@mui/material/TextField';
 import Dialog from '@mui/material/Dialog';
@@ -79,14 +80,26 @@ const columns_src = [
   { field: 'title', headerName: 'Источник', width: 200 },
   { field: 'title_src', headerName: 'Обозначение', width: 180, hideable: false },
   { field: 'name_src', headerName: 'Название', width: 250 },
+ // { field: 'name_src', headerName: 'Имя', width: 250 },
+  { field: 'shortname', headerName: 'Краткое название', width: 250 },
+  { field: 'fullname', headerName: 'Полное название', width: 250 },
+  { field: 'descr', headerName: 'Комментарий', width: 250 },
+  { field: 'external_ds', headerName: 'Внешний источник данных', width: 250 },
 ]
 
 const [valueId, setValueID] = React.useState();
 const [valueDataSourceId, setValueDataSourceId] = React.useState();
 const [valueRecId, setValueRecID] = React.useState();
 const [valueTableName, setValueTableName] = React.useState();
+const [valueTitle, setValueTitle] = React.useState();
 const [valueTitleSrc, setValueTitleSrc] = React.useState();
 const [valueNameSrc, setValueNameSrc] = React.useState();
+
+const [valueShortName, setValueShortName] = React.useState();
+const [valueFullName, setValueFullName] = React.useState();
+const [valueDescr, setValueDescr] = React.useState();
+const [valueExternalDS, setValueExternalDS] = React.useState();
+
 const [isLoading, setIsLoading] = React.useState(false);
 const [openAlert, setOpenAlert] = React.useState(false, '');
 const [selectionModel, setSelectionModel] = React.useState([]);
@@ -100,8 +113,13 @@ useEffect(() => {
     setValueDataSourceId(`${tableDataSrcClass[0].data_source_id}`);
     setValueTableName(`${tableDataSrcClass[0].table_name}`);
     setValueRecID(`${tableDataSrcClass[0].rec_id}`);
+    setValueTitle(`${tableDataSrcClass[0].title}`);    
     setValueTitleSrc(`${tableDataSrcClass[0].title_src}`);
-    setValueNameSrc(`${tableDataSrcClass[0].name_src}`); 
+    setValueNameSrc(`${tableDataSrcClass[0].name_src}`);
+    setValueShortName(`${tableDataSrcClass[0].shortname}`);
+    setValueFullName(`${tableDataSrcClass[0].fullname}`);
+    setValueDescr(`${tableDataSrcClass[0].descr}`);
+    setValueExternalDS(`${tableDataSrcClass[0].external_ds}`);      
   }
   if ((!isLoading) && (tableDataSrcClass) )
   {
@@ -135,6 +153,14 @@ const reloadDataSrcClass = async () => {
 };
 
 const [openConfirmDelete, setOpenConfirmDelete] = React.useState(false); 
+const [openDSInfo, setOpenDSInfo] = React.useState(false); 
+const handleOpenDSInfo = () => {
+  setOpenDSInfo(true);
+};
+const handleCloseDSInfo = () => {
+  setOpenDSInfo(false);
+};
+
 const handleClickDelete = () => {
   setOpenConfirmDelete(true);
 };
@@ -274,15 +300,20 @@ const handleRowClick/* : GridEventListener<'rowClick'>  */ = (params) => {
   setValueDataSourceId(`${params.row.data_source_id}`);
   setValueTableName(`${params.row.table_name}`);
   setValueRecID(`${params.row.rec_id}`);
+  setValueTitle(`${params.row.title}`);
   setValueTitleSrc(`${params.row.title_src}`);
-  setValueNameSrc(`${params.row.name_src}`);  
+  setValueNameSrc(`${params.row.name_src}`);
+  setValueShortName(`${params.row.shortname}`);  
+  setValueFullName(`${params.row.fullname}`);  
+  setValueDescr(`${params.row.descr}`);  
+  setValueExternalDS(`${params.row.external_ds}`);  
 }; 
 
 const [select, setSelection] = useState([]);
   return (
-    <div style={{ height: 270, width: 850 }}>
-      <table cellSpacing={0} cellPadding={0} style={{ height: 270, width: 850, verticalAlign: 'top' }} border="0"><tbody><tr>
-        <td style={{ height: 270, width: 750, verticalAlign: 'top' }}>
+    <div style={{ height: 270, width: 886 }}>
+      <table cellSpacing={0} cellPadding={0} style={{ height: 270, width: 886, verticalAlign: 'top' }} border="0"><tbody><tr>
+        <td style={{ height: 270, width: 800, verticalAlign: 'top' }}>
       <DataGrid
         localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
         rowHeight={25}
@@ -302,17 +333,26 @@ const [select, setSelection] = useState([]);
               data_source_id: false,
               table_name: false,
               rec_id: false,
+              fullname: false,
+              shortname: false,
+              external_ds: false,
+              descr: false,
             },
           },
         }}             
       /></td>
       <td style={{ height: 270, width: 100, verticalAlign: 'top' }}>
-      <Button onClick={handleClickAdd} startIcon={<AddBoxIcon />} title="Добавить связь с источником данных"></Button>
+      <IconButton onClick={()=>handleClickAdd()} color="primary" size="small" Title="Добавить связь с источником данных"><AddIcon/></IconButton><br/>
+      <IconButton onClick={()=>handleClickEdit()} disabled={select} color="primary" size="small" Title="Редактировать связь с источником данных"><EditIcon /></IconButton><br/>
+      <IconButton onClick={()=>handleClickDelete()} disabled={select} color="primary" size="small" Title="Удалить связь с источником данных"><DeleteIcon /></IconButton><br/>
+      <IconButton onClick={()=>handleOpenDSInfo()} disabled={select} color="primary" size="small" Title="Информация по источнику данныъ"><InfoIcon /></IconButton>
+
+{/*       <Button onClick={handleClickAdd} startIcon={<AddBoxIcon />} title="Добавить связь с источником данных"></Button>
       <p/>
       <Button disabled={select} onClick={handleClickEdit} startIcon={<EditIcon />} title="Редактировать связь с источником данных"></Button>
       <p/>
       <Button disabled={select} onClick={()=>handleClickDelete()} startIcon={<DeleteIcon />} title="Удалить связь с источником данных"></Button>
-      </td></tr>
+ */}      </td></tr>
       <tr>
         <td>
         <Box sx={{ width: '100%' }}>
@@ -402,11 +442,7 @@ const [select, setSelection] = useState([]);
         </DialogActions>
       </Dialog>
 
-      <Dialog
-      open={openConfirmDelete}
-      onClose={handleCloseConfirmDelete}
-      fullWidth={true}
-  >
+      <Dialog open={openConfirmDelete} onClose={handleCloseConfirmDelete} fullWidth={true}>
       <DialogTitle>
           Внимание
       </DialogTitle>
@@ -420,7 +456,34 @@ const [select, setSelection] = useState([]);
           <Button variant="outlined" onClick={handleCloseConfirmDelete} autoFocus>Нет</Button>
           <Button variant="outlined" onClick={handleCloseConfirmDeleteYes} >Да</Button>
       </DialogActions>
+
       </Dialog>
+      <Dialog open={openDSInfo} onClose={handleCloseDSInfo} fullWidth={true}>
+      <DialogTitle>
+          Источник данных <b>{valueTitle}</b>
+      </DialogTitle>
+      <DialogContent>
+          <DialogContentText>
+              Код: <b>{valueDataSourceId}</b><p/>
+              Обозначение: <b>{valueTitle}</b><p/>
+              Краткое название: <b>{valueShortName}</b><p/> 
+              Полное название: <b>{valueFullName}</b><p/> 
+              Тип источника: <b>{valueExternalDS === 'false' ? 'Целевая БД' : 'Внешний источник' }</b><p/> 
+
+
+{/*               const valuesExtDS = [
+    { label: 'Целевая БД', value: 'false' },
+    { label: 'Внешний источник', value: 'true' } ]; */}
+
+
+              Комментарий: <b>{valueDescr}</b><p/> 
+          </DialogContentText>
+      </DialogContent>
+      <DialogActions>
+          <Button variant="outlined" onClick={handleCloseDSInfo} autoFocus>Закрыть</Button>
+      </DialogActions>
+      </Dialog>
+
       </div>
     )
 }

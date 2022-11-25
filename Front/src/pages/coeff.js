@@ -3,7 +3,7 @@ import { DataTablePeopleClass } from './dt_people_class';
 function Coeff() {
   return (
     <div className="App">
-    <center><h3>Типы облучаемых лиц</h3></center> 
+    <h3>&nbsp;&nbsp;Типы облучаемых лиц</h3>
     <table>
       <tbody>
     <tr>

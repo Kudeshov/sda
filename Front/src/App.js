@@ -8,7 +8,8 @@ import ClassFunctions from "./pages/class_func";
 import Substance from "./pages/substance";
 import Db from "./pages/db";
 import Coeff from "./pages/coeff";
- 
+import Page from "./page";
+//import lastID from "./pages/coeff";
 function App() {
   return (
     <Router>
@@ -22,6 +23,12 @@ function App() {
         <Route path="/class_func" component={ClassFunctions} />
         <Route path="/coeff" component={Coeff} 
 
+          render={(props) => (
+            <Page title="Типы облучаемых лиц">
+              <Coeff {...props} />
+            </Page>
+          )}
+          
         />
         <Route path="/db" component={Db} />
       </Switch>
