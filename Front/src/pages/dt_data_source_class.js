@@ -131,9 +131,8 @@ const reloadDataSrcClass = async () => {
   setIsLoading(true);
   try {
     lastRecID = props.rec_id;
-    
-    console.log('reloadDataSrcClass lastRecID =');
-    console.log(lastRecID);
+    //console.log('reloadDataSrcClass lastRecID =');
+    //console.log(lastRecID);
     const response = await fetch(`/data_source_class?table_name=people_class&rec_id=${props.rec_id??0}`);
      if (!response.ok) {
       alertText =  'Ошибка при обновлении данных';
@@ -175,12 +174,12 @@ const handleCloseConfirmDeleteYes = () => {
 };
 /////////////////////////////////////////////////////////////////// DELETE /////////////////////
 const delRec =  async () => {
-  console.log('delrec clicked');
+  //console.log('delrec clicked');
   const js = JSON.stringify({
      id: valueId,
   });
   setIsLoading(true);
-  console.log(js);
+  //console.log(js);
   try {
     const response = await fetch('/data_source_class/'+valueId, {
       method: 'DELETE',
@@ -281,7 +280,7 @@ const addRec = async ()  => {
       alertSeverity = "success";
       alertText =  await response.text();
       lastAddedId = parseInt( alertText.substr(alertText.lastIndexOf('ID:') + 3, 20)); 
-      console.log(lastAddedId);
+      //console.log(lastAddedId);
       setValueID(lastAddedId);
       setOpenAlert(true);  
     }

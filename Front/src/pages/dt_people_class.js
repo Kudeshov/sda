@@ -5,14 +5,10 @@ import {
   GridToolbarContainer,
   useGridApiContext,
   gridFilteredSortedRowIdsSelector,
-//  GridToolbarExport, 
-//  GridToolbar
 } from '@mui/x-data-grid';
 
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
-//import { makeStyles } from "@material-ui/core";
-
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
@@ -36,13 +32,10 @@ var lastId = 0;
 
 const DataTablePeopleClass = () => {
 
-  useEffect(() => {
-    console.log('run after mount?');
-    //handleCancelClick();
-    //setEditStarted(true);
-    //setEditStarted(false);
+/*   useEffect(() => {
+    //console.log('run after mount?');
   }, [ ]); // <-- empty array means 'run once'
-
+ */
   const [valueId, setValueID] = React.useState();
   const [valueTitle, setValueTitle] = React.useState();
   const [valueTitleInitial, setValueTitleInitial] = React.useState();
@@ -60,8 +53,8 @@ const DataTablePeopleClass = () => {
   const [editStarted, setEditStarted] = useState([false]);
 
   useEffect(() => {
-    console.log([valueTitleInitial, valueTitle, valueNameRusInitial, valueNameRus, valueNameEngInitial, valueNameEng, 
-      valueDescrEngInitial, valueDescrEng, valueDescrRusInitial, valueDescrRus]); 
+    //console.log([valueTitleInitial, valueTitle, valueNameRusInitial, valueNameRus, valueNameEngInitial, valueNameEng, 
+    //  valueDescrEngInitial, valueDescrEng, valueDescrRusInitial, valueDescrRus]); 
     setEditStarted((valueTitleInitial!==valueTitle)||(valueNameRusInitial!==valueNameRus)||(valueNameEngInitial!==valueNameEng)
       ||(valueDescrEngInitial!==valueDescrEng)||(valueDescrRusInitial!==valueDescrRus));
     }, [valueTitleInitial, valueTitle, valueNameRusInitial, valueNameRus, valueNameEngInitial, valueNameEng, 
@@ -71,7 +64,7 @@ const DataTablePeopleClass = () => {
     if ((!isLoading) && (tableData) && (tableData.length)) {
       if (!lastId) 
       {
-        console.log('isLoading, tableData ON lastId '+lastId);
+        //console.log('isLoading, tableData ON lastId '+lastId);
         lastId = tableData[0].id;
         setSelectionModel(tableData[0].id);
         setValueID(`${tableData[0].id}`);
@@ -80,46 +73,30 @@ const DataTablePeopleClass = () => {
         setValueNameEng(`${tableData[0].name_eng}`);
         setValueDescrRus(`${tableData[0].descr_rus}`);
         setValueDescrEng(`${tableData[0].descr_eng}`);
-
-        console.log('useEffect Refresh initial '+tableData[0].title+' '+tableData[0].name_rus);
-
+        //console.log('useEffect Refresh initial '+tableData[0].title+' '+tableData[0].name_rus);
         setValueTitleInitial(`${tableData[0].title}`);       
         setValueNameRusInitial(`${tableData[0].name_rus}`);
         setValueNameEngInitial(`${tableData[0].name_eng}`);
         setValueDescrRusInitial(`${tableData[0].descr_rus}`);
         setValueDescrEngInitial(`${tableData[0].descr_eng}`);
       }
-      else
-      {
-        console.log('isLoading, tableData OFF lastId '+lastId + ' tableData.length) ' + tableData.length + 'isLoading'+isLoading);
-        //console.log('useEffect Refresh initial '+tableData[0].title+' '+tableData[0].name_rus);
-        //setValueTitleInitial(`${tableData[0].title}`);       
-        //setValueNameRusInitial(`${tableData[0].name_rus}`);
-        //console.log('useEffect Refresh initial '+valueTitleInitial+' '+valueNameRusInitial);
-      }
     }
     }, [ isLoading, tableData] );
 
   const handleRowClick = (params) => {
-
-   // if (valueId!== params.row.id) 
     if (editStarted)
     {
-      //if (window.confirm("Запись была отредактирована. Сохранить?")) 
       handleClickSave(params);
     } 
     else 
     {
-      //console.log(params);
       setValueID(`${params.row.id}`);
       setValueTitle(`${params.row.title}`);
       setValueNameRus(`${params.row.name_rus}`);
       setValueNameEng(`${params.row.name_eng}`);
       setValueDescrRus(`${params.row.descr_rus}`);
       setValueDescrEng(`${params.row.descr_eng}` );
-
-      console.log('handleRowClick Refresh initial '+params.row.title+' '+params.row.name_rus);
-
+      //console.log('handleRowClick Refresh initial '+params.row.title+' '+params.row.name_rus);
       setValueTitleInitial(`${params.row.title}`);
       setValueNameRusInitial(`${params.row.name_rus}`);
       setValueNameEngInitial(`${params.row.name_eng}`);
@@ -141,7 +118,7 @@ const DataTablePeopleClass = () => {
     fetch("/people_class")
       .then((data) => data.json())
       .then((data) => setTableData(data))
-      .then((data) => {console.log('fetch ok'); console.log(data); lastId = 0;} ); 
+      .then((data) => {/* console.log('fetch ok'); console.log(data);  */lastId = 0;} ); 
   }, [])
 
   ///////////////////////////////////////////////////////////////////  SAVE  /////////////////////
@@ -154,13 +131,11 @@ const DataTablePeopleClass = () => {
       descr_rus: valueDescrRus,
       descr_eng: valueDescrEng         
     });
-    console.log('saverec');
     if (!valueId) {
       addRec();
       return;
     }
     setIsLoading(true);
-    console.log(js);
     try {
       const response = await fetch('/people_class/'+valueId, {
        method: 'PUT',
@@ -182,7 +157,6 @@ const DataTablePeopleClass = () => {
         setOpenAlert(true);  
       }
    } catch (err) {
-     //throw {message: err.message,status:err.cod};
      alertText = err.message;
      alertSeverity = 'error';
      setOpenAlert(true);
@@ -190,28 +164,18 @@ const DataTablePeopleClass = () => {
      setIsLoading(false);
      if (fromToolbar) 
      {
-       console.log('saveRec fromtoolbar Refresh initial '+valueTitle+' '+valueNameRus);
        setValueTitleInitial(valueTitle);       
        setValueNameRusInitial(valueNameRus); 
        setValueNameEngInitial(valueNameEng);
        setValueDescrRusInitial(valueDescrRus);
        setValueDescrEngInitial(valueDescrEng);           
      }
-     else
-     {
-       console.log('saveRec NO fromtoolbar Refresh initial '+valueTitle+' '+valueNameRus);
-      // setValueTitleInitial(valueTitle);       
-      // setValueNameRusInitial(valueNameRus);     
-     }
     reloadData();     
-//     console.log('saveRec Refresh initial '+valueTitle+' '+valueNameRus);
-//     setValueTitleInitial(valueTitle);
-//     setValueNameRusInitial(valueNameRus);
    }
  };
 /////////////////////////////////////////////////////////////////// ADDREC ///////////////////// 
   const addRec = async ()  => {
-    console.log('addrec executed');
+    //console.log('addrec executed');
     const js = JSON.stringify({
       id: valueId,
       title: valueTitle,
@@ -221,7 +185,7 @@ const DataTablePeopleClass = () => {
       descr_eng: valueDescrEng         
     });
     setIsLoading(true);
-    console.log(js);
+    //console.log(js);
     try {
       const response = await fetch('/people_class/', {
         method: 'POST',
@@ -242,7 +206,7 @@ const DataTablePeopleClass = () => {
         alertSeverity = "success";
         alertText =  await response.text();
         lastId = parseInt( alertText.substr(alertText.lastIndexOf('ID:') + 3, 20)); 
-        console.log(lastId);
+        //console.log(lastId);
         setValueID(lastId);
         setOpenAlert(true);  
       }
@@ -255,7 +219,7 @@ const DataTablePeopleClass = () => {
       reloadData();
       setSelectionModel(lastId);
       //Refresh initial state
-      console.log('addRec Refresh initial '+valueTitle+' '+valueNameRus);
+      //console.log('addRec Refresh initial '+valueTitle+' '+valueNameRus);
       setValueTitleInitial(valueTitle);
       setValueNameRusInitial(valueNameRus);
       setValueNameEngInitial(valueNameEng);
@@ -266,14 +230,13 @@ const DataTablePeopleClass = () => {
 
 /////////////////////////////////////////////////////////////////// DELETE /////////////////////
   const delRec =  async () => {
-    console.log('delrec clicked');
+    //console.log('delrec clicked');
     const js = JSON.stringify({
         id: valueId,
         title: valueTitle,
-        //shortname: valueShortName
     });
     setIsLoading(true);
-    console.log(js);
+    //console.log(js);
     try {
       const response = await fetch('/people_class/'+valueId, {
         method: 'DELETE',
@@ -307,7 +270,7 @@ const DataTablePeopleClass = () => {
       setValueDescrRus(`${tableData[0].descr_rus}`);
       setValueDescrEng(`${tableData[0].descr_eng}`);
 
-      console.log('delRec Refresh initial '+tableData[0].title+' '+tableData[0].name_rus);
+      //console.log('delRec Refresh initial '+tableData[0].title+' '+tableData[0].name_rus);
       setValueTitleInitial(`${tableData[0].title}`);
       setValueNameRusInitial(`${tableData[0].name_rus}`);
       setValueNameEngInitial(`${tableData[0].name_eng}`);
@@ -317,11 +280,9 @@ const DataTablePeopleClass = () => {
   };  
 
   /////////////////////////////////////////////////////////////////// RELOAD /////////////////////
-
   const reloadDataAlert =  async () => {
     alertSeverity = "info";
     alertText =  'Данные успешно обновлены';
-    // await reloadData();
     try 
     {
       await reloadData();
@@ -336,11 +297,10 @@ const DataTablePeopleClass = () => {
   }
 
   const reloadData = async () => {
-    //setIsLoading(true);
     try {
       const response = await fetch("/people_class");
        if (!response.ok) {
-        console.log('response not ok');
+        //console.log('response not ok');
         alertText = `Ошибка при обновлении данных: ${response.status}`;
         alertSeverity = "false";
         const error = response.status + ' (' +response.statusText+')';  
@@ -352,7 +312,7 @@ const DataTablePeopleClass = () => {
         setTableData(result);
       }
     } catch (err) {
-      console.log('catch err');
+      //console.log('catch err');
       throw err;
     } finally {
       setIsLoading(false);
@@ -400,29 +360,17 @@ const DataTablePeopleClass = () => {
     { field: 'descr_rus', headerName: 'Комментарий (рус.яз)', width: 180 },
     { field: 'descr_eng', headerName: 'Комментарий (англ.яз)', width: 180 },
   ]
-/* 
-  const DarkerDisabledTextField = withStyles({
-    root: {
-      marginRight: 8,
-      "& .MuiInputBase-root.Mui-disabled": {
-        color: "rgba(255, 0, 0, 0.7)" // (default alpha is 0.38)
-      }
-    }
-  })(TextField); */
 
   const [openAlert, setOpenAlert] = React.useState(false, '');
-
   const handleCancelClick = () => 
   {
-    console.log('selectionModel');
-    console.log(selectionModel);
+    //console.log('selectionModel');
+    //console.log(selectionModel);
     //console.log('selectionModel='+selectionModel.row.id);
-    
     const selectedIDs = new Set(selectionModel);
-    console.log(selectedIDs);
+    //console.log(selectedIDs);
     const selectedRowData = tableData.filter((row) => selectedIDs.has(row.id));
-    console.log(selectedRowData);
-
+    //console.log(selectedRowData);
     if (selectedRowData.length)
     {
       setValueID(`${selectedRowData[0].id}`);
@@ -431,8 +379,7 @@ const DataTablePeopleClass = () => {
       setValueNameEng(`${selectedRowData[0].name_eng}` );
       setValueDescrRus(`${selectedRowData[0].descr_rus}`);
       setValueDescrEng(`${selectedRowData[0].descr_eng}` );
-
-      console.log('handleCancelClick Refresh initial '+selectedRowData[0].title+' '+selectedRowData[0].name_rus);
+      //console.log('handleCancelClick Refresh initial '+selectedRowData[0].title+' '+selectedRowData[0].name_rus);
       setValueTitleInitial(`${selectedRowData[0].title}`);
       setValueNameRusInitial(`${selectedRowData[0].name_rus}`);
       setValueNameEngInitial(`${selectedRowData[0].name_eng}` );
@@ -454,19 +401,7 @@ const DataTablePeopleClass = () => {
         <IconButton onClick={()=>handleCancelClick()} disabled={!editStarted} color="primary" size="small" Title="Отменить редактирование"><UndoIcon /></IconButton>
         <IconButton onClick={()=>reloadDataAlert()} color="primary" size="small" Title="Обновить данные"><RefreshIcon /></IconButton>
         <IconButton onClick={()=>handleExport({ delimiter: ';', utf8WithBom: true, getRowsToExport: () => gridFilteredSortedRowIdsSelector(apiRef) })} color="primary" size="small" Title="Сохранить в формате CSV"><SaveAltIcon /></IconButton>
-{/*         <Button {...buttonAddProps} sx={{ width: 10, padding: 0, margin: 0 }} onClick={()=>handleClearClick()} Title="Создать запись"></Button>
-        <Button {...buttonSaveProps} onClick={()=>saveRec()}  Title="Сохранить запись в БД"></Button>
-        <Button {...buttonDelProps} onClick={()=>handleClickDelete()} Title="Удалить запись"></Button>
-        <Button {...buttonUndoProps} Title="Отменить редактирование"></Button>
-        <Button {...buttonRefreshProps} onClick={()=>reloadDataAlert()} Title="Обновить данные"></Button>
-        <Button
-        style={{ maxWidth: "44px", minWidth: "44px" }}
-        classes={{ startIcon: classes.startICon }}
-        variant="outlined"
-        startIcon={<Add />}
-        ></Button>     */}    
-{/*         <GridToolbarExport Name="asd" csvOptions={{ delimiter: ';', utf8WithBom: true, getRowsToExport: () => gridFilteredSortedRowIdsSelector(apiRef) }} />
- */}      </GridToolbarContainer>
+      </GridToolbarContainer>
     );
   }
 
@@ -516,28 +451,13 @@ const DataTablePeopleClass = () => {
               <CloseIcon fontSize="inherit" />
             </IconButton>
           }
-          /* sx={{ mb: 2 }} */
         >
           {alertText}
         </Alert>
       </Collapse>
-{/*       <div style={{
-      marginLeft: '40%',
-      }}>
-      </div> */}
       </Box>
-
-{/*       <p/>
-      <Button variant="outlined" startIcon={<RefreshIcon />} onClick={()=>reloadDataAlert()}>
-    	   Обновить данные
-	    </Button>      */}
-
-
-
       </td>
-
       <td style={{ height: 550, width: 900, verticalAlign: 'top' }}>
-
       <TextField  id="ch_id"  disabled={true} label="Код" sx={{ width: '12ch' }} variant="outlined" value={valueId || ''} size="small" /* defaultValue=" " */ onChange={e => setValueID(e.target.value)}/>
       &nbsp;&nbsp;&nbsp;
       <TextField  id="ch_name" sx={{ width: '40ch' }} label="Обозначение" size="small" variant="outlined" value={valueTitle || ''} /* defaultValue=" " */ onChange={e => setValueTitle(e.target.value)}/>
@@ -549,16 +469,6 @@ const DataTablePeopleClass = () => {
       <TextField  id="ch_descr_rus" sx={{ width: '100ch' }} label="Комментарий (рус.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrRus || ''} /* defaultValue=" " */ onChange={e => setValueDescrRus(e.target.value)}/>
       <p/> 
       <TextField  id="ch_descr_rus" sx={{ width: '100ch' }} label="Комментарий (англ.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrEng || ''} /* defaultValue=" " */ onChange={e => setValueDescrEng(e.target.value)}/>
-{/*       <p/>
-
-      <Button  variant="outlined" startIcon={<AddIconBox />} onClick={handleClearClick} Title="Начать ввод новой записи">Новая запись</Button>
-      &nbsp;&nbsp;&nbsp;&nbsp;
-      <Button variant="outlined" disabled={!valueTitle} startIcon={<SaveIcon />} onClick={()=>saveRec()} Title="Сохранить изменения в БД">
-            Сохранить
-      </Button>&nbsp;&nbsp;&nbsp;&nbsp;
-      <Button variant="outlined" disabled={!valueId} startIcon={<DeleteIcon />} onClick={()=>handleClickDelete()} Title="Удалить запись">
-            Удалить
-      </Button> */}
       <p/>
       <div style={{ height: 300, width: 800 }}>
         <DataTableDataSourceClass table_name="people_class" rec_id={valueId} />
