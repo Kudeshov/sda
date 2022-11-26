@@ -45,7 +45,6 @@ const getDataSourceClassById = (request, response) => {
 
 const createDataSourceClass = (request, response) => {
   console.log( request.body );
-  //id":126,"data_source_id":1,"table_name":"people_class","rec_id":1,"title_src":"public","name_src":null,"title":"IBRAE"
   const { data_source_id, table_name, rec_id, title_src, name_src } = request.body;
   pool.query('INSERT INTO nucl.data_source_class (data_source_id, table_name, rec_id, title_src, name_src) VALUES ($1, $2, $3, $4, $5) RETURNING id', [data_source_id, table_name, rec_id, title_src, name_src], (error, results) => {
     if (error) {
@@ -77,7 +76,6 @@ const updateDataSourceClass = (request, response) => {
   const { data_source_id, table_name, title_src, name_src } = request.body;
 
   console.log( 'updateDataSourceClass id='+id );
-  //id":126,"data_source_id":1,"table_name":"people_class","rec_id":1,"title_src":"public","name_src":null,"title":"IBRAE"
   pool.query( //поля table_name rec_id не должны меняться
     'UPDATE nucl.data_source_class SET title_src = $1, name_src = $2, table_name = $3, data_source_id = $4 where id = $5',
     [title_src, name_src, table_name, data_source_id, id ],
@@ -87,7 +85,7 @@ const updateDataSourceClass = (request, response) => {
         response.status(400).send(`Связь с источником данных с кодом ${id} не изменена: ${error.message} `)
       }
       else
-      {
+      { 
         if (results.rowCount == 1)
           response.status(200).send(`Связь с источником данных ${id} изменена. Строк изменено: ${results.rowCount} `);
         if (results.rowCount == 0)

@@ -80,7 +80,6 @@ const columns_src = [
   { field: 'title', headerName: 'Источник', width: 200 },
   { field: 'title_src', headerName: 'Обозначение', width: 180, hideable: false },
   { field: 'name_src', headerName: 'Название', width: 250 },
- // { field: 'name_src', headerName: 'Имя', width: 250 },
   { field: 'shortname', headerName: 'Краткое название', width: 250 },
   { field: 'fullname', headerName: 'Полное название', width: 250 },
   { field: 'descr', headerName: 'Комментарий', width: 250 },
@@ -124,7 +123,7 @@ useEffect(() => {
   if ((!isLoading) && (tableDataSrcClass) )
   {
     //обновить блокировку кнопок "Редактировать" и "Удалить" в зависимости от наличия записей в таблице
-    setSelection(!tableDataSrcClass.length);
+    setNoRecords(!tableDataSrcClass.length);
   }
 }, [isLoading, tableDataSrcClass, lastSrcClassID]); 
 
@@ -157,6 +156,7 @@ const [openDSInfo, setOpenDSInfo] = React.useState(false);
 const handleOpenDSInfo = () => {
   setOpenDSInfo(true);
 };
+
 const handleCloseDSInfo = () => {
   setOpenDSInfo(false);
 };
@@ -309,7 +309,8 @@ const handleRowClick/* : GridEventListener<'rowClick'>  */ = (params) => {
   setValueExternalDS(`${params.row.external_ds}`);  
 }; 
 
-const [select, setSelection] = useState([]);
+const [noRecords, setNoRecords] = useState([]);
+
   return (
     <div style={{ height: 270, width: 886 }}>
       <table cellSpacing={0} cellPadding={0} style={{ height: 270, width: 886, verticalAlign: 'top' }} border="0"><tbody><tr>
@@ -342,17 +343,11 @@ const [select, setSelection] = useState([]);
         }}             
       /></td>
       <td style={{ height: 270, width: 100, verticalAlign: 'top' }}>
-      <IconButton onClick={()=>handleClickAdd()} color="primary" size="small" Title="Добавить связь с источником данных"><AddIcon/></IconButton><br/>
-      <IconButton onClick={()=>handleClickEdit()} disabled={select} color="primary" size="small" Title="Редактировать связь с источником данных"><EditIcon /></IconButton><br/>
-      <IconButton onClick={()=>handleClickDelete()} disabled={select} color="primary" size="small" Title="Удалить связь с источником данных"><DeleteIcon /></IconButton><br/>
-      <IconButton onClick={()=>handleOpenDSInfo()} disabled={select} color="primary" size="small" Title="Информация по источнику данныъ"><InfoIcon /></IconButton>
-
-{/*       <Button onClick={handleClickAdd} startIcon={<AddBoxIcon />} title="Добавить связь с источником данных"></Button>
-      <p/>
-      <Button disabled={select} onClick={handleClickEdit} startIcon={<EditIcon />} title="Редактировать связь с источником данных"></Button>
-      <p/>
-      <Button disabled={select} onClick={()=>handleClickDelete()} startIcon={<DeleteIcon />} title="Удалить связь с источником данных"></Button>
- */}      </td></tr>
+      <IconButton onClick={()=>handleClickAdd()} disabled={!props.rec_id} color="primary" size="small" Title="Добавить связь с источником данных"><AddIcon/></IconButton><br/>
+      <IconButton onClick={()=>handleClickEdit()} disabled={noRecords} color="primary" size="small" Title="Редактировать связь с источником данных"><EditIcon /></IconButton><br/>
+      <IconButton onClick={()=>handleClickDelete()} disabled={noRecords} color="primary" size="small" Title="Удалить связь с источником данных"><DeleteIcon /></IconButton><br/>
+      <IconButton onClick={()=>handleOpenDSInfo()} disabled={noRecords} color="primary" size="small" Title="Информация по источнику данныъ"><InfoIcon /></IconButton>
+      </td></tr>
       <tr>
         <td>
         <Box sx={{ width: '100%' }}>
@@ -387,10 +382,7 @@ const [select, setSelection] = useState([]);
       </tr>
       </tbody></table>
 
-      <Dialog open={open} onClose={handleCloseNo}  
-               fullWidth={false} 
-               maxWidth="800px" 
-      >
+      <Dialog open={open} onClose={handleCloseNo} fullWidth={false} maxWidth="800px">
       <DialogTitle>Связь с источником данных</DialogTitle>  
         <DialogContent>
           <DialogContentText>
@@ -469,13 +461,6 @@ const [select, setSelection] = useState([]);
               Краткое название: <b>{valueShortName}</b><p/> 
               Полное название: <b>{valueFullName}</b><p/> 
               Тип источника: <b>{valueExternalDS === 'false' ? 'Целевая БД' : 'Внешний источник' }</b><p/> 
-
-
-{/*               const valuesExtDS = [
-    { label: 'Целевая БД', value: 'false' },
-    { label: 'Внешний источник', value: 'true' } ]; */}
-
-
               Комментарий: <b>{valueDescr}</b><p/> 
           </DialogContentText>
       </DialogContent>

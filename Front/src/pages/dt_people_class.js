@@ -23,15 +23,12 @@ import Alert from '@mui/material/Alert';
 import Collapse from '@mui/material/Collapse';
 import CloseIcon from '@mui/icons-material/Close';
 import { DataTableDataSourceClass } from './dt_data_source_class';
-//import { withStyles } from "@material-ui/core/styles";
 import SaveIcon from '@mui/icons-material/Save';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import DeleteIcon from '@mui/icons-material/Delete';
-//import AddIconBox from '@mui/icons-material/AddBox';
 import UndoIcon from '@mui/icons-material/Undo';
 import AddIcon from '@mui/icons-material/Add';
 import SaveAltIcon from '@mui/icons-material/SaveAlt';
-//import { TroubleshootSharp } from '@mui/icons-material';
 
 var alertText = "Сообщение";
 var alertSeverity = "info";
@@ -49,7 +46,7 @@ const DataTablePeopleClass = () => {
   const [valueId, setValueID] = React.useState();
   const [valueTitle, setValueTitle] = React.useState();
   const [valueTitleInitial, setValueTitleInitial] = React.useState();
-  const [valueNameRus, setValueNameRus] = React.useState([""]);
+  const [valueNameRus, setValueNameRus] = React.useState();
   const [valueNameRusInitial, setValueNameRusInitial] = React.useState();
   const [valueNameEng, setValueNameEng] = React.useState();
   const [valueDescrEng, setValueDescrEng] = React.useState();
@@ -58,27 +55,6 @@ const DataTablePeopleClass = () => {
   const [tableData, setTableData] = useState([]); 
   const [selectionModel, setSelectionModel] = React.useState([]);
   const [editStarted, setEditStarted] = useState([false]);
-
-/*   useEffect = (() => {
-    // console.log('valueId '+valueId);
-   // console.log('selectionModel '+selectionModel);
-    //const selectedIDs =  new Set(selectionModel);
-    //console.log('useEffect'+selectionModel[0]);
-   // const selectedRowData = tableData.filter((row) => selectedIDs.has(row.id));
-     console.log(1);
-  // if (selectedRowData.length)
-    {
-      //setEditStarted( valueTitle!==selectedRowData[0].title )
-      //setValueID(`${selectedRowData[0].id}`);
-      //setValueTitle(`${selectedRowData[0].title}`);
-      //setValueNameRus(`${selectedRowData[0].name_rus}`);
-      //setValueNameEng(`${selectedRowData[0].name_eng}` );
-      //setValueDescrRus(`${selectedRowData[0].descr_rus}`);
-      //setValueDescrEng(`${selectedRowData[0].descr_eng}` );
-    } 
-    
-  }, [selectionModel, valueTitle]); 
- */
 
   useEffect(() => {
     setEditStarted((valueTitleInitial!==valueTitle)||(valueNameRusInitial!==valueNameRus));
@@ -89,21 +65,27 @@ const DataTablePeopleClass = () => {
       if (!lastId) 
       {
         console.log('isLoading, tableData ON lastId '+lastId);
-      //  console.log('selectionModel '+selectionModel||0);
         lastId = tableData[0].id;
         setSelectionModel(tableData[0].id);
         setValueID(`${tableData[0].id}`);
         setValueTitle(`${tableData[0].title}`);
-        setValueTitleInitial(`${tableData[0].title}`);       
         setValueNameRus(`${tableData[0].name_rus}`);
-        setValueNameRusInitial(`${tableData[0].name_rus}`);
         setValueNameEng( tableData[0].name_eng || "" );
         setValueDescrRus(`${tableData[0].descr_rus}`);
         setValueDescrEng(`${tableData[0].descr_eng}` );
+
+        console.log('useEffect Refresh initial '+tableData[0].title+' '+tableData[0].name_rus);
+
+        setValueTitleInitial(`${tableData[0].title}`);       
+        setValueNameRusInitial(`${tableData[0].name_rus}`);
       }
       else
       {
         console.log('isLoading, tableData OFF lastId '+lastId + ' tableData.length) ' + tableData.length + 'isLoading'+isLoading);
+        //console.log('useEffect Refresh initial '+tableData[0].title+' '+tableData[0].name_rus);
+        //setValueTitleInitial(`${tableData[0].title}`);       
+        //setValueNameRusInitial(`${tableData[0].name_rus}`);
+        //console.log('useEffect Refresh initial '+valueTitleInitial+' '+valueNameRusInitial);
       }
     }
     }, [ isLoading, tableData] );
@@ -118,15 +100,18 @@ const DataTablePeopleClass = () => {
     } 
     else 
     {
-      console.log(params);
+      //console.log(params);
       setValueID(`${params.row.id}`);
       setValueTitle(`${params.row.title}`);
-      setValueTitleInitial(`${params.row.title}`);
       setValueNameRus(`${params.row.name_rus}`);
-      setValueNameRusInitial(`${params.row.name_rus}`);
       setValueNameEng(`${params.row.name_eng}`);
       setValueDescrRus(`${params.row.descr_rus}`);
       setValueDescrEng(`${params.row.descr_eng}` );
+
+      console.log('handleRowClick Refresh initial '+params.row.title+' '+params.row.name_rus);
+
+      setValueTitleInitial(`${params.row.title}`);
+      setValueNameRusInitial(`${params.row.name_rus}`);
     }
   }; 
 
@@ -147,7 +132,7 @@ const DataTablePeopleClass = () => {
   }, [])
 
   ///////////////////////////////////////////////////////////////////  SAVE  /////////////////////
-  const saveRec = async () => {
+  const saveRec = async ( fromToolbar ) => {
     const js = JSON.stringify({
       id: valueId,
       title: valueTitle,
@@ -190,8 +175,22 @@ const DataTablePeopleClass = () => {
      setOpenAlert(true);
    } finally {
      setIsLoading(false);
-     reloadData();     
-
+     if (fromToolbar) 
+     {
+       console.log('saveRec fromtoolbar Refresh initial '+valueTitle+' '+valueNameRus);
+       setValueTitleInitial(valueTitle);       
+       setValueNameRusInitial(valueNameRus);     
+     }
+     else
+     {
+       console.log('saveRec NO fromtoolbar Refresh initial '+valueTitle+' '+valueNameRus);
+      // setValueTitleInitial(valueTitle);       
+      // setValueNameRusInitial(valueNameRus);     
+     }
+    reloadData();     
+//     console.log('saveRec Refresh initial '+valueTitle+' '+valueNameRus);
+//     setValueTitleInitial(valueTitle);
+//     setValueNameRusInitial(valueNameRus);
    }
  };
 /////////////////////////////////////////////////////////////////// ADDREC ///////////////////// 
@@ -240,7 +239,7 @@ const DataTablePeopleClass = () => {
       reloadData();
       setSelectionModel(lastId);
       //Refresh initial state
-      console.log('Refresh initial '+valueTitle+' '+valueNameRus);
+      console.log('addRec Refresh initial '+valueTitle+' '+valueNameRus);
       setValueTitleInitial(valueTitle);
       setValueNameRusInitial(valueNameRus);
     }
@@ -284,12 +283,15 @@ const DataTablePeopleClass = () => {
       setSelectionModel(tableData[0].id );  
       setValueID(`${tableData[0].id}`);
       setValueTitle(`${tableData[0].title}`);
-      setValueTitleInitial(`${tableData[0].title}`);
       setValueNameRus(`${tableData[0].name_rus}`);
-      setValueNameRusInitial(`${tableData[0].name_rus}`);
       setValueNameEng(`${tableData[0].name_eng}`);
       setValueDescrRus(`${tableData[0].descr_rus}`);
       setValueDescrEng(`${tableData[0].descr_eng}`);
+
+      console.log('delRec Refresh initial '+tableData[0].title+' '+tableData[0].name_rus);
+      setValueTitleInitial(`${tableData[0].title}`);
+      setValueNameRusInitial(`${tableData[0].name_rus}`);
+
     }
   };  
 
@@ -363,7 +365,7 @@ const DataTablePeopleClass = () => {
   };
   const handleCloseSaveYes = () => {
     setOpenSave(false);
-    saveRec();
+    saveRec(false);
     handleCancelClick();
   };
 
@@ -404,12 +406,14 @@ const DataTablePeopleClass = () => {
     {
       setValueID(`${selectedRowData[0].id}`);
       setValueTitle(`${selectedRowData[0].title}`);
-      setValueTitleInitial(`${selectedRowData[0].title}`);
       setValueNameRus(`${selectedRowData[0].name_rus}`);
-      setValueNameRusInitial(`${selectedRowData[0].name_rus}`);
       setValueNameEng(`${selectedRowData[0].name_eng}` );
       setValueDescrRus(`${selectedRowData[0].descr_rus}`);
       setValueDescrEng(`${selectedRowData[0].descr_eng}` );
+
+      console.log('handleCancelClick Refresh initial '+selectedRowData[0].title+' '+selectedRowData[0].name_rus);
+      setValueTitleInitial(`${selectedRowData[0].title}`);
+      setValueNameRusInitial(`${selectedRowData[0].name_rus}`);
     }
   }
 
@@ -421,7 +425,7 @@ const DataTablePeopleClass = () => {
     return (
       <GridToolbarContainer>
         <IconButton onClick={()=>handleClearClick()}  color="primary" size="small" Title="Создать запись"><AddIcon/></IconButton>
-        <IconButton onClick={()=>saveRec()}  color="primary" size="small" Title="Сохранить запись в БД"><SaveIcon /></IconButton>
+        <IconButton onClick={()=>saveRec(true) /* handleCloseSaveYes() *//* saveRec() */}  color="primary" size="small" Title="Сохранить запись в БД"><SaveIcon /></IconButton>
         <IconButton onClick={()=>handleClickDelete()}  color="primary" size="small" Title="Удалить запись"><DeleteIcon /></IconButton>
         <IconButton onClick={()=>handleCancelClick()} disabled={!editStarted} color="primary" size="small" Title="Отменить редактирование"><UndoIcon /></IconButton>
         <IconButton onClick={()=>reloadDataAlert()} color="primary" size="small" Title="Обновить данные"><RefreshIcon /></IconButton>
