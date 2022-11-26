@@ -49,16 +49,23 @@ const DataTablePeopleClass = () => {
   const [valueNameRus, setValueNameRus] = React.useState();
   const [valueNameRusInitial, setValueNameRusInitial] = React.useState();
   const [valueNameEng, setValueNameEng] = React.useState();
+  const [valueNameEngInitial, setValueNameEngInitial] = React.useState();
   const [valueDescrEng, setValueDescrEng] = React.useState();
+  const [valueDescrEngInitial, setValueDescrEngInitial] = React.useState();
   const [valueDescrRus, setValueDescrRus] = React.useState();
+  const [valueDescrRusInitial, setValueDescrRusInitial] = React.useState();
   const [isLoading, setIsLoading] = React.useState(false);
   const [tableData, setTableData] = useState([]); 
   const [selectionModel, setSelectionModel] = React.useState([]);
   const [editStarted, setEditStarted] = useState([false]);
 
   useEffect(() => {
-    setEditStarted((valueTitleInitial!==valueTitle)||(valueNameRusInitial!==valueNameRus));
-    }, [valueTitleInitial, valueTitle, valueNameRusInitial, valueNameRus]); 
+    console.log([valueTitleInitial, valueTitle, valueNameRusInitial, valueNameRus, valueNameEngInitial, valueNameEng, 
+      valueDescrEngInitial, valueDescrEng, valueDescrRusInitial, valueDescrRus]); 
+    setEditStarted((valueTitleInitial!==valueTitle)||(valueNameRusInitial!==valueNameRus)||(valueNameEngInitial!==valueNameEng)
+      ||(valueDescrEngInitial!==valueDescrEng)||(valueDescrRusInitial!==valueDescrRus));
+    }, [valueTitleInitial, valueTitle, valueNameRusInitial, valueNameRus, valueNameEngInitial, valueNameEng, 
+        valueDescrEngInitial, valueDescrEng, valueDescrRusInitial, valueDescrRus]); 
 
   useEffect(() => {
     if ((!isLoading) && (tableData) && (tableData.length)) {
@@ -70,14 +77,17 @@ const DataTablePeopleClass = () => {
         setValueID(`${tableData[0].id}`);
         setValueTitle(`${tableData[0].title}`);
         setValueNameRus(`${tableData[0].name_rus}`);
-        setValueNameEng( tableData[0].name_eng || "" );
+        setValueNameEng(`${tableData[0].name_eng}`);
         setValueDescrRus(`${tableData[0].descr_rus}`);
-        setValueDescrEng(`${tableData[0].descr_eng}` );
+        setValueDescrEng(`${tableData[0].descr_eng}`);
 
         console.log('useEffect Refresh initial '+tableData[0].title+' '+tableData[0].name_rus);
 
         setValueTitleInitial(`${tableData[0].title}`);       
         setValueNameRusInitial(`${tableData[0].name_rus}`);
+        setValueNameEngInitial(`${tableData[0].name_eng}`);
+        setValueDescrRusInitial(`${tableData[0].descr_rus}`);
+        setValueDescrEngInitial(`${tableData[0].descr_eng}`);
       }
       else
       {
@@ -112,6 +122,9 @@ const DataTablePeopleClass = () => {
 
       setValueTitleInitial(`${params.row.title}`);
       setValueNameRusInitial(`${params.row.name_rus}`);
+      setValueNameEngInitial(`${params.row.name_eng}`);
+      setValueDescrRusInitial(`${params.row.descr_rus}`);
+      setValueDescrEngInitial(`${params.row.descr_eng}` );
     }
   }; 
 
@@ -179,7 +192,10 @@ const DataTablePeopleClass = () => {
      {
        console.log('saveRec fromtoolbar Refresh initial '+valueTitle+' '+valueNameRus);
        setValueTitleInitial(valueTitle);       
-       setValueNameRusInitial(valueNameRus);     
+       setValueNameRusInitial(valueNameRus); 
+       setValueNameEngInitial(valueNameEng);
+       setValueDescrRusInitial(valueDescrRus);
+       setValueDescrEngInitial(valueDescrEng);           
      }
      else
      {
@@ -242,6 +258,9 @@ const DataTablePeopleClass = () => {
       console.log('addRec Refresh initial '+valueTitle+' '+valueNameRus);
       setValueTitleInitial(valueTitle);
       setValueNameRusInitial(valueNameRus);
+      setValueNameEngInitial(valueNameEng);
+      setValueDescrRusInitial(valueDescrRus);
+      setValueDescrEngInitial(valueDescrEng);           
     }
   };
 
@@ -291,7 +310,9 @@ const DataTablePeopleClass = () => {
       console.log('delRec Refresh initial '+tableData[0].title+' '+tableData[0].name_rus);
       setValueTitleInitial(`${tableData[0].title}`);
       setValueNameRusInitial(`${tableData[0].name_rus}`);
-
+      setValueNameEngInitial(`${tableData[0].name_eng}`);
+      setValueDescrRusInitial(`${tableData[0].descr_rus}`);
+      setValueDescrEngInitial(`${tableData[0].descr_eng}`);
     }
   };  
 
@@ -414,6 +435,9 @@ const DataTablePeopleClass = () => {
       console.log('handleCancelClick Refresh initial '+selectedRowData[0].title+' '+selectedRowData[0].name_rus);
       setValueTitleInitial(`${selectedRowData[0].title}`);
       setValueNameRusInitial(`${selectedRowData[0].name_rus}`);
+      setValueNameEngInitial(`${selectedRowData[0].name_eng}` );
+      setValueDescrRusInitial(`${selectedRowData[0].descr_rus}`);
+      setValueDescrEngInitial(`${selectedRowData[0].descr_eng}` );
     }
   }
 
