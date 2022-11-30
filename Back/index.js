@@ -22,10 +22,12 @@ const ch_q = require('./chelement_queries');
 const ds_q = require('./data_source_queries');
 const pc_q = require('./people_class_queries');
 const dsc_q = require('./data_source_class_queries');
+const gn_q = require('./generic_nls_queries');
 
 const { Pool } = require('pg');
 //var msg = 'a';
 var config = require('./config.json');
+const { request, response } = require('express');
 
 const pool = new Pool(config);
 pool.on('error', function (err, client) {
@@ -53,6 +55,14 @@ app.post('/people_class', pc_q.createPeopleClass);       //create
 app.put('/people_class/:id', pc_q.updatePeopleClass);    //update
 app.delete('/people_class/:id', pc_q.deletePeopleClass); //delete
 
+//subst_form interface  req, res) => { handler(req, res, 'about.html')
+
+app.get('/subst_form', (req, res) => {gn_q.getGenericNLS(req, res, 'subst_form')}); //(request, response, 'subst_form'));           //list all
+/* app.get('/subst_form/:id', pc_q.getPeopleClassById);   //list 1
+app.post('/subst_form', pc_q.createPeopleClass);       //create
+app.put('/subst_form/:id', pc_q.updatePeopleClass);    //update
+app.delete('/subst_form/:id', pc_q.deletePeopleClass); //delete
+ */
 //data_source_class_queries
 app.get('/data_source_class', dsc_q.getDataSourceClass);           //list all
 app.post('/data_source_class', dsc_q.createDataSourceClass);       //create

@@ -30,12 +30,7 @@ var alertText = "Сообщение";
 var alertSeverity = "info";
 var lastId = 0;
 
-const DataTablePeopleClass = () => {
-
-/*   useEffect(() => {
-    //console.log('run after mount?');
-  }, [ ]); // <-- empty array means 'run once'
- */
+const DataTablePeopleClass = (props) => {
   const [valueId, setValueID] = React.useState();
   const [valueTitle, setValueTitle] = React.useState();
   const [valueTitleInitial, setValueTitleInitial] = React.useState();
@@ -84,6 +79,7 @@ const DataTablePeopleClass = () => {
     }, [ isLoading, tableData] );
 
   const handleRowClick = (params) => {
+    console.log('handleRowClick');
     if (editStarted)
     {
       handleClickSave(params);
@@ -105,21 +101,31 @@ const DataTablePeopleClass = () => {
     }
   }; 
 
-  const handleClearClick  = (params) => {
-    setValueID(``);
-    setValueTitle(``);
-    setValueNameRus(``);
-    setValueNameEng(``);
-    setValueDescrRus(``);
-    setValueDescrEng(`` );
+  const handleClearClick = (params) => {
+    console.log('handleClearClick');
+    if (editStarted)
+    {
+      console.log('params');
+      console.log(params);
+      handleClickSaveWhenNew(params);
+    } 
+    else 
+    {
+      setValueID(``);
+      setValueTitle(``);
+      setValueNameRus(``);
+      setValueNameEng(``);
+      setValueDescrRus(``);
+      setValueDescrEng(`` );
+    }
   }; 
 
   useEffect(() => {
-    fetch("/people_class")
+    fetch(`/${props.table_name}`)
       .then((data) => data.json())
       .then((data) => setTableData(data))
       .then((data) => {/* console.log('fetch ok'); console.log(data);  */lastId = 0;} ); 
-  }, [])
+  }, [props.table_name])
 
   ///////////////////////////////////////////////////////////////////  SAVE  /////////////////////
   const saveRec = async ( fromToolbar ) => {
@@ -137,7 +143,7 @@ const DataTablePeopleClass = () => {
     }
     setIsLoading(true);
     try {
-      const response = await fetch('/people_class/'+valueId, {
+      const response = await fetch(`/${props.table_name}/`+valueId, {
        method: 'PUT',
        body: js,
        headers: {
@@ -187,7 +193,7 @@ const DataTablePeopleClass = () => {
     setIsLoading(true);
     //console.log(js);
     try {
-      const response = await fetch('/people_class/', {
+      const response = await fetch(`/${props.table_name}/`, {
         method: 'POST',
         body: js,
         headers: {
@@ -238,7 +244,7 @@ const DataTablePeopleClass = () => {
     setIsLoading(true);
     //console.log(js);
     try {
-      const response = await fetch('/people_class/'+valueId, {
+      const response = await fetch(`/${props.table_name}/`+valueId, {
         method: 'DELETE',
         body: js,
         headers: {
@@ -255,27 +261,27 @@ const DataTablePeopleClass = () => {
       {
         alertSeverity = "success";
         alertText = await response.text();
-        setOpenAlert(true);  
+        setOpenAlert(true); 
+        reloadData();
+        setSelectionModel(tableData[0].id );  
+        setValueID(`${tableData[0].id}`);
+        setValueTitle(`${tableData[0].title}`);
+        setValueNameRus(`${tableData[0].name_rus}`);
+        setValueNameEng(`${tableData[0].name_eng}`);
+        setValueDescrRus(`${tableData[0].descr_rus}`);
+        setValueDescrEng(`${tableData[0].descr_eng}`);
+        setValueTitleInitial(`${tableData[0].title}`);
+        setValueNameRusInitial(`${tableData[0].name_rus}`);
+        setValueNameEngInitial(`${tableData[0].name_eng}`);
+        setValueDescrRusInitial(`${tableData[0].descr_rus}`);
+        setValueDescrEngInitial(`${tableData[0].descr_eng}`);
       }
     } catch (err) {
-      //setErr(err.message);
+      alertText = err.message;
+      alertSeverity = 'error';
+      setOpenAlert(true);
     } finally {
       setIsLoading(false);
-      reloadData();
-      setSelectionModel(tableData[0].id );  
-      setValueID(`${tableData[0].id}`);
-      setValueTitle(`${tableData[0].title}`);
-      setValueNameRus(`${tableData[0].name_rus}`);
-      setValueNameEng(`${tableData[0].name_eng}`);
-      setValueDescrRus(`${tableData[0].descr_rus}`);
-      setValueDescrEng(`${tableData[0].descr_eng}`);
-
-      //console.log('delRec Refresh initial '+tableData[0].title+' '+tableData[0].name_rus);
-      setValueTitleInitial(`${tableData[0].title}`);
-      setValueNameRusInitial(`${tableData[0].name_rus}`);
-      setValueNameEngInitial(`${tableData[0].name_eng}`);
-      setValueDescrRusInitial(`${tableData[0].descr_rus}`);
-      setValueDescrEngInitial(`${tableData[0].descr_eng}`);
     }
   };  
 
@@ -298,7 +304,7 @@ const DataTablePeopleClass = () => {
 
   const reloadData = async () => {
     try {
-      const response = await fetch("/people_class");
+      const response = await fetch(`/${props.table_name}/`);
        if (!response.ok) {
         //console.log('response not ok');
         alertText = `Ошибка при обновлении данных: ${response.status}`;
@@ -322,6 +328,7 @@ const DataTablePeopleClass = () => {
   /////////////////////////////////////////
   const [openDel, setOpenDel] = React.useState(false); 
   const [openSave, setOpenSave] = React.useState(false); 
+  const [openSaveWhenNew, setOpenSaveWhenNew] = React.useState(false); 
 
   const handleClickDelete = () => {
     setOpenDel(true);
@@ -337,17 +344,50 @@ const DataTablePeopleClass = () => {
   };
 
   const handleClickSave = () => {
+    console.log('handleClickSave');
     setOpenSave(true);
   };
 
   const handleCloseSaveNo = () => {
+    console.log('handleCloseSaveNo');
     setOpenSave(false);
     handleCancelClick();
   };
+
   const handleCloseSaveYes = () => {
+    console.log('handleCloseSaveYes');
     setOpenSave(false);
     saveRec(false);
     handleCancelClick();
+  };
+
+  const handleClickSaveWhenNew = () => {
+    console.log('handleClickSaveWhenNew');
+    setOpenSaveWhenNew(true);
+  };
+
+  const handleCloseSaveWhenNewNo = () => {
+    console.log('handleCloseSaveNo');
+    setOpenSaveWhenNew(false);
+
+    setValueID(``);
+    setValueTitle(``);
+    setValueNameRus(``);
+    setValueNameEng(``);
+    setValueDescrRus(``);
+    setValueDescrEng(`` );
+  };
+
+  const handleCloseSaveWhenNewYes = () => {
+    console.log('handleCloseSaveYes');
+    setOpenSaveWhenNew(false);
+    saveRec(true);
+    setValueID(``);
+    setValueTitle(``);
+    setValueNameRus(``);
+    setValueNameEng(``);
+    setValueDescrRus(``);
+    setValueDescrEng(`` );
   };
 
 
@@ -364,6 +404,7 @@ const DataTablePeopleClass = () => {
   const [openAlert, setOpenAlert] = React.useState(false, '');
   const handleCancelClick = () => 
   {
+    console.log('handleCancelClick');
     //console.log('selectionModel');
     //console.log(selectionModel);
     //console.log('selectionModel='+selectionModel.row.id);
@@ -471,7 +512,7 @@ const DataTablePeopleClass = () => {
       <TextField  id="ch_descr_rus" sx={{ width: '100ch' }} label="Комментарий (англ.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrEng || ''} /* defaultValue=" " */ onChange={e => setValueDescrEng(e.target.value)}/>
       <p/>
       <div style={{ height: 300, width: 800 }}>
-        <DataTableDataSourceClass table_name="people_class" rec_id={valueId} />
+        <DataTableDataSourceClass table_name={props.table_name} rec_id={valueId} />
       </div>
     </td>
   </tr>
@@ -495,22 +536,46 @@ const DataTablePeopleClass = () => {
   </Dialog>
  
   <Dialog open={openSave} onClose={handleCloseSaveNo} fullWidth={true}>
-  <DialogTitle>
-      Внимание
-  </DialogTitle>
-  <DialogContent>
-      <DialogContentText>
-          В запись таблицы "Типы облучаемых лиц" с кодом <b>{valueId}</b> внесены изменения.<p/>
-          {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p/>
-          {valueNameRus === valueNameRusInitial ? '' : 'Название (рус. яз): '+valueNameRus+'; ' }<p/>
-          <p/>Вы желаете сохранить указанную запись?
-      </DialogContentText>
-  </DialogContent>
-  <DialogActions>
-      <Button variant="outlined" onClick={handleCloseSaveNo} autoFocus>Нет</Button>
-      <Button variant="outlined" onClick={handleCloseSaveYes} >Да</Button>
-  </DialogActions>
-</Dialog>
+    <DialogTitle>
+        Внимание
+    </DialogTitle>
+    <DialogContent>
+        <DialogContentText>
+            В запись таблицы "Типы облучаемых лиц" с кодом <b>{valueId}</b> внесены изменения.<p/>
+            {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p/>
+            {valueNameRus === valueNameRusInitial ? '' : 'Название (рус. яз): '+valueNameRus+'; ' }<p/>
+            {valueNameEng === valueNameEngInitial ? '' : 'Название (англ. яз): '+valueNameEng+'; ' }<p/>
+            {valueDescrRus === valueDescrRusInitial ? '' : 'Комментарий (рус. яз): '+valueDescrRus+'; ' }<p/>
+            {valueDescrEng === valueDescrEngInitial ? '' : 'Комментарий (англ. яз): '+valueDescrEng+'; ' }<p/>
+            <p/>Вы желаете сохранить указанную запись?
+        </DialogContentText>
+    </DialogContent>
+    <DialogActions>
+        <Button variant="outlined" onClick={handleCloseSaveNo} autoFocus>Нет</Button>
+        <Button variant="outlined" onClick={handleCloseSaveYes} >Да</Button>
+    </DialogActions>
+  </Dialog>
+
+  <Dialog open={openSaveWhenNew} onClose={handleCloseSaveWhenNewNo} fullWidth={true}>
+    <DialogTitle>
+        Внимание
+    </DialogTitle>
+    <DialogContent>
+        <DialogContentText>
+            В запись таблицы "Типы облучаемых лиц" с кодом <b>{valueId}</b> внесены изменения.<p/>
+            {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p/>
+            {valueNameRus === valueNameRusInitial ? '' : 'Название (рус. яз): '+valueNameRus+'; ' }<p/>
+            {valueNameEng === valueNameEngInitial ? '' : 'Название (англ. яз): '+valueNameEng+'; ' }<p/>
+            {valueDescrRus === valueDescrRusInitial ? '' : 'Комментарий (рус. яз): '+valueDescrRus+'; ' }<p/>
+            {valueDescrEng === valueDescrEngInitial ? '' : 'Комментарий (англ. яз): '+valueDescrEng+'; ' }<p/>
+            <p/>Вы желаете сохранить указанную запись?
+        </DialogContentText>
+    </DialogContent>
+    <DialogActions>
+        <Button variant="outlined" onClick={handleCloseSaveWhenNewNo} autoFocus>Нет</Button>
+        <Button variant="outlined" onClick={handleCloseSaveWhenNewYes} >Да</Button>
+    </DialogActions>
+  </Dialog>
  </div>     
   )
 }

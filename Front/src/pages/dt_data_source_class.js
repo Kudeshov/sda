@@ -177,6 +177,8 @@ const delRec =  async () => {
   //console.log('delrec clicked');
   const js = JSON.stringify({
      id: valueId,
+     table_name: props.table_name,
+     master_id: props.rec_id
   });
   setIsLoading(true);
   //console.log(js);
@@ -471,4 +473,4 @@ const [noRecords, setNoRecords] = useState([]);
       </div>
     )
 }
- export  { DataTableDataSourceClass   }
+ export  { DataTableDataSourceClass }

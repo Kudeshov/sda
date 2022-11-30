@@ -11,7 +11,7 @@ function Coeff() {
         &nbsp;
       </td>
       <td width="1600">
-        <DataTablePeopleClass />
+        <DataTablePeopleClass table_name="people_class"/>
      </td>
     </tr>
     </tbody>

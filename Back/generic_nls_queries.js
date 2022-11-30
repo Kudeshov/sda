@@ -20,11 +20,13 @@ pool.on('error', function (err, client) {
     console.error('idle client error', err.message, err.stack);
 });
 
-const getPeopleClass = (request, response) => {
-  pool.query('SELECT pc.*, pcn1.name name_rus, pcn2.name name_eng, pcn1.descr descr_rus, pcn2.descr descr_eng FROM nucl.people_class pc '+
-  'left join nucl.people_class_nls pcn1 on pc.id=pcn1.people_class_id and pcn1.lang_id=1 '+
-  'left join nucl.people_class_nls pcn2 on pc.id=pcn2.people_class_id and pcn2.lang_id=2 '+
-  'ORDER BY pc.id ASC', (error, results) => {
+const getGenericNLS = (request, response, table_name ) => {
+  //table_name = 'subst_form';${table_name}
+  console.log(table_name);
+  pool.query(`SELECT pc.*, pcn1.name name_rus, pcn2.name name_eng, pcn1.descr descr_rus, pcn2.descr descr_eng FROM nucl.${table_name} pc `+
+  `left join nucl.${table_name}_nls pcn1 on pc.id=pcn1.${table_name}_id and pcn1.lang_id=1 `+
+  `left join nucl.${table_name}_nls pcn2 on pc.id=pcn2.${table_name}_id and pcn2.lang_id=2 `+
+  `ORDER BY pc.id ASC`, (error, results) => {
     if (error) {
       throw error
     }
@@ -32,7 +34,7 @@ const getPeopleClass = (request, response) => {
   })
 }
 
-const getPeopleClassById = (request, response) => {
+const getGenericNLSById = (request, response) => {
   const id = parseInt(request.params.id||0);
   pool.query('SELECT pc.*, pcn1.name name_rus, pcn2.name name_eng, pcn1.descr descr_rus, pcn2.descr descr_eng FROM nucl.people_class pc '+
   'left join nucl.people_class_nls pcn1 on pc.id=pcn1.people_class_id and pcn1.lang_id=1 '+
@@ -41,11 +43,11 @@ const getPeopleClassById = (request, response) => {
     if (error) {
       throw error
     }
-    response.status(200).json(results.rows)
+    response.status(200).json(results.rows);
   })
 }
 
-const createPeopleClass = (request, response) => {
+const createGenericNLS = (request, response) => {
   pool.connect((err, client, done) => {
     const shouldAbort = (err, response) => {
       if (err) {
@@ -106,7 +108,7 @@ const createPeopleClass = (request, response) => {
   })
 }
 
-const deletePeopleClass = (request, response) => {
+const deleteGenericNLS = (request, response) => {
   pool.connect((err, client, done) => {
     const shouldAbort = (err, response) => {
       if (err) {
@@ -133,51 +135,38 @@ const deletePeopleClass = (request, response) => {
 
     const id = parseInt(request.params.id||0);
 
-    client.query('select count(id) as cnt from nucl.data_source_class where table_name = $1 and rec_id = $2 ', ['people_class',id], (err, res) => {
-      const { cnt } = res.rows[0];
-      console.log('Cnt = ' + cnt );   
-      if (cnt > 1) {
-        response.status(400).send(`Для записи с кодом ${id} существуют записи в таблице "Связь с источником данных"`);
-        return;
-      } else if (cnt > 0) {
-        response.status(400).send(`Для записи с кодом ${id} существует запись в таблице "Связь с источником данных"`);
-        return;
-      } else 
-      {
-        client.query('BEGIN', err => {
+    client.query('BEGIN', err => {
+      if (shouldAbort(err, response)) return;
+      client.query('DELETE FROM nucl.people_class_nls WHERE people_class_id = $1', [id], (err, res) => {
+        if (shouldAbort(err, response)) return;      
+        console.log('Id = '+id);
+        client.query('DELETE FROM nucl.people_class WHERE id = $1', [id], (err, res) => {
+          console.log('DELETE FROM nucl.people_class');         
           if (shouldAbort(err, response)) return;
-          client.query('DELETE FROM nucl.people_class_nls WHERE people_class_id = $1', [id], (err, res) => {
-            if (shouldAbort(err, response)) return;      
-            console.log('Id = '+id);
-            client.query('DELETE FROM nucl.people_class WHERE id = $1', [id], (err, res) => {
-              console.log('DELETE FROM nucl.people_class');         
-              if (shouldAbort(err, response)) return;
-              console.log('DELETE FROM nucl.people_class готово');
-                client.query('COMMIT', err => {
-                  if (err) {
-                    console.error('Ошибка при подтверждении транзакции', err.stack);
-                    response.status(400).send('Ошибка при подтверждении транзакции', err.stack);
-                  }
-                  else {
-                    console.log(`Тип облучаемых лиц удален, ID: ${id}`); 
-                    if (res.rowCount == 1)
-                      response.status(200).send(`Тип облучаемых лиц ${id} удален; cтрок удалено: ${res.rowCount} `);
-                    if (res.rowCount == 0)
-                      response.status(400).send(`Запись с кодом ${id} не найдена `)
-                    //response.status(200).send(`Тип облучаемых лиц удален, ID: ${id}`);
-                  }
-                  done()
-                })
-             // }); 
-            });
-          })
-        })
-      }
+          console.log('DELETE FROM nucl.people_class готово');
+            client.query('COMMIT', err => {
+              if (err) {
+                console.error('Ошибка при подтверждении транзакции', err.stack);
+                response.status(400).send('Ошибка при подтверждении транзакции', err.stack);
+              }
+              else {
+                console.log(`Тип облучаемых лиц удален, ID: ${id}`); 
+                if (res.rowCount == 1)
+                  response.status(200).send(`Тип облучаемых лиц ${id} удален; cтрок удалено: ${res.rowCount} `);
+                if (res.rowCount == 0)
+                  response.status(400).send(`Запись с кодом ${id} не найдена `)
+                //response.status(200).send(`Тип облучаемых лиц удален, ID: ${id}`);
+              }
+              done()
+            })
+         // }); 
+        });
+      })
     })
   })
 }
 
-const updatePeopleClass = (request, response) => {
+const updateGenericNLS = (request, response) => {
   pool.connect((err, client, done) => {
     const shouldAbort = (err, response) => {
       if (err) {
@@ -240,9 +229,9 @@ const updatePeopleClass = (request, response) => {
 }
 
 module.exports = {
-  getPeopleClass,
-  getPeopleClassById,
-  createPeopleClass,
-  deletePeopleClass,
-  updatePeopleClass
+  getGenericNLS,
+  getGenericNLSById,
+  createGenericNLS,
+  deleteGenericNLS,
+  updateGenericNLS
 }
