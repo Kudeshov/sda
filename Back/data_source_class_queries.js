@@ -48,7 +48,16 @@ const createDataSourceClass = (request, response) => {
   const { data_source_id, table_name, rec_id, title_src, name_src } = request.body;
   pool.query('INSERT INTO nucl.data_source_class (data_source_id, table_name, rec_id, title_src, name_src) VALUES ($1, $2, $3, $4, $5) RETURNING id', [data_source_id, table_name, rec_id, title_src, name_src], (error, results) => {
     if (error) {
-      response.status(400).send(`Связь с источником данных не добавлена: ${error.message}`);
+      const s=error.message;
+      if (s.includes("data_source_class_uk")) 
+      {
+        response.status(400).send(`Связь с источником данных не добавлена: Для одной записи в таблице ${table_name} может существовать только одна запись в таблице "Связь с источником данных" для одного источника`);
+      }
+      else
+      { if (s.includes("data_source_class_tuk")) 
+        response.status(400).send(`Связь с источником данных не добавлена: Сочетание ${title_src} + ${table_name}  является уникальным для одного источника`);
+      }
+
     } else {
       const { id } = results.rows[0]; 
       response.status(201).send(`Связь с источником данных добавлена, код: ${id}`)
