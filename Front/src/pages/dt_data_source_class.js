@@ -347,13 +347,13 @@ const [noRecords, setNoRecords] = useState([]);
       /></td>
       <td style={{ height: 270, width: 100, verticalAlign: 'top' }}>
       &nbsp;<IconButton onClick={()=>handleClickAdd()} disabled={!props.rec_id} color="primary" size="small" Title="Добавить связь с источником данных">
-        <SvgIcon component={PlusLightIcon} inheritViewBox /></IconButton><br/>
+        <SvgIcon fontSize="small" component={PlusLightIcon} inheritViewBox /></IconButton><br/>
       &nbsp;<IconButton onClick={()=>handleClickEdit()} disabled={noRecords} color="primary" size="small" Title="Редактировать связь с источником данных">
-        <SvgIcon component={EditLightIcon} inheritViewBox /></IconButton><br/>
+        <SvgIcon fontSize="small" component={EditLightIcon} inheritViewBox /></IconButton><br/>
       &nbsp;<IconButton onClick={()=>handleClickDelete()} disabled={noRecords} color="primary" size="small" Title="Удалить связь с источником данных">
-        <SvgIcon component={TrashLightIcon} inheritViewBox /></IconButton><br/>
+        <SvgIcon fontSize="small" component={TrashLightIcon} inheritViewBox /></IconButton><br/>
       &nbsp;<IconButton onClick={()=>handleOpenDSInfo()} disabled={noRecords} color="primary" size="small" Title="Информация по источнику данныъ">
-        <SvgIcon component={InfoLightIcon} inheritViewBox /></IconButton>
+        <SvgIcon fontSize="small" component={InfoLightIcon} inheritViewBox /></IconButton>
       </td></tr>
       <tr>
         <td>

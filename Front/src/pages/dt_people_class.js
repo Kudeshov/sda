@@ -444,18 +444,18 @@ const DataTablePeopleClass = (props) => {
     return (
       <GridToolbarContainer>
         <IconButton onClick={()=>handleClearClick()}  color="primary" size="small" Title="Создать запись">
-          <SvgIcon component={PlusLightIcon} inheritViewBox /></IconButton>
+          <SvgIcon fontSize="small" component={PlusLightIcon} inheritViewBox /></IconButton>
         <IconButton onClick={()=>saveRec(true)}  color="primary" size="small" Title="Сохранить запись в БД">
-          <SvgIcon component={SaveLightIcon} inheritViewBox /></IconButton>
+          <SvgIcon fontSize="small" component={SaveLightIcon} inheritViewBox/></IconButton>
         <IconButton onClick={()=>handleClickDelete()}  color="primary" size="small" Title="Удалить запись">
-          <SvgIcon component={TrashLightIcon} inheritViewBox /></IconButton>
+          <SvgIcon fontSize="small" component={TrashLightIcon} inheritViewBox /></IconButton>
         <IconButton onClick={()=>handleCancelClick()} disabled={!editStarted} color="primary" size="small" Title="Отменить редактирование">
-          <SvgIcon component={UndoLightIcon} inheritViewBox /></IconButton>
+          <SvgIcon fontSize="small" component={UndoLightIcon} inheritViewBox /></IconButton>
         <IconButton onClick={()=>reloadDataAlert()} color="primary" size="small" Title="Обновить данные">
-          <SvgIcon component={RepeatLightIcon} inheritViewBox /></IconButton>
+          <SvgIcon fontSize="small" component={RepeatLightIcon} inheritViewBox /></IconButton>
         <IconButton onClick={()=>handleExport({ delimiter: ';', utf8WithBom: true, getRowsToExport: () => gridFilteredSortedRowIdsSelector(apiRef) })} color="primary" 
             size="small" Title="Сохранить в формате CSV">
-          <SvgIcon component={DownloadLightIcon} inheritViewBox /></IconButton>
+          <SvgIcon fontSize="small" component={DownloadLightIcon} inheritViewBox /></IconButton>
       </GridToolbarContainer>
     );
   }
