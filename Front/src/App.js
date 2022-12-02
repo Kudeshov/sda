@@ -8,6 +8,8 @@ import ClassFunctions from "./pages/class_func";
 import Substance from "./pages/substance";
 import Db from "./pages/db";
 import Coeff from "./pages/coeff";
+import Irradiation from "./pages/irradiation";
+import IntegralPeriod from "./pages/integral_period";
 //import Page from "./page";
 //import lastID from "./pages/coeff";
 function App() {
@@ -21,15 +23,15 @@ function App() {
         <Route path="/sources" component={Sources} />
         <Route path="/norms" component={Norms} />
         <Route path="/class_func" component={ClassFunctions} />
-        <Route path="/coeff" component={Coeff} 
-
-/*           render={(props) => (
+        <Route path="/coeff" component={Coeff} />
+        <Route path="/irradiation" component={Irradiation} />
+        <Route path="/integral_period" component={IntegralPeriod} />        
+{/*             render={(props) => (
             <Page title="Типы облучаемых лиц">
               <Coeff {...props} />
             </Page>
           )}
-           */
-        />
+            */}
         <Route path="/db" component={Db} />
       </Switch>
     </Router>

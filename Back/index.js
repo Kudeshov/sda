@@ -55,23 +55,32 @@ app.post('/people_class', pc_q.createPeopleClass);       //create
 app.put('/people_class/:id', pc_q.updatePeopleClass);    //update
 app.delete('/people_class/:id', pc_q.deletePeopleClass); //delete
 
-//subst_form interface  req, res) => { handler(req, res, 'about.html')
+//GENERIC QUERIES on PEOPLE_CLASS 
+app.get('/subst_form', (req, res) => {gn_q.getGenericNLS(req, res, 'subst_form')});           //list all
+app.get('/subst_form/:id', (req, res) => {gn_q.getGenericNLSById(req, res, 'subst_form')});   //list 1
+app.post('/subst_form', (req, res) => {gn_q.createGenericNLS(req, res, 'subst_form')});       //create
+app.put('/subst_form/:id', (req, res) => {gn_q.updateGenericNLS(req, res, 'subst_form')});    //update
+app.delete('/subst_form/:id', (req, res) => {gn_q.deleteGenericNLS(req, res, 'subst_form')}); //delete
 
-app.get('/subst_form', (req, res) => {gn_q.getGenericNLS(req, res, 'subst_form')}); //(request, response, 'subst_form'));           //list all
-/* app.get('/subst_form/:id', pc_q.getPeopleClassById);   //list 1
-app.post('/subst_form', pc_q.createPeopleClass);       //create
-app.put('/subst_form/:id', pc_q.updatePeopleClass);    //update
-app.delete('/subst_form/:id', pc_q.deletePeopleClass); //delete
- */
+//GENERIC QUERIES on irradiation 
+app.get('/irradiation', (req, res) => {gn_q.getGenericNLS(req, res, 'irradiation')});           //list all
+app.get('/irradiation/:id', (req, res) => {gn_q.getGenericNLSById(req, res, 'irradiation')});   //list 1
+app.post('/irradiation', (req, res) => {gn_q.createGenericNLS(req, res, 'irradiation')});       //create
+app.put('/irradiation/:id', (req, res) => {gn_q.updateGenericNLS(req, res, 'irradiation')});    //update
+app.delete('/irradiation/:id', (req, res) => {gn_q.deleteGenericNLS(req, res, 'irradiation')}); //delete
+
+//GENERIC QUERIES on integral_period 
+app.get('/integral_period', (req, res) => {gn_q.getGenericNLS(req, res, 'integral_period')});           //list all
+app.get('/integral_period/:id', (req, res) => {gn_q.getGenericNLSById(req, res, 'integral_period')});   //list 1
+app.post('/integral_period', (req, res) => {gn_q.createGenericNLS(req, res, 'integral_period')});       //create
+app.put('/integral_period/:id', (req, res) => {gn_q.updateGenericNLS(req, res, 'integral_period')});    //update
+app.delete('/integral_period/:id', (req, res) => {gn_q.deleteGenericNLS(req, res, 'integral_period')}); //delete
+ 
 //data_source_class_queries
 app.get('/data_source_class', dsc_q.getDataSourceClass);           //list all
 app.post('/data_source_class', dsc_q.createDataSourceClass);       //create
 app.put('/data_source_class/:id', dsc_q.updateDataSourceClass);    //update
 app.delete('/data_source_class/:id', dsc_q.deleteDataSourceClass); //delete 
-/* app.get('/data_source_class/:id', dsc_q.getDataSourceClassById);   //list 1
-app.post('/data_source_class', dsc_q.createDataSourceClass);       //create
-app.put('/data_source_class/:id', dsc_q.updateDataSourceClass);    //update
-app.delete('/data_source_class/:id', dsc_q.deleteDataSourceClass); //delete */
 
 
 app.get('/criterion', function(req, resp){
@@ -84,11 +93,9 @@ app.get('/criterion', function(req, resp){
        });
 });
 
-
 /* app.delete('/', (req, res) => {
   res.send("DELETE root Request Called")
 }) */
-
 
 var allowCrossDomain = function(req, res, next) {
     res.header('Access-Control-Allow-Origin', "*");

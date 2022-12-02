@@ -3,7 +3,7 @@ import { DataTablePeopleClass } from './dt_people_class';
 function Db() {
   return (
     <div className="App">
-    <h3>&nbsp;&nbsp;Формы вещества</h3>
+    <h3>&nbsp;&nbsp;Периоды интегрирования</h3>
     <table>
       <tbody>
     <tr>
@@ -11,7 +11,7 @@ function Db() {
         &nbsp;
       </td>
       <td width="1600">
-        <DataTablePeopleClass table_name="subst_form"/>
+        <DataTablePeopleClass table_name="integral_period"/>
       </td>
     </tr>
     </tbody>

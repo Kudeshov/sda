@@ -39,30 +39,28 @@ const useStyles = makeStyles((theme) => ({
 
 function Navbar() {
   const classes = useStyles();
-  //const theme = useTheme();
-  //const isMobile = useMediaQuery(theme.breakpoints.down("md"));
- //  const [anchorEl, setAnchorEl] = React.useState<null | HTMLElement>(null);
-  //const open11 = Boolean(anchorEl);
-   /*const open11 = false;
-  const handleClick = (Event) => {
-    setAnchorEl(event.currentTarget);
-  };
- 
-  const handleClose = () => {
-    setAnchorEl(null);
-  };   
-  */
-  const [menuOpen, setMenuOpen] = useState(false);
+  const [menuDecay, setMenuDecay] = useState(false);
   const [anchorEl, setAnchorEl] = useState()
 
-  const recordButtonPosition = (event: any) => {
+  const recordButtonPositionDecay = (event: any) => {
       setAnchorEl(event.currentTarget);
-      setMenuOpen(true);
+      setMenuDecay(true);
+  }
+  let closeMenuDecay = () => {
+      setMenuDecay(false);
   }
 
-  let closeMenu = () => {
-      setMenuOpen(false);
+  const [menuCoeff, setMenuCoeff] = useState(false);
+  const [anchorE2, setAnchorE2] = useState()
+
+  const recordButtonPositionCoeff = (event: any) => {
+      setAnchorE2(event.currentTarget);
+      setMenuCoeff(true);
   }
+  let closeMenuCoeff = () => {
+      setMenuCoeff(false);
+  }
+
 
   return (
     <AppBar position="static">
@@ -79,51 +77,37 @@ function Navbar() {
             <Link to="/substance" className={classes.link}>
               Вещество
             </Link>
-            <Link to="/decay" className={classes.link}>
+            <Link onClick={recordButtonPositionDecay} className={classes.link}>
               Радиоактивный распад
             </Link>
-{/*             <Link to="/coeff" className={classes.link}>
-              Дозовые коэффициенты
-            </Link> 
-            <Button onClick={recordButtonPosition}>
-              Дозовые коэффициенты
-            </Button>*/}
-            <Link onClick={recordButtonPosition}  className={classes.link}>
+            <Menu
+                anchorEl={anchorEl}
+                open={menuDecay}
+                onClose={closeMenuDecay}>
+                <MenuItem onClick={closeMenuDecay} component={Link} disabled={true} to="/">Радионуклиды</MenuItem> 
+ 
+                <Divider />
+                <MenuItem onClick={closeMenuDecay} component={Link} disabled={true} to="/">Параметры</MenuItem> 
+                <MenuItem onClick={closeMenuDecay} component={Link} disabled={true} to="/">Тип излучения</MenuItem> 
+                <MenuItem onClick={closeMenuDecay} component={Link} disabled={true} to="/">Форма распада</MenuItem> 
+            </Menu>            
+            <Link onClick={recordButtonPositionCoeff}  className={classes.link}>
               Дозовые коэффициенты
             </Link>            
             <Menu
-                anchorEl={anchorEl}
-                open={menuOpen}
-                onClose={closeMenu}>
-                <MenuItem onClick={closeMenu} component={Link} disabled={true} to="/">Внутреннее облучение</MenuItem> 
-                <MenuItem onClick={closeMenu} component={Link} disabled={true} to="/">Внешнее облучение</MenuItem> 
+                anchorEl={anchorE2}
+                open={menuCoeff}
+                onClose={closeMenuCoeff}>
+                <MenuItem onClick={closeMenuCoeff} component={Link} disabled={true} to="/">Внутреннее облучение</MenuItem> 
+                <MenuItem onClick={closeMenuCoeff} component={Link} disabled={true} to="/">Внешнее облучение</MenuItem> 
                 <Divider />
-                <MenuItem onClick={closeMenu} component={Link} to="/coeff">Типы облучаемых лиц</MenuItem> 
-                <MenuItem onClick={closeMenu} component={Link} to="/db">Формы вещества</MenuItem> 
-            </Menu>
+                <MenuItem onClick={closeMenuCoeff} component={Link} to="/irradiation">Типы облучения</MenuItem> 
+                <MenuItem onClick={closeMenuCoeff} component={Link} to="/integral_period">Периоды интегрирования</MenuItem> 
+                <MenuItem onClick={closeMenuCoeff} component={Link} to="/db">Формы вещества</MenuItem> 
+                <MenuItem onClick={closeMenuCoeff} component={Link} to="/coeff">Типы облучаемых лиц</MenuItem> 
 
-{/*             <Button
-              id="basic-button"
-              //aria-controls={open11 ? 'basic-menu' : undefined}
-              aria-haspopup="true"
-             // aria-expanded={open11 ? 'true' : undefined}
-              //onClick={handleClick}
-            >
-              Дозовые коэффициенты
-            </Button> */}
-  {/*           <Menu
-              id="basic-menu"
-              anchorEl={anchorEl}
-              open={open}
-              onClose={handleClose}
-              MenuListProps={{
-                'aria-labelledby': 'basic-button',
-              }}
-            >
-              <MenuItem onClick={handleClose}>Profile</MenuItem>
-              <MenuItem onClick={handleClose}>My account</MenuItem>
-              <MenuItem onClick={handleClose}>Logout</MenuItem>
-            </Menu> */}
+             </Menu>
+
             <Link to="/norms" className={classes.link}>
               Нормы и критерии
             </Link>

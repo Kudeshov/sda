@@ -1,10 +1,10 @@
 import React,  { useState, useEffect } from 'react'
 import { DataGrid, ruRU } from '@mui/x-data-grid'
 import Button from '@mui/material/Button';
-import EditIcon from '@mui/icons-material/Edit';
+/* import EditIcon from '@mui/icons-material/Edit';
 import AddIcon from '@mui/icons-material/Add';
 import InfoIcon from '@mui/icons-material/Info';
-import DeleteIcon from '@mui/icons-material/Delete';
+import DeleteIcon from '@mui/icons-material/Delete'; */
 import TextField from '@mui/material/TextField';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -20,6 +20,11 @@ import Alert from '@mui/material/Alert';
 import Collapse from '@mui/material/Collapse';
 import CloseIcon from '@mui/icons-material/Close';
 import CircularProgress from '@material-ui/core/CircularProgress';
+import SvgIcon from '@mui/material/SvgIcon';
+import { ReactComponent as EditLightIcon } from "./../icons/edit.svg";
+import { ReactComponent as PlusLightIcon } from "./../icons/plus.svg";
+import { ReactComponent as InfoLightIcon } from "./../icons/info.svg";
+import { ReactComponent as TrashLightIcon } from "./../icons/trash.svg";
 
 var alertText = "Сообщение";
 var alertSeverity = "info";
@@ -58,12 +63,12 @@ function DataTableDataSourceClass(props)  {
     lastRecID = props.rec_id;
     setlastSrcClassID(0);
     setIsLoading(true);
-    fetch(`/data_source_class?table_name=people_class&rec_id=${props.rec_id??0}`)
+    fetch(`/data_source_class?table_name=${props.table_name}&rec_id=${props.rec_id??0}`)
       .then((data) => data.json())
       .then((data) => setTableDataSrcClass(data));
     setlastSrcClassID(0);
     setIsLoading(false);
-    }, [ props.rec_id])
+    }, [props.table_name, props.rec_id])
 
 
   useEffect(() => {
@@ -131,9 +136,7 @@ const reloadDataSrcClass = async () => {
   setIsLoading(true);
   try {
     lastRecID = props.rec_id;
-    //console.log('reloadDataSrcClass lastRecID =');
-    //console.log(lastRecID);
-    const response = await fetch(`/data_source_class?table_name=people_class&rec_id=${props.rec_id??0}`);
+    const response = await fetch(`/data_source_class?table_name=${props.table_name}&rec_id=${props.rec_id??0}`);
      if (!response.ok) {
       alertText =  'Ошибка при обновлении данных';
       alertSeverity = "false";
@@ -142,7 +145,6 @@ const reloadDataSrcClass = async () => {
     }  
     const result = await response.json();
     setlastSrcClassID(0);
-    //lastSrcClassID = 0;
     setTableDataSrcClass(result);
   } catch (err) {
   } finally {
@@ -344,10 +346,14 @@ const [noRecords, setNoRecords] = useState([]);
         }}             
       /></td>
       <td style={{ height: 270, width: 100, verticalAlign: 'top' }}>
-      <IconButton onClick={()=>handleClickAdd()} disabled={!props.rec_id} color="primary" size="small" Title="Добавить связь с источником данных"><AddIcon/></IconButton><br/>
-      <IconButton onClick={()=>handleClickEdit()} disabled={noRecords} color="primary" size="small" Title="Редактировать связь с источником данных"><EditIcon /></IconButton><br/>
-      <IconButton onClick={()=>handleClickDelete()} disabled={noRecords} color="primary" size="small" Title="Удалить связь с источником данных"><DeleteIcon /></IconButton><br/>
-      <IconButton onClick={()=>handleOpenDSInfo()} disabled={noRecords} color="primary" size="small" Title="Информация по источнику данныъ"><InfoIcon /></IconButton>
+      &nbsp;<IconButton onClick={()=>handleClickAdd()} disabled={!props.rec_id} color="primary" size="small" Title="Добавить связь с источником данных">
+        <SvgIcon component={PlusLightIcon} inheritViewBox /></IconButton><br/>
+      &nbsp;<IconButton onClick={()=>handleClickEdit()} disabled={noRecords} color="primary" size="small" Title="Редактировать связь с источником данных">
+        <SvgIcon component={EditLightIcon} inheritViewBox /></IconButton><br/>
+      &nbsp;<IconButton onClick={()=>handleClickDelete()} disabled={noRecords} color="primary" size="small" Title="Удалить связь с источником данных">
+        <SvgIcon component={TrashLightIcon} inheritViewBox /></IconButton><br/>
+      &nbsp;<IconButton onClick={()=>handleOpenDSInfo()} disabled={noRecords} color="primary" size="small" Title="Информация по источнику данныъ">
+        <SvgIcon component={InfoLightIcon} inheritViewBox /></IconButton>
       </td></tr>
       <tr>
         <td>

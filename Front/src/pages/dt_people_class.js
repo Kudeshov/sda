@@ -19,12 +19,19 @@ import Alert from '@mui/material/Alert';
 import Collapse from '@mui/material/Collapse';
 import CloseIcon from '@mui/icons-material/Close';
 import { DataTableDataSourceClass } from './dt_data_source_class';
-import SaveIcon from '@mui/icons-material/Save';
+/* import SaveIcon from '@mui/icons-material/Save';
 import RefreshIcon from '@mui/icons-material/Refresh';
 import DeleteIcon from '@mui/icons-material/Delete';
 import UndoIcon from '@mui/icons-material/Undo';
 import AddIcon from '@mui/icons-material/Add';
-import SaveAltIcon from '@mui/icons-material/SaveAlt';
+import SaveAltIcon from '@mui/icons-material/SaveAlt'; */
+import SvgIcon from '@mui/material/SvgIcon';
+import { ReactComponent as SaveLightIcon } from "./../icons/save.svg";
+import { ReactComponent as PlusLightIcon } from "./../icons/plus.svg";
+import { ReactComponent as UndoLightIcon } from "./../icons/undo.svg";
+import { ReactComponent as DownloadLightIcon } from "./../icons/download.svg";
+import { ReactComponent as TrashLightIcon } from "./../icons/trash.svg";
+import { ReactComponent as RepeatLightIcon } from "./../icons/repeat.svg";
 
 var alertText = "Сообщение";
 var alertSeverity = "info";
@@ -395,7 +402,7 @@ const DataTablePeopleClass = (props) => {
   const columns = [
     { field: 'id', headerName: 'Код', width: 80 },
     { field: 'title', headerName: 'Обозначение', width: 180, hideable: false },
-    { field: 'name_rus', headerName: 'Название (рус.яз)', width: 180 },
+    { field: 'name_rus', headerName: 'Название (рус.яз)', width: 250 },
     { field: 'name_eng', headerName: 'Название (англ.яз)', width: 180 },
     { field: 'descr_rus', headerName: 'Комментарий (рус.яз)', width: 180 },
     { field: 'descr_eng', headerName: 'Комментарий (англ.яз)', width: 180 },
@@ -436,12 +443,19 @@ const DataTablePeopleClass = (props) => {
 
     return (
       <GridToolbarContainer>
-        <IconButton onClick={()=>handleClearClick()}  color="primary" size="small" Title="Создать запись"><AddIcon/></IconButton>
-        <IconButton onClick={()=>saveRec(true) /* handleCloseSaveYes() *//* saveRec() */}  color="primary" size="small" Title="Сохранить запись в БД"><SaveIcon /></IconButton>
-        <IconButton onClick={()=>handleClickDelete()}  color="primary" size="small" Title="Удалить запись"><DeleteIcon /></IconButton>
-        <IconButton onClick={()=>handleCancelClick()} disabled={!editStarted} color="primary" size="small" Title="Отменить редактирование"><UndoIcon /></IconButton>
-        <IconButton onClick={()=>reloadDataAlert()} color="primary" size="small" Title="Обновить данные"><RefreshIcon /></IconButton>
-        <IconButton onClick={()=>handleExport({ delimiter: ';', utf8WithBom: true, getRowsToExport: () => gridFilteredSortedRowIdsSelector(apiRef) })} color="primary" size="small" Title="Сохранить в формате CSV"><SaveAltIcon /></IconButton>
+        <IconButton onClick={()=>handleClearClick()}  color="primary" size="small" Title="Создать запись">
+          <SvgIcon component={PlusLightIcon} inheritViewBox /></IconButton>
+        <IconButton onClick={()=>saveRec(true)}  color="primary" size="small" Title="Сохранить запись в БД">
+          <SvgIcon component={SaveLightIcon} inheritViewBox /></IconButton>
+        <IconButton onClick={()=>handleClickDelete()}  color="primary" size="small" Title="Удалить запись">
+          <SvgIcon component={TrashLightIcon} inheritViewBox /></IconButton>
+        <IconButton onClick={()=>handleCancelClick()} disabled={!editStarted} color="primary" size="small" Title="Отменить редактирование">
+          <SvgIcon component={UndoLightIcon} inheritViewBox /></IconButton>
+        <IconButton onClick={()=>reloadDataAlert()} color="primary" size="small" Title="Обновить данные">
+          <SvgIcon component={RepeatLightIcon} inheritViewBox /></IconButton>
+        <IconButton onClick={()=>handleExport({ delimiter: ';', utf8WithBom: true, getRowsToExport: () => gridFilteredSortedRowIdsSelector(apiRef) })} color="primary" 
+            size="small" Title="Сохранить в формате CSV">
+          <SvgIcon component={DownloadLightIcon} inheritViewBox /></IconButton>
       </GridToolbarContainer>
     );
   }
@@ -452,6 +466,7 @@ const DataTablePeopleClass = (props) => {
     <tr>
       <td style={{ height: 550, width: 600, verticalAlign: 'top' }}>
       <div style={{ height: 400, width: 585 }}>
+
       <DataGrid
         components={{ Toolbar: CustomToolbar1 }}
         hideFooterSelectedRowCount={true}
@@ -497,6 +512,7 @@ const DataTablePeopleClass = (props) => {
         </Alert>
       </Collapse>
       </Box>
+      
       </td>
       <td style={{ height: 550, width: 900, verticalAlign: 'top' }}>
       <TextField  id="ch_id"  disabled={true} label="Код" sx={{ width: '12ch' }} variant="outlined" value={valueId || ''} size="small" /* defaultValue=" " */ onChange={e => setValueID(e.target.value)}/>
