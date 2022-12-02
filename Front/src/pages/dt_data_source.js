@@ -31,7 +31,7 @@ import { Delete } from '@mui/icons-material';
 import Alert from '@mui/material/Alert';
 import Collapse from '@mui/material/Collapse';
 import CloseIcon from '@mui/icons-material/Close';
-import * as XLSX from 'xlsx';
+//import * as XLSX from 'xlsx';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
 /* 
@@ -121,14 +121,14 @@ function CustomToolbar1() {
 var alertText = "Сообщение";
 var alertSeverity = "info";
 
-const downloadExcel = (data) => {
+/* const downloadExcel = (data) => {
   console.log(data);
     const worksheet = XLSX.utils.json_to_sheet(data);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Источники данных");
     XLSX.writeFile(workbook, "Источники данных.xlsx");
   };
-
+ */
   const valuesExtDS = [
     { label: 'Целевая БД', value: 'false' },
     { label: 'Внешний источник', value: 'true' } ];
@@ -390,9 +390,9 @@ const [openAlert, setOpenAlert] = React.useState(false, '');
       />
       </div>
       <p/>
-      <Button variant="outlined" onClick={()=>downloadExcel(tableData)}>
+{/*       <Button variant="outlined" onClick={()=>downloadExcel(tableData)}>
     	  Сохранить в Excel
-	    </Button>
+	    </Button> */}
       &nbsp;&nbsp;&nbsp;&nbsp; 
       <Button variant="outlined" onClick={()=>reloadDataAlert()}>
     	  Обновить данные

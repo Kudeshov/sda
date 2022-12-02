@@ -1,6 +1,7 @@
-import { globalJson, DataTable } from './DataTable';
-import Button from '@mui/material/Button';
-import * as XLSX from 'xlsx';
+import { DataTable } from './DataTable';
+import { useEffect } from 'react';
+//import Button from '@mui/material/Button';
+//import * as XLSX from 'xlsx';
  
 //const drawerWidth = 240;
  
@@ -10,15 +11,24 @@ import * as XLSX from 'xlsx';
   { field: 'atomic_num', headerName: 'Atomic Num', width: 100 }
 ] */
 
-const downloadExcel = (data) => {
+/* const downloadExcel = (data) => {
   console.log(data);
     const worksheet = XLSX.utils.json_to_sheet(data);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Химические элементы");
     XLSX.writeFile(workbook, "Химические элементы.xlsx");
   };
+ */
+
+  const useDocumentTitle = (title) => {
+    useEffect(() => {
+       document.title = title
+    }, [title])
+  }
 
 function Decay() {
+  useDocumentTitle("Радиоактивный распад");
+ 
   return (
     <div className="App">
     <center><h1>Химические элементы</h1></center> 
@@ -75,9 +85,9 @@ function Decay() {
         <DataTable />
       </td>
       <td width="200"> 
-	<Button variant="outlined" onClick={()=>downloadExcel(globalJson)}>
+{/* 	<Button variant="outlined" onClick={()=>downloadExcel(globalJson)}>
     	  Сохранить Excel
-	</Button>
+	</Button> */}
 
       </td>
     </tr>

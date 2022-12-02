@@ -1,6 +1,14 @@
 import { DataTablePeopleClass } from './dt_people_class';
+import { useEffect } from 'react';
+
+const useDocumentTitle = (title) => {
+  useEffect(() => {
+     document.title = title
+  }, [title])
+}
 
 function Coeff() {
+  useDocumentTitle("Типы облучаемых лиц");
   return (
     <div className="App">
     <h3>&nbsp;&nbsp;Типы облучаемых лиц</h3>

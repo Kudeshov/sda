@@ -1,6 +1,14 @@
 import { DataTablePeopleClass } from './dt_people_class';
+import { useEffect } from 'react';
+
+const useDocumentTitle = (title) => {
+  useEffect(() => {
+     document.title = title
+  }, [title])
+}
 
 function Db() {
+  useDocumentTitle("Формы вещества");
   return (
     <div className="App">
     <h3>&nbsp;&nbsp;Формы вещества</h3>
