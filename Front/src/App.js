@@ -10,6 +10,9 @@ import Db from "./pages/db";
 import Coeff from "./pages/coeff";
 import Irradiation from "./pages/irradiation";
 import IntegralPeriod from "./pages/integral_period";
+import AerosolSol from "./pages/aerosol_sol";
+import AerosolAmad from "./pages/aerosol_amad";
+import LetLevel from "./pages/let_level";
 //import Page from "./page";
 //import lastID from "./pages/coeff";
 function App() {
@@ -25,7 +28,10 @@ function App() {
         <Route path="/class_func" component={ClassFunctions} />
         <Route path="/coeff" component={Coeff} />
         <Route path="/irradiation" component={Irradiation} />
-        <Route path="/integral_period" component={IntegralPeriod} />        
+        <Route path="/integral_period" component={IntegralPeriod} /> 
+        <Route path="/aerosol_sol" component={AerosolSol} />
+        <Route path="/aerosol_amad" component={AerosolAmad} /> 
+        <Route path="/let_level" component={LetLevel} />      
 {/*             render={(props) => (
             <Page title="Типы облучаемых лиц">
               <Coeff {...props} />

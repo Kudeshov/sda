@@ -75,6 +75,27 @@ app.get('/integral_period/:id', (req, res) => {gn_q.getGenericNLSById(req, res, 
 app.post('/integral_period', (req, res) => {gn_q.createGenericNLS(req, res, 'integral_period')});       //create
 app.put('/integral_period/:id', (req, res) => {gn_q.updateGenericNLS(req, res, 'integral_period')});    //update
 app.delete('/integral_period/:id', (req, res) => {gn_q.deleteGenericNLS(req, res, 'integral_period')}); //delete
+
+//GENERIC QUERIES on aerosol_sol 
+app.get('/aerosol_sol', (req, res) => {gn_q.getGenericNLS(req, res, 'aerosol_sol')});           //list all
+app.get('/aerosol_sol/:id', (req, res) => {gn_q.getGenericNLSById(req, res, 'aerosol_sol')});   //list 1
+app.post('/aerosol_sol', (req, res) => {gn_q.createGenericNLS(req, res, 'aerosol_sol')});       //create
+app.put('/aerosol_sol/:id', (req, res) => {gn_q.updateGenericNLS(req, res, 'aerosol_sol')});    //update
+app.delete('/aerosol_sol/:id', (req, res) => {gn_q.deleteGenericNLS(req, res, 'aerosol_sol')}); //delete
+
+//GENERIC QUERIES on aerosol_amad 
+app.get('/aerosol_amad', (req, res) => {gn_q.getGenericNLS(req, res, 'aerosol_amad')});           //list all
+app.get('/aerosol_amad/:id', (req, res) => {gn_q.getGenericNLSById(req, res, 'aerosol_amad')});   //list 1
+app.post('/aerosol_amad', (req, res) => {gn_q.createGenericNLS(req, res, 'aerosol_amad')});       //create
+app.put('/aerosol_amad/:id', (req, res) => {gn_q.updateGenericNLS(req, res, 'aerosol_amad')});    //update
+app.delete('/aerosol_amad/:id', (req, res) => {gn_q.deleteGenericNLS(req, res, 'aerosol_amad')}); //delete
+
+//GENERIC QUERIES on let_level
+app.get('/let_level', (req, res) => {gn_q.getGenericNLS(req, res, 'let_level')});           //list all
+app.get('/let_level/:id', (req, res) => {gn_q.getGenericNLSById(req, res, 'let_level')});   //list 1
+app.post('/let_level', (req, res) => {gn_q.createGenericNLS(req, res, 'let_level')});       //create
+app.put('/let_level/:id', (req, res) => {gn_q.updateGenericNLS(req, res, 'let_level')});    //update
+app.delete('/let_level/:id', (req, res) => {gn_q.deleteGenericNLS(req, res, 'let_level')}); //delete
  
 //data_source_class_queries
 app.get('/data_source_class', dsc_q.getDataSourceClass);           //list all
