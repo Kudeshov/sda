@@ -1,6 +1,6 @@
 import { DataTablePeopleClass } from './dt_people_class';
 
-function Db() {
+function Irradiation() {
   return (
     <div className="App">
     <h3>&nbsp;&nbsp;Типы облучения</h3>
@@ -19,5 +19,5 @@ function Db() {
     </div>
   );
 }
-export default Db;
+export default Irradiation;
 
