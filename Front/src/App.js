@@ -1,5 +1,5 @@
 import React from "react";
-import { BrowserRouter as Router, Switch, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./component/Navbar";
 import Sources from "./pages/sources";
 import Decay from "./pages/decay";
@@ -16,24 +16,24 @@ function App() {
   return (
     <Router>
       <Navbar />
-      <Switch>
-        <Route exact path="/" component={Substance} />
-        <Route path="/substance" component={Substance} />
-        <Route path="/decay" component={Decay} />
-        <Route path="/sources" component={Sources} />
-        <Route path="/norms" component={Norms} />
-        <Route path="/class_func" component={ClassFunctions} />
-        <Route path="/coeff" component={Coeff} />
-        <Route path="/irradiation" component={Irradiation} />
-        <Route path="/integral_period" component={IntegralPeriod} />        
+      <Routes>
+        <Route exact path="/" element={<Substance/>} />
+        <Route path="/substance" element={<Substance/>} />
+        <Route path="/decay" element={<Decay/>} />
+        <Route path="/sources" element={<Sources/>} />
+        <Route path="/norms" element={<Norms/>} />
+        <Route path="/class_func" element={<ClassFunctions/>} />
+        <Route path="/coeff" element={<Coeff />} />
+        <Route path="/irradiation" element={<Irradiation/>} />
+        <Route path="/integral_period" element={<IntegralPeriod/>} />        
 {/*             render={(props) => (
             <Page title="Типы облучаемых лиц">
               <Coeff {...props} />
             </Page>
           )}
             */}
-        <Route path="/db" component={Db} />
-      </Switch>
+        <Route path="/db" element={<Db/>} />
+      </Routes>
     </Router>
   );
 }
