@@ -104,7 +104,11 @@ function Navbar() {
                 <MenuItem onClick={closeMenuCoeff} component={Link} to="/irradiation">Типы облучения</MenuItem> 
                 <MenuItem onClick={closeMenuCoeff} component={Link} to="/integral_period">Периоды интегрирования</MenuItem> 
                 <MenuItem onClick={closeMenuCoeff} component={Link} to="/db">Формы вещества</MenuItem> 
-                <MenuItem onClick={closeMenuCoeff} component={Link} to="/coeff">Типы облучаемых лиц</MenuItem> 
+                <MenuItem onClick={closeMenuCoeff} component={Link} to="/coeff">Типы облучаемых лиц</MenuItem>
+                <MenuItem onClick={closeMenuCoeff} component={Link} to="/aerosol_sol">Типы абсорбции аэрозолей</MenuItem> 
+                <MenuItem onClick={closeMenuCoeff} component={Link} to="/aerosol_amad">Aэродинамический диаметр аэрозолей</MenuItem> 
+                <MenuItem onClick={closeMenuCoeff} component={Link} to="/let_level">Уровень линейной передачи энергии</MenuItem> 
+
 
              </Menu>
 
