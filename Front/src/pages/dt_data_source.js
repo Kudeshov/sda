@@ -34,6 +34,7 @@ import CloseIcon from '@mui/icons-material/Close';
 //import * as XLSX from 'xlsx';
 import CircularProgress from '@material-ui/core/CircularProgress';
 
+
 /* 
 const getJson = (apiRef: React.MutableRefObject<GridApi>) => {
   // Select rows and columns
@@ -142,7 +143,7 @@ const DataTableDataSource = () => {
   const [valueExternalDS, setValueExternalDS] = React.useState();
   const [isLoading, setIsLoading] = React.useState(false);
 
-  const handleRowClick: GridEventListener<'rowClick'>  = (params) => {
+  const handleRowClick/* : GridEventListener<'rowClick'> */  = (params) => {
     setValueID(`${params.row.id}`);
     setValueTitle(`${params.row.title}`);
     setValueShortName(`${params.row.shortname}`);
@@ -362,6 +363,8 @@ const [openAlert, setOpenAlert] = React.useState(false, '');
     <table style={{ height: 550, width: 1400 }} ><tbody>
     <tr>
       <td style={{ height: 550, width: 800, verticalAlign: 'top' }}>
+
+      
       <div style={{ height: 400, width: 728 }}>
       <DataGrid
 //        componentsProps={{ toolbar: { csvOptions } }}
@@ -401,6 +404,7 @@ const [openAlert, setOpenAlert] = React.useState(false, '');
 {/*       <td style={{ height: 550, width: 10 }}>      
       </td> */}
       <td style={{ height: 550, width: 700, verticalAlign: 'top' }}>
+  table_names[props.table_name]<p/>
   <TextField  id="ch_id" label="Id" sx={{ width: '12ch' }} variant="outlined" value={valueId || ''} /* defaultValue=" "  */onChange={e => setValueID(e.target.value)}/>
   <p/>
   <TextField  id="ch_name" sx={{ width: '40ch' }} label="Обозначение"  variant="outlined" value={valueTitle || ''} /* defaultValue=" "  */onChange={e => setValueTitle(e.target.value)}/>

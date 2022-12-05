@@ -13,8 +13,8 @@ import IntegralPeriod from "./pages/integral_period";
 import AerosolSol from "./pages/aerosol_sol";
 import AerosolAmad from "./pages/aerosol_amad";
 import LetLevel from "./pages/let_level";
-//import Page from "./page";
-//import lastID from "./pages/coeff";
+import ExpScenario from "./pages/exp_scenario";
+
 function App() {
   return (
     <Router>
@@ -31,13 +31,8 @@ function App() {
         <Route path="/integral_period" element={<IntegralPeriod/>} />        
         <Route path="/aerosol_sol" element={<AerosolSol />} />
         <Route path="/aerosol_amad" element={<AerosolAmad/>} />
-        <Route path="/let_level" element={<LetLevel/>} />        
-{/*             render={(props) => (
-            <Page title="Типы облучаемых лиц">
-              <Coeff {...props} />
-            </Page>
-          )}
-            */}
+        <Route path="/let_level" element={<LetLevel/>} />       
+        <Route path="/exp_scenario" element={<ExpScenario/>} />               
         <Route path="/db" element={<Db/>} />
       </Routes>
     </Router>

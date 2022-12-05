@@ -19,12 +19,6 @@ import Alert from '@mui/material/Alert';
 import Collapse from '@mui/material/Collapse';
 import CloseIcon from '@mui/icons-material/Close';
 import { DataTableDataSourceClass } from './dt_data_source_class';
-/* import SaveIcon from '@mui/icons-material/Save';
-import RefreshIcon from '@mui/icons-material/Refresh';
-import DeleteIcon from '@mui/icons-material/Delete';
-import UndoIcon from '@mui/icons-material/Undo';
-import AddIcon from '@mui/icons-material/Add';
-import SaveAltIcon from '@mui/icons-material/SaveAlt'; */
 import SvgIcon from '@mui/material/SvgIcon';
 import { ReactComponent as SaveLightIcon } from "./../icons/save.svg";
 import { ReactComponent as PlusLightIcon } from "./../icons/plus.svg";
@@ -32,12 +26,16 @@ import { ReactComponent as UndoLightIcon } from "./../icons/undo.svg";
 import { ReactComponent as DownloadLightIcon } from "./../icons/download.svg";
 import { ReactComponent as TrashLightIcon } from "./../icons/trash.svg";
 import { ReactComponent as RepeatLightIcon } from "./../icons/repeat.svg";
+import TreeView from "@material-ui/lab/TreeView";
+import TreeItem from "@material-ui/lab/TreeItem";
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import ChevronRightIcon from "@material-ui/icons/ChevronRight";
 
 var alertText = "Сообщение";
 var alertSeverity = "info";
 var lastId = 0;
 
-const DataTablePeopleClass = (props) => {
+const DataTableExpScenario = (props) => {
   const [valueId, setValueID] = React.useState();
   const [valueTitle, setValueTitle] = React.useState();
   const [valueTitleInitial, setValueTitleInitial] = React.useState();
@@ -51,12 +49,11 @@ const DataTablePeopleClass = (props) => {
   const [valueDescrRusInitial, setValueDescrRusInitial] = React.useState();
   const [isLoading, setIsLoading] = React.useState(false);
   const [tableData, setTableData] = useState([]); 
+  const [treeData, setTreeData] = useState([]); 
   const [selectionModel, setSelectionModel] = React.useState([]);
   const [editStarted, setEditStarted] = useState([false]);
 
   useEffect(() => {
-    //console.log([valueTitleInitial, valueTitle, valueNameRusInitial, valueNameRus, valueNameEngInitial, valueNameEng, 
-    //  valueDescrEngInitial, valueDescrEng, valueDescrRusInitial, valueDescrRus]); 
     setEditStarted((valueTitleInitial!==valueTitle)||(valueNameRusInitial!==valueNameRus)||(valueNameEngInitial!==valueNameEng)
       ||(valueDescrEngInitial!==valueDescrEng)||(valueDescrRusInitial!==valueDescrRus));
     }, [valueTitleInitial, valueTitle, valueNameRusInitial, valueNameRus, valueNameEngInitial, valueNameEng, 
@@ -85,8 +82,71 @@ const DataTablePeopleClass = (props) => {
     }
     }, [ isLoading, tableData] );
 
+    function list_to_tree(list) {
+      var map = {}, node, roots = [], i;
+      
+      for (i = 0; i < list.length; i += 1) {
+        map[list[i].id] = i; // initialize the map
+        list[i].children = []; // initialize the children
+      }
+      
+      for (i = 0; i < list.length; i += 1) {
+        node = list[i];
+        if (node.parent_id) {
+          // if you have dangling branches check that map[node.parentId] exists
+          list[map[node.parent_id]].children.push(node);
+        } else {
+          roots.push(node);
+        }
+      }
+      return roots;
+    }
+
+    const getTreeItemsFromData = treeItems => {
+      return treeItems.map(treeItemData => {
+        let children = undefined;
+        if (treeItemData.children && treeItemData.children.length > 0) {
+          children = getTreeItemsFromData(treeItemData.children);
+        }
+        return (
+          <TreeItem
+            key={treeItemData.id}
+            nodeId={treeItemData.id}
+            label={treeItemData.title}
+            children={children}
+            onClick={() => console.log(treeItemData.title)}
+          />
+        );
+      });
+    };
+
+    const DataTreeView = ({ treeItems }) => {
+      return (
+        <TreeView
+          defaultCollapseIcon={<ExpandMoreIcon />}
+          defaultExpandIcon={<ChevronRightIcon />}
+        >
+          {getTreeItemsFromData(treeItems)}
+        </TreeView>
+      );
+    };
+    
+
   const handleRowClick = (params) => {
+
     console.log('handleRowClick');
+    console.log( tableData );    
+    let arr = tableData; //.map(x => Object.assign({}, tableData, { "children": null }));
+    setTreeData( list_to_tree( arr ) );
+
+/*     arr.forEach(function(e){
+        e.children = null
+    });
+    console.log( arr );    
+ */
+    console.log( treeData );
+
+    
     if (editStarted)
     {
       handleClickSave(params);
@@ -467,6 +527,9 @@ const DataTablePeopleClass = (props) => {
     <tr>
       <td style={{ height: 550, width: 600, verticalAlign: 'top' }}>
       <div style={{ height: 400, width: 585 }}>
+      <br /> дерево <br /> 
+      <DataTreeView treeItems={treeData} /> 
+      <br /> дерево <br />        
 
       <DataGrid
         components={{ Toolbar: CustomToolbar1 }}
@@ -597,4 +660,4 @@ const DataTablePeopleClass = (props) => {
   )
 }
 
-export { DataTablePeopleClass, lastId }
+export { DataTableExpScenario, lastId }

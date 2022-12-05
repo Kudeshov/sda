@@ -96,13 +96,19 @@ app.get('/let_level/:id', (req, res) => {gn_q.getGenericNLSById(req, res, 'let_l
 app.post('/let_level', (req, res) => {gn_q.createGenericNLS(req, res, 'let_level')});       //create
 app.put('/let_level/:id', (req, res) => {gn_q.updateGenericNLS(req, res, 'let_level')});    //update
 app.delete('/let_level/:id', (req, res) => {gn_q.deleteGenericNLS(req, res, 'let_level')}); //delete
+
+//GENERIC QUERIES on exp_scenario
+app.get('/exp_scenario', (req, res) => {gn_q.getGenericNLS(req, res, 'exp_scenario')});           //list all
+app.get('/exp_scenario/:id', (req, res) => {gn_q.getGenericNLSById(req, res, 'exp_scenario')});   //list 1
+app.post('/exp_scenario', (req, res) => {gn_q.createGenericNLS(req, res, 'exp_scenario')});       //create
+app.put('/exp_scenario/:id', (req, res) => {gn_q.updateGenericNLS(req, res, 'exp_scenario')});    //update
+app.delete('/exp_scenario/:id', (req, res) => {gn_q.deleteGenericNLS(req, res, 'exp_scenario')}); //delete
  
 //data_source_class_queries
 app.get('/data_source_class', dsc_q.getDataSourceClass);           //list all
 app.post('/data_source_class', dsc_q.createDataSourceClass);       //create
 app.put('/data_source_class/:id', dsc_q.updateDataSourceClass);    //update
 app.delete('/data_source_class/:id', dsc_q.deleteDataSourceClass); //delete 
-
 
 app.get('/criterion', function(req, resp){
       pool.query('SELECT * FROM nucl.criterion', (error, res) => {

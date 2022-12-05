@@ -1,4 +1,4 @@
-export const table_names =   {
+export const table_names = {
     'people_class': 'Типы облучаемых лиц',
     'subst_form': 'Формы вещества',
     'aerosol_amad': 'AMAD аэрозолей',
@@ -6,22 +6,10 @@ export const table_names =   {
     'let_level': 'Уровни ЛПЭ',
     'integral_period': 'Периоды интегрирования',
     'irradiation': 'Типы облучения',
-    'chelement': 'Химические элементы',  
-    'data_source': 'Источники данных'
-  }  
-
-
-export const products  = [
-  {
-    id: 1,
-    title: 'Yellow Pail',
-  },
-  {
-    id: 2,
-    title: 'Green Pail',
-  },
-]
-
-export default {
-    products,
-}
+    'chelement': 'Химические элементы',
+    'data_source': 'Источники данных',
+    'exp_scenario': 'Сценарии поступления',
+    
+  }; 
+  
+  export default table_names;

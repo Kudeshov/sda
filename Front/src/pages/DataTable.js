@@ -29,7 +29,7 @@ const DataTable = () => {
   const [valueAtomicNum, setValueAtomicNum] = React.useState();
  // const [isLoading, setIsLoading] = React.useState(false);
 
-  const handleRowClick: GridEventListener<'rowClick'> = (params) => {
+  const handleRowClick/* : GridEventListener<'rowClick'> */ = (params) => {
   //  setFieldValue("ch_name","test");
 //    setMessage(`Movie "${params.row.title}" clicked`);
     // alert(`Data "${params.row.name}" `);

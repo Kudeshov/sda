@@ -137,10 +137,10 @@ const deletePeopleClass = (request, response) => {
       const { cnt } = res.rows[0];
       console.log('Cnt = ' + cnt );   
       if (cnt > 1) {
-        response.status(400).send(`Для записи с кодом ${id} существуют записи в таблице "Связь с источником данных"`);
+        response.status(400).send(`Для записи с кодом ${id} существуют связанные записи в таблице "Связь с источником данных"`);
         return;
       } else if (cnt > 0) {
-        response.status(400).send(`Для записи с кодом ${id} существует запись в таблице "Связь с источником данных"`);
+        response.status(400).send(`Для записи с кодом ${id} существует связанные записи в таблице "Связь с источником данных"`);
         return;
       } else 
       {
