@@ -528,7 +528,9 @@ const DataTableExpScenario = (props) => {
       <td style={{ height: 550, width: 600, verticalAlign: 'top' }}>
       <div style={{ height: 400, width: 585 }}>
       <br /> дерево <br /> 
-      <DataTreeView treeItems={treeData} /> 
+      <Box sx={{ border: 1, borderRadius: '6px' }} >
+        <DataTreeView treeItems={treeData} /> 
+      </Box>
       <br /> дерево <br />        
 
       <DataGrid
