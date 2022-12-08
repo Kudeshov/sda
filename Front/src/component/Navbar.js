@@ -108,6 +108,7 @@ function Navbar() {
                 <MenuItem onClick={closeMenuCoeff} component={Link} to="/aerosol_sol">Типы абсорбции аэрозолей</MenuItem> 
                 <MenuItem onClick={closeMenuCoeff} component={Link} to="/aerosol_amad">Aэродинамический диаметр аэрозолей</MenuItem> 
                 <MenuItem onClick={closeMenuCoeff} component={Link} to="/let_level">Уровень линейной передачи энергии</MenuItem> 
+                <MenuItem onClick={closeMenuCoeff} component={Link} to="/agegroup">Возрастные группы населения</MenuItem> 
 
 
              </Menu>
