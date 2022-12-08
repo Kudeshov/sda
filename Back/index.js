@@ -23,6 +23,7 @@ const ds_q = require('./data_source_queries');
 const pc_q = require('./people_class_queries');
 const dsc_q = require('./data_source_class_queries');
 const gn_q = require('./generic_nls_queries');
+const ag_q = require('./agegroup_queries');
 
 const { Pool } = require('pg');
 //var msg = 'a';
@@ -96,6 +97,13 @@ app.get('/let_level/:id', (req, res) => {gn_q.getGenericNLSById(req, res, 'let_l
 app.post('/let_level', (req, res) => {gn_q.createGenericNLS(req, res, 'let_level')});       //create
 app.put('/let_level/:id', (req, res) => {gn_q.updateGenericNLS(req, res, 'let_level')});    //update
 app.delete('/let_level/:id', (req, res) => {gn_q.deleteGenericNLS(req, res, 'let_level')}); //delete
+
+//GENERIC QUERIES on agegroup
+app.get('/agegroup', (req, res) => {ag_q.getAgeGroup(req, res, 'agegroup')});           //list all
+app.get('/agegroup/:id', (req, res) => {ag_q.getAgeGroupById(req, res, 'agegroup')});   //list 1
+app.post('/agegroup', (req, res) => {ag_q.createAgeGroup(req, res, 'agegroup')});       //create
+app.put('/agegroup/:id', (req, res) => {ag_q.updateAgeGroup(req, res, 'agegroup')});    //update
+app.delete('/agegroup/:id', (req, res) => {ag_q.deleteAgeGroup(req, res, 'agegroup')}); //delete
  
 //data_source_class_queries
 app.get('/data_source_class', dsc_q.getDataSourceClass);           //list all
