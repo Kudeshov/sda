@@ -1,4 +1,4 @@
-import { DataTablePeopleClass } from './dt_people_class';
+import { DataTableExpScenario } from './dt_exp_scenario';
 import { table_names } from './sda_types';
 import { useEffect } from 'react';
 
@@ -8,11 +8,11 @@ const useDocumentTitle = (title) => {
   }, [title])
 }
 
-function AerosolAmad() {
-  useDocumentTitle(table_names['aerosol_amad']);
+function ExpScenario() {
+  useDocumentTitle(table_names['exp_scenario']);
   return (
     <div className="App">
-    <h3>&nbsp;&nbsp;{table_names['aerosol_amad']}</h3>
+    <h3>&nbsp;&nbsp;{table_names['exp_scenario']}</h3>
     <table>
       <tbody>
     <tr>
@@ -20,7 +20,7 @@ function AerosolAmad() {
         &nbsp;
       </td>
       <td width="1600">
-        <DataTablePeopleClass table_name="aerosol_amad"/>
+        <DataTableExpScenario table_name="exp_scenario"/>
       </td>
     </tr>
     </tbody>
@@ -28,5 +28,5 @@ function AerosolAmad() {
     </div>
   );
 }
-export default AerosolAmad;
+export default ExpScenario;
 

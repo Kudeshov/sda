@@ -1,9 +1,18 @@
 import { DataTablePeopleClass } from './dt_people_class';
+import { table_names } from './sda_types';
+import { useEffect } from 'react';
+
+const useDocumentTitle = (title) => {
+  useEffect(() => {
+     document.title = title
+  }, [title])
+}
 
 function Db() {
+  useDocumentTitle(table_names['let_level']);
   return (
     <div className="App">
-    <h3>&nbsp;&nbsp;Уровень линейной передачи энергии</h3>
+    <h3>&nbsp;&nbsp;{table_names['let_level']}</h3>
     <table>
       <tbody>
     <tr>

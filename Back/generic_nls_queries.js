@@ -21,7 +21,7 @@ pool.on(`error`, function (err, client) {
 });
 
 const getGenericNLS = (request, response, table_name ) => {
-  pool.query(`SELECT pc.*, pcn1.name name_rus, pcn2.name name_eng, pcn1.descr descr_rus, pcn2.descr descr_eng FROM nucl.${table_name} pc `+
+  pool.query(`SELECT pc.*, pcn1.name name_rus, pcn2.name name_eng, pcn1.descr descr_rus, pcn2.descr descr_eng, null children FROM nucl.${table_name} pc `+
   `left join nucl.${table_name}_nls pcn1 on pc.id=pcn1.${table_name}_id and pcn1.lang_id=1 `+
   `left join nucl.${table_name}_nls pcn2 on pc.id=pcn2.${table_name}_id and pcn2.lang_id=2 `+
   `ORDER BY pc.id ASC`, (error, results) => {

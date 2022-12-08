@@ -104,13 +104,19 @@ app.get('/agegroup/:id', (req, res) => {ag_q.getAgeGroupById(req, res, 'agegroup
 app.post('/agegroup', (req, res) => {ag_q.createAgeGroup(req, res, 'agegroup')});       //create
 app.put('/agegroup/:id', (req, res) => {ag_q.updateAgeGroup(req, res, 'agegroup')});    //update
 app.delete('/agegroup/:id', (req, res) => {ag_q.deleteAgeGroup(req, res, 'agegroup')}); //delete
+
+//GENERIC QUERIES on exp_scenario
+app.get('/exp_scenario', (req, res) => {gn_q.getGenericNLS(req, res, 'exp_scenario')});           //list all
+app.get('/exp_scenario/:id', (req, res) => {gn_q.getGenericNLSById(req, res, 'exp_scenario')});   //list 1
+app.post('/exp_scenario', (req, res) => {gn_q.createGenericNLS(req, res, 'exp_scenario')});       //create
+app.put('/exp_scenario/:id', (req, res) => {gn_q.updateGenericNLS(req, res, 'exp_scenario')});    //update
+app.delete('/exp_scenario/:id', (req, res) => {gn_q.deleteGenericNLS(req, res, 'exp_scenario')}); //delete
  
 //data_source_class_queries
 app.get('/data_source_class', dsc_q.getDataSourceClass);           //list all
 app.post('/data_source_class', dsc_q.createDataSourceClass);       //create
 app.put('/data_source_class/:id', dsc_q.updateDataSourceClass);    //update
 app.delete('/data_source_class/:id', dsc_q.deleteDataSourceClass); //delete 
-
 
 app.get('/criterion', function(req, resp){
       pool.query('SELECT * FROM nucl.criterion', (error, res) => {

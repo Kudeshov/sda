@@ -1,9 +1,18 @@
 import { DataTablePeopleClass } from './dt_people_class';
+import { table_names } from './sda_types';
+import { useEffect } from 'react';
 
-function Db() {
+const useDocumentTitle = (title) => {
+  useEffect(() => {
+     document.title = title
+  }, [title])
+}
+
+function AerosolSol() {
+  useDocumentTitle(table_names['aerosol_sol']);
   return (
     <div className="App">
-    <h3>&nbsp;&nbsp;Типы абсорбции аэрозолей</h3>
+    <h3>&nbsp;&nbsp;{table_names['aerosol_sol']}</h3>
     <table>
       <tbody>
     <tr>
@@ -19,5 +28,5 @@ function Db() {
     </div>
   );
 }
-export default Db;
+export default AerosolSol;
 

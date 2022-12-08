@@ -10,10 +10,9 @@ import {
 } from "@material-ui/core";
 import { Link } from "react-router-dom";
 import Divider from '@mui/material/Divider';
-import Menu from '@mui/material/Menu';
+import Menu from '@mui/material/Menu'; 
 import MenuItem from '@mui/material/MenuItem';
-//import { Event } from "@material-ui/icons";
-//import DrawerComponent from "./Drawer";
+import { table_names } from '../pages/sda_types';
 
 const useStyles = makeStyles((theme) => ({
   navlinks: {
@@ -42,7 +41,7 @@ function Navbar() {
   const [menuDecay, setMenuDecay] = useState(false);
   const [anchorEl, setAnchorEl] = useState()
 
-  const recordButtonPositionDecay = (event: any) => {
+  const recordButtonPositionDecay = (event/* : any */) => {
       setAnchorEl(event.currentTarget);
       setMenuDecay(true);
   }
@@ -53,7 +52,7 @@ function Navbar() {
   const [menuCoeff, setMenuCoeff] = useState(false);
   const [anchorE2, setAnchorE2] = useState()
 
-  const recordButtonPositionCoeff = (event: any) => {
+  const recordButtonPositionCoeff = (event/* : any */) => {
       setAnchorE2(event.currentTarget);
       setMenuCoeff(true);
   }
@@ -101,15 +100,15 @@ function Navbar() {
                 <MenuItem onClick={closeMenuCoeff} component={Link} disabled={true} to="/">Внутреннее облучение</MenuItem> 
                 <MenuItem onClick={closeMenuCoeff} component={Link} disabled={true} to="/">Внешнее облучение</MenuItem> 
                 <Divider />
-                <MenuItem onClick={closeMenuCoeff} component={Link} to="/irradiation">Типы облучения</MenuItem> 
+                <MenuItem onClick={closeMenuCoeff} component={Link} to="/irradiation">{table_names['irradiation']}</MenuItem> 
                 <MenuItem onClick={closeMenuCoeff} component={Link} to="/integral_period">Периоды интегрирования</MenuItem> 
                 <MenuItem onClick={closeMenuCoeff} component={Link} to="/db">Формы вещества</MenuItem> 
                 <MenuItem onClick={closeMenuCoeff} component={Link} to="/coeff">Типы облучаемых лиц</MenuItem>
-                <MenuItem onClick={closeMenuCoeff} component={Link} to="/aerosol_sol">Типы абсорбции аэрозолей</MenuItem> 
-                <MenuItem onClick={closeMenuCoeff} component={Link} to="/aerosol_amad">Aэродинамический диаметр аэрозолей</MenuItem> 
-                <MenuItem onClick={closeMenuCoeff} component={Link} to="/let_level">Уровень линейной передачи энергии</MenuItem> 
+                <MenuItem onClick={closeMenuCoeff} component={Link} to="/aerosol_sol">{table_names['aerosol_sol']}</MenuItem> 
+                <MenuItem onClick={closeMenuCoeff} component={Link} to="/aerosol_amad">{table_names['aerosol_amad']}</MenuItem> 
+                <MenuItem onClick={closeMenuCoeff} component={Link} to="/let_level">{table_names['let_level']}</MenuItem> 
+                <MenuItem onClick={closeMenuCoeff} component={Link} to="/exp_scenario">{table_names['exp_scenario']}</MenuItem> 
                 <MenuItem onClick={closeMenuCoeff} component={Link} to="/agegroup">Возрастные группы населения</MenuItem> 
-
 
              </Menu>
 
