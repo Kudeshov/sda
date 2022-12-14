@@ -1,11 +1,11 @@
 import React, { useState, useEffect } from 'react'
-import {
+//import {
   //DataGrid, 
-  ruRU,
-  GridToolbarContainer,
-  useGridApiContext,
-  gridFilteredSortedRowIdsSelector,
-} from '@mui/x-data-grid';
+  //ruRU,
+  //GridToolbarContainer,
+  //useGridApiContext,
+  //gridFilteredSortedRowIdsSelector,
+//} from '@mui/x-data-grid';
 
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
@@ -139,7 +139,7 @@ const DataTableExpScenario = (props) => {
       );
     };
     
-
+/* 
   const handleRowClick = (params) => {
     console.log('handleRowClick');
     if (editStarted)
@@ -161,7 +161,7 @@ const DataTableExpScenario = (props) => {
       setValueDescrRusInitial(`${params.row.descr_rus}`);
       setValueDescrEngInitial(`${params.row.descr_eng}` );
     }
-  }; 
+  };  */
 
   const handleItemClick = (idid) => {
     console.log('handleItemClick');
@@ -171,7 +171,7 @@ const DataTableExpScenario = (props) => {
     
     console.log(idid);
     var res = tableData.filter(function(item) {
-      return item.id == idid;
+      return item.id === idid;
     });
 //    console.log(res[0].id);  
     setValueID(res[0].id);
@@ -452,11 +452,11 @@ const DataTableExpScenario = (props) => {
     delRec();
   };
 
-  const handleClickSave = () => {
+/*   const handleClickSave = () => {
     console.log('handleClickSave');
     setOpenSave(true);
   };
-
+ */
   const handleCloseSaveNo = () => {
     console.log('handleCloseSaveNo');
     setOpenSave(false);
@@ -500,7 +500,7 @@ const DataTableExpScenario = (props) => {
   };
 
   //////////////////////////////////////////////////////// ACTIONS ///////////////////////////////
-  const columns = [
+/*   const columns = [
     { field: 'id', headerName: 'Код', width: 80 },
     { field: 'title', headerName: 'Обозначение', width: 180, hideable: false },
     { field: 'name_rus', headerName: 'Название (рус.яз)', width: 250 },
@@ -508,7 +508,7 @@ const DataTableExpScenario = (props) => {
     { field: 'descr_rus', headerName: 'Комментарий (рус.яз)', width: 180 },
     { field: 'descr_eng', headerName: 'Комментарий (англ.яз)', width: 180 },
   ]
-
+ */
   const [openAlert, setOpenAlert] = React.useState(false, '');
   const handleCancelClick = () => 
   {
@@ -537,9 +537,9 @@ const DataTableExpScenario = (props) => {
     }
   }
 
-  function CustomToolbar1() {
+/*   function CustomToolbar1() {
     const apiRef = useGridApiContext();
-    const handleExport = (options/* : GridCsvExportOptions */) =>
+    const handleExport = (options) =>
       apiRef.current.exportDataAsCsv(options);
 
     return (
@@ -559,7 +559,7 @@ const DataTableExpScenario = (props) => {
           <SvgIcon fontSize="small" component={DownloadLightIcon} inheritViewBox /></IconButton>
       </GridToolbarContainer>
     );
-  }
+  } */
 
   return (
     <div style={{ height: 550, width: 1500 }}>
@@ -580,7 +580,11 @@ const DataTableExpScenario = (props) => {
           <SvgIcon fontSize="small" component={UndoLightIcon} inheritViewBox /></IconButton>
         <IconButton onClick={()=>reloadDataAlert()} color="primary" size="small" Title="Обновить данные">
           <SvgIcon fontSize="small" component={RepeatLightIcon} inheritViewBox /></IconButton>
-     
+        <IconButton 
+        //onClick={()=>handleExport({ delimiter: ';', utf8WithBom: true, getRowsToExport: () => gridFilteredSortedRowIdsSelector(apiRef) })} 
+            color="primary" 
+            size="small" Title="Сохранить в формате CSV">
+          <SvgIcon fontSize="small" component={DownloadLightIcon} inheritViewBox /></IconButton>     
 {/*       <AppBar>
       <Toolbar>
         <Typography variant="h6">

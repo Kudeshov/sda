@@ -723,4 +723,4 @@ const DataTableAgeGroup = (props) => {
   )
 }
 
-export { DataTableAgeGroup as DataTableAgeGroup, lastId }
+export { DataTableAgeGroup, lastId }
