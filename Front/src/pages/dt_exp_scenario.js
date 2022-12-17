@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import {
-  DataGrid, 
+  //DataGrid, 
   ruRU,
   GridToolbarContainer,
   useGridApiContext,
@@ -30,6 +30,10 @@ import TreeView from "@material-ui/lab/TreeView";
 import TreeItem from "@material-ui/lab/TreeItem";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
+//import AppBar from '@mui/material/AppBar';
+//import Toolbar from '@mui/material/Toolbar';
+//import Typography from '@mui/material/Typography';
+
 
 var alertText = "Сообщение";
 var alertSeverity = "info";
@@ -63,10 +67,10 @@ const DataTableExpScenario = (props) => {
     if ((!isLoading) && (tableData) && (tableData.length)) {
       if (!lastId) 
       {
-        //console.log('isLoading, tableData ON lastId '+lastId);
+        console.log('useEffect isLoading, tableData ON lastId '+lastId);
         lastId = tableData[0].id;
         setSelectionModel(tableData[0].id);
-        setValueID(`${tableData[0].id}`);
+        //setValueID(`${tableData[0].id}`);
         setValueTitle(`${tableData[0].title}`);
         setValueNameRus(`${tableData[0].name_rus}`);
         setValueNameEng(`${tableData[0].name_eng}`);
@@ -114,7 +118,9 @@ const DataTableExpScenario = (props) => {
             nodeId={treeItemData.id}
             label={treeItemData.title}
             children={children}
-            onClick={() => console.log(treeItemData.title)}
+            onClick={() => handleItemClick(treeItemData.id)}   //{handleItemClick}
+            //{() => console.log(treeItemData.title)} onRowClick=
+//            expanded={true}
           />
         );
       });
@@ -125,6 +131,8 @@ const DataTableExpScenario = (props) => {
         <TreeView
           defaultCollapseIcon={<ExpandMoreIcon />}
           defaultExpandIcon={<ChevronRightIcon />}
+          defaultExpanded={[1,2]}
+          //expanded={true}
         >
           {getTreeItemsFromData(treeItems)}
         </TreeView>
@@ -133,27 +141,14 @@ const DataTableExpScenario = (props) => {
     
 
   const handleRowClick = (params) => {
-
     console.log('handleRowClick');
-    console.log( tableData );    
-    let arr = tableData; //.map(x => Object.assign({}, tableData, { "children": null }));
-    setTreeData( list_to_tree( arr ) );
-
-/*     arr.forEach(function(e){
-        e.children = null
-    });
-    console.log( arr );    
- */
-    console.log( treeData );
-
-    
     if (editStarted)
     {
       handleClickSave(params);
     } 
     else 
     {
-      setValueID(`${params.row.id}`);
+      //setValueID(`${params.row.id}`);
       setValueTitle(`${params.row.title}`);
       setValueNameRus(`${params.row.name_rus}`);
       setValueNameEng(`${params.row.name_eng}`);
@@ -166,6 +161,46 @@ const DataTableExpScenario = (props) => {
       setValueDescrRusInitial(`${params.row.descr_rus}`);
       setValueDescrEngInitial(`${params.row.descr_eng}` );
     }
+  }; 
+
+  const handleItemClick = (idid) => {
+    console.log('handleItemClick');
+    //console.log(params.id);
+    //console.log(params.title);
+    //console.log(idid);
+    
+    console.log(idid);
+    var res = tableData.filter(function(item) {
+      return item.id == idid;
+    });
+//    console.log(res[0].id);  
+    setValueID(res[0].id);
+//    setValueID(res[0].id);
+    setValueTitle(res[0].title);
+    setValueNameRus(res[0].name_rus);
+    setValueNameEng(res[0].name_eng);
+    setValueDescrRus(res[0].descr_rus);
+    setValueDescrEng(res[0].descr_eng);    
+    //setValueID(idid);
+
+/*     if (editStarted)
+    {
+      handleClickSave(params);
+    } 
+    else 
+    {
+      setValueID(`${params.id}`);
+      setValueTitle(`${params.title}`);
+      setValueNameRus(`${params.name_rus}`);
+      setValueNameEng(`${params.name_eng}`);
+      setValueDescrRus(`${params.descr_rus}`);
+      setValueDescrEng(`${params.descr_eng}` );
+      setValueTitleInitial(`${params.title}`);
+      setValueNameRusInitial(`${params.name_rus}`);
+      setValueNameEngInitial(`${params.name_eng}`);
+      setValueDescrRusInitial(`${params.descr_rus}`);
+      setValueDescrEngInitial(`${params.descr_eng}` );
+    }   */
   }; 
 
   const handleClearClick = (params) => {
@@ -187,13 +222,18 @@ const DataTableExpScenario = (props) => {
     }
   }; 
 
-
   useEffect(() => {
     fetch(`/${props.table_name}`)
       .then((data) => data.json())
       .then((data) => setTableData(data))
-      .then((data) => {/* console.log('fetch ok'); console.log(data);  */lastId = 0;} ); 
+      .then((data) => { console.log( 'useEffect '+ props.table_name ); /* setTreeData( list_to_tree( data ) ); */ lastId = 0;} ); 
   }, [props.table_name])
+
+   useEffect(() => {
+    console.log( 'setTreeData ' + tableData );    
+    //let arr = tableData; //.map(x => Object.assign({}, tableData, { "children": null }));
+    setTreeData( list_to_tree( tableData ) );
+  }, [tableData]) 
 
   ///////////////////////////////////////////////////////////////////  SAVE  /////////////////////
   const saveRec = async ( fromToolbar ) => {
@@ -215,7 +255,7 @@ const DataTableExpScenario = (props) => {
        method: 'PUT',
        body: js,
        headers: {
-         'Content-Type': 'Application/json',
+         'Content-Type': 'Application/json', 
          Accept: '*/*',
        },
      });
@@ -383,6 +423,7 @@ const DataTableExpScenario = (props) => {
       else
       {  
         const result = await response.json();
+        console.log('reloadData setTableData');
         setTableData(result);
       }
     } catch (err) {
@@ -458,7 +499,6 @@ const DataTableExpScenario = (props) => {
     setValueDescrEng(`` );
   };
 
-
   //////////////////////////////////////////////////////// ACTIONS ///////////////////////////////
   const columns = [
     { field: 'id', headerName: 'Код', width: 80 },
@@ -523,16 +563,37 @@ const DataTableExpScenario = (props) => {
 
   return (
     <div style={{ height: 550, width: 1500 }}>
+
     <table border = "0" style={{ height: 550, width: 1500 }} ><tbody>
     <tr>
       <td style={{ height: 550, width: 600, verticalAlign: 'top' }}>
       <div style={{ height: 400, width: 585 }}>
-      <br /> дерево <br /> 
-      <Box sx={{ border: 1, borderRadius: '6px' }} >
+
+      <Box sx={{ border: 1, borderRadius: '3px', borderColor: 'grey.300' }} >
+      <IconButton onClick={()=>handleClearClick()}  color="primary" size="small" Title="Создать запись">
+          <SvgIcon fontSize="small" component={PlusLightIcon} inheritViewBox /></IconButton>
+        <IconButton onClick={()=>saveRec(true)}  color="primary" size="small" Title="Сохранить запись в БД">
+          <SvgIcon fontSize="small" component={SaveLightIcon} inheritViewBox/></IconButton>
+        <IconButton onClick={()=>handleClickDelete()}  color="primary" size="small" Title="Удалить запись">
+          <SvgIcon fontSize="small" component={TrashLightIcon} inheritViewBox /></IconButton>
+        <IconButton onClick={()=>handleCancelClick()} disabled={!editStarted} color="primary" size="small" Title="Отменить редактирование">
+          <SvgIcon fontSize="small" component={UndoLightIcon} inheritViewBox /></IconButton>
+        <IconButton onClick={()=>reloadDataAlert()} color="primary" size="small" Title="Обновить данные">
+          <SvgIcon fontSize="small" component={RepeatLightIcon} inheritViewBox /></IconButton>
+     
+{/*       <AppBar>
+      <Toolbar>
+        <Typography variant="h6">
+          This Is ToolBar Example
+        </Typography>
+      </Toolbar>
+      </AppBar> */}
+      
         <DataTreeView treeItems={treeData} /> 
       </Box>
-      <br /> дерево <br />        
 
+      
+{/*       <br />          
       <DataGrid
         components={{ Toolbar: CustomToolbar1 }}
         hideFooterSelectedRowCount={true}
@@ -555,7 +616,7 @@ const DataTableExpScenario = (props) => {
           },
         }}        
         onRowClick={handleRowClick} {...tableData} 
-      />
+      /> */}
       </div>
       <Box sx={{ width: 585 }}>
       <Collapse in={openAlert}>
@@ -581,7 +642,7 @@ const DataTableExpScenario = (props) => {
       
       </td>
       <td style={{ height: 550, width: 900, verticalAlign: 'top' }}>
-      <TextField  id="ch_id"  disabled={true} label="Код" sx={{ width: '12ch' }} variant="outlined" value={valueId || ''} size="small" /* defaultValue=" " */ onChange={e => setValueID(e.target.value)}/>
+      <TextField  id="ch_id"  disabled={true} label="Код" sx={{ width: '12ch' }} variant="outlined" value={ valueId ||''} size="small" onChange={e => setValueID(e.target.value)}/>
       &nbsp;&nbsp;&nbsp;
       <TextField  id="ch_name" sx={{ width: '40ch' }} label="Обозначение" size="small" variant="outlined" value={valueTitle || ''} /* defaultValue=" " */ onChange={e => setValueTitle(e.target.value)}/>
       <p/>
@@ -623,7 +684,7 @@ const DataTableExpScenario = (props) => {
     </DialogTitle>
     <DialogContent>
         <DialogContentText>
-            В запись таблицы "Типы облучаемых лиц" с кодом <b>{valueId}</b> внесены изменения.<p/>
+          {/*   В запись таблицы "Типы облучаемых лиц" с кодом <b>{valueId}</b> внесены изменения.<p/> */}
             {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p/>
             {valueNameRus === valueNameRusInitial ? '' : 'Название (рус. яз): '+valueNameRus+'; ' }<p/>
             {valueNameEng === valueNameEngInitial ? '' : 'Название (англ. яз): '+valueNameEng+'; ' }<p/>
@@ -644,7 +705,7 @@ const DataTableExpScenario = (props) => {
     </DialogTitle>
     <DialogContent>
         <DialogContentText>
-            В запись таблицы "Типы облучаемых лиц" с кодом <b>{valueId}</b> внесены изменения.<p/>
+          {/*   В запись таблицы "Типы облучаемых лиц" с кодом <b>{valueId}</b> внесены изменения.<p/> */}
             {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p/>
             {valueNameRus === valueNameRusInitial ? '' : 'Название (рус. яз): '+valueNameRus+'; ' }<p/>
             {valueNameEng === valueNameEngInitial ? '' : 'Название (англ. яз): '+valueNameEng+'; ' }<p/>
