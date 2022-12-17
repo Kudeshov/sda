@@ -24,6 +24,8 @@ const pc_q = require('./people_class_queries');
 const dsc_q = require('./data_source_class_queries');
 const gn_q = require('./generic_nls_queries');
 const ag_q = require('./agegroup_queries');
+const dr_q = require('./dose_ratio_queries');
+const pp_q = require('./physparam_queries');
 
 const { Pool } = require('pg');
 //var msg = 'a';
@@ -111,6 +113,20 @@ app.get('/exp_scenario/:id', (req, res) => {gn_q.getGenericNLSById(req, res, 'ex
 app.post('/exp_scenario', (req, res) => {gn_q.createGenericNLS(req, res, 'exp_scenario')});       //create
 app.put('/exp_scenario/:id', (req, res) => {gn_q.updateGenericNLS(req, res, 'exp_scenario')});    //update
 app.delete('/exp_scenario/:id', (req, res) => {gn_q.deleteGenericNLS(req, res, 'exp_scenario')}); //delete
+
+//GENERIC QUERIES on dose_ratio
+app.get('/dose_ratio', (req, res) => {dr_q.getDoseRatio(req, res, 'dose_ratio')});           //list all
+app.get('/dose_ratio/:id', (req, res) => {dr_q.getDoseRatioById(req, res, 'dose_ratio')});   //list 1
+app.post('/dose_ratio', (req, res) => {dr_q.createDoseRatio(req, res, 'dose_ratio')});       //create
+app.put('/dose_ratio/:id', (req, res) => {dr_q.updateDoseRatio(req, res, 'dose_ratio')});    //update
+app.delete('/dose_ratio/:id', (req, res) => {dr_q.deleteDoseRatio(req, res, 'dose_ratio')}); //delete
+
+//GENERIC QUERIES on physparam
+app.get('/physparam', (req, res) => {pp_q.getPhysParam(req, res, 'physparam')});           //list all
+app.get('/physparam/:id', (req, res) => {pp_q.getPhysParamById(req, res, 'physparam')});   //list 1
+app.post('/physparam', (req, res) => {pp_q.createPhysParam(req, res, 'physparam')});       //create
+app.put('/physparam/:id', (req, res) => {pp_q.updatePhysParam(req, res, 'physparam')});    //update
+app.delete('/physparam/:id', (req, res) => {pp_q.deletePhysParam(req, res, 'physparam')}); //delete
  
 //data_source_class_queries
 app.get('/data_source_class', dsc_q.getDataSourceClass);           //list all

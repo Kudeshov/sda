@@ -15,6 +15,7 @@ import AerosolAmad from "./pages/aerosol_amad";
 import LetLevel from "./pages/let_level";
 import ExpScenario from "./pages/exp_scenario";
 import AgeGroup from "./pages/agegroup";
+import DoseRatio from "./pages/dose_ratio";
 function App() {
   return (
     <Router>
@@ -33,7 +34,9 @@ function App() {
         <Route path="/aerosol_amad" element={<AerosolAmad/>} />
         <Route path="/let_level" element={<LetLevel/>} />       
         <Route path="/exp_scenario" element={<ExpScenario/>} />               
-        <Route path="/agegroup" element={<AgeGroup/>} />                <Route path="/db" element={<Db/>} />
+        <Route path="/agegroup" element={<AgeGroup/>} />
+        <Route path="/db" element={<Db/>} />
+        <Route path="/dose_ratio" element={<DoseRatio/>} />
       </Routes>
     </Router>
   );
