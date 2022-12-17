@@ -9,7 +9,7 @@ export const table_names = {
     'chelement': 'Химические элементы',
     'data_source': 'Источники данных',
     'exp_scenario': 'Сценарии поступления',
-    
+    'dose_ratio': 'Параметры',
   }; 
   
   export default table_names;

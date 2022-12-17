@@ -60,6 +60,27 @@ function Navbar() {
       setMenuCoeff(false);
   }
 
+  const [menuNorm, setMenuNorm] = useState(false);
+  const [anchorE3, setAnchorE3] = useState()
+
+  const recordButtonPositionNorm = (event/* : any */) => {
+      setAnchorE3(event.currentTarget);
+      setMenuNorm(true);
+  }
+  let closeMenuNorm = () => {
+      setMenuNorm(false);
+  }
+  
+  const [menuSubstance, setMenuSubstance] = useState(false);
+  const [anchorE5, setAnchorE5] = useState()
+
+  const recordButtonPositionSubstance = (event/* : any */) => {
+      setAnchorE5(event.currentTarget);
+      setMenuSubstance(true);
+  }
+  let closeMenuSubstance = () => {
+      setMenuSubstance(false);
+  }
 
   return (
     <AppBar position="static">
@@ -69,13 +90,18 @@ function Navbar() {
           IBRAE:SDA
           
         </Typography>
-       { //isMobile ? (
-          //<DrawerComponent containerStyle={{height: 40, top: 64}} />
-        //) : (
+       { 
           <div className={classes.navlinks}>
-            <Link to="/substance" className={classes.link}>
+            <Link onClick={recordButtonPositionSubstance} className={classes.link}>
               Вещество
             </Link>
+            <Menu
+                anchorEl={anchorE5}
+                open={menuSubstance}
+                onClose={closeMenuSubstance}>
+                <MenuItem onClick={closeMenuSubstance} component={Link} disabled={true} to="/">Химические элементы</MenuItem> 
+            </Menu> 
+
             <Link onClick={recordButtonPositionDecay} className={classes.link}>
               Радиоактивный распад
             </Link>
@@ -100,6 +126,7 @@ function Navbar() {
                 <MenuItem onClick={closeMenuCoeff} component={Link} disabled={true} to="/">Внутреннее облучение</MenuItem> 
                 <MenuItem onClick={closeMenuCoeff} component={Link} disabled={true} to="/">Внешнее облучение</MenuItem> 
                 <Divider />
+                <MenuItem onClick={closeMenuCoeff} component={Link} to="/dose_ratio">{table_names['dose_ratio']}</MenuItem> 
                 <MenuItem onClick={closeMenuCoeff} component={Link} to="/irradiation">{table_names['irradiation']}</MenuItem> 
                 <MenuItem onClick={closeMenuCoeff} component={Link} to="/integral_period">Периоды интегрирования</MenuItem> 
                 <MenuItem onClick={closeMenuCoeff} component={Link} to="/db">Формы вещества</MenuItem> 
@@ -112,9 +139,20 @@ function Navbar() {
 
              </Menu>
 
-            <Link to="/norms" className={classes.link}>
+            <Link onClick={recordButtonPositionNorm} className={classes.link}>
               Нормы и критерии
             </Link>
+            <Menu 
+             anchorEl={anchorE3}
+             open={menuNorm}
+             onClose={closeMenuNorm}>
+            <MenuItem onClick={closeMenuNorm} component={Link} disabled={true} to="/">Нормы и критерии</MenuItem> 
+            <MenuItem onClick={closeMenuNorm} component={Link} disabled={true} to="/">Функции</MenuItem> 
+            <MenuItem onClick={closeMenuNorm} component={Link} disabled={true} to="/">Группы критериев</MenuItem> 
+            <MenuItem onClick={closeMenuNorm} component={Link} disabled={true} to="/">Действия</MenuItem>
+            <MenuItem onClick={closeMenuNorm} component={Link} disabled={true} to="/">Уровни вмешательства</MenuItem> 
+            </Menu>
+
             <Link to="/sources" className={classes.link}>
               Источники данных
             </Link>
