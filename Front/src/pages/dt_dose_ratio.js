@@ -679,7 +679,7 @@ const DataTableDoseRatio = (props) => {
         >
           {alertText}
         </Alert>
-      </Collapse>бозначение
+      </Collapse>
       </Box>
       
       </td>
@@ -707,27 +707,9 @@ const DataTableDoseRatio = (props) => {
       <p/> 
       <TextField  id="ch_descr_rus" sx={{ width: '100ch' }} label="Комментарий (англ.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrEng || ''} /* defaultValue=" " */ onChange={e => setValueDescrEng(e.target.value)}/>
       <p/>
-     {/* <Select
-          labelId="demo-simple-select-label"
-          id="demo-simple-select"
-          value={age}
-          label="Age"
-          onChange={handleChange}
-        >
-          {tableDataSrc?.map(option => {
-                return (
-                  <MenuItem key={option.id} value={option.id}>
-                    {option.title ?? option.id}
-                  </MenuItem>
-                );
-                }}}
-              </Select>
-{/* 
-      <Select labelId="fiz" id="fiz1" label="Физический параметр (из общего списка)" />
-              */}
         <FormControl sx={{ width: '40ch' }} size="small">
         <InputLabel id="fiz">Физический параметр (из общего списка)</InputLabel>
-          <Select labelId="fiz" id="fiz1" label="Физический параметр (из общего списка)" value={valuePhysParamID  || "" }>
+          <Select labelId="fiz" id="fiz1" label="Физический параметр (из общего списка)" value={valuePhysParamID  || "" }  onChange={e => setValuePhysParamId(e.target.value)}>
           {tablePhysParam?.map(option => {
                 return (
                   <MenuItem key={option.id} value={option.id}>
@@ -740,17 +722,13 @@ const DataTableDoseRatio = (props) => {
           </Select>
           </FormControl>  
           <p/> 
-          <TextField  id="physparam_code" sx={{ width: '100ch' }} label="Код"  size="small" variant="outlined" value={valuePhysParamCode || ''} />
+          <TextField sx={{width: '100ch', input: {color: "black", background: '#EEEEEE'}}} id="physparam_code" label="Код"  size="small" variant="outlined" value={valuePhysParamCode || ''} />
           <p/>
-          <TextField  id="physparam_name_rus" sx={{ width: '100ch' }} label="Название (рус.яз)"  size="small" variant="outlined" value={valuePhysParamNameRus || ''} />
+          <TextField sx={{width: '100ch', input: {color: "black", background: '#EEEEEE'}}} id="physparam_name_rus" label="Название (рус.яз)"  size="small" variant="outlined" value={valuePhysParamNameRus || ''} />
           <p/>
-          <TextField  id="dimension" sx={{ width: '100ch' }} label="Eд.измерения (базовая)"  size="small" variant="outlined" value={valuePhysParamDimension || ''} />
+          <TextField sx={{width: '100ch', input: {color: "black", background: '#EEEEEE'}}} id="dimension" label="Eд.измерения (базовая)"  size="small" variant="outlined" value={valuePhysParamDimension || ''} />
           <p/>
 
-  
-  
-  
-  
       <div style={{ height: 300, width: 800 }}>
         <DataTableDataSourceClass table_name={props.table_name} rec_id={valueId} />
       </div>
