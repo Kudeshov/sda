@@ -27,6 +27,7 @@ const ag_q = require('./agegroup_queries');
 const dr_q = require('./dose_ratio_queries');
 const pp_q = require('./physparam_queries');
 const cf_q = require('./calcfunction_queries');
+const es_q = require('./exp_scenario_queries');
 
 const { Pool } = require('pg');
 //var msg = 'a';
@@ -109,11 +110,11 @@ app.put('/agegroup/:id', (req, res) => {ag_q.updateAgeGroup(req, res, 'agegroup'
 app.delete('/agegroup/:id', (req, res) => {ag_q.deleteAgeGroup(req, res, 'agegroup')}); //delete
 
 //GENERIC QUERIES on exp_scenario
-app.get('/exp_scenario', (req, res) => {gn_q.getGenericNLS(req, res, 'exp_scenario')});           //list all
-app.get('/exp_scenario/:id', (req, res) => {gn_q.getGenericNLSById(req, res, 'exp_scenario')});   //list 1
-app.post('/exp_scenario', (req, res) => {gn_q.createGenericNLS(req, res, 'exp_scenario')});       //create
-app.put('/exp_scenario/:id', (req, res) => {gn_q.updateGenericNLS(req, res, 'exp_scenario')});    //update
-app.delete('/exp_scenario/:id', (req, res) => {gn_q.deleteGenericNLS(req, res, 'exp_scenario')}); //delete
+app.get('/exp_scenario', (req, res) => {es_q.getExpScenario(req, res, 'exp_scenario')});           //list all
+app.get('/exp_scenario/:id', (req, res) => {es_q.getExpScenarioById(req, res, 'exp_scenario')});   //list 1
+app.post('/exp_scenario', (req, res) => {es_q.createExpScenario(req, res, 'exp_scenario')});       //create
+app.put('/exp_scenario/:id', (req, res) => {es_q.updateExpScenario(req, res, 'exp_scenario')});    //update
+app.delete('/exp_scenario/:id', (req, res) => {es_q.deleteExpScenario(req, res, 'exp_scenario')}); //delete
 
 //GENERIC QUERIES on dose_ratio
 app.get('/dose_ratio', (req, res) => {dr_q.getDoseRatio(req, res, 'dose_ratio')});           //list all

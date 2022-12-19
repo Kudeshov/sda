@@ -86,7 +86,7 @@ const DataTableDoseRatio = (props) => {
       console.log( 'name_rus='+myLine[0].name_rus );    
       setValuePhysParamNameRus( myLine[0].name_rus );  
     }
-  }, [valuePhysParamID]);
+  }, [valuePhysParamID, tablePhysParam]);
 
   useEffect(() => {
 
@@ -740,8 +740,6 @@ const DataTableDoseRatio = (props) => {
                   </MenuItem>
                 );
                 })}
-
-
           </Select>
           </FormControl>  
           <p/> 

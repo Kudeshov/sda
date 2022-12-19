@@ -1,12 +1,4 @@
 import React, { useState, useEffect } from 'react'
-//import {
-  //DataGrid, 
-  //ruRU,
-  //GridToolbarContainer,
-  //useGridApiContext,
-  //gridFilteredSortedRowIdsSelector,
-//} from '@mui/x-data-grid';
-
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
@@ -30,10 +22,11 @@ import TreeView from "@material-ui/lab/TreeView";
 import TreeItem from "@material-ui/lab/TreeItem";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
-//import AppBar from '@mui/material/AppBar';
-//import Toolbar from '@mui/material/Toolbar';
-//import Typography from '@mui/material/Typography';
-
+import { Select } from "@mui/material";
+import { MenuItem } from "@mui/material";
+import { FormControl } from "@mui/material";
+import { InputLabel } from "@mui/material";
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 var alertText = "Сообщение";
 var alertSeverity = "info";
@@ -51,6 +44,9 @@ const DataTableExpScenario = (props) => {
   const [valueDescrEngInitial, setValueDescrEngInitial] = React.useState();
   const [valueDescrRus, setValueDescrRus] = React.useState();
   const [valueDescrRusInitial, setValueDescrRusInitial] = React.useState();
+  const [valueParentID, setValueParentID] = React.useState();
+  const [valueParentIDInitial, setValueParentIDInitial] = React.useState();
+  
   const [isLoading, setIsLoading] = React.useState(false);
   const [tableData, setTableData] = useState([]); 
   const [treeData, setTreeData] = useState([]); 
@@ -59,9 +55,9 @@ const DataTableExpScenario = (props) => {
 
   useEffect(() => {
     setEditStarted((valueTitleInitial!==valueTitle)||(valueNameRusInitial!==valueNameRus)||(valueNameEngInitial!==valueNameEng)
-      ||(valueDescrEngInitial!==valueDescrEng)||(valueDescrRusInitial!==valueDescrRus));
+      ||(valueDescrEngInitial!==valueDescrEng)||(valueDescrRusInitial!==valueDescrRus)||(valueParentIDInitial!==valueParentID));
     }, [valueTitleInitial, valueTitle, valueNameRusInitial, valueNameRus, valueNameEngInitial, valueNameEng, 
-        valueDescrEngInitial, valueDescrEng, valueDescrRusInitial, valueDescrRus]); 
+        valueDescrEngInitial, valueDescrEng, valueDescrRusInitial, valueDescrRus, valueParentID, valueParentIDInitial]); 
 
   useEffect(() => {
     if ((!isLoading) && (tableData) && (tableData.length)) {
@@ -82,6 +78,8 @@ const DataTableExpScenario = (props) => {
         setValueNameEngInitial(`${tableData[0].name_eng}`);
         setValueDescrRusInitial(`${tableData[0].descr_rus}`);
         setValueDescrEngInitial(`${tableData[0].descr_eng}`);
+        setValueParentID(`${tableData[0].parent_id}`);
+        setValueParentIDInitial(`${tableData[0].parent_id}`);
       }
     }
     }, [ isLoading, tableData] );
@@ -127,12 +125,17 @@ const DataTableExpScenario = (props) => {
     };
 
     const DataTreeView = ({ treeItems }) => {
+      console.log('treeItems');
+      let ids = tableData.map(a => a.id);
+      console.log(ids);
       return (
         <TreeView
           defaultCollapseIcon={<ExpandMoreIcon />}
           defaultExpandIcon={<ChevronRightIcon />}
-          defaultExpanded={[1,2]}
+          //defaultExpanded={[1,2]}
           //expanded={true}
+          loading={isLoading}
+          defaultExpanded={ids}
         >
           {getTreeItemsFromData(treeItems)}
         </TreeView>
@@ -181,6 +184,7 @@ const DataTableExpScenario = (props) => {
     setValueNameEng(res[0].name_eng);
     setValueDescrRus(res[0].descr_rus);
     setValueDescrEng(res[0].descr_eng);    
+    setValueParentID(res[0].parent_id);    
     //setValueID(idid);
 
 /*     if (editStarted)
@@ -218,7 +222,8 @@ const DataTableExpScenario = (props) => {
       setValueNameRus(``);
       setValueNameEng(``);
       setValueDescrRus(``);
-      setValueDescrEng(`` );
+      setValueDescrEng(``);
+      setValueParentID(``);
     }
   }; 
 
@@ -243,7 +248,8 @@ const DataTableExpScenario = (props) => {
       name_rus: valueNameRus,
       name_eng: valueNameEng,
       descr_rus: valueDescrRus,
-      descr_eng: valueDescrEng         
+      descr_eng: valueDescrEng,
+      parent_id: valueParentID        
     });
     if (!valueId) {
       addRec();
@@ -282,7 +288,8 @@ const DataTableExpScenario = (props) => {
        setValueNameRusInitial(valueNameRus); 
        setValueNameEngInitial(valueNameEng);
        setValueDescrRusInitial(valueDescrRus);
-       setValueDescrEngInitial(valueDescrEng);           
+       setValueDescrEngInitial(valueDescrEng);    
+       setValueParentIDInitial(valueParentID);
      }
     reloadData();     
    }
@@ -296,10 +303,10 @@ const DataTableExpScenario = (props) => {
       name_rus: valueNameRus,
       name_eng: valueNameEng,
       descr_rus: valueDescrRus,
-      descr_eng: valueDescrEng         
+      descr_eng: valueDescrEng,
+      parent_id: valueParentID         
     });
     setIsLoading(true);
-    //console.log(js);
     try {
       const response = await fetch(`/${props.table_name}/`, {
         method: 'POST',
@@ -338,7 +345,8 @@ const DataTableExpScenario = (props) => {
       setValueNameRusInitial(valueNameRus);
       setValueNameEngInitial(valueNameEng);
       setValueDescrRusInitial(valueDescrRus);
-      setValueDescrEngInitial(valueDescrEng);           
+      setValueDescrEngInitial(valueDescrEng);
+      setValueParentIDInitial(valueParentID);
     }
   };
 
@@ -361,12 +369,14 @@ const DataTableExpScenario = (props) => {
         },
       });
       if (!response.ok) {
+        console.log('response not OK');
         alertSeverity = 'error';
         alertText = await response.text();
         setOpenAlert(true);          
       }
       else
       {
+        console.log('response OK');
         alertSeverity = "success";
         alertText = await response.text();
         setOpenAlert(true); 
@@ -383,6 +393,8 @@ const DataTableExpScenario = (props) => {
         setValueNameEngInitial(`${tableData[0].name_eng}`);
         setValueDescrRusInitial(`${tableData[0].descr_rus}`);
         setValueDescrEngInitial(`${tableData[0].descr_eng}`);
+        setValueParentID(`${tableData[0].parent_id}`);
+        setValueParentIDInitial(`${tableData[0].parent_id}`);
       }
     } catch (err) {
       alertText = err.message;
@@ -452,11 +464,6 @@ const DataTableExpScenario = (props) => {
     delRec();
   };
 
-/*   const handleClickSave = () => {
-    console.log('handleClickSave');
-    setOpenSave(true);
-  };
- */
   const handleCloseSaveNo = () => {
     console.log('handleCloseSaveNo');
     setOpenSave(false);
@@ -484,7 +491,8 @@ const DataTableExpScenario = (props) => {
     setValueNameRus(``);
     setValueNameEng(``);
     setValueDescrRus(``);
-    setValueDescrEng(`` );
+    setValueDescrEng(``);
+    setValueParentID(``);
   };
 
   const handleCloseSaveWhenNewYes = () => {
@@ -497,6 +505,7 @@ const DataTableExpScenario = (props) => {
     setValueNameEng(``);
     setValueDescrRus(``);
     setValueDescrEng(`` );
+    setValueParentID(``);
   };
 
   //////////////////////////////////////////////////////// ACTIONS ///////////////////////////////
@@ -513,9 +522,6 @@ const DataTableExpScenario = (props) => {
   const handleCancelClick = () => 
   {
     console.log('handleCancelClick');
-    //console.log('selectionModel');
-    //console.log(selectionModel);
-    //console.log('selectionModel='+selectionModel.row.id);
     const selectedIDs = new Set(selectionModel);
     //console.log(selectedIDs);
     const selectedRowData = tableData.filter((row) => selectedIDs.has(row.id));
@@ -534,6 +540,8 @@ const DataTableExpScenario = (props) => {
       setValueNameEngInitial(`${selectedRowData[0].name_eng}` );
       setValueDescrRusInitial(`${selectedRowData[0].descr_rus}`);
       setValueDescrEngInitial(`${selectedRowData[0].descr_eng}` );
+      setValueParentID(`${selectedRowData[0].parent_id}` );
+      setValueParentIDInitial(`${selectedRowData[0].parent_id}` );
     }
   }
 
@@ -642,21 +650,37 @@ const DataTableExpScenario = (props) => {
           {alertText}
         </Alert>
       </Collapse>
+      {isLoading && <CircularProgress/>} 
       </Box>
       
       </td>
       <td style={{ height: 550, width: 900, verticalAlign: 'top' }}>
       <TextField  id="ch_id"  disabled={true} label="Код" sx={{ width: '12ch' }} variant="outlined" value={ valueId ||''} size="small" onChange={e => setValueID(e.target.value)}/>
       &nbsp;&nbsp;&nbsp;
-      <TextField  id="ch_name" sx={{ width: '40ch' }} label="Обозначение" size="small" variant="outlined" value={valueTitle || ''} /* defaultValue=" " */ onChange={e => setValueTitle(e.target.value)}/>
-      <p/>
-      <TextField  id="ch_name_rus" sx={{ width: '40ch' }}  size="small" label="Название (рус.яз)"  variant="outlined"  value={valueNameRus || ''}  /* defaultValue=" "  */ onChange={e => setValueNameRus(e.target.value)} />
+      <TextField  id="ch_name" sx={{ width: '40ch' }} label="Обозначение" size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
+{/*       <TextField  id="ch_p1arent_id" sx={{ width: '100ch' }} label="Родительский класс"  size="small" variant="outlined" value={valueParentID || ''} onChange={e => setValueParentID(e.target.value)}/>
+      <p/>  */}
       &nbsp;&nbsp;&nbsp;
-      <TextField  id="ch_name_eng" sx={{ width: '40ch' }} size="small" label="Название (англ.яз)"  variant="outlined" value={valueNameEng || ''} /* defaultValue=" " */ onChange={e => setValueNameEng(e.target.value)}/>
-      <p/>
-      <TextField  id="ch_descr_rus" sx={{ width: '100ch' }} label="Комментарий (рус.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrRus || ''} /* defaultValue=" " */ onChange={e => setValueDescrRus(e.target.value)}/>
+      <FormControl sx={{ width: '30ch' }} size="small">
+        <InputLabel id="ch_parent_id">Родительский класс</InputLabel>
+          <Select labelId="ch_parent_id" id="ch_parent_id1" label="Родительский класс" value={valueParentID  || "" }  onChange={e => setValueParentID(e.target.value)}>
+          {tableData?.map(option => {
+                return (
+                  <MenuItem key={option.id} value={option.id}>
+                    {option.title ?? option.id}
+                  </MenuItem>
+                );
+                })}
+        </Select>
+      </FormControl>  
       <p/> 
-      <TextField  id="ch_descr_rus" sx={{ width: '100ch' }} label="Комментарий (англ.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrEng || ''} /* defaultValue=" " */ onChange={e => setValueDescrEng(e.target.value)}/>
+      <TextField  id="ch_name_rus" sx={{ width: '49ch' }}  size="small" label="Название (рус.яз)"  variant="outlined"  value={valueNameRus || ''} onChange={e => setValueNameRus(e.target.value)} />
+      &nbsp;&nbsp;&nbsp;
+      <TextField  id="ch_name_eng" sx={{ width: '49ch' }} size="small" label="Название (англ.яз)"  variant="outlined" value={valueNameEng || ''} onChange={e => setValueNameEng(e.target.value)}/>
+      <p/>
+      <TextField  id="ch_descr_rus" sx={{ width: '100ch' }} label="Комментарий (рус.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrRus || ''} onChange={e => setValueDescrRus(e.target.value)}/>
+      <p/> 
+      <TextField  id="ch_descr_rus" sx={{ width: '100ch' }} label="Комментарий (англ.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrEng || ''} onChange={e => setValueDescrEng(e.target.value)}/>
       <p/>
       <div style={{ height: 300, width: 800 }}>
         <DataTableDataSourceClass table_name={props.table_name} rec_id={valueId} />
