@@ -1,9 +1,9 @@
 import { DataTableDoseRatio } from './dt_dose_ratio';
 
-function DoseRatio() {
+function CalcFunction() {
   return (
     <div className="App">
-    <h3>&nbsp;&nbsp;Параметры</h3>
+    <h3>&nbsp;&nbsp;Функции</h3>
     <table>
       <tbody>
     <tr>
@@ -11,7 +11,7 @@ function DoseRatio() {
         &nbsp;
       </td>
       <td width="1600">
-        <DataTableDoseRatio table_name="dose_ratio"/>
+        <DataTableDoseRatio table_name="calcfunction"/>
       </td>
     </tr>
     </tbody>
@@ -19,5 +19,5 @@ function DoseRatio() {
     </div>
   );
 }
-export default DoseRatio;
+export default CalcFunction;
 

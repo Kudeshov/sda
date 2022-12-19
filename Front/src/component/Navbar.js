@@ -147,7 +147,7 @@ function Navbar() {
              open={menuNorm}
              onClose={closeMenuNorm}>
             <MenuItem onClick={closeMenuNorm} component={Link} disabled={true} to="/">Нормы и критерии</MenuItem> 
-            <MenuItem onClick={closeMenuNorm} component={Link} disabled={true} to="/">Функции</MenuItem> 
+            <MenuItem onClick={closeMenuNorm} component={Link} to="/calcfunction">Функции</MenuItem> 
             <MenuItem onClick={closeMenuNorm} component={Link} disabled={true} to="/">Группы критериев</MenuItem> 
             <MenuItem onClick={closeMenuNorm} component={Link} disabled={true} to="/">Действия</MenuItem>
             <MenuItem onClick={closeMenuNorm} component={Link} disabled={true} to="/">Уровни вмешательства</MenuItem> 
