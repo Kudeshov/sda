@@ -431,9 +431,6 @@ const [openAlert, setOpenAlert] = React.useState(false, '');
             </MenuItem>
           );
       })}
-{/*           <MenuItem value={'0'}>Целевая БД</MenuItem>
-          <MenuItem value={'1'}>Внешний источник</MenuItem>
- */}          
         </Select>
       </FormControl>  
   <p/> 

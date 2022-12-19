@@ -19,12 +19,6 @@ import Alert from '@mui/material/Alert';
 import Collapse from '@mui/material/Collapse';
 import CloseIcon from '@mui/icons-material/Close';
 import { DataTableDataSourceClass } from './dt_data_source_class';
-/* import SaveIcon from '@mui/icons-material/Save';
-import RefreshIcon from '@mui/icons-material/Refresh';
-import DeleteIcon from '@mui/icons-material/Delete';
-import UndoIcon from '@mui/icons-material/Undo';
-import AddIcon from '@mui/icons-material/Add';
-import SaveAltIcon from '@mui/icons-material/SaveAlt'; */
 import SvgIcon from '@mui/material/SvgIcon';
 import { ReactComponent as SaveLightIcon } from "./../icons/save.svg";
 import { ReactComponent as PlusLightIcon } from "./../icons/plus.svg";
@@ -36,6 +30,7 @@ import { Select } from "@mui/material";
 import { MenuItem } from "@mui/material";
 import { FormControl } from "@mui/material";
 import { InputLabel } from "@mui/material";
+import { type } from '@testing-library/user-event/dist/type';
 
 var alertText = "Сообщение";
 var alertSeverity = "info";
@@ -71,9 +66,13 @@ const DataTableDoseRatio = (props) => {
 
   const [tablePhysParam, settablePhysParam] = useState([]); 
   const [valuePhysParamID, setValuePhysParamId] = useState([]); 
+  const [valuePhysParamIDInitial, setValuePhysParamIdInitial] = useState([]); 
   const [valuePhysParamCode, setValuePhysParamCode] = useState([]); 
   const [valuePhysParamNameRus, setValuePhysParamNameRus] = useState([]); 
   const [valuePhysParamDimension, setValuePhysParamDimension] = useState([]);
+  const [valueUsed, setValueUsed] = useState([]);
+  const [valueParameters, setValueParameters] = useState([]);
+
 
   useEffect(() => {
 
@@ -102,7 +101,6 @@ const DataTableDoseRatio = (props) => {
       setValuePhysParamDimension( myLine[0].physunit_title );  
     }
   }, [valuePhysParamID]);
-  
 
   useEffect(() => {
     //console.log([valueTitleInitial, valueTitle, valueNameRusInitial, valueNameRus, valueNameEngInitial, valueNameEng, 
@@ -113,10 +111,12 @@ const DataTableDoseRatio = (props) => {
     setEditStarted((valueTitleInitial!==valueTitle)||(valueNameRusInitial!==valueNameRus)||(valueNameEngInitial!==valueNameEng)
       ||(valueDescrEngInitial!==valueDescrEng)||(valueDescrRusInitial!==valueDescrRus)   
       ||(valueRespRateInitial!==valueRespRate)||(valueRespYearInitial!==valueRespYear)||(valueIndoorInitial!==valueIndoor)
-      ||(valueExtCloudInitial!==valueExtCloud)||(valueExtGroundInitial!==valueExtGround));
+      ||(valueExtCloudInitial!==valueExtCloud)||(valueExtGroundInitial!==valueExtGround)||(valuePhysParamIDInitial!==valuePhysParamID));
     }, [valueTitleInitial, valueTitle, valueNameRusInitial, valueNameRus, valueNameEngInitial, valueNameEng, 
         valueDescrEngInitial, valueDescrEng, valueDescrRusInitial, valueDescrRus, 
-        valueRespRateInitial, valueRespRate, valueRespYearInitial, valueRespYear, valueIndoorInitial, valueIndoor, valueExtCloudInitial, valueExtCloud, valueExtGroundInitial, valueExtGround]); 
+        valueRespRateInitial, valueRespRate, valueRespYearInitial, valueRespYear, valueIndoorInitial, 
+        valueIndoor, valueExtCloudInitial, valueExtCloud, valueExtGroundInitial, valueExtGround,
+        valuePhysParamID, valuePhysParamIDInitial]); 
 
   useEffect(() => {
     if ((!isLoading) && (tableData) && (tableData.length)) {
@@ -151,6 +151,7 @@ const DataTableDoseRatio = (props) => {
         setValueExtGroundInitial(`${tableData[0].extground}`);
 
         setValuePhysParamId(`${tableData[0].physparam_id}`);
+        setValuePhysParamIdInitial(`${tableData[0].physparam_id}`);
       }
     }
     }, [ isLoading, tableData] );
@@ -188,6 +189,10 @@ const DataTableDoseRatio = (props) => {
       setValueExtCloudInitial(`${params.row.ext_cloud}` );
       setValueExtGroundInitial(`${params.row.ext_ground}` );
       setValuePhysParamId(`${params.row.physparam_id}`);
+      setValuePhysParamIdInitial(`${params.row.physparam_id}`);
+
+      setValueUsed(`${params.row.used}`);
+      setValueParameters(`${params.row.parameters}`);
 
     }
   }; 
@@ -249,7 +254,8 @@ const DataTableDoseRatio = (props) => {
       resp_year: valueRespYear,
       indoor: valueIndoor,
       ext_cloud: valueExtCloud,
-      ext_ground: valueExtGround
+      ext_ground: valueExtGround,
+      physparam_id: valuePhysParamID
     });
     if (!valueId) {
       addRec();
@@ -293,7 +299,8 @@ const DataTableDoseRatio = (props) => {
        setValueRespYearInitial(valueRespYear);
        setValueIndoorInitial(valueIndoor);
        setValueExtCloudInitial(valueExtCloud);
-       setValueExtGroundInitial(valueExtGround);         
+       setValueExtGroundInitial(valueExtGround);
+       setValuePhysParamIdInitial(valuePhysParamID);            
      }
     reloadData();     
    }
@@ -308,12 +315,12 @@ const DataTableDoseRatio = (props) => {
       name_eng: valueNameEng,
       descr_rus: valueDescrRus,
       descr_eng: valueDescrEng,
-
       resp_rate: valueRespRate,
       resp_year: valueRespYear,
       indoor: valueIndoor,
       ext_cloud: valueExtCloud,
-      ext_ground: valueExtGround        
+      ext_ground: valueExtGround,
+      physparam_id: valuePhysParamID        
     });
     setIsLoading(true);
     //console.log(js);
@@ -356,11 +363,12 @@ const DataTableDoseRatio = (props) => {
       setValueNameEngInitial(valueNameEng);
       setValueDescrRusInitial(valueDescrRus);
       setValueDescrEngInitial(valueDescrEng); 
-      setValueRespRateInitial(valueRespRate)
-      setValueRespYearInitial(valueRespYear)
-      setValueIndoorInitial(valueIndoor)
-      setValueExtCloudInitial(valueExtCloud)          
-      setValueExtGroundInitial(valueExtGround)
+      setValueRespRateInitial(valueRespRate);
+      setValueRespYearInitial(valueRespYear);
+      setValueIndoorInitial(valueIndoor);
+      setValueExtCloudInitial(valueExtCloud);          
+      setValueExtGroundInitial(valueExtGround);
+      setValuePhysParamIdInitial(valuePhysParamID); 
     }
   };
 
@@ -419,7 +427,7 @@ const DataTableDoseRatio = (props) => {
         setValueExtCloudInitial(`${tableData[0].ext_cloud}`);
         setValueExtGroundInitial(`${tableData[0].ext_ground}`);
         setValuePhysParamId(`${tableData[0].physparam_id}`);
-
+        setValuePhysParamIdInitial(`${tableData[0].physparam_id}`); 
       }
     } catch (err) {
       alertText = err.message;
@@ -595,6 +603,7 @@ const DataTableDoseRatio = (props) => {
       setValueExtCloudInitial(`${selectedRowData[0].ext_cloud}` );
       setValueExtGroundInitial(`${selectedRowData[0].ext_ground}` );
       setValuePhysParamId(`${selectedRowData[0].physparam_id}` );
+      setValuePhysParamIdInitial(`${selectedRowData[0].physparam_id}` );
     }
   }
 
@@ -621,6 +630,17 @@ const DataTableDoseRatio = (props) => {
       </GridToolbarContainer>
     );
   }
+
+  const [age, setAge] = React.useState('');
+
+  const handleChange = (event) => {
+    setAge(event.target.value);
+  };
+
+  const valuesYesNo = [
+    { title: 'Нет', id: 'false' },
+    { title: 'Да', id: 'true' } ];
+
 
   return (
     <div style={{ height: 550, width: 1500 }}>
@@ -685,21 +705,31 @@ const DataTableDoseRatio = (props) => {
       &nbsp;&nbsp;&nbsp;
       <TextField  id="ch_name_eng" sx={{ width: '40ch' }} size="small" label="Название (англ.яз)"  variant="outlined" value={valueNameEng || ''} /* defaultValue=" " */ onChange={e => setValueNameEng(e.target.value)}/>
       <p/>
-{/*       <TextField  id="ch_resp_rate" sx={{ width: '100ch' }} label="Скорость дыхания, куб.м/сек"  size="small" multiline maxRows={4} variant="outlined" value={valueRespRate || ''}   onChange={e => setValueRespRate(e.target.value)}/>
-      <p/> 
-      <TextField  id="ch_resp_year" sx={{ width: '100ch' }} label="Годовой объем вдыхаемого воздуха, куб.м"  size="small" multiline maxRows={4} variant="outlined" value={valueRespYear || ''}   onChange={e => setValueRespYear(e.target.value)}/>
-      <p/> 
-      <TextField  id="ch_indoor" sx={{ width: '100ch' }} label="Доля времени, проводимая индивидуумом в помещении"  size="small" multiline maxRows={4} variant="outlined" value={valueIndoor || ''}  onChange={e => setValueIndoor(e.target.value)}/>
-      <p/> 
-      <TextField  id="ch_ext_cloud" sx={{ width: '100ch' }} label="Коэффициент для дозы внешнего облучения от облака"  size="small" multiline maxRows={4} variant="outlined" value={valueExtCloud || ''} onChange={e => setValueExtCloud(e.target.value)}/>
-      <p/> 
-      <TextField  id="ch_ext_ground" sx={{ width: '100ch' }} label="Коэффициент для дозы внешнего облучения от поверхности"  size="small" multiline maxRows={4} variant="outlined" value={valueExtGround || ''} onChange={e => setValueExtGround(e.target.value)}/>
-      <p/> 
- */}   
       <TextField  id="ch_descr_rus" sx={{ width: '100ch' }} label="Комментарий (рус.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrRus || ''} /* defaultValue=" " */ onChange={e => setValueDescrRus(e.target.value)}/>
       <p/> 
       <TextField  id="ch_descr_rus" sx={{ width: '100ch' }} label="Комментарий (англ.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrEng || ''} /* defaultValue=" " */ onChange={e => setValueDescrEng(e.target.value)}/>
       <p/>
+      <TextField  id="ch_parameters" sx={{ width: '100ch' }} label="Параметры функции"  size="small" multiline maxRows={4} variant="outlined" value={valueParameters || ''} onChange={e => setValueParameters(e.target.value)}/>
+      <p/>
+
+
+ 
+    
+                 <FormControl sx={{ width: '40ch' }} size="small">
+                 <InputLabel id="type">Используется расчетным модулем</InputLabel>
+                 <Select labelId="type" id="type1"  label="Используется расчетным модулем" value={valueUsed  || "" }  onChange={e => setValueUsed(e.target.value)}>
+                  {valuesYesNo?.map(option => {
+                        return (
+                          <MenuItem key={option.id} value={option.id}>
+                            {option.title ?? option.id}
+                          </MenuItem>
+                         );
+                        })}
+                  </Select>
+                  </FormControl>    
+                  <p/> 
+      
+    
         <FormControl sx={{ width: '40ch' }} size="small">
         <InputLabel id="fiz">Физический параметр (из общего списка)</InputLabel>
           <Select labelId="fiz" id="fiz1" label="Физический параметр (из общего списка)" value={valuePhysParamID  || "" }  onChange={e => setValuePhysParamId(e.target.value)}>
@@ -761,6 +791,7 @@ const DataTableDoseRatio = (props) => {
             {valueIndoor === valueIndoorInitial ? '' : 'Доля времени, проводимая индивидуумом в помещении: '+valueIndoor+'; ' }<p/>
             {valueExtCloud === valueExtCloudInitial ? '' : 'Коэффициент для дозы внешнего облучения от облака: '+valueExtCloud+'; ' }<p/>
             {valueExtGround === valueExtGroundInitial ? '' : 'Коэффициент для дозы внешнего облучения от поверхности: '+valueExtGround+'; ' }<p/>
+            {valuePhysParamID === valuePhysParamIDInitial ? '' : 'Физический параметр (из общего списка): '+valuePhysParamID+'; ' }<p/>
             <p/>Вы желаете сохранить указанную запись?
         </DialogContentText>
     </DialogContent>
@@ -787,6 +818,7 @@ const DataTableDoseRatio = (props) => {
             {valueIndoor === valueIndoorInitial ? '' : 'Доля времени, проводимая индивидуумом в помещении: '+valueIndoor+'; ' }<p/>
             {valueExtCloud === valueExtCloudInitial ? '' : 'Коэффициент для дозы внешнего облучения от облака: '+valueExtCloud+'; ' }<p/>
             {valueExtGround === valueExtGroundInitial ? '' : 'Коэффициент для дозы внешнего облучения от поверхности: '+valueExtGround+'; ' }<p/>
+            {valuePhysParamID === valuePhysParamIDInitial ? '' : 'Физический параметр (из общего списка): '+valuePhysParamID+'; ' }<p/>
             <p/>Вы желаете сохранить указанную запись?
         </DialogContentText>
     </DialogContent>

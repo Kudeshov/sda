@@ -10,6 +10,7 @@ export const table_names = {
     'data_source': 'Источники данных',
     'exp_scenario': 'Сценарии поступления',
     'dose_ratio': 'Параметры',
+    'calcfunction': 'Функции',
   }; 
   
   export default table_names;

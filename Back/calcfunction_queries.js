@@ -20,8 +20,8 @@ pool.on(`error`, function (err, client) {
     console.error(`idle client error`, err.message, err.stack);
 });
 
-const getDoseRatio = (request, response, table_name ) => {
-  pool.query(`SELECT pc.*, pcn1.name name_rus, pcn2.name name_eng, pcn1.fullname descr_rus, pcn2.fullname descr_eng, null children FROM nucl.${table_name} pc `+
+const getCalcFunction = (request, response, table_name ) => {
+  pool.query(`SELECT pc.*, pcn1.name name_rus, pcn2.name name_eng, pcn1.descr descr_rus, pcn2.descr descr_eng, null children FROM nucl.${table_name} pc `+
   `left join nucl.${table_name}_nls pcn1 on pc.id=pcn1.${table_name}_id and pcn1.lang_id=1 `+
   `left join nucl.${table_name}_nls pcn2 on pc.id=pcn2.${table_name}_id and pcn2.lang_id=2 `+
   `ORDER BY pc.id ASC`, (error, results) => {
@@ -32,9 +32,9 @@ const getDoseRatio = (request, response, table_name ) => {
   })
 }
 
-const getDoseRatioById = (request, response, table_name ) => {
+const getCalcFunctionById = (request, response, table_name ) => {
   const id = parseInt(request.params.id||0);
-  pool.query(`SELECT pc.*, pcn1.name name_rus, pcn2.name name_eng, pcn1.fullname descr_rus, pcn2.fullname descr_eng FROM nucl.${table_name} pc `+
+  pool.query(`SELECT pc.*, pcn1.name name_rus, pcn2.name name_eng, pcn1.descr descr_rus, pcn2.descr descr_eng FROM nucl.${table_name} pc `+
   `left join nucl.${table_name}_nls pcn1 on pc.id=pcn1.${table_name}_id and pcn1.lang_id=1 `+
   `left join nucl.${table_name}_nls pcn2 on pc.id=pcn2.${table_name}_id and pcn2.lang_id=2 `+
   `where pc.id = $1`, [id], (error, results) => {
@@ -45,7 +45,7 @@ const getDoseRatioById = (request, response, table_name ) => {
   })
 }
 
-const createDoseRatio = (request, response, table_name )=> {
+const createCalcFunction = (request, response, table_name )=> {
   pool.connect((err, client, done) => {
     const shouldAbort = (err, response) => {
       if (err) {
@@ -77,10 +77,10 @@ const createDoseRatio = (request, response, table_name )=> {
         if (shouldAbort(err, response)) return;      
         const { id } = res.rows[0];
         console.log(`Id = `+id);
-        client.query(`INSERT INTO nucl.${table_name}_nls( name, fullname, ${table_name}_id, lang_id ) `+
+        client.query(`INSERT INTO nucl.${table_name}_nls( name, descr, ${table_name}_id, lang_id ) `+
                   `VALUES ($1, $2, $3, 1)`, [name_rus, descr_rus, id], (err, res) => {
           if (shouldAbort(err, response)) return;
-          client.query(`INSERT INTO nucl.${table_name}_nls( name, fullname, ${table_name}_id, lang_id ) `+
+          client.query(`INSERT INTO nucl.${table_name}_nls( name, descr, ${table_name}_id, lang_id ) `+
           `VALUES ($1, $2, $3, 2)`, [name_eng, descr_eng, id], (err, res) => {
             if (shouldAbort(err, response)) return;
             console.log(`начинаем Commit`);     
@@ -102,7 +102,7 @@ const createDoseRatio = (request, response, table_name )=> {
   })
 }
 
-const deleteDoseRatio = (request, response, table_name ) => {
+const deleteCalcFunction = (request, response, table_name ) => {
   pool.connect((err, client, done) => {
     const shouldAbort = (err, response) => {
       if (err) {
@@ -171,7 +171,7 @@ const deleteDoseRatio = (request, response, table_name ) => {
   })
 }
 
-const updateDoseRatio = (request, response, table_name ) => {
+const updateCalcFunction = (request, response, table_name ) => {
   pool.connect((err, client, done) => {
     const shouldAbort = (err, response) => {
       if (err) {
@@ -204,12 +204,12 @@ const updateDoseRatio = (request, response, table_name ) => {
         if (shouldAbort(err, response)) return;      
         // const { id } = res.rows[0];
         //console.log(`Id = `+id);
-        client.query(`UPDATE nucl.${table_name}_nls SET name = $1, fullname=$2 WHERE ${table_name}_id = $3 and lang_id=$4`, 
+        client.query(`UPDATE nucl.${table_name}_nls SET name = $1, descr=$2 WHERE ${table_name}_id = $3 and lang_id=$4`, 
                      [name_rus, descr_rus, id, 1], (err, res) => {
           console.log(`rus изменяется`);         
           if (shouldAbort(err, response)) return;
           console.log(`rus изменен`);
-          client.query(`UPDATE nucl.${table_name}_nls SET name = $1, fullname=$2 WHERE ${table_name}_id = $3 and lang_id=$4`, 
+          client.query(`UPDATE nucl.${table_name}_nls SET name = $1, descr=$2 WHERE ${table_name}_id = $3 and lang_id=$4`, 
                      [name_eng, descr_eng, id, 2], (err, res) => {
             console.log(`eng изменяется`);  
             if (shouldAbort(err, response)) return;
@@ -234,9 +234,9 @@ const updateDoseRatio = (request, response, table_name ) => {
 }
 
 module.exports = {
-  getDoseRatio,
-  getDoseRatioById,
-  createDoseRatio,
-  deleteDoseRatio,
-  updateDoseRatio
+  getCalcFunction,
+  getCalcFunctionById,
+  createCalcFunction,
+  deleteCalcFunction,
+  updateCalcFunction
 }

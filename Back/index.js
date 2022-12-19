@@ -26,6 +26,7 @@ const gn_q = require('./generic_nls_queries');
 const ag_q = require('./agegroup_queries');
 const dr_q = require('./dose_ratio_queries');
 const pp_q = require('./physparam_queries');
+const cf_q = require('./calcfunction_queries');
 const es_q = require('./exp_scenario_queries');
 
 const { Pool } = require('pg');
@@ -134,6 +135,14 @@ app.get('/data_source_class', dsc_q.getDataSourceClass);           //list all
 app.post('/data_source_class', dsc_q.createDataSourceClass);       //create
 app.put('/data_source_class/:id', dsc_q.updateDataSourceClass);    //update
 app.delete('/data_source_class/:id', dsc_q.deleteDataSourceClass); //delete 
+
+//GENERIC QUERIES on calcfunction
+app.get('/calcfunction', (req, res) => {cf_q.getCalcFunction(req, res, 'calcfunction')});           //list all
+app.get('/calcfunction/:id', (req, res) => {cf_q.getCalcFunctionById(req, res, 'calcfunction')});   //list 1
+app.post('/calcfunction', (req, res) => {cf_q.createCalcFunction(req, res, 'calcfunction')});       //create
+app.put('/calcfunction/:id', (req, res) => {cf_q.updateCalcFunction(req, res, 'calcfunction')});    //update
+app.delete('/calcfunction/:id', (req, res) => {cf_q.deleteCalcFunction(req, res, 'calcfunction')}); //delete
+
 
 app.get('/criterion', function(req, resp){
       pool.query('SELECT * FROM nucl.criterion', (error, res) => {
