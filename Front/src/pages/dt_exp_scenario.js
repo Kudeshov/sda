@@ -27,6 +27,7 @@ import { MenuItem } from "@mui/material";
 import { FormControl } from "@mui/material";
 import { InputLabel } from "@mui/material";
 import CircularProgress from '@material-ui/core/CircularProgress';
+import { withStyles, createStyles } from '@material-ui/core';
 
 var alertText = "Сообщение";
 var alertSeverity = "info";
@@ -34,7 +35,6 @@ var lastId = 0;
 
 const DataTableExpScenario = (props) => {
   const [valueId, setValueID] = React.useState();
-  const [valueId1, setValueID1] = React.useState();
   const [valueTitle, setValueTitle] = React.useState();
   const [valueTitleInitial, setValueTitleInitial] = React.useState();
   const [valueNameRus, setValueNameRus] = React.useState();
@@ -80,8 +80,8 @@ const DataTableExpScenario = (props) => {
         setValueNameEngInitial(`${tableData[0].name_eng}`);
         setValueDescrRusInitial(`${tableData[0].descr_rus}`);
         setValueDescrEngInitial(`${tableData[0].descr_eng}`);
-        setValueParentID(`${tableData[0].parent_id}||-1`);
-        setValueParentIDInitial(`${tableData[0].parent_id||-1}`);
+        setValueParentID(tableData[0].parent_id||-1);
+        setValueParentIDInitial(tableData[0].parent_id||-1);
       }
     }
     }, [ isLoading, tableData] );
@@ -118,7 +118,7 @@ const DataTableExpScenario = (props) => {
             nodeId={treeItemData.id}
             label={treeItemData.title}
             children={children}
-            onClick={() => handleItemClick(treeItemData.id)}   //{handleItemClick}
+            //onClick={() => handleItemClick(treeItemData.id)}   //{handleItemClick}
             //{() => console.log(treeItemData.title)} onRowClick=
 //            expanded={true}
           />
@@ -126,201 +126,47 @@ const DataTableExpScenario = (props) => {
       });
     };
 
-    ////////////////////////////////////////////////////////////////////////////////////
+    const [expanded, setExpanded] = React.useState([]);
+    const [selected, setSelected] = React.useState([]);
 
-    const treeItems1 = [
-      {
-          "id": 1,
-          "title": "acute",
-          "parent_id": null,
-          "name_rus": "Острое поступление",
-          "name_eng": "Acute intake",
-          "descr_rus": "Сценарии острого поступления радионуклидов в организм женщины - поступление 1 беккереля за указанное время",
-          "descr_eng": null,
-          "children": [
-              {
-                  "id": 30109,
-                  "title": "-130A",
-                  "parent_id": 1,
-                  "name_rus": "2.5 года до зачатия",
-                  "name_eng": "2.5 years prior to conception",
-                  "descr_rus": "Поступление 1 беккереля за 2.5 года до зачатия",
-                  "descr_eng": "Acute intake (1Bq) 2.5 years prior to conception",
-                  "children": [
-                      {
-                          "id": 31945,
-                          "title": "444",
-                          "parent_id": 30109,
-                          "name_rus": "44",
-                          "name_eng": "44",
-                          "descr_rus": "44",
-                          "descr_eng": "44",
-                          "children": []
-                      }
-                  ]
-              },
-              {
-                  "id": 30112,
-                  "title": "-26A",
-                  "parent_id": 1,
-                  "name_rus": "6 месяцев до зачатия",
-                  "name_eng": "6 mounth prior to conception",
-                  "descr_rus": "Поступление 1 беккереля за 6 месяцев до зачатия",
-                  "descr_eng": "Acute intake (1Bq) 6 months prior to conception",
-                  "children": []
-              },
-              {
-                  "id": 30115,
-                  "title": "0A",
-                  "parent_id": 1,
-                  "name_rus": "при зачатии",
-                  "name_eng": "at conception",
-                  "descr_rus": "Поступление 1 беккереля при зачатии",
-                  "descr_eng": "Acute intake (1Bq) at conception",
-                  "children": []
-              },
-              {
-                  "id": 30118,
-                  "title": "5A",
-                  "parent_id": 1,
-                  "name_rus": "5 недель после зачатия",
-                  "name_eng": "5 weeks after conception",
-                  "descr_rus": "Поступление 1 беккереля после 5 недель после зачатия",
-                  "descr_eng": "Acute intake (1Bq) 5 weeks after conception",
-                  "children": []
-              },
-              {
-                  "id": 30121,
-                  "title": "10A",
-                  "parent_id": 1,
-                  "name_rus": "10 недель после зачатия",
-                  "name_eng": "10 weeks after conception",
-                  "descr_rus": "Поступление 1 беккереля после 10 недель после зачатия",
-                  "descr_eng": "Acute intake (1Bq) 10 weeks after conception",
-                  "children": []
-              },
-              {
-                  "id": 30124,
-                  "title": "15A",
-                  "parent_id": 1,
-                  "name_rus": "15 недель после зачатия",
-                  "name_eng": "15 weeks after conception",
-                  "descr_rus": "Поступление 1 беккереля после 15 недель после зачатия",
-                  "descr_eng": "Acute intake (1Bq) 15 weeks after conception",
-                  "children": []
-              },
-              {
-                  "id": 30127,
-                  "title": "25A",
-                  "parent_id": 1,
-                  "name_rus": "25 недель после зачатия",
-                  "name_eng": "25 weeks after conception",
-                  "descr_rus": "Поступление 1 беккереля после 25 недель после зачатия",
-                  "descr_eng": "Acute intake (1Bq) 25 weeks after conception",
-                  "children": []
-              },
-              {
-                  "id": 30130,
-                  "title": "35A",
-                  "parent_id": 1,
-                  "name_rus": "35 недель после зачатия",
-                  "name_eng": "35 weeks after conception",
-                  "descr_rus": "Поступление 1 беккереля после 35 недель после зачатия",
-                  "descr_eng": "Acute intake (1Bq) 35 weeks after conception",
-                  "children": []
-              }
-          ]
-      },
-      {
-          "id": 2,
-          "title": "chronic",
-          "parent_id": null,
-          "name_rus": "Хроническое поступление",
-          "name_eng": "Chronic intake",
-          "descr_rus": "Поступление 1 беккереля за указанный промежуток времени",
-          "descr_eng": null,
-          "children": [
-              {
-                  "id": 30133,
-                  "title": "-260C",
-                  "parent_id": 2,
-                  "name_rus": "5 лет до зачатия",
-                  "name_eng": "5 years before until conception",
-                  "descr_rus": "Поступление 1 беккереля в течение 5 лет до зачатия",
-                  "descr_eng": "Constant chronic intake (1Bq total) from 5 years before until conception",
-                  "children": []
-              },
-              {
-                  "id": 30136,
-                  "title": "-52C",
-                  "parent_id": 2,
-                  "name_rus": "1 год до зачатия",
-                  "name_eng": "1 years before until conception",
-                  "descr_rus": "Поступление 1 беккереля в течение 1 года до зачатия",
-                  "descr_eng": "Constant chronic intake (1Bq total) from 1 year before until conception",
-                  "children": []
-              },
-              {
-                  "id": 30139,
-                  "title": "0C",
-                  "parent_id": 2,
-                  "name_rus": "период внутриутробного развития",
-                  "name_eng": "from conception to birth",
-                  "descr_rus": "Поступление 1 беккереля в течение периода внутриутробного развития",
-                  "descr_eng": "Constant chronic intake (1Bq total) from conception to birth",
-                  "children": []
-              }
-          ]
-      },
-      {
-          "id": 31948,
-          "title": "4444",
-          "parent_id": null,
-          "name_rus": "4444",
-          "name_eng": "4",
-          "descr_rus": "4",
-          "descr_eng": "4",
-          "children": [
-              {
-                  "id": 31951,
-                  "title": "5555",
-                  "parent_id": 31948,
-                  "name_rus": "5555",
-                  "name_eng": "5555",
-                  "descr_rus": "55",
-                  "descr_eng": "55",
-                  "children": []
-              }
-          ]
-      }
-  ];
-
-    const handleChange = (event, nodeId) => {
-      console.log('handleChange '+nodeId);
-      
-      var res = tableData.filter(function(item) {
-        return item.id === nodeId;
-      });
-      if (res.length>0)
-        console.log('res[0].id '+res[0].id)
-      
-      setValueID1(res[0].id);
+    const handleToggle = (event, nodeIds) => {
+      setExpanded(nodeIds);
     };
+  
+    const handleSelect = (event, nodeIds) => {
+      setSelected(nodeIds);
+
+      handleItemClick(nodeIds);
+
+/*       console.log('setSelected '+nodeIds);
+      var res = tableData.filter(function(item) {
+        return item.id === nodeIds;
+      });
+ 
+      setValueID(res[0].id);  */     
+    };  
 
     const DataTreeView = ({ treeItems }) => {
       console.log('treeItems');
       let ids = tableData.map(a => a.id);
       console.log(ids);
-      console.log(treeItems);
       return (
         <TreeView
+          aria-label="file system navigator"
           defaultCollapseIcon={<ExpandMoreIcon />}
           defaultExpandIcon={<ChevronRightIcon />}
+          sx={{ height: 240, flexGrow: 1, maxWidth: 400, overflowY: 'auto' }}
+          onNodeToggle={handleToggle}
+          onNodeSelect={handleSelect}
+          expanded={expanded}
+          selected={selected}          
+          //defaultCollapseIcon={<ExpandMoreIcon />}
+          //defaultExpandIcon={<ChevronRightIcon />}
           //onNodeToggle={handleChange}
           //defaultExpanded={[1,2]}
           //expanded={true}
-          //loading={isLoading}
-          //defaultExpanded={ids}
+          loading={isLoading}
+          defaultExpanded={ids}
         >
           {getTreeItemsFromData(treeItems)}
         </TreeView>
@@ -356,28 +202,34 @@ const DataTableExpScenario = (props) => {
     //console.log(params.id);
     //console.log(params.title);
     //console.log(idid);    
-    var res = tableData.filter(function(item) {
-      return item.id === id;
-    });
-    //setValueID1(res[0].id);
-    return;
-    setValueTitle(res[0].title);
-//    console.log(res[0].id);  
-    setValueID(res[0].id);
-//    setValueID(res[0].id);
-    setValueTitle(res[0].title);
-    setValueNameRus(res[0].name_rus);
-    setValueNameEng(res[0].name_eng);
-    setValueDescrRus(res[0].descr_rus);
-    setValueDescrEng(res[0].descr_eng);    
-    setValueParentID(res[0].parent_id||-1);    
 
-    setValueTitleInitial(res[0].title);
-    setValueNameRusInitial(res[0].name_rus);
-    setValueNameEngInitial(res[0].name_eng);
-    setValueDescrRusInitial(res[0].descr_rus);
-    setValueDescrEngInitial(res[0].descr_eng);
-    setValueParentIDInitial(res[0].parent_id||-1);   
+
+    if (editStarted)
+    {
+      handleClickSave(id);
+    } 
+    else 
+    {
+      var res = tableData.filter(function(item) {
+        return item.id === id;
+      });
+ 
+      setValueID(res[0].id);
+  
+      setValueTitle(res[0].title);
+      setValueNameRus(res[0].name_rus);
+      setValueNameEng(res[0].name_eng);
+      setValueDescrRus(res[0].descr_rus);
+      setValueDescrEng(res[0].descr_eng);    
+      setValueParentID(res[0].parent_id||-1);    
+
+      setValueTitleInitial(res[0].title);
+      setValueNameRusInitial(res[0].name_rus);
+      setValueNameEngInitial(res[0].name_eng);
+      setValueDescrRusInitial(res[0].descr_rus);
+      setValueDescrEngInitial(res[0].descr_eng);
+      setValueParentIDInitial(res[0].parent_id||-1); 
+    }   
     //setValueID(idid);
 
 /*     if (editStarted)
@@ -416,7 +268,7 @@ const DataTableExpScenario = (props) => {
       setValueNameEng(``);
       setValueDescrRus(``);
       setValueDescrEng(``);
-      setValueParentID(``);
+      setValueParentID(-1);
     }
   }; 
 
@@ -436,7 +288,6 @@ const DataTableExpScenario = (props) => {
 
   ///////////////////////////////////////////////////////////////////  SAVE  /////////////////////
   const saveRec = async ( fromToolbar ) => {
-
     let myParentID;
     myParentID = valueParentID === -1 ? null : valueParentID;
     console.log( 'myParentID ' + myParentID );     
@@ -662,6 +513,11 @@ const DataTableExpScenario = (props) => {
     delRec();
   };
 
+  const handleClickSave = () => {
+    console.log('handleClickSave');
+    setOpenSave(true);
+  };
+
   const handleCloseSaveNo = () => {
     console.log('handleCloseSaveNo');
     setOpenSave(false);
@@ -672,7 +528,7 @@ const DataTableExpScenario = (props) => {
     console.log('handleCloseSaveYes');
     setOpenSave(false);
     saveRec(false);
-    handleCancelClick();
+    //handleCancelClick();
   };
 
   const handleClickSaveWhenNew = () => {
@@ -683,7 +539,6 @@ const DataTableExpScenario = (props) => {
   const handleCloseSaveWhenNewNo = () => {
     console.log('handleCloseSaveNo');
     setOpenSaveWhenNew(false);
-
     setValueID(``);
     setValueTitle(``);
     setValueNameRus(``);
@@ -720,7 +575,7 @@ const DataTableExpScenario = (props) => {
   const handleCancelClick = () => 
   {
     console.log('handleCancelClick');
-    const selectedIDs = new Set(selectionModel);
+    const selectedIDs = selected;//new Set(selectionModel);
     //console.log(selectedIDs);
     const selectedRowData = tableData.filter((row) => selectedIDs.has(row.id));
     //console.log(selectedRowData);
@@ -799,7 +654,7 @@ const DataTableExpScenario = (props) => {
       </Toolbar>
       </AppBar> */}
       
-        <DataTreeView treeItems={treeItems1} /> 
+        <DataTreeView treeItems={treeData} /> 
       </Box>
 
       
@@ -874,14 +729,10 @@ const DataTableExpScenario = (props) => {
                 })}
         </Select>
       </FormControl>  
-      <p/>  
+      <p/> 
       <TextField  id="ch_name_rus" sx={{ width: '49ch' }}  size="small" label="Название (рус.яз)"  variant="outlined"  value={valueNameRus || ''} onChange={e => setValueNameRus(e.target.value)} />
       &nbsp;&nbsp;&nbsp;
-
-      
       <TextField  id="ch_name_eng" sx={{ width: '49ch' }} size="small" label="Название (англ.яз)"  variant="outlined" value={valueNameEng || ''} onChange={e => setValueNameEng(e.target.value)}/>
-      <p/>
-      <TextField  id="ch_name_eng1" type="file"sx={{ width: '49ch' }} size="small" label="Файл"  variant="outlined" />
       <p/>
       <TextField  id="ch_descr_rus" sx={{ width: '100ch' }} label="Комментарий (рус.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrRus || ''} onChange={e => setValueDescrRus(e.target.value)}/>
       <p/> 
