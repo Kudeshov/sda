@@ -26,6 +26,7 @@ import { Select } from "@mui/material";
 import { MenuItem } from "@mui/material";
 import { FormControl } from "@mui/material";
 import { InputLabel } from "@mui/material";
+import CircularProgress from '@material-ui/core/CircularProgress';
 
 var alertText = "Сообщение";
 var alertSeverity = "info";
@@ -133,6 +134,7 @@ const DataTableExpScenario = (props) => {
           defaultExpandIcon={<ChevronRightIcon />}
           //defaultExpanded={[1,2]}
           //expanded={true}
+          loading={isLoading}
           defaultExpanded={ids}
         >
           {getTreeItemsFromData(treeItems)}
@@ -367,12 +369,14 @@ const DataTableExpScenario = (props) => {
         },
       });
       if (!response.ok) {
+        console.log('response not OK');
         alertSeverity = 'error';
         alertText = await response.text();
         setOpenAlert(true);          
       }
       else
       {
+        console.log('response OK');
         alertSeverity = "success";
         alertText = await response.text();
         setOpenAlert(true); 
@@ -646,6 +650,7 @@ const DataTableExpScenario = (props) => {
           {alertText}
         </Alert>
       </Collapse>
+      {isLoading && <CircularProgress/>} 
       </Box>
       
       </td>
@@ -653,10 +658,10 @@ const DataTableExpScenario = (props) => {
       <TextField  id="ch_id"  disabled={true} label="Код" sx={{ width: '12ch' }} variant="outlined" value={ valueId ||''} size="small" onChange={e => setValueID(e.target.value)}/>
       &nbsp;&nbsp;&nbsp;
       <TextField  id="ch_name" sx={{ width: '40ch' }} label="Обозначение" size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
-      <p/>
 {/*       <TextField  id="ch_p1arent_id" sx={{ width: '100ch' }} label="Родительский класс"  size="small" variant="outlined" value={valueParentID || ''} onChange={e => setValueParentID(e.target.value)}/>
       <p/>  */}
-      <FormControl sx={{ width: '40ch' }} size="small">
+      &nbsp;&nbsp;&nbsp;
+      <FormControl sx={{ width: '30ch' }} size="small">
         <InputLabel id="ch_parent_id">Родительский класс</InputLabel>
           <Select labelId="ch_parent_id" id="ch_parent_id1" label="Родительский класс" value={valueParentID  || "" }  onChange={e => setValueParentID(e.target.value)}>
           {tableData?.map(option => {
@@ -669,9 +674,9 @@ const DataTableExpScenario = (props) => {
         </Select>
       </FormControl>  
       <p/> 
-      <TextField  id="ch_name_rus" sx={{ width: '40ch' }}  size="small" label="Название (рус.яз)"  variant="outlined"  value={valueNameRus || ''} onChange={e => setValueNameRus(e.target.value)} />
+      <TextField  id="ch_name_rus" sx={{ width: '49ch' }}  size="small" label="Название (рус.яз)"  variant="outlined"  value={valueNameRus || ''} onChange={e => setValueNameRus(e.target.value)} />
       &nbsp;&nbsp;&nbsp;
-      <TextField  id="ch_name_eng" sx={{ width: '40ch' }} size="small" label="Название (англ.яз)"  variant="outlined" value={valueNameEng || ''} onChange={e => setValueNameEng(e.target.value)}/>
+      <TextField  id="ch_name_eng" sx={{ width: '49ch' }} size="small" label="Название (англ.яз)"  variant="outlined" value={valueNameEng || ''} onChange={e => setValueNameEng(e.target.value)}/>
       <p/>
       <TextField  id="ch_descr_rus" sx={{ width: '100ch' }} label="Комментарий (рус.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrRus || ''} onChange={e => setValueDescrRus(e.target.value)}/>
       <p/> 
