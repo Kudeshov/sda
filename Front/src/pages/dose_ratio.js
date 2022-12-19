@@ -1,4 +1,4 @@
-import { DataTableAgeGroup, DataTableDoseRatio } from './dt_dose_ratio';
+import { DataTableDoseRatio } from './dt_dose_ratio';
 
 function DoseRatio() {
   return (
