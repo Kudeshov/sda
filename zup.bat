@@ -1,0 +1,1 @@
+zip -r ..\sda_js *.* -x *.~* *.zip *.old *.dcu *.cab *.bat *.exe *\node_modules\*
