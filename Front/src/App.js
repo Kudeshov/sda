@@ -17,6 +17,7 @@ import ExpScenario from "./pages/exp_scenario";
 import AgeGroup from "./pages/agegroup";
 import DoseRatio from "./pages/dose_ratio";
 import CalcFunction from "./pages/calcfunction";
+import GriterionGr from "./pages/criterion_gr";
 function App() {
   return (
     <Router>
@@ -39,6 +40,7 @@ function App() {
         <Route path="/db" element={<Db/>} />
         <Route path="/dose_ratio" element={<DoseRatio/>} />
         <Route path="/calcfunction" element={<CalcFunction/>} />
+        <Route path="/criterion_gr" element={<GriterionGr/>} />
       </Routes>
     </Router>
   );

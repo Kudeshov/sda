@@ -11,6 +11,7 @@ export const table_names = {
     'exp_scenario': 'Сценарии поступления',
     'dose_ratio': 'Параметры',
     'calcfunction': 'Функции',
+    'criterion_gr': 'Группы критериев',
   }; 
   
   export default table_names;

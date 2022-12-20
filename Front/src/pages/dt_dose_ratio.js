@@ -632,16 +632,29 @@ const DataTableDoseRatio = (props) => {
     );
   }
 
-  const [age, setAge] = React.useState('');
+/*   const [age, setAge] = React.useState('');
 
   const handleChange = (event) => {
     setAge(event.target.value);
-  };
+  }; */
 
   const valuesYesNo = [
     { title: 'Нет', id: 'false' },
     { title: 'Да', id: 'true' } ];
 
+//  const [file, setFile] = useState()
+
+  function handleFileChange(event) {
+    console.log( 'файл '+event.target.files[0] );
+//    setFile(event.target.files[0]);
+    var reader = new FileReader();
+    reader.readAsText(event.target.files[0]);
+    reader.onload = e => {
+      console.log(e.target.result);
+      setValueParameters("" + e.target.result);
+    };
+    
+  }
 
   return (
     <div style={{ height: 550, width: 1500 }}>
@@ -716,6 +729,11 @@ const DataTableDoseRatio = (props) => {
         if (props.table_name==='calcfunction') {
           return (
             <div>
+            <Button variant="contained" component="label">Загрузить из файла
+              <input hidden accept="text/xml" type="file" onChange={handleFileChange}/>
+            </Button><p/>
+
+            <Button variant="contained" onClick={() => {setValueParameters(""); }}>Очистить</Button>            
             <TextField  id="ch_parameters" sx={{ width: '100ch' }} label="Параметры функции"  size="small" multiline maxRows={4} variant="outlined" value={valueParameters || ''} onChange={e => setValueParameters(e.target.value)}/>
             <p/>
           

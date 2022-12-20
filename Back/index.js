@@ -116,6 +116,13 @@ app.post('/exp_scenario', (req, res) => {es_q.createExpScenario(req, res, 'exp_s
 app.put('/exp_scenario/:id', (req, res) => {es_q.updateExpScenario(req, res, 'exp_scenario')});    //update
 app.delete('/exp_scenario/:id', (req, res) => {es_q.deleteExpScenario(req, res, 'exp_scenario')}); //delete
 
+//GENERIC QUERIES on criterion_gr
+app.get('/criterion_gr', (req, res) => {es_q.getExpScenario(req, res, 'criterion_gr')});           //list all
+app.get('/criterion_gr/:id', (req, res) => {es_q.getExpScenarioById(req, res, 'criterion_gr')});   //list 1
+app.post('/criterion_gr', (req, res) => {es_q.createExpScenario(req, res, 'criterion_gr')});       //create
+app.put('/criterion_gr/:id', (req, res) => {es_q.updateExpScenario(req, res, 'criterion_gr')});    //update
+app.delete('/criterion_gr/:id', (req, res) => {es_q.deleteExpScenario(req, res, 'criterion_gr')}); //delete
+
 //GENERIC QUERIES on dose_ratio
 app.get('/dose_ratio', (req, res) => {dr_q.getDoseRatio(req, res, 'dose_ratio')});           //list all
 app.get('/dose_ratio/:id', (req, res) => {dr_q.getDoseRatioById(req, res, 'dose_ratio')});   //list 1
