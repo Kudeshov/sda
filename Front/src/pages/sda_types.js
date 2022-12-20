@@ -11,6 +11,8 @@ export const table_names = {
     'exp_scenario': 'Сценарии поступления',
     'dose_ratio': 'Параметры',
     'calcfunction': 'Функции',
+    'action_level': 'Уровни вмешательства',
+    'action': 'Действия',
   }; 
   
   export default table_names;

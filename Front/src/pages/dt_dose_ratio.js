@@ -71,7 +71,9 @@ const DataTableDoseRatio = (props) => {
   const [valuePhysParamNameRus, setValuePhysParamNameRus] = useState([]); 
   const [valuePhysParamDimension, setValuePhysParamDimension] = useState([]);
   const [valueUsed, setValueUsed] = useState([]);
+  const [valueUsedInitial, setValueUsedInitial] = useState([]);
   const [valueParameters, setValueParameters] = useState([]);
+  const [valueParametersInitial, setValueParametersInitial] = useState([]);
 
 
   useEffect(() => {
@@ -111,12 +113,14 @@ const DataTableDoseRatio = (props) => {
     setEditStarted((valueTitleInitial!==valueTitle)||(valueNameRusInitial!==valueNameRus)||(valueNameEngInitial!==valueNameEng)
       ||(valueDescrEngInitial!==valueDescrEng)||(valueDescrRusInitial!==valueDescrRus)   
       ||(valueRespRateInitial!==valueRespRate)||(valueRespYearInitial!==valueRespYear)||(valueIndoorInitial!==valueIndoor)
-      ||(valueExtCloudInitial!==valueExtCloud)||(valueExtGroundInitial!==valueExtGround)||(valuePhysParamIDInitial!==valuePhysParamID));
+      ||(valueExtCloudInitial!==valueExtCloud)||(valueExtGroundInitial!==valueExtGround)||(valuePhysParamIDInitial!==valuePhysParamID)
+      ||(valueUsedInitial!==valueUsed)||(valueParametersInitial!==valueParameters)
+      );
     }, [valueTitleInitial, valueTitle, valueNameRusInitial, valueNameRus, valueNameEngInitial, valueNameEng, 
         valueDescrEngInitial, valueDescrEng, valueDescrRusInitial, valueDescrRus, 
         valueRespRateInitial, valueRespRate, valueRespYearInitial, valueRespYear, valueIndoorInitial, 
         valueIndoor, valueExtCloudInitial, valueExtCloud, valueExtGroundInitial, valueExtGround,
-        valuePhysParamID, valuePhysParamIDInitial]); 
+        valuePhysParamID, valuePhysParamIDInitial, valueUsed, valueUsedInitial, valueParameters, valueParametersInitial]); 
 
   useEffect(() => {
     if ((!isLoading) && (tableData) && (tableData.length)) {
@@ -152,6 +156,10 @@ const DataTableDoseRatio = (props) => {
 
         setValuePhysParamId(`${tableData[0].physparam_id}`);
         setValuePhysParamIdInitial(`${tableData[0].physparam_id}`);
+        setValueUsed(`${tableData[0].used}`);
+        setValueUsedInitial(`${tableData[0].used}`);
+        setValueParameters(`${tableData[0].parameters}`);
+        setValueParametersInitial(`${tableData[0].parameters}`);
       }
     }
     }, [ isLoading, tableData] );
@@ -176,7 +184,6 @@ const DataTableDoseRatio = (props) => {
       setValueIndoor(`${params.row.indoor}` );
       setValueExtCloud(`${params.row.ext_cloud}` );
       setValueExtGround(`${params.row.ext_ground}` );
-      //console.log('handleRowClick Refresh initial '+params.row.title+' '+params.row.name_rus);
       setValueTitleInitial(`${params.row.title}`);
       setValueNameRusInitial(`${params.row.name_rus}`);
       setValueNameEngInitial(`${params.row.name_eng}`);
@@ -192,8 +199,9 @@ const DataTableDoseRatio = (props) => {
       setValuePhysParamIdInitial(`${params.row.physparam_id}`);
 
       setValueUsed(`${params.row.used}`);
+      setValueUsedInitial(`${params.row.used}`);
       setValueParameters(`${params.row.parameters}`);
-
+      setValueParametersInitial(`${params.row.parameters}`);
     }
   }; 
 
@@ -222,7 +230,9 @@ const DataTableDoseRatio = (props) => {
       setValueIndoor(``);
       setValueExtCloud(``);
       setValueExtGround(``);
-      setValuePhysParamId(``);      
+      setValuePhysParamId(``);  
+      setValueUsed(``);
+      setValueParameters(``);
     }
   }; 
 
@@ -255,8 +265,14 @@ const DataTableDoseRatio = (props) => {
       indoor: valueIndoor,
       ext_cloud: valueExtCloud,
       ext_ground: valueExtGround,
-      physparam_id: valuePhysParamID
+      physparam_id: valuePhysParamID,
+      used: valueUsed,
+      parameters: valueParameters
     });
+
+    console.log('Редактирование записи calcfunction');
+    console.log(js);
+
     if (!valueId) {
       addRec();
       return;
@@ -301,6 +317,8 @@ const DataTableDoseRatio = (props) => {
        setValueExtCloudInitial(valueExtCloud);
        setValueExtGroundInitial(valueExtGround);
        setValuePhysParamIdInitial(valuePhysParamID);            
+       setValueUsedInitial(valueUsed);            
+       setValueParametersInitial(valueParameters);
      }
     reloadData();     
    }
@@ -320,7 +338,9 @@ const DataTableDoseRatio = (props) => {
       indoor: valueIndoor,
       ext_cloud: valueExtCloud,
       ext_ground: valueExtGround,
-      physparam_id: valuePhysParamID        
+      physparam_id: valuePhysParamID,
+      used: valueUsed,       
+      parameters: valueParameters,
     });
     setIsLoading(true);
     //console.log(js);
@@ -368,7 +388,9 @@ const DataTableDoseRatio = (props) => {
       setValueIndoorInitial(valueIndoor);
       setValueExtCloudInitial(valueExtCloud);          
       setValueExtGroundInitial(valueExtGround);
-      setValuePhysParamIdInitial(valuePhysParamID); 
+      setValuePhysParamIdInitial(valuePhysParamID);
+      setValueUsedInitial(valueUsed); 
+      setValueParametersInitial(valueParameters);
     }
   };
 
@@ -792,6 +814,8 @@ const DataTableDoseRatio = (props) => {
             {valueExtCloud === valueExtCloudInitial ? '' : 'Коэффициент для дозы внешнего облучения от облака: '+valueExtCloud+'; ' }<p/>
             {valueExtGround === valueExtGroundInitial ? '' : 'Коэффициент для дозы внешнего облучения от поверхности: '+valueExtGround+'; ' }<p/>
             {valuePhysParamID === valuePhysParamIDInitial ? '' : 'Физический параметр (из общего списка): '+valuePhysParamID+'; ' }<p/>
+            {valueUsed === valueUsedInitial ? '' : 'Используется расчетным модулем '+valueUsed+'; ' }<p/>
+            {valueParameters === valueParametersInitial ? '' : 'Параметры функции'+valueParameters+'; ' }<p/>
             <p/>Вы желаете сохранить указанную запись?
         </DialogContentText>
     </DialogContent>
@@ -819,6 +843,8 @@ const DataTableDoseRatio = (props) => {
             {valueExtCloud === valueExtCloudInitial ? '' : 'Коэффициент для дозы внешнего облучения от облака: '+valueExtCloud+'; ' }<p/>
             {valueExtGround === valueExtGroundInitial ? '' : 'Коэффициент для дозы внешнего облучения от поверхности: '+valueExtGround+'; ' }<p/>
             {valuePhysParamID === valuePhysParamIDInitial ? '' : 'Физический параметр (из общего списка): '+valuePhysParamID+'; ' }<p/>
+            {valueUsed === valueUsedInitial ? '' : 'Используется расчетным модулем '+valueUsed+'; ' }<p/>
+            {valueParameters === valueParametersInitial ? '' : 'Параметры функции'+valueParameters+'; ' }<p/>
             <p/>Вы желаете сохранить указанную запись?
         </DialogContentText>
     </DialogContent>

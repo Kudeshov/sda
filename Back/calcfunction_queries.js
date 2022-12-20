@@ -70,10 +70,10 @@ const createCalcFunction = (request, response, table_name )=> {
       return !!err
     }
 
-    const { title, name_rus, name_eng, descr_rus, descr_eng, physparam_id } = request.body;
+    const { title, name_rus, name_eng, descr_rus, descr_eng, physparam_id, used } = request.body;
     client.query(`BEGIN`, err => {
       if (shouldAbort(err, response)) return;
-      client.query(`INSERT INTO nucl.${table_name}( title, physparam_id ) VALUES ($1,$2) RETURNING id`, [title,physparam_id], (err, res) => {
+      client.query(`INSERT INTO nucl.${table_name}( title, physparam_id, used ) VALUES ($1,$2,$3) RETURNING id`, [title,physparam_id,used], (err, res) => {
         if (shouldAbort(err, response)) return;      
         const { id } = res.rows[0];
         console.log(`Id = `+id);
@@ -197,10 +197,12 @@ const updateCalcFunction = (request, response, table_name ) => {
     }
     //id
     const id = parseInt(request.params.id);
-    const { title, name_rus, name_eng, descr_rus, descr_eng, physparam_id  } = request.body;
+    const { title, name_rus, name_eng, descr_rus, descr_eng, physparam_id, used, parameters } = request.body;
     client.query(`BEGIN`, err => {
       if (shouldAbort(err, response)) return;
-      client.query(`UPDATE nucl.${table_name} SET title = $1, physparam_id = $2 WHERE id = $3`, [title, physparam_id, id], (err, res) => {
+     
+      console.log(`UPDATE nucl.${table_name} SET title = $1, physparam_id = $2, used = $4, parameters = $5 WHERE id = $3`, [title, physparam_id, id, used, parameters]);
+      client.query(`UPDATE nucl.${table_name} SET title = $1, physparam_id = $2, used = $4, parameters = $5 WHERE id = $3`, [title, physparam_id, id, used, parameters], (err, res) => {
         if (shouldAbort(err, response)) return;      
         // const { id } = res.rows[0];
         //console.log(`Id = `+id);

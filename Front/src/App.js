@@ -17,6 +17,8 @@ import ExpScenario from "./pages/exp_scenario";
 import AgeGroup from "./pages/agegroup";
 import DoseRatio from "./pages/dose_ratio";
 import CalcFunction from "./pages/calcfunction";
+import ActionLevel from "./pages/action_level";
+import Action from "./pages/action";
 function App() {
   return (
     <Router>
@@ -39,6 +41,8 @@ function App() {
         <Route path="/db" element={<Db/>} />
         <Route path="/dose_ratio" element={<DoseRatio/>} />
         <Route path="/calcfunction" element={<CalcFunction/>} />
+        <Route path="/action_level" element={<ActionLevel/>} />
+        <Route path="/action" element={<Action/>} />
       </Routes>
     </Router>
   );
