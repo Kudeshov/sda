@@ -31,6 +31,7 @@ import { MenuItem } from "@mui/material";
 import { FormControl } from "@mui/material";
 import { InputLabel } from "@mui/material";
 import { type } from '@testing-library/user-event/dist/type';
+import { PropaneSharp } from '@mui/icons-material';
 
 var alertText = "Сообщение";
 var alertSeverity = "info";
@@ -709,26 +710,35 @@ const DataTableDoseRatio = (props) => {
       <p/> 
       <TextField  id="ch_descr_rus" sx={{ width: '100ch' }} label="Комментарий (англ.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrEng || ''} /* defaultValue=" " */ onChange={e => setValueDescrEng(e.target.value)}/>
       <p/>
-      <TextField  id="ch_parameters" sx={{ width: '100ch' }} label="Параметры функции"  size="small" multiline maxRows={4} variant="outlined" value={valueParameters || ''} onChange={e => setValueParameters(e.target.value)}/>
-      <p/>
+
+      <div>
+      {(() => {
+        if (props.table_name==='calcfunction') {
+          return (
+            <div>
+            <TextField  id="ch_parameters" sx={{ width: '100ch' }} label="Параметры функции"  size="small" multiline maxRows={4} variant="outlined" value={valueParameters || ''} onChange={e => setValueParameters(e.target.value)}/>
+            <p/>
+          
+            <FormControl sx={{ width: '40ch' }} size="small">
+            <InputLabel id="type">Используется расчетным модулем</InputLabel>
+              <Select labelId="type" id="type1"  label="Используется расчетным модулем" value={valueUsed  || "" }  onChange={e => setValueUsed(e.target.value)}>
+                {valuesYesNo?.map(option => {
+                    return (
+                      <MenuItem key={option.id} value={option.id}>
+                        {option.title ?? option.id}
+                      </MenuItem>
+                    );
+                    })}
+              </Select>
+            </FormControl>    
+            <p/> 
+            </div>
+          )
+        } 
+      })()}
+      </div>
 
 
- 
-    
-                 <FormControl sx={{ width: '40ch' }} size="small">
-                 <InputLabel id="type">Используется расчетным модулем</InputLabel>
-                 <Select labelId="type" id="type1"  label="Используется расчетным модулем" value={valueUsed  || "" }  onChange={e => setValueUsed(e.target.value)}>
-                  {valuesYesNo?.map(option => {
-                        return (
-                          <MenuItem key={option.id} value={option.id}>
-                            {option.title ?? option.id}
-                          </MenuItem>
-                         );
-                        })}
-                  </Select>
-                  </FormControl>    
-                  <p/> 
-      
     
         <FormControl sx={{ width: '40ch' }} size="small">
         <InputLabel id="fiz">Физический параметр (из общего списка)</InputLabel>

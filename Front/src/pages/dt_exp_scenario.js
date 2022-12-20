@@ -27,7 +27,6 @@ import { MenuItem } from "@mui/material";
 import { FormControl } from "@mui/material";
 import { InputLabel } from "@mui/material";
 import CircularProgress from '@material-ui/core/CircularProgress';
-import { withStyles, createStyles } from '@material-ui/core';
 
 var alertText = "Сообщение";
 var alertSeverity = "info";
@@ -67,7 +66,7 @@ const DataTableExpScenario = (props) => {
       {
         console.log('useEffect isLoading, tableData ON lastId '+lastId);
         lastId = tableData[0].id;
-        setSelectionModel(tableData[0].id);
+        //setSelectionModel(tableData[0].id);
         //setValueID(`${tableData[0].id}`);
         setValueTitle(`${tableData[0].title}`);
         setValueNameRus(`${tableData[0].name_rus}`);
@@ -646,42 +645,8 @@ const DataTableExpScenario = (props) => {
             color="primary" 
             size="small" Title="Сохранить в формате CSV">
           <SvgIcon fontSize="small" component={DownloadLightIcon} inheritViewBox /></IconButton>     
-{/*       <AppBar>
-      <Toolbar>
-        <Typography variant="h6">
-          This Is ToolBar Example
-        </Typography>
-      </Toolbar>
-      </AppBar> */}
-      
         <DataTreeView treeItems={treeData} /> 
       </Box>
-
-      
-{/*       <br />          
-      <DataGrid
-        components={{ Toolbar: CustomToolbar1 }}
-        hideFooterSelectedRowCount={true}
-        localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
-        rowHeight={25}
-        rows={tableData}
-        loading={isLoading}
-        columns={columns}
-        onSelectionModelChange={(newSelectionModel) => {
-          setSelectionModel(newSelectionModel);
-        }}
-        selectionModel={selectionModel}        
-        initialState={{
-          columns: {
-            columnVisibilityModel: {
-              name_eng: false,
-              descr_rus: false,
-              descr_eng: false,
-            },
-          },
-        }}        
-        onRowClick={handleRowClick} {...tableData} 
-      /> */}
       </div>
       <Box sx={{ width: 585 }}>
       <Collapse in={openAlert}>
