@@ -125,7 +125,7 @@ const DataTableExpScenario = (props) => {
       });
     };
 
-    const [expanded, setExpanded] = React.useState([]);
+    const [expanded, setExpanded] = React.useState([1,2]);
     const [selected, setSelected] = React.useState([]);
 
     const handleToggle = (event, nodeIds) => {
@@ -146,9 +146,9 @@ const DataTableExpScenario = (props) => {
     };  
 
     const DataTreeView = ({ treeItems }) => {
-      console.log('treeItems');
+      //console.log('treeItems');
       let ids = tableData.map(a => a.id);
-      console.log(ids);
+      //console.log(ids);
       return (
         <TreeView
           aria-label="file system navigator"
@@ -623,13 +623,11 @@ const DataTableExpScenario = (props) => {
 
   return (
     <div style={{ height: 550, width: 1500 }}>
-
     <table border = "0" style={{ height: 550, width: 1500 }} ><tbody>
     <tr>
       <td style={{ height: 550, width: 600, verticalAlign: 'top' }}>
       <div style={{ height: 400, width: 585 }}>
-
-      <Box sx={{ border: 1, borderRadius: '3px', borderColor: 'grey.300' }} >
+      <Box sx={{ border: 1, borderRadius: '3px', borderColor: 'grey.300', height: 400 }} >
       <IconButton onClick={()=>handleClearClick()}  color="primary" size="small" Title="Создать запись">
           <SvgIcon fontSize="small" component={PlusLightIcon} inheritViewBox /></IconButton>
         <IconButton onClick={()=>saveRec(true)}  color="primary" size="small" Title="Сохранить запись в БД">
@@ -644,8 +642,10 @@ const DataTableExpScenario = (props) => {
         //onClick={()=>handleExport({ delimiter: ';', utf8WithBom: true, getRowsToExport: () => gridFilteredSortedRowIdsSelector(apiRef) })} 
             color="primary" 
             size="small" Title="Сохранить в формате CSV">
-          <SvgIcon fontSize="small" component={DownloadLightIcon} inheritViewBox /></IconButton>     
-        <DataTreeView treeItems={treeData} /> 
+          <SvgIcon fontSize="small" component={DownloadLightIcon} inheritViewBox /></IconButton>
+        <Box sx={{ height: 367, flexGrow: 1, overflowY: 'auto' }} >     
+          <DataTreeView treeItems={treeData} />
+        </Box> 
       </Box>
       </div>
       <Box sx={{ width: 585 }}>
@@ -676,8 +676,6 @@ const DataTableExpScenario = (props) => {
       <TextField  id="ch_id"  disabled={true} label="Код" sx={{ width: '12ch' }} variant="outlined" value={ valueId ||''} size="small" /* onChange={e => setValueID(e.target.value)} *//>
       &nbsp;&nbsp;&nbsp;
       <TextField  id="ch_name" sx={{ width: '40ch' }} label="Обозначение" size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
-{/*       <TextField  id="ch_p1arent_id" sx={{ width: '100ch' }} label="Родительский класс"  size="small" variant="outlined" value={valueParentID || ''} onChange={e => setValueParentID(e.target.value)}/>
-      <p/>  */}
       &nbsp;&nbsp;&nbsp;
       <FormControl sx={{ width: '30ch' }} size="small">
         <InputLabel id="ch_parent_id">Родительский класс</InputLabel>
