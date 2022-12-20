@@ -50,11 +50,16 @@ const DataTableExpScenario = (props) => {
   const [isLoading, setIsLoading] = React.useState(false);
   const [tableData, setTableData] = useState([]); 
   const [treeData, setTreeData] = useState([]); 
-  const [selectionModel, setSelectionModel] = React.useState([]);
+  // const [selectionModel, setSelectionModel] = React.useState([]);
   const [editStarted, setEditStarted] = useState([false]);
 
   useEffect(() => {
-    console.log('compare ' + valueParentID + ' ' +valueParentIDInitial);
+    console.log('valueTitle ' + valueTitle + ' ' +valueTitleInitial);
+    console.log('valueNameRus ' + valueNameRus + ' ' +valueNameRusInitial);
+    console.log('valueNameEng ' + valueNameEng + ' ' +valueNameEngInitial);
+    console.log('valueDescrEng ' + valueDescrEng + ' ' +valueDescrEngInitial);
+    console.log('valueDescrRus ' + valueDescrRus + ' ' +valueDescrRusInitial);
+    console.log('valueParentID ' + valueParentID + ' ' +valueParentIDInitial);
     setEditStarted((valueTitleInitial!==valueTitle)||(valueNameRusInitial!==valueNameRus)||(valueNameEngInitial!==valueNameEng)
       ||(valueDescrEngInitial!==valueDescrEng)||(valueDescrRusInitial!==valueDescrRus)||(valueParentIDInitial!==valueParentID));
     }, [valueTitleInitial, valueTitle, valueNameRusInitial, valueNameRus, valueNameEngInitial, valueNameEng, 
@@ -73,7 +78,7 @@ const DataTableExpScenario = (props) => {
         setValueNameEng(`${tableData[0].name_eng}`);
         setValueDescrRus(`${tableData[0].descr_rus}`);
         setValueDescrEng(`${tableData[0].descr_eng}`);
-        //console.log('useEffect Refresh initial '+tableData[0].title+' '+tableData[0].name_rus);
+        console.log('useEffect Refresh initial '+tableData[0].title+' '+tableData[0].name_rus);
         setValueTitleInitial(`${tableData[0].title}`);       
         setValueNameRusInitial(`${tableData[0].name_rus}`);
         setValueNameEngInitial(`${tableData[0].name_eng}`);
@@ -171,38 +176,9 @@ const DataTableExpScenario = (props) => {
         </TreeView>
       );
     };
-    
-/* 
-  const handleRowClick = (params) => {
-    console.log('handleRowClick');
-    if (editStarted)
-    {
-      handleClickSave(params);
-    } 
-    else 
-    {
-      //setValueID(`${params.row.id}`);
-      setValueTitle(`${params.row.title}`);
-      setValueNameRus(`${params.row.name_rus}`);
-      setValueNameEng(`${params.row.name_eng}`);
-      setValueDescrRus(`${params.row.descr_rus}`);
-      setValueDescrEng(`${params.row.descr_eng}` );
-      //console.log('handleRowClick Refresh initial '+params.row.title+' '+params.row.name_rus);
-      setValueTitleInitial(`${params.row.title}`);
-      setValueNameRusInitial(`${params.row.name_rus}`);
-      setValueNameEngInitial(`${params.row.name_eng}`);
-      setValueDescrRusInitial(`${params.row.descr_rus}`);
-      setValueDescrEngInitial(`${params.row.descr_eng}` );
-    }
-  };  */
 
   const handleItemClick = (id) => {
     console.log('handleItemClick');
-    //console.log(params.id);
-    //console.log(params.title);
-    //console.log(idid);    
-
-
     if (editStarted)
     {
       handleClickSave(id);
@@ -221,7 +197,7 @@ const DataTableExpScenario = (props) => {
       setValueDescrRus(res[0].descr_rus);
       setValueDescrEng(res[0].descr_eng);    
       setValueParentID(res[0].parent_id||-1);    
-
+      console.log('handleItemClick '+tableData[0].title+' '+tableData[0].name_rus);
       setValueTitleInitial(res[0].title);
       setValueNameRusInitial(res[0].name_rus);
       setValueNameEngInitial(res[0].name_eng);
@@ -229,26 +205,6 @@ const DataTableExpScenario = (props) => {
       setValueDescrEngInitial(res[0].descr_eng);
       setValueParentIDInitial(res[0].parent_id||-1); 
     }   
-    //setValueID(idid);
-
-/*     if (editStarted)
-    {
-      handleClickSave(params);
-    } 
-    else 
-    {
-      setValueID(`${params.id}`);
-      setValueTitle(`${params.title}`);
-      setValueNameRus(`${params.name_rus}`);
-      setValueNameEng(`${params.name_eng}`);
-      setValueDescrRus(`${params.descr_rus}`);
-      setValueDescrEng(`${params.descr_eng}` );
-      setValueTitleInitial(`${params.title}`);
-      setValueNameRusInitial(`${params.name_rus}`);
-      setValueNameEngInitial(`${params.name_eng}`);
-      setValueDescrRusInitial(`${params.descr_rus}`);
-      setValueDescrEngInitial(`${params.descr_eng}` );
-    }   */
   }; 
 
   const handleClearClick = (params) => {
@@ -280,7 +236,7 @@ const DataTableExpScenario = (props) => {
   }, [props.table_name])
 
    useEffect(() => {
-    console.log( 'setTreeData ' + tableData );    
+    //console.log( 'setTreeData ' + tableData );    
     //let arr = tableData; //.map(x => Object.assign({}, tableData, { "children": null }));
     setTreeData( list_to_tree( tableData ) );
   }, [tableData]) 
@@ -289,7 +245,7 @@ const DataTableExpScenario = (props) => {
   const saveRec = async ( fromToolbar ) => {
     let myParentID;
     myParentID = valueParentID === -1 ? null : valueParentID;
-    console.log( 'myParentID ' + myParentID );     
+    console.log( 'saveRec myParentID ' + myParentID );     
     const js = JSON.stringify({
       id: valueId,
       title: valueTitle,
@@ -299,6 +255,9 @@ const DataTableExpScenario = (props) => {
       descr_eng: valueDescrEng,
       parent_id: myParentID        
     });
+
+    console.log( js ); 
+
     if (!valueId) {
       addRec();
       return;
@@ -332,6 +291,7 @@ const DataTableExpScenario = (props) => {
      setIsLoading(false);
      if (fromToolbar) 
      {
+      console.log('fromToolbar saveRec')
        setValueTitleInitial(valueTitle);       
        setValueNameRusInitial(valueNameRus); 
        setValueNameEngInitial(valueNameEng);
@@ -344,7 +304,9 @@ const DataTableExpScenario = (props) => {
  };
 /////////////////////////////////////////////////////////////////// ADDREC ///////////////////// 
   const addRec = async ()  => {
-    //console.log('addrec executed');
+    let myParentID;
+    myParentID = valueParentID === -1 ? null : valueParentID;
+    console.log( 'myParentID ' + myParentID );   
     const js = JSON.stringify({
       id: valueId,
       title: valueTitle,
@@ -352,7 +314,7 @@ const DataTableExpScenario = (props) => {
       name_eng: valueNameEng,
       descr_rus: valueDescrRus,
       descr_eng: valueDescrEng,
-      parent_id: valueParentID         
+      parent_id: myParentID         
     });
     setIsLoading(true);
     try {
@@ -386,15 +348,15 @@ const DataTableExpScenario = (props) => {
     } finally {
       setIsLoading(false);
       reloadData();
-      setSelectionModel(lastId);
+      //setSelectionModel(lastId);
       //Refresh initial state
-      //console.log('addRec Refresh initial '+valueTitle+' '+valueNameRus);
+/*       console.log('addRec Refresh initial '+valueTitle+' '+valueNameRus);
       setValueTitleInitial(valueTitle);
       setValueNameRusInitial(valueNameRus);
       setValueNameEngInitial(valueNameEng);
       setValueDescrRusInitial(valueDescrRus);
       setValueDescrEngInitial(valueDescrEng);
-      setValueParentIDInitial(valueParentID);
+      setValueParentIDInitial(valueParentID); */
     }
   };
 
@@ -429,7 +391,7 @@ const DataTableExpScenario = (props) => {
         alertText = await response.text();
         setOpenAlert(true); 
         reloadData();
-        setSelectionModel(tableData[0].id );  
+        //setSelectionModel(tableData[0].id );  
         setValueID(`${tableData[0].id}`);
         setValueTitle(`${tableData[0].title}`);
         setValueNameRus(`${tableData[0].name_rus}`);
@@ -524,10 +486,12 @@ const DataTableExpScenario = (props) => {
   };
 
   const handleCloseSaveYes = () => {
-    console.log('handleCloseSaveYes');
+    console.log('handleCloseSaveYes setOpenSave');
     setOpenSave(false);
+    console.log('handleCloseSaveYes saveRec')
     saveRec(false);
-    //handleCancelClick();
+    console.log('handleCloseSaveYes handleCancelClick')
+    handleCancelClick();
   };
 
   const handleClickSaveWhenNew = () => {
@@ -538,26 +502,28 @@ const DataTableExpScenario = (props) => {
   const handleCloseSaveWhenNewNo = () => {
     console.log('handleCloseSaveNo');
     setOpenSaveWhenNew(false);
-    setValueID(``);
+    handleCancelClick();    
+/*     setValueID(``);
     setValueTitle(``);
     setValueNameRus(``);
     setValueNameEng(``);
     setValueDescrRus(``);
     setValueDescrEng(``);
-    setValueParentID(``);
+    setValueParentID(-1); */
   };
 
   const handleCloseSaveWhenNewYes = () => {
     console.log('handleCloseSaveYes');
     setOpenSaveWhenNew(false);
     saveRec(true);
-    setValueID(``);
+    handleCancelClick();
+/*     setValueID(``);
     setValueTitle(``);
     setValueNameRus(``);
     setValueNameEng(``);
     setValueDescrRus(``);
     setValueDescrEng(`` );
-    setValueParentID(``);
+    setValueParentID(-1); */
   };
 
   //////////////////////////////////////////////////////// ACTIONS ///////////////////////////////
@@ -575,11 +541,12 @@ const DataTableExpScenario = (props) => {
   {
     console.log('handleCancelClick');
     const selectedIDs = selected;//new Set(selectionModel);
-    //console.log(selectedIDs);
-    const selectedRowData = tableData.filter((row) => selectedIDs.has(row.id));
+    console.log(selectedIDs);
+    const selectedRowData = tableData.filter((row) => selectedIDs===row.id);
     //console.log(selectedRowData);
     if (selectedRowData.length)
     {
+      console.log('selectedRowData.length' + selectedRowData.length);
       setValueID(`${selectedRowData[0].id}`);
       setValueTitle(`${selectedRowData[0].title}`);
       setValueNameRus(`${selectedRowData[0].name_rus}`);
@@ -592,6 +559,7 @@ const DataTableExpScenario = (props) => {
       setValueNameEngInitial(`${selectedRowData[0].name_eng}` );
       setValueDescrRusInitial(`${selectedRowData[0].descr_rus}`);
       setValueDescrEngInitial(`${selectedRowData[0].descr_eng}` );
+      console.log('selectedRowData[0].parent_id' + selectedRowData[0].parent_id);
       setValueParentID(selectedRowData[0].parent_id||-1);
       setValueParentIDInitial(selectedRowData[0].parent_id||-1);
     }
