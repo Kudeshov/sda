@@ -18,6 +18,8 @@ import AgeGroup from "./pages/agegroup";
 import DoseRatio from "./pages/dose_ratio";
 import CalcFunction from "./pages/calcfunction";
 import GriterionGr from "./pages/criterion_gr";
+import ActionLevel from "./pages/action_level";
+import Action from "./pages/action";
 function App() {
   return (
     <Router>
@@ -41,6 +43,8 @@ function App() {
         <Route path="/dose_ratio" element={<DoseRatio/>} />
         <Route path="/calcfunction" element={<CalcFunction/>} />
         <Route path="/criterion_gr" element={<GriterionGr/>} />
+        <Route path="/action_level" element={<ActionLevel/>} />
+        <Route path="/action" element={<Action/>} />
       </Routes>
     </Router>
   );

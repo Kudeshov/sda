@@ -12,6 +12,8 @@ export const table_names = {
     'dose_ratio': 'Параметры',
     'calcfunction': 'Функции',
     'criterion_gr': 'Группы критериев',
+    'action_level': 'Уровни вмешательства',
+    'action': 'Действия',
   }; 
   
   export default table_names;
