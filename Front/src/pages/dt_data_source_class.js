@@ -312,7 +312,7 @@ const handleRowClick/* : GridEventListener<'rowClick'>  */ = (params) => {
   setValueExternalDS(`${params.row.external_ds}`);  
 }; 
 
-const [noRecords, setNoRecords] = useState([]);
+const [noRecords, setNoRecords] = useState(true);
 
   return (
     <div style={{ height: 270, width: 886 }}>

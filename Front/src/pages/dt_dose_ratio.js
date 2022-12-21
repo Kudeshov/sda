@@ -32,11 +32,11 @@ import { FormControl } from "@mui/material";
 import { InputLabel } from "@mui/material";
 //import { type } from '@testing-library/user-event/dist/type';
 //import { PropaneSharp } from '@mui/icons-material';
-import { ReactComponent as EditLightIcon } from "./../icons/edit.svg";
+//import { ReactComponent as EditLightIcon } from "./../icons/edit.svg";
 import { ReactComponent as FileImportLightIcon } from "./../icons/file-import.svg";
-import { ReactComponent as InfoLightIcon } from "./../icons/info.svg";
+//import { ReactComponent as InfoLightIcon } from "./../icons/info.svg";
 import { ReactComponent as EraserLightIcon } from "./../icons/eraser.svg";
-import PhotoCamera from '@material-ui/icons/PhotoCamera';
+//import PhotoCamera from '@material-ui/icons/PhotoCamera';
 
 var alertText = "Сообщение";
 var alertSeverity = "info";
@@ -71,13 +71,13 @@ const DataTableDoseRatio = (props) => {
   const [valueExtGroundInitial, setValueExtGroundInitial] = React.useState();
 
   const [tablePhysParam, settablePhysParam] = useState([]); 
-  const [valuePhysParamID, setValuePhysParamId] = useState([]); 
-  const [valuePhysParamIDInitial, setValuePhysParamIdInitial] = useState([]); 
+  const [valuePhysParamID, setValuePhysParamId] = useState(); 
+  const [valuePhysParamIDInitial, setValuePhysParamIdInitial] = useState(); 
   const [valuePhysParamCode, setValuePhysParamCode] = useState([]); 
   const [valuePhysParamNameRus, setValuePhysParamNameRus] = useState([]); 
   const [valuePhysParamDimension, setValuePhysParamDimension] = useState([]);
 
-  const [valueUsed, setValueUsed] = useState([]);
+  const [valueUsed, setValueUsed] = useState(true);
   const [valueUsedInitial, setValueUsedInitial] = useState([]);
   const [valueParameters, setValueParameters] = useState([]);
   const [valueParametersInitial, setValueParametersInitial] = useState([]);
@@ -85,18 +85,20 @@ const DataTableDoseRatio = (props) => {
   useEffect(() => {
 
     setValuePhysParamCode(valuePhysParamID);
-    //console.log('выводим тайтл');
-    let myLine = tablePhysParam.filter(item => item.id == valuePhysParamID);
+    //console.log('setValuePhysParamCode');
+    let myLine = tablePhysParam.filter(item => ( Number(item.id) === Number(valuePhysParamID) ));
+    //console.log( valuePhysParamID );
     //console.log( myLine );
     if (myLine.length>0) 
     {
       //console.log( 'title='+myLine[0].title );
       //console.log( 'name_rus='+myLine[0].name_rus );    
-      setValuePhysParamNameRus( myLine[0].name_rus );  
+      setValuePhysParamNameRus( myLine[0].name_rus );
+      setValuePhysParamDimension( myLine[0].physunit_title );   
     }
   }, [valuePhysParamID, tablePhysParam]);
 
-  useEffect(() => {
+/*   useEffect(() => {
 
     setValuePhysParamCode(valuePhysParamID);
     //console.log('выводим тайтл');
@@ -108,13 +110,13 @@ const DataTableDoseRatio = (props) => {
       //console.log( 'name_rus='+myLine[0].name_rus );    
       setValuePhysParamDimension( myLine[0].physunit_title );  
     }
-  }, [valuePhysParamID]);
+  }, [valuePhysParamID, tablePhysParam]); */
 
   useEffect(() => {
     //console.log([valueTitleInitial, valueTitle, valueNameRusInitial, valueNameRus, valueNameEngInitial, valueNameEng, 
     //  valueDescrEngInitial, valueDescrEng, valueDescrRusInitial, valueDescrRus]); 
-    console.log('valueRespRateInitial'+valueRespRateInitial);
-    console.log('valueRespRate'+valueRespRate);
+    //console.log('valueRespRateInitial'+valueRespRateInitial);
+    //console.log('valueRespRate'+valueRespRate);
 
     setEditStarted((valueTitleInitial!==valueTitle)||(valueNameRusInitial!==valueNameRus)||(valueNameEngInitial!==valueNameEng)
       ||(valueDescrEngInitial!==valueDescrEng)||(valueDescrRusInitial!==valueDescrRus)   
@@ -132,7 +134,7 @@ const DataTableDoseRatio = (props) => {
     if ((!isLoading) && (tableData) && (tableData.length)) {
       if (!lastId) 
       {
-        //console.log('isLoading, tableData ON lastId '+lastId);  
+        //console.log('isLoading, tableData ON lastId  '+lastId);  
         lastId = tableData[0].id;
         setSelectionModel(tableData[0].id);
         setValueID(`${tableData[0].id}`);
@@ -246,14 +248,14 @@ const DataTableDoseRatio = (props) => {
     fetch(`/${props.table_name}`)
       .then((data) => data.json())
       .then((data) => setTableData(data))
-      .then((data) => { console.log('fetch ok'); console.log(data);  lastId = 0;} ); 
+      .then((data) => { /* console.log('fetch ok'); console.log(data); */  lastId = 0;} ); 
   }, [props.table_name])
 
   useEffect(() => {
     fetch(`/physparam`)
       .then((data) => data.json())
       .then((data) => settablePhysParam(data))
-      .then((data) => { console.log('fetch settablePhysParam ok'); console.log(data);  lastId = 0;} ); 
+      .then((data) => { /* console.log('fetch PhysParam ok'); console.log(data);  */ lastId = 0;} ); 
   }, [])
  
 
@@ -324,7 +326,7 @@ const DataTableDoseRatio = (props) => {
        setValueExtGroundInitial(valueExtGround);
        setValuePhysParamIdInitial(valuePhysParamID);            
        setValueUsedInitial(valueUsed);           
-       console.log('SaveRec valueParameters ' + valueParameters) 
+       //console.log('SaveRec valueParameters ' + valueParameters) 
        setValueParametersInitial(valueParameters);
      }
     reloadData();     
@@ -647,18 +649,18 @@ const DataTableDoseRatio = (props) => {
 
     return (
       <GridToolbarContainer>
-        <IconButton onClick={()=>handleClearClick()}  color="primary" size="small" Title="Создать запись">
+        <IconButton onClick={()=>handleClearClick()}  color="primary" size="small" title="Создать запись">
           <SvgIcon fontSize="small" component={PlusLightIcon} inheritViewBox /></IconButton>
-        <IconButton onClick={()=>saveRec(true)}  color="primary" size="small" Title="Сохранить запись в БД">
+        <IconButton onClick={()=>saveRec(true)}  color="primary" size="small" title="Сохранить запись в БД">
           <SvgIcon fontSize="small" component={SaveLightIcon} inheritViewBox/></IconButton>
-        <IconButton onClick={()=>handleClickDelete()}  color="primary" size="small" Title="Удалить запись">
+        <IconButton onClick={()=>handleClickDelete()}  color="primary" size="small" title="Удалить запись">
           <SvgIcon fontSize="small" component={TrashLightIcon} inheritViewBox /></IconButton>
-        <IconButton onClick={()=>handleCancelClick()} disabled={!editStarted} color="primary" size="small" Title="Отменить редактирование">
+        <IconButton onClick={()=>handleCancelClick()} disabled={!editStarted} color="primary" size="small" title="Отменить редактирование">
           <SvgIcon fontSize="small" component={UndoLightIcon} inheritViewBox /></IconButton>
-        <IconButton onClick={()=>reloadDataAlert()} color="primary" size="small" Title="Обновить данные">
+        <IconButton onClick={()=>reloadDataAlert()} color="primary" size="small" title="Обновить данные">
           <SvgIcon fontSize="small" component={RepeatLightIcon} inheritViewBox /></IconButton>
         <IconButton onClick={()=>handleExport({ delimiter: ';', utf8WithBom: true, getRowsToExport: () => gridFilteredSortedRowIdsSelector(apiRef) })} color="primary" 
-            size="small" Title="Сохранить в формате CSV">
+            size="small" title="Сохранить в формате CSV">
           <SvgIcon fontSize="small" component={DownloadLightIcon} inheritViewBox /></IconButton>
       </GridToolbarContainer>
     );
@@ -807,7 +809,7 @@ const DataTableDoseRatio = (props) => {
             <p/>
             <FormControl sx={{ width: '40ch' }} size="small">
             <InputLabel id="type">Используется расчетным модулем</InputLabel>
-              <Select labelId="type" id="type1"  label="Используется расчетным модулем" value={valueUsed  || "" }  onChange={e => setValueUsed(e.target.value)}>
+              <Select labelId="type" id="type1"  label="Используется расчетным модулем" value={valueUsed  || 'true' }  onChange={e => setValueUsed(e.target.value)}>
                 {valuesYesNo?.map(option => {
                     return (
                       <MenuItem key={option.id} value={option.id}>
@@ -828,7 +830,7 @@ const DataTableDoseRatio = (props) => {
     
         <FormControl sx={{ width: '40ch' }} size="small">
         <InputLabel id="fiz">Физический параметр (из общего списка)</InputLabel>
-          <Select labelId="fiz" id="fiz1" label="Физический параметр (из общего списка)" value={valuePhysParamID  || "" }  onChange={e => setValuePhysParamId(e.target.value)}>
+          <Select labelId="fiz" id="fiz1" label="Физический параметр (из общего списка)" defaultValue="" value={valuePhysParamID  || "" }  onChange={e => setValuePhysParamId(e.target.value)}>
           {tablePhysParam?.map(option => {
                 return (
                   <MenuItem key={option.id} value={option.id}>
@@ -931,4 +933,4 @@ const DataTableDoseRatio = (props) => {
   )
 }
 
-export { DataTableDoseRatio as DataTableDoseRatio, lastId }
+export { DataTableDoseRatio, lastId }
