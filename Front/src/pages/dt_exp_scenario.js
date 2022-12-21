@@ -565,30 +565,6 @@ const DataTableExpScenario = (props) => {
     }
   }
 
-/*   function CustomToolbar1() {
-    const apiRef = useGridApiContext();
-    const handleExport = (options) =>
-      apiRef.current.exportDataAsCsv(options);
-
-    return (
-      <GridToolbarContainer>
-        <IconButton onClick={()=>handleClearClick()}  color="primary" size="small" Title="Создать запись">
-          <SvgIcon fontSize="small" component={PlusLightIcon} inheritViewBox /></IconButton>
-        <IconButton onClick={()=>saveRec(true)}  color="primary" size="small" Title="Сохранить запись в БД">
-          <SvgIcon fontSize="small" component={SaveLightIcon} inheritViewBox/></IconButton>
-        <IconButton onClick={()=>handleClickDelete()}  color="primary" size="small" Title="Удалить запись">
-          <SvgIcon fontSize="small" component={TrashLightIcon} inheritViewBox /></IconButton>
-        <IconButton onClick={()=>handleCancelClick()} disabled={!editStarted} color="primary" size="small" Title="Отменить редактирование">
-          <SvgIcon fontSize="small" component={UndoLightIcon} inheritViewBox /></IconButton>
-        <IconButton onClick={()=>reloadDataAlert()} color="primary" size="small" Title="Обновить данные">
-          <SvgIcon fontSize="small" component={RepeatLightIcon} inheritViewBox /></IconButton>
-        <IconButton onClick={()=>handleExport({ delimiter: ';', utf8WithBom: true, getRowsToExport: () => gridFilteredSortedRowIdsSelector(apiRef) })} color="primary" 
-            size="small" Title="Сохранить в формате CSV">
-          <SvgIcon fontSize="small" component={DownloadLightIcon} inheritViewBox /></IconButton>
-      </GridToolbarContainer>
-    );
-  } */
-
   return (
     <div style={{ height: 550, width: 1500 }}>
     <table border = "0" style={{ height: 550, width: 1500 }} ><tbody>
