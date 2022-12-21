@@ -76,22 +76,22 @@ const DataTableDoseRatio = (props) => {
   const [valuePhysParamCode, setValuePhysParamCode] = useState([]); 
   const [valuePhysParamNameRus, setValuePhysParamNameRus] = useState([]); 
   const [valuePhysParamDimension, setValuePhysParamDimension] = useState([]);
+
   const [valueUsed, setValueUsed] = useState([]);
   const [valueUsedInitial, setValueUsedInitial] = useState([]);
   const [valueParameters, setValueParameters] = useState([]);
   const [valueParametersInitial, setValueParametersInitial] = useState([]);
 
-
   useEffect(() => {
 
     setValuePhysParamCode(valuePhysParamID);
-    console.log('выводим тайтл');
+    //console.log('выводим тайтл');
     let myLine = tablePhysParam.filter(item => item.id == valuePhysParamID);
-    console.log( myLine );
+    //console.log( myLine );
     if (myLine.length>0) 
     {
-      console.log( 'title='+myLine[0].title );
-      console.log( 'name_rus='+myLine[0].name_rus );    
+      //console.log( 'title='+myLine[0].title );
+      //console.log( 'name_rus='+myLine[0].name_rus );    
       setValuePhysParamNameRus( myLine[0].name_rus );  
     }
   }, [valuePhysParamID, tablePhysParam]);
@@ -99,13 +99,13 @@ const DataTableDoseRatio = (props) => {
   useEffect(() => {
 
     setValuePhysParamCode(valuePhysParamID);
-    console.log('выводим тайтл');
+    //console.log('выводим тайтл');
     let myLine = tablePhysParam.filter(item => item.id == valuePhysParamID);
-    console.log( myLine );
+    //console.log( myLine );
     if (myLine.length>0) 
     {
-      console.log( 'title='+myLine[0].title );
-      console.log( 'name_rus='+myLine[0].name_rus );    
+      //console.log( 'title='+myLine[0].title );
+      //console.log( 'name_rus='+myLine[0].name_rus );    
       setValuePhysParamDimension( myLine[0].physunit_title );  
     }
   }, [valuePhysParamID]);
@@ -171,7 +171,7 @@ const DataTableDoseRatio = (props) => {
     }, [ isLoading, tableData] );
 
   const handleRowClick = (params) => {
-    console.log('handleRowClick');
+    //console.log('handleRowClick');
     if (editStarted)
     {
       handleClickSave(params);
@@ -212,11 +212,11 @@ const DataTableDoseRatio = (props) => {
   }; 
 
   const handleClearClick = (params) => {
-    console.log('handleClearClick');
+    //console.log('handleClearClick');
     if (editStarted)
     {
-      console.log('params');
-      console.log(params);
+      //console.log('params');
+      //console.log(params);
       handleClickSaveWhenNew(params);
     } 
     else 
@@ -229,10 +229,10 @@ const DataTableDoseRatio = (props) => {
       setValueDescrEng(``);
 
       setValueRespRate(``);
-      console.log('before assign '+ valueRespYear);
+      //console.log('before assign '+ valueRespYear);
 
       setValueRespYear(``);
-      console.log('after assign '+ valueRespYear);      
+      //console.log('after assign '+ valueRespYear);      
       setValueIndoor(``);
       setValueExtCloud(``);
       setValueExtGround(``);
@@ -276,8 +276,8 @@ const DataTableDoseRatio = (props) => {
       parameters: valueParameters
     });
 
-    console.log('Редактирование записи calcfunction');
-    console.log(js);
+    //console.log('Редактирование записи calcfunction');
+    //console.log(js);
 
     if (!valueId) {
       addRec();
@@ -323,7 +323,8 @@ const DataTableDoseRatio = (props) => {
        setValueExtCloudInitial(valueExtCloud);
        setValueExtGroundInitial(valueExtGround);
        setValuePhysParamIdInitial(valuePhysParamID);            
-       setValueUsedInitial(valueUsed);            
+       setValueUsedInitial(valueUsed);           
+       console.log('SaveRec valueParameters ' + valueParameters) 
        setValueParametersInitial(valueParameters);
      }
     reloadData();     
@@ -676,13 +677,15 @@ const DataTableDoseRatio = (props) => {
 //  const [file, setFile] = useState()
 
   function handleFileChange(event) {
-    console.log( 'файл '+event.target.files[0] );
+    //console.log( 'handleFileChange файл '+event.target.files[0] );
 //    setFile(event.target.files[0]);
     var reader = new FileReader();
     reader.readAsText(event.target.files[0]);
     reader.onload = e => {
-      console.log(e.target.result);
+      //console.log(e.target.result);
       setValueParameters("" + e.target.result);
+      event.target.value = '';
+      //$("#icon-button-file").val('');
     };
     
   }
@@ -765,13 +768,13 @@ const DataTableDoseRatio = (props) => {
             </Button><p/> */}
 {/*             <Button variant="contained" onClick={() => {setValueParameters(""); }}>Очистить</Button>   */}     
 
-            <table cellSpacing={0} cellPadding={0} style={{ height: 110, width: 886, verticalAlign: 'top' }} border="0"><tbody><tr>
-            <td style={{ height: 110, width: 800, verticalAlign: 'top' }}>
-            <TextField  id="ch_parameters" sx={{ width: '100ch' }} label="Параметры функции"  size="small" multiline rows={4} maxRows={4} variant="outlined" value={valueParameters || ''} onChange={e => setValueParameters(e.target.value)}/>
+            <table border = "0" cellSpacing={0} cellPadding={0} style={{ height: 110, width: 886, verticalAlign: 'top' }}><tbody><tr>
+            <td style={{ height: 110, width: 787, verticalAlign: 'top' }}>
+            <TextField  id="ch_parameters" sx={{ width: '100ch' }} label="Параметры функции"  size="small" multiline rows={4} variant="outlined" value={valueParameters || ''} onChange={e => setValueParameters(e.target.value)}/>
             </td>
             <td style={{ height: 110, width: 100, verticalAlign: 'top' }}>
 
-            <input accept="text/xml" id="icon-button-file" type="file" style={{ display: 'none' }} onChange={handleFileChange}/>
+            &nbsp;<input accept="text/xml" id="icon-button-file" type="file" style={{ display: 'none' }} onChange={handleFileChange}/>
             <label htmlFor="icon-button-file">
               <IconButton color="primary" aria-label="upload xml file" component="span" size="small" title="Поиск и загрузка файла *.xml">
                 <SvgIcon fontSize="small" component={FileImportLightIcon} inheritViewBox/>
@@ -796,12 +799,10 @@ const DataTableDoseRatio = (props) => {
                 
               </SvgIcon>
               </IconButton><br/> */}
-            <label htmlFor="icon-button-file1">
+            &nbsp;<label htmlFor="icon-button-file1">
             <IconButton onClick={()=>{setValueParameters("")}} color="primary" size="small" title="Очистить">
               <SvgIcon fontSize="small" component={EraserLightIcon} inheritViewBox /></IconButton>
-            </label>  
-            <br/>
-            </td></tr>
+            </label></td></tr>
             </tbody></table>
             <p/>
             <FormControl sx={{ width: '40ch' }} size="small">
