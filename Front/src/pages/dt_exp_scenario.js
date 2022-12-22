@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
@@ -27,6 +27,8 @@ import { MenuItem } from "@mui/material";
 import { FormControl } from "@mui/material";
 import { InputLabel } from "@mui/material";
 import CircularProgress from '@material-ui/core/CircularProgress';
+import { ExportToCsv } from 'export-to-csv-fix-source-map';
+import { table_names } from './sda_types';
 
 var alertText = "Сообщение";
 var alertSeverity = "info";
@@ -50,16 +52,9 @@ const DataTableExpScenario = (props) => {
   const [isLoading, setIsLoading] = React.useState(false);
   const [tableData, setTableData] = useState([]); 
   const [treeData, setTreeData] = useState([]); 
-  // const [selectionModel, setSelectionModel] = React.useState([]);
   const [editStarted, setEditStarted] = useState([false]);
 
   useEffect(() => {
-    console.log('valueTitle ' + valueTitle + ' ' +valueTitleInitial);
-    console.log('valueNameRus ' + valueNameRus + ' ' +valueNameRusInitial);
-    console.log('valueNameEng ' + valueNameEng + ' ' +valueNameEngInitial);
-    console.log('valueDescrEng ' + valueDescrEng + ' ' +valueDescrEngInitial);
-    console.log('valueDescrRus ' + valueDescrRus + ' ' +valueDescrRusInitial);
-    console.log('valueParentID ' + valueParentID + ' ' +valueParentIDInitial);
     setEditStarted((valueTitleInitial!==valueTitle)||(valueNameRusInitial!==valueNameRus)||(valueNameEngInitial!==valueNameEng)
       ||(valueDescrEngInitial!==valueDescrEng)||(valueDescrRusInitial!==valueDescrRus)||(valueParentIDInitial!==valueParentID));
     }, [valueTitleInitial, valueTitle, valueNameRusInitial, valueNameRus, valueNameEngInitial, valueNameEng, 
@@ -69,16 +64,12 @@ const DataTableExpScenario = (props) => {
     if ((!isLoading) && (tableData) && (tableData.length)) {
       if (!lastId) 
       {
-        console.log('useEffect isLoading, tableData ON lastId '+lastId);
         lastId = tableData[0].id;
-        //setSelectionModel(tableData[0].id);
-        //setValueID(`${tableData[0].id}`);
         setValueTitle(`${tableData[0].title}`);
         setValueNameRus(`${tableData[0].name_rus}`);
         setValueNameEng(`${tableData[0].name_eng}`);
         setValueDescrRus(`${tableData[0].descr_rus}`);
         setValueDescrEng(`${tableData[0].descr_eng}`);
-        console.log('useEffect Refresh initial '+tableData[0].title+' '+tableData[0].name_rus);
         setValueTitleInitial(`${tableData[0].title}`);       
         setValueNameRusInitial(`${tableData[0].name_rus}`);
         setValueNameEngInitial(`${tableData[0].name_eng}`);
@@ -90,26 +81,6 @@ const DataTableExpScenario = (props) => {
     }
     }, [ isLoading, tableData] );
 
-    function list_to_tree(list) {
-      var map = {}, node, roots = [], i;
-      
-      for (i = 0; i < list.length; i += 1) {
-        map[list[i].id] = i; // initialize the map
-        list[i].children = []; // initialize the children
-      }
-      
-      for (i = 0; i < list.length; i += 1) {
-        node = list[i];
-        if (node.parent_id) {
-          // if you have dangling branches check that map[node.parentId] exists
-          list[map[node.parent_id]].children.push(node);
-        } else {
-          roots.push(node);
-        }
-      }
-      return roots;
-    }
-
     const getTreeItemsFromData = treeItems => {
       return treeItems.map(treeItemData => {
         let children = undefined;
@@ -119,44 +90,37 @@ const DataTableExpScenario = (props) => {
         return (
           <TreeItem
             key={treeItemData.id}
-            nodeId={treeItemData.id}
+            nodeId= {treeItemData.id}
             label={treeItemData.title}
             children={children}
-            //onClick={() => handleItemClick(treeItemData.id)}   //{handleItemClick}
-            //{() => console.log(treeItemData.title)} onRowClick=
-//            expanded={true}
           />
         );
       });
     };
 
-    const [expanded, setExpanded] = React.useState([1,2]);
-    const [selected, setSelected] = React.useState([]);
+    const [expanded, setExpanded] = React.useState("");
+    const [selected, setSelected] = React.useState("");
 
     const handleToggle = (event, nodeIds) => {
       setExpanded(nodeIds);
     };
   
     const handleSelect = (event, nodeIds) => {
+      console.log(nodeIds);
       setSelected(nodeIds);
 
       handleItemClick(nodeIds);
-
-/*       console.log('setSelected '+nodeIds);
-      var res = tableData.filter(function(item) {
-        return item.id === nodeIds;
-      });
- 
-      setValueID(res[0].id);  */     
     };  
 
+    const [treeFilterString, setTreeFilterString] = React.useState('');
+
     const DataTreeView = ({ treeItems }) => {
-      //console.log('treeItems');
       let ids = tableData.map(a => a.id);
-      //console.log(ids);
       return (
+        <div>
+        <p/>
         <TreeView
-          aria-label="file system navigator"
+          aria-label="Tree navigator"
           defaultCollapseIcon={<ExpandMoreIcon />}
           defaultExpandIcon={<ChevronRightIcon />}
           sx={{ height: 240, flexGrow: 1, maxWidth: 400, overflowY: 'auto' }}
@@ -164,8 +128,6 @@ const DataTableExpScenario = (props) => {
           onNodeSelect={handleSelect}
           expanded={expanded}
           selected={selected}          
-          //defaultCollapseIcon={<ExpandMoreIcon />}
-          //defaultExpandIcon={<ChevronRightIcon />}
           //onNodeToggle={handleChange}
           //defaultExpanded={[1,2]}
           //expanded={true}
@@ -173,12 +135,11 @@ const DataTableExpScenario = (props) => {
           defaultExpanded={ids}
         >
           {getTreeItemsFromData(treeItems)}
-        </TreeView>
+        </TreeView></div>
       );
     };
 
   const handleItemClick = (id) => {
-    console.log('handleItemClick');
     if (editStarted)
     {
       handleClickSave(id);
@@ -188,16 +149,13 @@ const DataTableExpScenario = (props) => {
       var res = tableData.filter(function(item) {
         return item.id === id;
       });
- 
-      setValueID(res[0].id);
-  
+      setValueID(res[0].id); 
       setValueTitle(res[0].title);
       setValueNameRus(res[0].name_rus);
       setValueNameEng(res[0].name_eng);
       setValueDescrRus(res[0].descr_rus);
       setValueDescrEng(res[0].descr_eng);    
       setValueParentID(res[0].parent_id||-1);    
-      console.log('handleItemClick '+tableData[0].title+' '+tableData[0].name_rus);
       setValueTitleInitial(res[0].title);
       setValueNameRusInitial(res[0].name_rus);
       setValueNameEngInitial(res[0].name_eng);
@@ -208,11 +166,8 @@ const DataTableExpScenario = (props) => {
   }; 
 
   const handleClearClick = (params) => {
-    console.log('handleClearClick');
     if (editStarted)
     {
-      console.log('params');
-      console.log(params);
       handleClickSaveWhenNew(params);
     } 
     else 
@@ -228,24 +183,81 @@ const DataTableExpScenario = (props) => {
   }; 
 
   useEffect(() => {
-    console.log( 'Fetch ' );  
     fetch(`/${props.table_name}`)
       .then((data) => data.json())
       .then((data) => setTableData(data))
-      .then((data) => { console.log( 'useEffect '+ props.table_name ); /* setTreeData( list_to_tree( data ) ); */ lastId = 0;} ); 
+      .then((data) => { lastId = 0;} ); 
   }, [props.table_name])
 
-   useEffect(() => {
-    //console.log( 'setTreeData ' + tableData );    
-    //let arr = tableData; //.map(x => Object.assign({}, tableData, { "children": null }));
-    setTreeData( list_to_tree( tableData ) );
-  }, [tableData]) 
+
+///////////////////////////////////////////////////////////////////  Tree load functions and hook  /////////////////////
+  useEffect(() => {
+    function filterTree( tree1, filterS )
+    {
+      var i;
+      i = 0;
+      while (i < tree1.length) 
+      {
+        if (tree1[i].children.length === 0)
+        {
+          if (tree1[i].title.toLowerCase().indexOf(filterS.toLowerCase()) === -1)
+          {
+            tree1.splice(i, 1); 
+            i--;
+          }
+        }
+        else
+        {
+          filterTree( tree1[i].children, filterS );
+        }
+        i++;
+      }
+      i = 0;
+      while (i < tree1.length) 
+      {
+        if (tree1[i].children.length === 0)
+        {
+          if (tree1[i].title.toLowerCase().indexOf(filterS.toLowerCase()) === -1)
+          {
+            tree1.splice(i, 1); 
+            i--;
+          }
+        }
+        else
+        {
+          filterTree( tree1[i].children, filterS );
+        }
+        i++;
+      }      
+    }
+    function list_to_tree1(list, filterString) {
+      var map = {}, node, roots = [], i;
+       for (i = 0; i < list.length; i += 1) {
+        map[list[i].id] = i;   // initialize the map
+        list[i].children = []; // initialize the children
+      }
+      filterString=filterString||'';
+      for (i = 0; i < list.length; i += 1) {
+        node = list[i];
+        if (node.parent_id) {
+          // if you have dangling branches check that map[node.parentId] exists
+          list[map[node.parent_id]].children.push(node);
+        } else {
+          roots.push(node);
+        }
+      }
+      filterTree(roots, filterString.toLowerCase());  
+      return roots;
+    }
+
+    let arr = list_to_tree1( tableData, treeFilterString );
+    setTreeData( arr );
+  }, [tableData, treeFilterString]) 
 
   ///////////////////////////////////////////////////////////////////  SAVE  /////////////////////
   const saveRec = async ( fromToolbar ) => {
     let myParentID;
-    myParentID = valueParentID === -1 ? null : valueParentID;
-    console.log( 'saveRec myParentID ' + myParentID );     
+    myParentID = valueParentID === -1 ? null : valueParentID;  
     const js = JSON.stringify({
       id: valueId,
       title: valueTitle,
@@ -255,8 +267,6 @@ const DataTableExpScenario = (props) => {
       descr_eng: valueDescrEng,
       parent_id: myParentID        
     });
-
-    console.log( js ); 
 
     if (!valueId) {
       addRec();
@@ -291,7 +301,6 @@ const DataTableExpScenario = (props) => {
      setIsLoading(false);
      if (fromToolbar) 
      {
-      console.log('fromToolbar saveRec')
        setValueTitleInitial(valueTitle);       
        setValueNameRusInitial(valueNameRus); 
        setValueNameEngInitial(valueNameEng);
@@ -306,7 +315,6 @@ const DataTableExpScenario = (props) => {
   const addRec = async ()  => {
     let myParentID;
     myParentID = valueParentID === -1 ? null : valueParentID;
-    console.log( 'myParentID ' + myParentID );   
     const js = JSON.stringify({
       id: valueId,
       title: valueTitle,
@@ -337,7 +345,6 @@ const DataTableExpScenario = (props) => {
         alertSeverity = "success";
         alertText =  await response.text();
         lastId = parseInt( alertText.substr(alertText.lastIndexOf('ID:') + 3, 20)); 
-        //console.log(lastId);
         setValueID(lastId);
         setOpenAlert(true);  
       }
@@ -348,27 +355,16 @@ const DataTableExpScenario = (props) => {
     } finally {
       setIsLoading(false);
       reloadData();
-      //setSelectionModel(lastId);
-      //Refresh initial state
-/*       console.log('addRec Refresh initial '+valueTitle+' '+valueNameRus);
-      setValueTitleInitial(valueTitle);
-      setValueNameRusInitial(valueNameRus);
-      setValueNameEngInitial(valueNameEng);
-      setValueDescrRusInitial(valueDescrRus);
-      setValueDescrEngInitial(valueDescrEng);
-      setValueParentIDInitial(valueParentID); */
     }
   };
 
 /////////////////////////////////////////////////////////////////// DELETE /////////////////////
   const delRec =  async () => {
-    //console.log('delrec clicked');
     const js = JSON.stringify({
         id: valueId,
         title: valueTitle,
     });
     setIsLoading(true);
-    //console.log(js);
     try {
       const response = await fetch(`/${props.table_name}/`+valueId, {
         method: 'DELETE',
@@ -436,7 +432,6 @@ const DataTableExpScenario = (props) => {
     try {
       const response = await fetch(`/${props.table_name}/`);
        if (!response.ok) {
-        //console.log('response not ok');
         alertText = `Ошибка при обновлении данных: ${response.status}`;
         alertSeverity = "false";
         const error = response.status + ' (' +response.statusText+')';  
@@ -445,11 +440,9 @@ const DataTableExpScenario = (props) => {
       else
       {  
         const result = await response.json();
-        console.log('reloadData setTableData');
         setTableData(result);
       }
     } catch (err) {
-      //console.log('catch err');
       throw err;
     } finally {
       setIsLoading(false);
@@ -475,41 +468,27 @@ const DataTableExpScenario = (props) => {
   };
 
   const handleClickSave = () => {
-    console.log('handleClickSave');
     setOpenSave(true);
   };
 
   const handleCloseSaveNo = () => {
-    console.log('handleCloseSaveNo');
     setOpenSave(false);
     handleCancelClick();
   };
 
   const handleCloseSaveYes = () => {
-    console.log('handleCloseSaveYes setOpenSave');
     setOpenSave(false);
-    console.log('handleCloseSaveYes saveRec')
     saveRec(false);
-    console.log('handleCloseSaveYes handleCancelClick')
     handleCancelClick();
   };
 
   const handleClickSaveWhenNew = () => {
-    console.log('handleClickSaveWhenNew');
     setOpenSaveWhenNew(true);
   };
 
   const handleCloseSaveWhenNewNo = () => {
-    console.log('handleCloseSaveNo');
     setOpenSaveWhenNew(false);
     handleCancelClick();    
-/*     setValueID(``);
-    setValueTitle(``);
-    setValueNameRus(``);
-    setValueNameEng(``);
-    setValueDescrRus(``);
-    setValueDescrEng(``);
-    setValueParentID(-1); */
   };
 
   const handleCloseSaveWhenNewYes = () => {
@@ -517,62 +496,66 @@ const DataTableExpScenario = (props) => {
     setOpenSaveWhenNew(false);
     saveRec(true);
     handleCancelClick();
-/*     setValueID(``);
-    setValueTitle(``);
-    setValueNameRus(``);
-    setValueNameEng(``);
-    setValueDescrRus(``);
-    setValueDescrEng(`` );
-    setValueParentID(-1); */
   };
 
   //////////////////////////////////////////////////////// ACTIONS ///////////////////////////////
-/*   const columns = [
-    { field: 'id', headerName: 'Код', width: 80 },
-    { field: 'title', headerName: 'Обозначение', width: 180, hideable: false },
-    { field: 'name_rus', headerName: 'Название (рус.яз)', width: 250 },
-    { field: 'name_eng', headerName: 'Название (англ.яз)', width: 180 },
-    { field: 'descr_rus', headerName: 'Комментарий (рус.яз)', width: 180 },
-    { field: 'descr_eng', headerName: 'Комментарий (англ.яз)', width: 180 },
-  ]
- */
   const [openAlert, setOpenAlert] = React.useState(false, '');
   const handleCancelClick = () => 
   {
-    console.log('handleCancelClick');
-    const selectedIDs = selected;//new Set(selectionModel);
-    console.log(selectedIDs);
+    const selectedIDs = selected;
     const selectedRowData = tableData.filter((row) => selectedIDs===row.id);
-    //console.log(selectedRowData);
     if (selectedRowData.length)
     {
-      console.log('selectedRowData.length' + selectedRowData.length);
       setValueID(`${selectedRowData[0].id}`);
       setValueTitle(`${selectedRowData[0].title}`);
       setValueNameRus(`${selectedRowData[0].name_rus}`);
       setValueNameEng(`${selectedRowData[0].name_eng}` );
       setValueDescrRus(`${selectedRowData[0].descr_rus}`);
       setValueDescrEng(`${selectedRowData[0].descr_eng}` );
-      //console.log('handleCancelClick Refresh initial '+selectedRowData[0].title+' '+selectedRowData[0].name_rus);
       setValueTitleInitial(`${selectedRowData[0].title}`);
       setValueNameRusInitial(`${selectedRowData[0].name_rus}`);
       setValueNameEngInitial(`${selectedRowData[0].name_eng}` );
       setValueDescrRusInitial(`${selectedRowData[0].descr_rus}`);
       setValueDescrEngInitial(`${selectedRowData[0].descr_eng}` );
-      console.log('selectedRowData[0].parent_id' + selectedRowData[0].parent_id);
       setValueParentID(selectedRowData[0].parent_id||-1);
       setValueParentIDInitial(selectedRowData[0].parent_id||-1);
     }
   }
 
+  const optionsCSV = {
+    filename: table_names[props.table_name],
+    fieldSeparator: ';',
+    quoteStrings: '"',
+    decimalSeparator: '.',
+    showLabels: true, 
+    //showTitle: true,
+    //title: table_names['data_source'],
+    useTextFile: false,
+    useBom: true,
+    useKeysAsHeaders: true,
+    // headers: ['Column 1', 'Column 2', etc...] <-- Won't work with useKeysAsHeaders present!
+  };
+
+  const exportdDataCSV = async () => {
+    console.log('export csv');
+    const csvExporter = new ExportToCsv(optionsCSV);
+    csvExporter.generateCsv(tableData);   
+  } 
+
+  const onFilterKeyUp = (e) => { 
+    const value = e.target.value;
+    const filter = value.trim();
+    setTreeFilterString(filter);
+  }  
+
   return (
-    <div style={{ height: 550, width: 1500 }}>
-    <table border = "0" style={{ height: 550, width: 1500 }} ><tbody>
+    <div style={{ height: 650, width: 1500 }}>
+    <table border = "0" style={{ height: 650, width: 1500 }} ><tbody>
     <tr>
       <td style={{ height: 550, width: 600, verticalAlign: 'top' }}>
-      <div style={{ height: 400, width: 585 }}>
-      <Box sx={{ border: 1, borderRadius: '3px', borderColor: 'grey.300', height: 400 }} >
-      <IconButton onClick={()=>handleClearClick()}  color="primary" size="small" title="Создать запись">
+      <div style={{ height: 500, width: 585 }}>
+      <Box sx={{ border: 1, borderRadius: '4px', borderColor: 'grey.300', height: 500, p: '4px' }} >
+        <IconButton onClick={()=>handleClearClick()}  color="primary" size="small" title="Создать запись">
           <SvgIcon fontSize="small" component={PlusLightIcon} inheritViewBox /></IconButton>
         <IconButton onClick={()=>saveRec(true)}  color="primary" size="small" title="Сохранить запись в БД">
           <SvgIcon fontSize="small" component={SaveLightIcon} inheritViewBox/></IconButton>
@@ -582,14 +565,15 @@ const DataTableExpScenario = (props) => {
           <SvgIcon fontSize="small" component={UndoLightIcon} inheritViewBox /></IconButton>
         <IconButton onClick={()=>reloadDataAlert()} color="primary" size="small" title="Обновить данные">
           <SvgIcon fontSize="small" component={RepeatLightIcon} inheritViewBox /></IconButton>
-        <IconButton 
-        //onClick={()=>handleExport({ delimiter: ';', utf8WithBom: true, getRowsToExport: () => gridFilteredSortedRowIdsSelector(apiRef) })} 
-            color="primary" 
-            size="small" title="Сохранить в формате CSV">
+        <IconButton onClick={()=> exportdDataCSV()} color="primary" size="small" title="Сохранить в формате CSV">
           <SvgIcon fontSize="small" component={DownloadLightIcon} inheritViewBox /></IconButton>
-        <Box sx={{ height: 367, flexGrow: 1, overflowY: 'auto' }} >     
-          <DataTreeView treeItems={treeData} />
-        </Box> 
+        <br/><TextField label="Фильтр ..." size = "small" variant="standard" onKeyUp={onFilterKeyUp} />
+        <Box sx={{ height: 415, overflowY: 'false' }}>
+          {isLoading && <CircularProgress/>} 
+          <Box sx={{ height: 415, flexGrow: 1, overflowY: 'auto' }} >     
+            <DataTreeView treeItems={treeData} />
+          </Box> 
+        </Box>
       </Box>
       </div>
       <Box sx={{ width: 585 }}>
@@ -612,12 +596,12 @@ const DataTableExpScenario = (props) => {
           {alertText}
         </Alert>
       </Collapse>
-      {isLoading && <CircularProgress/>} 
+      
       </Box>
       
       </td>
       <td style={{ height: 550, width: 900, verticalAlign: 'top' }}>
-      <TextField  id="ch_id"  disabled={true} label="Код" sx={{ width: '12ch' }} variant="outlined" value={ valueId ||''} size="small" /* onChange={e => setValueID(e.target.value)} *//>
+      <TextField  id="ch_id" disabled={true} label="Код" sx={{ width: '12ch' }} variant="outlined" value={ valueId ||''} size="small" /* onChange={e => setValueID(e.target.value)} *//>
       &nbsp;&nbsp;&nbsp;
       <TextField  id="ch_name" sx={{ width: '40ch' }} label="Обозначение" size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
       &nbsp;&nbsp;&nbsp;
@@ -627,12 +611,12 @@ const DataTableExpScenario = (props) => {
           <MenuItem key={-1} value={-1}>
                     {'Не задан'}
                   </MenuItem>
-          {tableData?.map(option => {
-                return (
+                  {tableData?.map(option => {
+                  return (
                   <MenuItem key={option.id} value={option.id}>
                     {option.title ?? option.id}
                   </MenuItem>
-                );
+                  );
                 })}
         </Select>
       </FormControl>  
@@ -659,7 +643,7 @@ const DataTableExpScenario = (props) => {
       </DialogTitle>
       <DialogContent>
           <DialogContentText>
-          В таблице "Типы облучаемых лиц" предложена к удалению следующая запись:<p/><b>{valueTitle}</b>; Код в БД = <b>{valueId}</b><p/>
+          В таблице "{table_names[props.table_name]}" предложена к удалению следующая запись:<p/><b>{valueTitle}</b>; Код в БД = <b>{valueId}</b><p/>
           Вы желаете удалить указанную запись?
           </DialogContentText>
       </DialogContent>
@@ -675,7 +659,7 @@ const DataTableExpScenario = (props) => {
     </DialogTitle>
     <DialogContent>
         <DialogContentText>
-          {/*   В запись таблицы "Типы облучаемых лиц" с кодом <b>{valueId}</b> внесены изменения.<p/> */}
+        В запись таблицы "{table_names[props.table_name]}" с кодом <b>{valueId}</b> внесены изменения.<p/>
             {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p/>
             {valueNameRus === valueNameRusInitial ? '' : 'Название (рус. яз): '+valueNameRus+'; ' }<p/>
             {valueNameEng === valueNameEngInitial ? '' : 'Название (англ. яз): '+valueNameEng+'; ' }<p/>
@@ -696,7 +680,7 @@ const DataTableExpScenario = (props) => {
     </DialogTitle>
     <DialogContent>
         <DialogContentText>
-          {/*   В запись таблицы "Типы облучаемых лиц" с кодом <b>{valueId}</b> внесены изменения.<p/> */}
+            В запись таблицы "{table_names[props.table_name]}" с кодом <b>{valueId}</b> внесены изменения.<p/>
             {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p/>
             {valueNameRus === valueNameRusInitial ? '' : 'Название (рус. яз): '+valueNameRus+'; ' }<p/>
             {valueNameEng === valueNameEngInitial ? '' : 'Название (англ. яз): '+valueNameEng+'; ' }<p/>

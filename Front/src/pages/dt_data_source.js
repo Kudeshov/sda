@@ -1,166 +1,145 @@
-import React, { useState, useEffect } from 'react'
-//import { DataGrid, ruRU, gridFilteredSortedRowIdsSelector, GridCsvGetRowsToExportParams, GridCsvExportOptions } from '@mui/x-data-grid'
+import React, { useState, useEffect } from 'react';
 import {
   DataGrid, 
   ruRU,
   GridToolbarContainer,
-//  GridToolbarContainerProps,
-//  GridToolbarExportContainer,
-//  GridCsvExportMenuItem,
-//  GridCsvExportOptions,
-//  GridExportMenuItemProps,
   useGridApiContext,
   gridFilteredSortedRowIdsSelector,
-//  gridVisibleColumnFieldsSelector,
-//  GridApi,
-  GridToolbarExport
 } from '@mui/x-data-grid';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
-import { FormControl } from "@mui/material";
-import { InputLabel } from "@mui/material";
-import { Select } from "@mui/material";
-import { MenuItem } from "@mui/material";
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import { Box, IconButton, Tooltip } from '@mui/material';
-import { Delete } from '@mui/icons-material';
+import { Box, IconButton } from '@mui/material';
 import Alert from '@mui/material/Alert';
 import Collapse from '@mui/material/Collapse';
 import CloseIcon from '@mui/icons-material/Close';
-//import * as XLSX from 'xlsx';
-import CircularProgress from '@material-ui/core/CircularProgress';
-
-
-/* 
-const getJson = (apiRef: React.MutableRefObject<GridApi>) => {
-  // Select rows and columns
-  const filteredSortedRowIds = gridFilteredSortedRowIdsSelector(apiRef);
-  const visibleColumnsField = gridVisibleColumnFieldsSelector(apiRef);
-
-  // Format the data. Here we only keep the value
-  const data = filteredSortedRowIds.map((id) => {
-    const row: Record<string, any> = {};
-    visibleColumnsField.forEach((field) => {
-      row[field] = apiRef.current.getCellParams(id, field).value;
-    });
-    return row;
-  });
-
-  // Stringify with some indentation
-  // https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/JSON/stringify#parameters
-  return JSON.stringify(data, null, 2);
-};
-
-const exportBlob = (blob: Blob, filename: string) => {
-  // Save the blob in a json file
-  const url = URL.createObjectURL(blob);
-
-  const a = document.createElement('a');
-  a.href = url;
-  a.download = filename;
-  a.click();
-
-  setTimeout(() => {
-    URL.revokeObjectURL(url);
-  });
-};
- */
-
-
-/* const JsonExportMenuItem = (props: GridExportMenuItemProps<{}>) => {
-  const apiRef = useGridApiContext();
-
-  const { hideMenu } = props;
-
-  return (
-    <MenuItem
-      onClick={() => {
-        const jsonString = getJson(apiRef);
-        const blob = new Blob([jsonString], {
-          type: 'text/json',
-        });
-        exportBlob(blob, 'DataGrid_demo.json');
-
-        // Hide the export menu after the export
-        hideMenu?.();
-      }}
-    >
-      Export JSON
-    </MenuItem>
-  );
-};
-
-const csvOptions: GridCsvExportOptions = { delimiter: ';' }; */
-
-/* const CustomExportButton = (props: ButtonProps) => (
-  <GridToolbarExportContainer {...props}>
-    <GridCsvExportMenuItem options={csvOptions} />
-    <JsonExportMenuItem />
-  </GridToolbarExportContainer>
-);
- */
-/* const CustomToolbar = (props: GridToolbarContainerProps) => (
-  <GridToolbarContainer {...props}>
-    <CustomExportButton />
-  </GridToolbarContainer>
-); */
-
-function CustomToolbar1() {
-  const apiRef = useGridApiContext();
-
-  return (
-    <GridToolbarContainer>
-      <GridToolbarExport csvOptions={{ delimiter: ';', utf8WithBom: true, getRowsToExport: () => gridFilteredSortedRowIdsSelector(apiRef) }} />
-    </GridToolbarContainer>
-  );
-}
+import SvgIcon from '@mui/material/SvgIcon';
+import { ReactComponent as SaveLightIcon } from "./../icons/save.svg";
+import { ReactComponent as PlusLightIcon } from "./../icons/plus.svg";
+import { ReactComponent as UndoLightIcon } from "./../icons/undo.svg";
+import { ReactComponent as DownloadLightIcon } from "./../icons/download.svg";
+import { ReactComponent as TrashLightIcon } from "./../icons/trash.svg";
+import { ReactComponent as RepeatLightIcon } from "./../icons/repeat.svg";
+import { table_names } from './sda_types';
+import { FormControl } from "@mui/material";
+import { InputLabel } from "@mui/material";
+import { Select } from "@mui/material";
+import { MenuItem } from "@mui/material";
 
 var alertText = "Сообщение";
 var alertSeverity = "info";
+var lastId = 0;
 
-/* const downloadExcel = (data) => {
-  console.log(data);
-    const worksheet = XLSX.utils.json_to_sheet(data);
-    const workbook = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(workbook, worksheet, "Источники данных");
-    XLSX.writeFile(workbook, "Источники данных.xlsx");
-  };
- */
-  const valuesExtDS = [
-    { label: 'Целевая БД', value: 'false' },
-    { label: 'Внешний источник', value: 'true' } ];
-
-const DataTableDataSource = () => {
+const DataTableDataSource = (props) => {
   const [valueId, setValueID] = React.useState();
   const [valueTitle, setValueTitle] = React.useState();
+  const [valueTitleInitial, setValueTitleInitial] = React.useState();
+
   const [valueShortName, setValueShortName] = React.useState();
   const [valueFullName, setValueFullName] = React.useState();
   const [valueDescr, setValueDescr] = React.useState();
   const [valueExternalDS, setValueExternalDS] = React.useState();
+
+  const [valueShortNameInitial, setValueShortNameInitial] = React.useState();
+  const [valueFullNameInitial, setValueFullNameInitial] = React.useState();
+  const [valueDescrInitial, setValueDescrInitial] = React.useState();
+  const [valueExternalDSInitial, setValueExternalDSInitial] = React.useState();
+
   const [isLoading, setIsLoading] = React.useState(false);
+  const [tableData, setTableData] = useState([]); 
+  const [selectionModel, setSelectionModel] = React.useState([]);
+  const [editStarted, setEditStarted] = useState([false]);
 
-  const handleRowClick/* : GridEventListener<'rowClick'> */  = (params) => {
-    setValueID(`${params.row.id}`);
-    setValueTitle(`${params.row.title}`);
-    setValueShortName(`${params.row.shortname}`);
-    setValueFullName( params.row.fullname || "" );
-    setValueExternalDS(`${params.row.external_ds}`);
-    setValueDescr( params.row.descr  || "" );
-  };
+  const valuesExtDS = [
+    { label: 'Целевая БД', value: 'false' },
+    { label: 'Внешний источник', value: 'true' } ];
 
-  const [tableData, setTableData] = useState([])
   useEffect(() => {
-    fetch("/data_source")
-      .then((data) => data.json())
-      .then((data) => setTableData(data))     
-  }, [])
+    setEditStarted((valueTitleInitial!==valueTitle)||(valueShortNameInitial!==valueShortName)||(valueFullNameInitial!==valueFullName)
+      ||(valueDescrInitial!==valueDescr)||(valueExternalDSInitial!==valueExternalDS));
+    }, [valueTitleInitial, valueTitle, valueShortNameInitial, valueShortName, valueFullNameInitial, valueFullName, 
+      valueDescrInitial, valueDescr, valueExternalDSInitial, valueExternalDS]); 
 
-///////////////////////////////////////////////////////////////////  SAVE  /////////////////////
-  const saveRec = async () => {
+  useEffect(() => {
+    if ((!isLoading) && (tableData) && (tableData.length)) {
+      if (!lastId) 
+      {
+        //console.log('isLoading, tableData ON lastId '+lastId);
+        lastId = tableData[0].id;
+        setSelectionModel(tableData[0].id);
+        setValueID(`${tableData[0].id}`);
+
+        setValueTitle(`${tableData[0].title}`);
+        setValueShortName(`${tableData[0].shortname}`);
+        setValueFullName( `${tableData[0].fullname}` || "" );
+        setValueExternalDS(`${tableData[0].external_ds}`);
+        setValueDescr( `${tableData[0].descr}` || "" );
+
+        setValueTitleInitial(`${tableData[0].title}`);
+        setValueShortNameInitial(`${tableData[0].shortname}`);
+        setValueFullNameInitial( `${tableData[0].fullname}` || "" );
+        setValueExternalDSInitial(`${tableData[0].external_ds}`);
+        setValueDescrInitial( `${tableData[0].descr}` || "" );  
+      }
+    }
+    }, [ isLoading, tableData] );
+
+  const handleRowClick = (params) => {
+    console.log('handleRowClick');
+    if (editStarted)
+    {
+      handleClickSave(params);
+    } 
+    else 
+    {
+      setValueID(`${params.row.id}`);
+
+      setValueTitle(`${params.row.title}`);
+      setValueShortName(`${params.row.shortname}`);
+      setValueFullName( params.row.fullname || "" );
+      setValueExternalDS(`${params.row.external_ds}`);
+      setValueDescr( params.row.descr  || "" );
+
+      setValueTitleInitial(`${params.row.title}`);
+      setValueShortNameInitial(`${params.row.shortname}`);
+      setValueFullNameInitial( params.row.fullname || "" );
+      setValueExternalDSInitial(`${params.row.external_ds}`);
+      setValueDescrInitial( params.row.descr  || "" );
+    }
+  }; 
+
+  const handleClearClick = (params) => {
+    //console.log('handleClearClick');
+    if (editStarted)
+    {
+      //console.log('params');
+      //console.log(params);
+      handleClickSaveWhenNew(params);
+    } 
+    else 
+    {
+      setValueID('');
+      setValueTitle('');
+      setValueShortName('');
+      setValueFullName('');
+      setValueExternalDS('');
+      setValueDescr('');
+    }
+  }; 
+
+  useEffect(() => {
+    fetch(`/${props.table_name}`)
+      .then((data) => data.json())
+      .then((data) => setTableData(data))
+      .then((data) => {/* console.log('fetch ok'); console.log(data);  */lastId = 0;} ); 
+  }, [props.table_name])
+
+  ///////////////////////////////////////////////////////////////////  SAVE  /////////////////////
+  const saveRec = async ( fromToolbar ) => {
     const js = JSON.stringify({
       title: valueTitle,
       shortname: valueShortName,
@@ -168,10 +147,13 @@ const DataTableDataSource = () => {
       external_ds: valueExternalDS,
       descr: valueDescr         
    });
-   setIsLoading(true);
-   console.log(js);
-   try {
-     const response = await fetch('/data_source/'+valueId, {
+    if (!valueId) {
+      addRec();
+      return;
+    }
+    setIsLoading(true);
+    try {
+      const response = await fetch(`/${props.table_name}/`+valueId, {
        method: 'PUT',
        body: js,
        headers: {
@@ -187,271 +169,335 @@ const DataTableDataSource = () => {
       else
       {
         alertSeverity = "success";
-        alertText =  await response.text();
+        alertText = await response.text();
         setOpenAlert(true);  
       }
-     //const result = 
-     await response.json();
    } catch (err) {
-     //setErr(err.message);
+     alertText = err.message;
+     alertSeverity = 'error';
+     setOpenAlert(true);
    } finally {
      setIsLoading(false);
-     reloadData();        
+     if (fromToolbar) 
+     {
+       setValueTitleInitial(valueTitle);       
+       setValueShortNameInitial(valueShortName);
+       setValueFullNameInitial(valueFullName);
+       setValueExternalDSInitial(valueExternalDS);
+       setValueDescrInitial(valueDescr);           
+     }
+    reloadData();     
    }
  };
 /////////////////////////////////////////////////////////////////// ADDREC ///////////////////// 
   const addRec = async ()  => {
-      console.log('addrec clicked');
-      const js = JSON.stringify({
-         id: valueId,
-         title: valueTitle,
-         shortname: valueShortName,
-         fullname: valueFullName,
-         external_ds: valueExternalDS,
-         descr: valueDescr         
+    const js = JSON.stringify({
+      id: valueId,
+      title: valueTitle,
+      shortname: valueShortName,
+      fullname: valueFullName,
+      external_ds: valueExternalDS,
+      descr: valueDescr         
+   });
+    setIsLoading(true);
+    //console.log(js);
+    try {
+      const response = await fetch(`/${props.table_name}/`, {
+        method: 'POST',
+        body: js,
+        headers: {
+          'Content-Type': 'Application/json',
+          Accept: '*/*',
+        },
       });
-      setIsLoading(true);
-      console.log(js);
-      try {
-        const response = await fetch('/data_source/', {
-          method: 'POST',
-          body: js,
-          headers: {
-            'Content-Type': 'Application/json',
-            Accept: '*/*',
-          },
-        });
 
-        if (!response.ok) {
-          alertSeverity = 'error';
-          alertText = await response.text();
-          setOpenAlert(true);          
-        }
-        else
-        {
-          alertSeverity = "success";
-          alertText =  await response.text();
-          setOpenAlert(true);  
-        }
-      } catch (err) {
-        alertText = err.message;
+      if (!response.ok) {
         alertSeverity = 'error';
-        setOpenAlert(true);
-      } finally {
-        setIsLoading(false);
-        reloadData();  
+        alertText = await response.text();
+        setOpenAlert(true);          
       }
-    };
+      else
+      {
+        alertSeverity = "success";
+        alertText =  await response.text();
+        lastId = parseInt( alertText.substr(alertText.lastIndexOf('ID:') + 3, 20)); 
+        console.log('добавлено lastid = ' + lastId);
+        setValueID(lastId);
+        setOpenAlert(true);  
+      }
+    } catch (err) {
+      alertText = err.message;
+      alertSeverity = 'error';
+      setOpenAlert(true);
+    } finally {
+      setIsLoading(false);
+      reloadData();
+
+      console.log('setSelectionModel lastid = ' + lastId);
+      setSelectionModel(lastId);
+      //Refresh initial state
+      setValueTitleInitial(valueTitle);       
+      setValueShortNameInitial(valueShortName);
+      setValueFullNameInitial(valueFullName);
+      setValueExternalDSInitial(valueExternalDS);
+      setValueDescrInitial(valueDescr);          
+    }
+  };
 
 /////////////////////////////////////////////////////////////////// DELETE /////////////////////
-    const delRec =  async () => {
-      console.log('delrec clicked');
-      const js = JSON.stringify({
-         id: valueId,
-         title: valueTitle,
-         shortname: valueShortName
+  const delRec =  async () => {
+    //console.log('delrec clicked');
+    const js = JSON.stringify({
+        id: valueId,
+        title: valueTitle,
+    });
+    setIsLoading(true);
+    //console.log(js);
+    try {
+      const response = await fetch(`/${props.table_name}/`+valueId, {
+        method: 'DELETE',
+        body: js,
+        headers: {
+          'Content-Type': 'Application/json',
+          Accept: '*/*',
+        },
       });
-      setIsLoading(true);
-      console.log(js);
-      try {
-        const response = await fetch('/data_source/'+valueId, {
-          method: 'DELETE',
-          body: js,
-          headers: {
-            'Content-Type': 'Application/json',
-            Accept: '*/*',
-          },
-        });
-        if (!response.ok) {
-          alertSeverity = 'error';
-          alertText = await response.text();
-          setOpenAlert(true);          
-        }
-        else
-        {
-          alertSeverity = "success";
-          alertText =  'Запись с кодом '+valueId+' успешно удалена';
-          setOpenAlert(true);  
-        }
-        //const result = await response.json();
-        //console.log('result is: ', JSON.stringify(result, null, 4));
-        //setData(result);
-      } catch (err) {
-        //setErr(err.message);
-      } finally {
-        setIsLoading(false);
-        reloadData();
-        //setOpenAlert(true);
+      if (!response.ok) {
+        alertSeverity = 'error';
+        alertText = await response.text();
+        setOpenAlert(true);          
       }
-    };  
-  
-/////////////////////////////////////////////////////////////////// RELOAD /////////////////////
+      else
+      {
+        alertSeverity = "success";
+        alertText = await response.text();
+        setOpenAlert(true); 
+        reloadData();
+        setSelectionModel(tableData[0].id ); 
+        setValueID(`${tableData[0].id}`);
 
+        setValueTitle(`${tableData[0].title}`);
+        setValueShortName(`${tableData[0].shortname}`);
+        setValueFullName( `${tableData[0].fullname}` || "" );
+        setValueExternalDS(`${tableData[0].external_ds}`);
+        setValueDescr( `${tableData[0].descr}` || "" );
+
+        setValueTitleInitial(`${tableData[0].title}`);
+        setValueShortNameInitial(`${tableData[0].shortname}`);
+        setValueFullNameInitial( `${tableData[0].fullname}` || "" );
+        setValueExternalDSInitial(`${tableData[0].external_ds}`);
+        setValueDescrInitial( `${tableData[0].descr}` || "" );  
+      }
+    } catch (err) {
+      alertText = err.message;
+      alertSeverity = 'error';
+      setOpenAlert(true);
+    } finally {
+      setIsLoading(false);
+    }
+  };  
+
+  /////////////////////////////////////////////////////////////////// RELOAD /////////////////////
   const reloadDataAlert =  async () => {
-    reloadData();
     alertSeverity = "info";
     alertText =  'Данные успешно обновлены';
+    try 
+    {
+      await reloadData();
+    } catch(e)
+    {
+      alertSeverity = "error";
+      alertText =  'Ошибка при обновлении данных: '+e.message;      
+      setOpenAlert(true);
+      return;
+    }
     setOpenAlert(true);        
   }
 
   const reloadData = async () => {
-    setIsLoading(true);
     try {
-      const response = await fetch("/data_source");
-      if (!response.ok) {
-        throw new Error(`Error! status: ${response.status}`);
+      const response = await fetch(`/${props.table_name}/`);
+       if (!response.ok) {
+        //console.log('response not ok');
+        alertText = `Ошибка при обновлении данных: ${response.status}`;
+        alertSeverity = "false";
+        const error = response.status + ' (' +response.statusText+')';  
+        throw new Error(`${error}`);
       }
-      const result = await response.json();
-      //console.log('result is: ', JSON.stringify(result, null, 4));
-      setTableData(result);
+      else
+      {  
+        const result = await response.json();
+        setTableData(result);
+      }
     } catch (err) {
-      //setErr(err.message);
+      //console.log('catch err');
+      throw err;
     } finally {
       setIsLoading(false);
     }
   };
 
-/////////////////////////////////////////
-const [open, setOpen] = React.useState(false); 
-const handleClickDelete = () => {
-  setOpen(true);
-};
+  /////////////////////////////////////////
+  const [openDel, setOpenDel] = React.useState(false); 
+  const [openSave, setOpenSave] = React.useState(false); 
+  const [openSaveWhenNew, setOpenSaveWhenNew] = React.useState(false); 
 
-const handleClose = () => {
-  setOpen(false);
-};
-
-const handleCloseYes = () => {
-  setOpen(false);
-  delRec();
-};
-//////////////////////////////////////////////////////// ACTIONS ///////////////////////////////
-const DataSourceActions = ({ params }) => {
-    return (
-      <Box>
-        <Tooltip title="Удалить">
-          <IconButton onClick={() => handleClickDelete()}>
-            <Delete />
-          </IconButton>
-        </Tooltip>
-      </Box>
-    );
+  const handleClickDelete = () => {
+    setOpenDel(true);
   };
 
-/////////////////////////////////////////  
-const columns = [
-  { field: 'id', headerName: 'ID', width: 60 },
-  { field: 'title', headerName: 'Обозначение', width: 180 },
-  { field: 'shortname', headerName: 'Краткое название', width: 280 },
-  { field: 'fullname', headerName: 'Полное название', width: 280 },
-  { field: 'descr', headerName: 'Комментарий', width: 280 },
-  { field: 'external_ds', headerName: 'Внешний источник', width: 120 },
-  { field: 'actions',
-    headerName: 'Действие',
-    type: 'actions',
-    width: 150,
-    renderCell: (params) => <DataSourceActions {...{ params }} />,
-  },
-]
+  const handleCloseDelNo = () => {
+    setOpenDel(false);
+  };
 
-const [openAlert, setOpenAlert] = React.useState(false, '');
-//const getFilteredRows = ({ apiRef }: GridCsvGetRowsToExportParams) =>
-//  gridFilteredSortedRowIdsSelector(apiRef);
+  const handleCloseDelYes = () => {
+    setOpenDel(false);
+    delRec();
+  };
+
+  const handleClickSave = () => {
+    console.log('handleClickSave');
+    setOpenSave(true);
+  };
+
+  const handleCloseSaveNo = () => {
+    console.log('handleCloseSaveNo');
+    setOpenSave(false);
+    handleCancelClick();
+  };
+
+  const handleCloseSaveYes = () => {
+    console.log('handleCloseSaveYes');
+    setOpenSave(false);
+    saveRec(false);
+    handleCancelClick();
+  };
+
+  const handleClickSaveWhenNew = () => {
+    console.log('handleClickSaveWhenNew');
+    setOpenSaveWhenNew(true);
+  };
+
+  const handleCloseSaveWhenNewNo = () => {
+    console.log('handleCloseSaveNo');
+    setOpenSaveWhenNew(false);
+
+    setValueID('');
+    setValueTitle('');
+    setValueShortName('');
+    setValueFullName('');
+    setValueExternalDS('');
+    setValueDescr('');
+  };
+
+  const handleCloseSaveWhenNewYes = () => {
+    console.log('handleCloseSaveYes');
+    setOpenSaveWhenNew(false);
+    saveRec(true);
+    setValueID('');
+    setValueTitle('');
+    setValueShortName('');
+    setValueFullName('');
+    setValueExternalDS('');
+    setValueDescr('');
+  };
+
+
+  //////////////////////////////////////////////////////// ACTIONS ///////////////////////////////
+  const columns = [
+    { field: 'id', headerName: 'ID', width: 60 },
+    { field: 'title', headerName: 'Обозначение', width: 180 },
+    { field: 'shortname', headerName: 'Краткое название', width: 280 },
+    { field: 'fullname', headerName: 'Полное название', width: 280 },
+    { field: 'descr', headerName: 'Комментарий', width: 280 },
+    { field: 'external_ds', headerName: 'Внешний источник', width: 120 },
+  ]
+
+  const [openAlert, setOpenAlert] = React.useState(false, '');
+  const handleCancelClick = () => 
+  {
+    console.log('handleCancelClick');
+    //console.log('selectionModel');
+    //console.log(selectionModel);
+    //console.log('selectionModel='+selectionModel.row.id);
+    const selectedIDs = new Set(selectionModel);
+    //console.log(selectedIDs);
+    const selectedRowData = tableData.filter((row) => selectedIDs.has(row.id));
+    //console.log(selectedRowData);
+    if (selectedRowData.length)
+    {
+      setValueID(`${selectedRowData[0].id}`);
+
+      setValueTitle(`${selectedRowData[0].title}`);
+      setValueShortName(`${selectedRowData[0].shortname}`);
+      setValueFullName( selectedRowData[0].fullname || "" );
+      setValueExternalDS(`${selectedRowData[0].external_ds}`);
+      setValueDescr( selectedRowData[0].descr  || "" );
+
+      setValueTitleInitial(`${selectedRowData[0].title}`);
+      setValueShortNameInitial(`${selectedRowData[0].shortname}`);
+      setValueFullNameInitial( selectedRowData[0].fullname || "" );
+      setValueExternalDSInitial(`${selectedRowData[0].external_ds}`);
+      setValueDescrInitial( selectedRowData[0].descr  || "" );
+    }
+  }
+
+  function CustomToolbar1() {
+    const apiRef = useGridApiContext();
+    const handleExport = (options/* : GridCsvExportOptions */) =>
+      apiRef.current.exportDataAsCsv(options);
+
+    return (
+      <GridToolbarContainer>
+        <IconButton onClick={()=>handleClearClick()}  color="primary" size="small" title="Создать запись">
+          <SvgIcon fontSize="small" component={PlusLightIcon} inheritViewBox /></IconButton>
+        <IconButton onClick={()=>saveRec(true)}  color="primary" size="small" title="Сохранить запись в БД">
+          <SvgIcon fontSize="small" component={SaveLightIcon} inheritViewBox/></IconButton>
+        <IconButton onClick={()=>handleClickDelete()}  color="primary" size="small" title="Удалить запись">
+          <SvgIcon fontSize="small" component={TrashLightIcon} inheritViewBox /></IconButton>
+        <IconButton onClick={()=>handleCancelClick()} disabled={!editStarted} color="primary" size="small" title="Отменить редактирование">
+          <SvgIcon fontSize="small" component={UndoLightIcon} inheritViewBox /></IconButton>
+        <IconButton onClick={()=>reloadDataAlert()} color="primary" size="small" title="Обновить данные">
+          <SvgIcon fontSize="small" component={RepeatLightIcon} inheritViewBox /></IconButton>
+        <IconButton onClick={()=>handleExport({ delimiter: ';', utf8WithBom: true, getRowsToExport: () => gridFilteredSortedRowIdsSelector(apiRef) })} color="primary" 
+            size="small" title="Сохранить в формате CSV">
+          <SvgIcon fontSize="small" component={DownloadLightIcon} inheritViewBox /></IconButton>
+      </GridToolbarContainer>
+    );
+  }
 
   return (
-    <div style={{ height: 550, width: 1500 }}>
-    <table style={{ height: 550, width: 1400 }} ><tbody>
+    <div style={{ height: 650, width: 1500 }}>
+    <table border = "0" style={{ height: 550, width: 1500 }} ><tbody>
     <tr>
-      <td style={{ height: 550, width: 800, verticalAlign: 'top' }}>
+      <td style={{ height: 650, width: 600, verticalAlign: 'top' }}>
+      <div style={{ height: 500, width: 585 }}>
 
-      
-      <div style={{ height: 400, width: 728 }}>
       <DataGrid
-//        componentsProps={{ toolbar: { csvOptions } }}
+        components={{ Toolbar: CustomToolbar1 }}
+        hideFooterSelectedRowCount={true}
         localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
         rowHeight={25}
         rows={tableData}
+        loading={isLoading}
         columns={columns}
-        columnVisibilityModel={{
-          // Hide columns status and traderName, the other columns will remain visible
-          fullname: false,
-          field: false,
-          external_ds: false,
-          descr: false,
-          actions: false,
+        onSelectionModelChange={(newSelectionModel) => {
+          setSelectionModel(newSelectionModel);
         }}
-//        loading={loading}
-        components={{ Toolbar: CustomToolbar1  }}
+        selectionModel={selectionModel}        
+        initialState={{
+          columns: {
+            columnVisibilityModel: {
+              fullname: false,
+              external_ds: false,
+              descr: false,
+            },
+          },
+        }}        
         onRowClick={handleRowClick} {...tableData} 
-        onselectionChange={handleRowClick} {...tableData}
-        onSelectionModelChange={(ids) => {
-          //setSelectionModel(ids);
-          
-          console.log('filtered rows');
-          //console.log(getRowsToExport:getFilteredRows);
-        }}  
       />
       </div>
-      <p/>
-{/*       <Button variant="outlined" onClick={()=>downloadExcel(tableData)}>
-    	  Сохранить в Excel
-	    </Button> */}
-      &nbsp;&nbsp;&nbsp;&nbsp; 
-      <Button variant="outlined" onClick={()=>reloadDataAlert()}>
-    	  Обновить данные
-	    </Button>     
-      </td>
-{/*       <td style={{ height: 550, width: 10 }}>      
-      </td> */}
-      <td style={{ height: 550, width: 700, verticalAlign: 'top' }}>
-  table_names[props.table_name]<p/>
-  <TextField  id="ch_id" label="Id" sx={{ width: '12ch' }} variant="outlined" value={valueId || ''} /* defaultValue=" "  */onChange={e => setValueID(e.target.value)}/>
-  <p/>
-  <TextField  id="ch_name" sx={{ width: '40ch' }} label="Обозначение"  variant="outlined" value={valueTitle || ''} /* defaultValue=" "  */onChange={e => setValueTitle(e.target.value)}/>
-  <p/>
-  <TextField  id="ch_shortname" sx={{ width: '40ch' }} label="Краткое название"  variant="outlined" value={valueShortName || ''} /* defaultValue=" " */ onChange={e => setValueShortName(e.target.value)}/>
-  <p/>
-  <TextField  id="ch_fullname" sx={{ width: '80ch' }} label="Полное название"  variant="outlined" value={valueFullName || ''} /* defaultValue=" " */ onChange={e => setValueFullName(e.target.value)}/>
-  <p/>
-     <FormControl sx={{ width: '40ch' }}>
-        <InputLabel id="demo-controlled-open-select-label">Тип источника</InputLabel>
-        <Select
-          labelId="demo-controlled-open-select-label"
-          id="demo-controlled-open-select"
-          value={valueExternalDS  || "" }
-          label="Тип источника"
-          defaultValue={true}
-          onChange={e => setValueExternalDS(e.target.value)}
-        >
-
-      {valuesExtDS?.map(option => {
-          return (
-            <MenuItem key={option.value} value={option.value}>
-              {option.label ?? option.value}
-            </MenuItem>
-          );
-      })}
-        </Select>
-      </FormControl>  
-  <p/> 
-
-  <TextField  id="ch_descr" sx={{ width: '80ch' }} label="Комментарий" multiline maxRows={4} variant="outlined"   value={valueDescr || ''}   /* defaultValue=" "  */onChange={e => setValueDescr(e.target.value)}/>
-  <p/> 
-  <Button variant="outlined" onClick={()=>saveRec()}>
-    	  Сохранить
-	</Button>&nbsp;&nbsp;&nbsp;&nbsp;
-  <Button variant="outlined" onClick={()=>addRec()}>
-    	  Добавить
-	</Button>&nbsp;&nbsp;&nbsp;&nbsp;
-  <Button variant="outlined" onClick={()=>handleClickDelete()}>
-    	  Удалить
-	</Button>
-    </td>
-  </tr>
-  </tbody>
-  </table>
-
-  <Box sx={{ width: '100%' }}>
+      <Box sx={{ width: 585 }}>
       <Collapse in={openAlert}>
         <Alert
           severity={alertSeverity}
@@ -467,50 +513,102 @@ const [openAlert, setOpenAlert] = React.useState(false, '');
               <CloseIcon fontSize="inherit" />
             </IconButton>
           }
-          sx={{ mb: 2 }}
         >
-          {alertText}!
+          {alertText}
         </Alert>
       </Collapse>
-      <div style={{
-      marginLeft: '40%',
-      }}>
-      {isLoading && <CircularProgress/>} 
-{/*       {!isLoading && <h3>Successfully API Loaded Data</h3>} */}
-      </div>
+      </Box>
+      </td>
+      <td style={{ height: 550, width: 900, verticalAlign: 'top' }}>
+      <TextField  id="ch_id"  disabled={true} label="Код" sx={{ width: '12ch' }} variant="outlined" value={valueId || ''} size="small" onChange={e => setValueID(e.target.value)}/>
+      &nbsp;&nbsp;&nbsp;
+      <TextField  id="ch_name" sx={{ width: '40ch' }} label="Обозначение" size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
+      <p/>
+      <TextField  id="ch_shortname" sx={{ width: '100ch' }} label="Краткое название" size="small" variant="outlined" value={valueShortName || ''} onChange={e => setValueShortName(e.target.value)}/>
+      <p/>
+      <TextField  id="ch_fullname" sx={{ width: '100ch' }} label="Полное название" size="small" variant="outlined" value={valueFullName || ''} onChange={e => setValueFullName(e.target.value)}/>
+      <p/>
+      <FormControl sx={{ width: '40ch' }}>
+        <InputLabel id="demo-controlled-open-select-label">Тип источника</InputLabel>
+        <Select
+          labelId="demo-controlled-open-select-label"
+          id="demo-controlled-open-select"
+          value={valueExternalDS  || "" }
+          label="Тип источника"
+          defaultValue={true}
+          size="small"
+          onChange={e => setValueExternalDS(e.target.value)}
+        >
+        {valuesExtDS?.map(option => {
+            return (
+              <MenuItem key={option.value} value={option.value}>
+                {option.label ?? option.value}
+              </MenuItem>
+            );
+        })}
+        </Select>
+      </FormControl>  
+      <p/> 
 
-      {/*<Button
-        disabled={openAlert}
-        variant="outlined"
-        onClick={() => {
-          setOpenAlert(true);
-        }}
-      >
-        На жми!
-      </Button> */}
-    </Box>
+      <TextField  id="ch_descr" sx={{ width: '100ch' }} size="small" label="Комментарий" multiline rows={7} variant="outlined"   value={valueDescr || ''}   /* defaultValue=" "  */onChange={e => setValueDescr(e.target.value)}/>
+      <p/> 
 
+    </td>
+  </tr>
+  </tbody>
+  </table>
 
-  <Dialog
-      open={open}
-      onClose={handleClose}
-      fullWidth={true}
-  >
+  <Dialog open={openDel} onClose={handleCloseDelNo} fullWidth={true}>
       <DialogTitle>
           Внимание
       </DialogTitle>
       <DialogContent>
           <DialogContentText>
-              Вы действительно хотите удалить запись {valueId}?
+          В таблице "{table_names[props.table_name]}" предложена к удалению следующая запись:<p/><b>{valueTitle}</b>; Код в БД = <b>{valueId}</b><p/>
+          Вы желаете удалить указанную запись?
           </DialogContentText>
       </DialogContent>
       <DialogActions>
-          <Button onClick={handleClose} autoFocus>Нет</Button>
-          <Button onClick={handleCloseYes} >Да</Button>
+          <Button variant="outlined" onClick={handleCloseDelNo} autoFocus>Нет</Button>
+          <Button variant="outlined" onClick={handleCloseDelYes} >Да</Button>
       </DialogActions>
   </Dialog>
-     </div>
+ 
+  <Dialog open={openSave} onClose={handleCloseSaveNo} fullWidth={true}>
+    <DialogTitle>
+        Внимание
+    </DialogTitle>
+    <DialogContent>
+        <DialogContentText>
+            В запись таблицы "{table_names[props.table_name]}" с кодом <b>{valueId}</b> внесены изменения.<p/>
+            {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p/>
+            <p/>Вы желаете сохранить указанную запись?
+        </DialogContentText>
+    </DialogContent>
+    <DialogActions>
+        <Button variant="outlined" onClick={handleCloseSaveNo} autoFocus>Нет</Button>
+        <Button variant="outlined" onClick={handleCloseSaveYes} >Да</Button>
+    </DialogActions>
+  </Dialog>
+
+  <Dialog open={openSaveWhenNew} onClose={handleCloseSaveWhenNewNo} fullWidth={true}>
+    <DialogTitle>
+        Внимание
+    </DialogTitle>
+    <DialogContent>
+        <DialogContentText>
+            В запись таблицы {table_names[props.table_name]} с кодом <b>{valueId}</b> внесены изменения.<p/>
+            {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p/>
+            <p/>Вы желаете сохранить указанную запись?
+        </DialogContentText>
+    </DialogContent>
+    <DialogActions>
+        <Button variant="outlined" onClick={handleCloseSaveWhenNewNo} autoFocus>Нет</Button>
+        <Button variant="outlined" onClick={handleCloseSaveWhenNewYes} >Да</Button>
+    </DialogActions>
+  </Dialog>
+ </div>     
   )
 }
 
-export { DataTableDataSource }
+export { DataTableDataSource, lastId }

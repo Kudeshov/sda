@@ -38,14 +38,14 @@ const getDataSourceById = (request, response) => {
 }
 
 const createDataSource = (request, response) => {
-  console.log(  request );
-  const { id, title, shortname, fullname, descr, external_ds } = request.body;
+  const { title, shortname, fullname, descr, external_ds } = request.body;
 
-  pool.query('INSERT INTO nucl.data_source (id, title, shortname, fullname, descr, external_ds) VALUES ($1, $2, $3, $4, $5, $6)', [id, title, shortname, fullname, descr, external_ds], (error, results) => {
-    if (error) {
+  pool.query('INSERT INTO nucl.data_source (title, shortname, fullname, descr, external_ds) VALUES ($1, $2, $3, $4, $5) RETURNING id', [title, shortname, fullname, descr, external_ds], (error, res) => {
+  if (error) {
       response.status(400).send(`Источник данных не добавлен: ${error.message}`);
     } else {
-      response.status(201).send(`Источник данных добавлен, ID: ${results.insertId}`)
+      const { id } = res.rows[0];
+      response.status(201).send(`Источник данных добавлен, ID: ${id}`)
     }
   })
 }

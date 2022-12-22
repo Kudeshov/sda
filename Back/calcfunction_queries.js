@@ -70,10 +70,11 @@ const createCalcFunction = (request, response, table_name )=> {
       return !!err
     }
 
-    const { title, name_rus, name_eng, descr_rus, descr_eng, physparam_id, used } = request.body;
+    const { title, name_rus, name_eng, descr_rus, descr_eng, physparam_id, used, parameters } = request.body;
     client.query(`BEGIN`, err => {
       if (shouldAbort(err, response)) return;
-      client.query(`INSERT INTO nucl.${table_name}( title, physparam_id, used ) VALUES ($1,$2,$3) RETURNING id`, [title,physparam_id,used], (err, res) => {
+      console.log(`INSERT INTO nucl.${table_name}( title, physparam_id, used, parameters ) VALUES ($1,$2,$3,$4) RETURNING id`, [title,physparam_id,used, parameters]);
+      client.query(`INSERT INTO nucl.${table_name}( title, physparam_id, used, parameters ) VALUES ($1,$2,$3,$4) RETURNING id`, [title,physparam_id,used, parameters], (err, res) => {
         if (shouldAbort(err, response)) return;      
         const { id } = res.rows[0];
         console.log(`Id = `+id);
@@ -90,8 +91,8 @@ const createCalcFunction = (request, response, table_name )=> {
                 response.status(400).send(`Ошибка при подтверждении транзакции`, err.stack);
               }
               else {
-                console.log(`Тип облучаемых лиц добавлен, ID: ${id}`); 
-                response.status(201).send(`Тип облучаемых лиц добавлен, ID: ${id}`);
+                console.log(`Функция добавлена, ID: ${id}`); 
+                response.status(201).send(`Функция добавлена, ID: ${id}`);
               }
               done()
             })

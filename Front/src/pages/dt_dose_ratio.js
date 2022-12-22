@@ -30,13 +30,9 @@ import { Select } from "@mui/material";
 import { MenuItem } from "@mui/material";
 import { FormControl } from "@mui/material";
 import { InputLabel } from "@mui/material";
-//import { type } from '@testing-library/user-event/dist/type';
-//import { PropaneSharp } from '@mui/icons-material';
-//import { ReactComponent as EditLightIcon } from "./../icons/edit.svg";
 import { ReactComponent as FileImportLightIcon } from "./../icons/file-import.svg";
-//import { ReactComponent as InfoLightIcon } from "./../icons/info.svg";
 import { ReactComponent as EraserLightIcon } from "./../icons/eraser.svg";
-//import PhotoCamera from '@material-ui/icons/PhotoCamera';
+import { table_names } from './sda_types';
 
 var alertText = "Сообщение";
 var alertSeverity = "info";
@@ -83,41 +79,21 @@ const DataTableDoseRatio = (props) => {
   const [valueParametersInitial, setValueParametersInitial] = useState([]);
 
   useEffect(() => {
-
     setValuePhysParamCode(valuePhysParamID);
-    //console.log('setValuePhysParamCode');
     let myLine = tablePhysParam.filter(item => ( Number(item.id) === Number(valuePhysParamID) ));
-    //console.log( valuePhysParamID );
-    //console.log( myLine );
     if (myLine.length>0) 
     {
-      //console.log( 'title='+myLine[0].title );
-      //console.log( 'name_rus='+myLine[0].name_rus );    
       setValuePhysParamNameRus( myLine[0].name_rus );
       setValuePhysParamDimension( myLine[0].physunit_title );   
     }
+    else
+    {
+      setValuePhysParamNameRus( '' );
+      setValuePhysParamDimension( '' );    
+    }
   }, [valuePhysParamID, tablePhysParam]);
 
-/*   useEffect(() => {
-
-    setValuePhysParamCode(valuePhysParamID);
-    //console.log('выводим тайтл');
-    let myLine = tablePhysParam.filter(item => item.id == valuePhysParamID);
-    //console.log( myLine );
-    if (myLine.length>0) 
-    {
-      //console.log( 'title='+myLine[0].title );
-      //console.log( 'name_rus='+myLine[0].name_rus );    
-      setValuePhysParamDimension( myLine[0].physunit_title );  
-    }
-  }, [valuePhysParamID, tablePhysParam]); */
-
   useEffect(() => {
-    //console.log([valueTitleInitial, valueTitle, valueNameRusInitial, valueNameRus, valueNameEngInitial, valueNameEng, 
-    //  valueDescrEngInitial, valueDescrEng, valueDescrRusInitial, valueDescrRus]); 
-    //console.log('valueRespRateInitial'+valueRespRateInitial);
-    //console.log('valueRespRate'+valueRespRate);
-
     setEditStarted((valueTitleInitial!==valueTitle)||(valueNameRusInitial!==valueNameRus)||(valueNameEngInitial!==valueNameEng)
       ||(valueDescrEngInitial!==valueDescrEng)||(valueDescrRusInitial!==valueDescrRus)   
       ||(valueRespRateInitial!==valueRespRate)||(valueRespYearInitial!==valueRespYear)||(valueIndoorInitial!==valueIndoor)
@@ -149,7 +125,6 @@ const DataTableDoseRatio = (props) => {
         setValueIndoor(`${tableData[0].indoor}`);
         setValueExtCloud(`${tableData[0].extcloud}`);
         setValueExtGround(`${tableData[0].extground}`);
-        //console.log('useEffect Refresh initial '+tableData[0].title+' '+tableData[0].name_rus);
         setValueTitleInitial(`${tableData[0].title}`);       
         setValueNameRusInitial(`${tableData[0].name_rus}`);
         setValueNameEngInitial(`${tableData[0].name_eng}`);
@@ -173,7 +148,6 @@ const DataTableDoseRatio = (props) => {
     }, [ isLoading, tableData] );
 
   const handleRowClick = (params) => {
-    //console.log('handleRowClick');
     if (editStarted)
     {
       handleClickSave(params);
@@ -214,11 +188,8 @@ const DataTableDoseRatio = (props) => {
   }; 
 
   const handleClearClick = (params) => {
-    //console.log('handleClearClick');
     if (editStarted)
     {
-      //console.log('params');
-      //console.log(params);
       handleClickSaveWhenNew(params);
     } 
     else 
@@ -229,16 +200,12 @@ const DataTableDoseRatio = (props) => {
       setValueNameEng(``);
       setValueDescrRus(``);
       setValueDescrEng(``);
-
       setValueRespRate(``);
-      //console.log('before assign '+ valueRespYear);
-
       setValueRespYear(``);
-      //console.log('after assign '+ valueRespYear);      
       setValueIndoor(``);
       setValueExtCloud(``);
       setValueExtGround(``);
-      setValuePhysParamId(``);  
+      setValuePhysParamId('');  
       setValueUsed(``);
       setValueParameters(``);
     }
@@ -258,7 +225,6 @@ const DataTableDoseRatio = (props) => {
       .then((data) => { /* console.log('fetch PhysParam ok'); console.log(data);  */ lastId = 0;} ); 
   }, [])
  
-
   ///////////////////////////////////////////////////////////////////  SAVE  /////////////////////
   const saveRec = async ( fromToolbar ) => {
     const js = JSON.stringify({
@@ -278,8 +244,8 @@ const DataTableDoseRatio = (props) => {
       parameters: valueParameters
     });
 
-    //console.log('Редактирование записи calcfunction');
-    //console.log(js);
+//    console.log('Редактирование записи calcfunction');
+//    console.log(js);
 
     if (!valueId) {
       addRec();
@@ -352,7 +318,7 @@ const DataTableDoseRatio = (props) => {
       parameters: valueParameters,
     });
     setIsLoading(true);
-    //console.log(js);
+    console.log(js);
     try {
       const response = await fetch(`/${props.table_name}/`, {
         method: 'POST',
@@ -606,7 +572,7 @@ const DataTableDoseRatio = (props) => {
     //console.log(selectionModel);
     //console.log('selectionModel='+selectionModel.row.id);
     const selectedIDs = new Set(selectionModel);
-    //console.log(selectedIDs);
+    console.log(selectedIDs);
     const selectedRowData = tableData.filter((row) => selectedIDs.has(row.id));
     //console.log(selectedRowData);
     if (selectedRowData.length)
@@ -666,12 +632,6 @@ const DataTableDoseRatio = (props) => {
     );
   }
 
-/*   const [age, setAge] = React.useState('');
-
-  const handleChange = (event) => {
-    setAge(event.target.value);
-  }; */
-
   const valuesYesNo = [
     { title: 'Нет', id: 'false' },
     { title: 'Да', id: 'true' } ];
@@ -689,7 +649,6 @@ const DataTableDoseRatio = (props) => {
       event.target.value = '';
       //$("#icon-button-file").val('');
     };
-    
   }
 
   return (
@@ -747,17 +706,17 @@ const DataTableDoseRatio = (props) => {
       
       </td>
       <td style={{ height: 550, width: 900, verticalAlign: 'top' }}>
-      <TextField  id="ch_id"  disabled={true} label="Код" sx={{ width: '12ch' }} variant="outlined" value={valueId || ''} size="small" /* defaultValue=" " */ onChange={e => setValueID(e.target.value)}/>
+      <TextField  id="ch_id"  disabled={true} label="Код" sx={{ width: '12ch' }} variant="outlined" value={valueId || ''} size="small" onChange={e => setValueID(e.target.value)}/>
       &nbsp;&nbsp;&nbsp;
-      <TextField  id="ch_name" sx={{ width: '40ch' }} label="Обозначение" size="small" variant="outlined" value={valueTitle || ''} /* defaultValue=" " */ onChange={e => setValueTitle(e.target.value)}/>
+      <TextField  id="ch_name" sx={{ width: '40ch' }} label="Обозначение" size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
       <p/>
-      <TextField  id="ch_name_rus" sx={{ width: '40ch' }}  size="small" label="Название (рус.яз)"  variant="outlined"  value={valueNameRus || ''}  /* defaultValue=" "  */ onChange={e => setValueNameRus(e.target.value)} />
+      <TextField  id="ch_name_rus" sx={{ width: '40ch' }}  size="small" label="Название (рус.яз)"  variant="outlined"  value={valueNameRus || ''} onChange={e => setValueNameRus(e.target.value)} />
       &nbsp;&nbsp;&nbsp;
-      <TextField  id="ch_name_eng" sx={{ width: '40ch' }} size="small" label="Название (англ.яз)"  variant="outlined" value={valueNameEng || ''} /* defaultValue=" " */ onChange={e => setValueNameEng(e.target.value)}/>
+      <TextField  id="ch_name_eng" sx={{ width: '40ch' }} size="small" label="Название (англ.яз)"  variant="outlined" value={valueNameEng || ''} onChange={e => setValueNameEng(e.target.value)}/>
       <p/>
-      <TextField  id="ch_descr_rus" sx={{ width: '100ch' }} label="Комментарий (рус.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrRus || ''} /* defaultValue=" " */ onChange={e => setValueDescrRus(e.target.value)}/>
+      <TextField  id="ch_descr_rus" sx={{ width: '100ch' }} label="Комментарий (рус.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrRus || ''} onChange={e => setValueDescrRus(e.target.value)}/>
       <p/> 
-      <TextField  id="ch_descr_rus" sx={{ width: '100ch' }} label="Комментарий (англ.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrEng || ''} /* defaultValue=" " */ onChange={e => setValueDescrEng(e.target.value)}/>
+      <TextField  id="ch_descr_rus" sx={{ width: '100ch' }} label="Комментарий (англ.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrEng || ''} onChange={e => setValueDescrEng(e.target.value)}/>
       <p/>
 
       <div>
@@ -783,24 +742,6 @@ const DataTableDoseRatio = (props) => {
               </IconButton>
             </label>
             <br/>
-{/* 
-            <input
-              style={{ display: "none" }}
-              id="contained-button-file"
-              type="file"  onChange={handleFileChange}
-            />   */}
-
-{/*             <label htmlFor="contained-button-file">
-              <Button variant="contained" color="primary" component="span">
-                Upload
-              </Button>
-            </label>
-            <br/> */}
-{/*             &nbsp;<IconButton color="primary" size="small" title="Поиск и загрузка файла *.xml">
-              <SvgIcon fontSize="small" component={FileImportLightIcon} inheritViewBox>
-                
-              </SvgIcon>
-              </IconButton><br/> */}
             &nbsp;<label htmlFor="icon-button-file1">
             <IconButton onClick={()=>{setValueParameters("")}} color="primary" size="small" title="Очистить">
               <SvgIcon fontSize="small" component={EraserLightIcon} inheritViewBox /></IconButton>
@@ -809,7 +750,7 @@ const DataTableDoseRatio = (props) => {
             <p/>
             <FormControl sx={{ width: '40ch' }} size="small">
             <InputLabel id="type">Используется расчетным модулем</InputLabel>
-              <Select labelId="type" id="type1"  label="Используется расчетным модулем" value={valueUsed  || 'true' }  onChange={e => setValueUsed(e.target.value)}>
+              <Select labelId="type" id="type1"  label="Используется расчетным модулем" defaultValue={true} value={valueUsed  || "" }  onChange={e => setValueUsed(e.target.value)}>
                 {valuesYesNo?.map(option => {
                     return (
                       <MenuItem key={option.id} value={option.id}>
@@ -862,7 +803,7 @@ const DataTableDoseRatio = (props) => {
       </DialogTitle>
       <DialogContent>
           <DialogContentText>
-          В таблице "Типы облучаемых лиц" предложена к удалению следующая запись:<p/><b>{valueTitle}</b>; Код в БД = <b>{valueId}</b><p/>
+          В таблице "{table_names[props.table_name]}" предложена к удалению следующая запись:<p/><b>{valueTitle}</b>; Код в БД = <b>{valueId}</b><p/>
           Вы желаете удалить указанную запись?
           </DialogContentText>
       </DialogContent>
@@ -878,7 +819,7 @@ const DataTableDoseRatio = (props) => {
     </DialogTitle>
     <DialogContent>
         <DialogContentText>
-            В запись таблицы "Типы облучаемых лиц" с кодом <b>{valueId}</b> внесены изменения.<p/>
+            В запись таблицы "{table_names[props.table_name]}" с кодом <b>{valueId}</b> внесены изменения.<p/>
             {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p/>
             {valueNameRus === valueNameRusInitial ? '' : 'Название (рус. яз): '+valueNameRus+'; ' }<p/>
             {valueNameEng === valueNameEngInitial ? '' : 'Название (англ. яз): '+valueNameEng+'; ' }<p/>

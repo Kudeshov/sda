@@ -1,10 +1,6 @@
 import React,  { useState, useEffect } from 'react'
 import { DataGrid, ruRU } from '@mui/x-data-grid'
 import Button from '@mui/material/Button';
-/* import EditIcon from '@mui/icons-material/Edit';
-import AddIcon from '@mui/icons-material/Add';
-import InfoIcon from '@mui/icons-material/Info';
-import DeleteIcon from '@mui/icons-material/Delete'; */
 import TextField from '@mui/material/TextField';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -25,6 +21,7 @@ import { ReactComponent as EditLightIcon } from "./../icons/edit.svg";
 import { ReactComponent as PlusLightIcon } from "./../icons/plus.svg";
 import { ReactComponent as InfoLightIcon } from "./../icons/info.svg";
 import { ReactComponent as TrashLightIcon } from "./../icons/trash.svg";
+import { table_names } from './sda_types';
 
 var alertText = "Сообщение";
 var alertSeverity = "info";
@@ -447,7 +444,7 @@ const [noRecords, setNoRecords] = useState(true);
       </DialogTitle>
       <DialogContent>
           <DialogContentText>
-              В таблице "Связь с источником данных" предложена к удалению следующая запись:<p/><b>{valueTitleSrc}</b>; Код в БД = <b>{valueId}</b><p/>
+              В таблице "{table_names[props.table_name]}" предложена к удалению следующая запись:<p/><b>{valueTitleSrc}</b>; Код в БД = <b>{valueId}</b><p/>
               Вы желаете удалить указанную запись?        
           </DialogContentText>
       </DialogContent>
