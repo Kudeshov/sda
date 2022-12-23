@@ -128,17 +128,15 @@ function Navbar() {
                 <Divider />
                 <MenuItem onClick={closeMenuCoeff} component={Link} to="/dose_ratio">{table_names['dose_ratio']}</MenuItem> 
                 <MenuItem onClick={closeMenuCoeff} component={Link} to="/irradiation">{table_names['irradiation']}</MenuItem> 
-                <MenuItem onClick={closeMenuCoeff} component={Link} to="/integral_period">Периоды интегрирования</MenuItem> 
-                <MenuItem onClick={closeMenuCoeff} component={Link} to="/db">Формы вещества</MenuItem> 
-                <MenuItem onClick={closeMenuCoeff} component={Link} to="/coeff">Типы облучаемых лиц</MenuItem>
+                <MenuItem onClick={closeMenuCoeff} component={Link} to="/integral_period">{table_names['integral_period']}</MenuItem> 
+                <MenuItem onClick={closeMenuCoeff} component={Link} to="/db">{table_names['subst_form']}</MenuItem> 
+                <MenuItem onClick={closeMenuCoeff} component={Link} to="/people_class">{table_names['people_class']}</MenuItem>
                 <MenuItem onClick={closeMenuCoeff} component={Link} to="/aerosol_sol">{table_names['aerosol_sol']}</MenuItem> 
                 <MenuItem onClick={closeMenuCoeff} component={Link} to="/aerosol_amad">{table_names['aerosol_amad']}</MenuItem> 
                 <MenuItem onClick={closeMenuCoeff} component={Link} to="/let_level">{table_names['let_level']}</MenuItem> 
                 <MenuItem onClick={closeMenuCoeff} component={Link} to="/exp_scenario">{table_names['exp_scenario']}</MenuItem> 
-                <MenuItem onClick={closeMenuCoeff} component={Link} to="/agegroup">Возрастные группы населения</MenuItem> 
-
-             </Menu>
-
+                <MenuItem onClick={closeMenuCoeff} component={Link} to="/agegroup">{table_names['agegroup']}</MenuItem> 
+            </Menu>
             <Link onClick={recordButtonPositionNorm} className={classes.link}>
               Нормы и критерии
             </Link>
@@ -153,7 +151,7 @@ function Navbar() {
             <MenuItem onClick={closeMenuNorm} component={Link} to="/action_level">Уровни вмешательства</MenuItem> 
             </Menu>
 
-            <Link to="/sources" className={classes.link}>
+            <Link to="/data_source" className={classes.link}>
               Источники данных
             </Link>
             <Link to="/db" className={classes.link}>

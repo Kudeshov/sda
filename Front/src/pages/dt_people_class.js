@@ -537,7 +537,7 @@ const DataTablePeopleClass = (props) => {
       </DialogTitle>
       <DialogContent>
           <DialogContentText>
-          В таблице {table_names[props.table_name]} предложена к удалению следующая запись:<p/><b>{valueTitle}</b>; Код в БД = <b>{valueId}</b><p/>
+          В таблице "{table_names[props.table_name]}" предложена к удалению следующая запись:<p/><b>{valueTitle}</b>; Код в БД = <b>{valueId}</b><p/>
           Вы желаете удалить указанную запись?
           </DialogContentText>
       </DialogContent>

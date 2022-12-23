@@ -14,6 +14,7 @@ export const table_names = {
     'criterion_gr': 'Группы критериев',
     'action_level': 'Уровни вмешательства',
     'action': 'Действия',
+    'agegroup': 'Возрастные группы населения',
   }; 
   
   export default table_names;
