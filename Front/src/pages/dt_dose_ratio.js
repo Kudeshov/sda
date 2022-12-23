@@ -81,7 +81,8 @@ const DataTableDoseRatio = (props) => {
   const [valueUsedInitial, setValueUsedInitial] = useState([]);
   const [valueParameters, setValueParameters] = useState([]);
   const [valueParametersInitial, setValueParametersInitial] = useState([]);
-
+  const [valueParametersDialog, setValueParametersDialog] = useState([]);
+  
   useEffect(() => {
 
     setValuePhysParamCode(valuePhysParamID);
@@ -513,6 +514,21 @@ const DataTableDoseRatio = (props) => {
   const [openDel, setOpenDel] = React.useState(false); 
   const [openSave, setOpenSave] = React.useState(false); 
   const [openSaveWhenNew, setOpenSaveWhenNew] = React.useState(false); 
+  const [openEdit, setOpenEdit] = React.useState(false);
+    
+  const handleClickEdit = () => {
+    setValueParametersDialog(valueParameters);
+    setOpenEdit(true);
+  };
+
+  const handleClickEditYes = () => {
+    setValueParameters(valueParametersDialog);
+    setOpenEdit(false);
+  };
+
+  const handleClickEditNo = () => {
+    setOpenEdit(false);
+  };
 
   const handleClickDelete = () => {
     setOpenDel(true);
@@ -804,6 +820,11 @@ const DataTableDoseRatio = (props) => {
             &nbsp;<label htmlFor="icon-button-file1">
             <IconButton onClick={()=>{setValueParameters("")}} color="primary" size="small" title="Очистить">
               <SvgIcon fontSize="small" component={EraserLightIcon} inheritViewBox /></IconButton>
+            </label>
+            <br/>
+            &nbsp;<label htmlFor="icon-button-file1">
+            <IconButton onClick={()=>{handleClickEdit()}} color="primary" size="small" title="Редактировать">
+              <SvgIcon fontSize="small" component={EraserLightIcon} inheritViewBox /></IconButton>
             </label></td></tr>
             </tbody></table>
             <p/>
@@ -871,6 +892,21 @@ const DataTableDoseRatio = (props) => {
           <Button variant="outlined" onClick={handleCloseDelYes} >Да</Button>
       </DialogActions>
   </Dialog>
+
+  <Dialog open={openEdit} onClose={handleClickEditNo} maxWidth={700}>
+      <DialogTitle>
+          Параметры функции
+      </DialogTitle>
+      <DialogContent>
+          <DialogContentText>
+             <TextField  id="ch_parameters1" sx={{ width: '100ch' }}size="small" multiline rows={20} variant="outlined" value={valueParametersDialog || ''} onChange={e => setValueParametersDialog(e.target.value)}/>
+          </DialogContentText>
+      </DialogContent>
+      <DialogActions>
+          <Button variant="outlined" onClick={handleClickEditNo} autoFocus>Нет</Button>
+          <Button variant="outlined" onClick={handleClickEditYes} >Да</Button>
+      </DialogActions>
+  </Dialog>  
  
   <Dialog open={openSave} onClose={handleCloseSaveNo} fullWidth={true}>
     <DialogTitle>
