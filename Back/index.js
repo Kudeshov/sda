@@ -28,6 +28,8 @@ const dr_q = require('./dose_ratio_queries');
 const pp_q = require('./physparam_queries');
 const cf_q = require('./calcfunction_queries');
 const es_q = require('./exp_scenario_queries');
+const no_q = require('./normativ_queries');
+const ccg_q = require('./chem_comp_gr_queries');
 
 const { Pool } = require('pg');
 //var msg = 'a';
@@ -123,6 +125,13 @@ app.post('/criterion_gr', (req, res) => {es_q.createExpScenario(req, res, 'crite
 app.put('/criterion_gr/:id', (req, res) => {es_q.updateExpScenario(req, res, 'criterion_gr')});    //update
 app.delete('/criterion_gr/:id', (req, res) => {es_q.deleteExpScenario(req, res, 'criterion_gr')}); //delete
 
+//GENERIC QUERIES on criterion_gr
+app.get('/organ', (req, res) => {es_q.getExpScenario(req, res, 'organ')});           //list all
+app.get('/organ/:id', (req, res) => {es_q.getExpScenarioById(req, res, 'organ')});   //list 1
+app.post('/organ', (req, res) => {es_q.createExpScenario(req, res, 'organ')});       //create
+app.put('/organ/:id', (req, res) => {es_q.updateExpScenario(req, res, 'organ')});    //update
+app.delete('/organ/:id', (req, res) => {es_q.deleteExpScenario(req, res, 'organ')}); //delete
+
 //GENERIC QUERIES on dose_ratio
 app.get('/dose_ratio', (req, res) => {dr_q.getDoseRatio(req, res, 'dose_ratio')});           //list all
 app.get('/dose_ratio/:id', (req, res) => {dr_q.getDoseRatioById(req, res, 'dose_ratio')});   //list 1
@@ -164,6 +173,11 @@ app.post('/action', (req, res) => {gn_q.createGenericNLS(req, res, 'action')}); 
 app.put('/action/:id', (req, res) => {gn_q.updateGenericNLS(req, res, 'action')});    //update
 app.delete('/action/:id', (req, res) => {gn_q.deleteGenericNLS(req, res, 'action')}); //delete
 
+//GENERIC QUERIES on normativ 
+app.get('/normativ', (req, res) => {no_q.getNormativ(req, res, 'normativ')});           //list all
+
+//GENERIC QUERIES on chem_comp_gr 
+app.get('/chem_comp_gr', (req, res) => {ccg_q.getChemCompGr(req, res, 'chem_comp_gr')});           //list all
 
 app.get('/criterion', function(req, resp){
       pool.query('SELECT * FROM nucl.criterion', (error, res) => {

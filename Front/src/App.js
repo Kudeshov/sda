@@ -20,6 +20,9 @@ import CalcFunction from "./pages/calcfunction";
 import GriterionGr from "./pages/criterion_gr";
 import ActionLevel from "./pages/action_level";
 import Action from "./pages/action";
+import Organ from "./pages/organ";
+import ChemCompGr from "./pages/chem_comp_gr";
+
 function App() {
   return (
     <Router>
@@ -45,6 +48,8 @@ function App() {
         <Route path="/criterion_gr" element={<GriterionGr/>} />
         <Route path="/action_level" element={<ActionLevel/>} />
         <Route path="/action" element={<Action/>} />
+        <Route path="/organ" element={<Organ/>} />
+        <Route path="/chem_comp_gr" element={<ChemCompGr/>} />        
       </Routes>
     </Router>
   );

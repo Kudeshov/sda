@@ -128,8 +128,10 @@ function Navbar() {
                 <Divider />
                 <MenuItem onClick={closeMenuCoeff} component={Link} to="/dose_ratio">{table_names['dose_ratio']}</MenuItem> 
                 <MenuItem onClick={closeMenuCoeff} component={Link} to="/irradiation">{table_names['irradiation']}</MenuItem> 
+                <MenuItem onClick={closeMenuCoeff} component={Link} to="/organ">{table_names['organ']}</MenuItem> 
                 <MenuItem onClick={closeMenuCoeff} component={Link} to="/integral_period">{table_names['integral_period']}</MenuItem> 
                 <MenuItem onClick={closeMenuCoeff} component={Link} to="/db">{table_names['subst_form']}</MenuItem> 
+                <MenuItem onClick={closeMenuCoeff} component={Link} to="/chem_comp_gr">{table_names['chem_comp_gr']}</MenuItem> 
                 <MenuItem onClick={closeMenuCoeff} component={Link} to="/people_class">{table_names['people_class']}</MenuItem>
                 <MenuItem onClick={closeMenuCoeff} component={Link} to="/aerosol_sol">{table_names['aerosol_sol']}</MenuItem> 
                 <MenuItem onClick={closeMenuCoeff} component={Link} to="/aerosol_amad">{table_names['aerosol_amad']}</MenuItem> 

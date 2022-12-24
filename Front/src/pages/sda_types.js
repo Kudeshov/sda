@@ -15,6 +15,8 @@ export const table_names = {
     'action_level': 'Уровни вмешательства',
     'action': 'Действия',
     'agegroup': 'Возрастные группы населения',
+    'organ': 'Органы и ткани',
+    'chem_comp_gr': 'Химические соединения (группы)'
   }; 
   
   export default table_names;

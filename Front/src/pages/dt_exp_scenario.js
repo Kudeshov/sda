@@ -48,17 +48,23 @@ const DataTableExpScenario = (props) => {
   const [valueDescrRusInitial, setValueDescrRusInitial] = React.useState();
   const [valueParentID, setValueParentID] = React.useState();
   const [valueParentIDInitial, setValueParentIDInitial] = React.useState();
+  const [valueNormativ, setValueNormativ] = React.useState();
+  const [valueNormativInitial, setValueNormativInitial] = React.useState();
+  
+
   
   const [isLoading, setIsLoading] = React.useState(false);
   const [tableData, setTableData] = useState([]); 
+  const [tableNormativ, setNormativ] = useState([]); 
   const [treeData, setTreeData] = useState([]); 
   const [editStarted, setEditStarted] = useState([false]);
 
   useEffect(() => {
-    setEditStarted((valueTitleInitial!==valueTitle)||(valueNameRusInitial!==valueNameRus)||(valueNameEngInitial!==valueNameEng)
-      ||(valueDescrEngInitial!==valueDescrEng)||(valueDescrRusInitial!==valueDescrRus)||(valueParentIDInitial!==valueParentID));
+    setEditStarted(       
+       (valueTitleInitial!==valueTitle)||(valueNameRusInitial!==valueNameRus)||(valueNameEngInitial!==valueNameEng)
+      ||(valueDescrEngInitial!==valueDescrEng) ||(valueDescrRusInitial!==valueDescrRus)||(valueParentIDInitial!==valueParentID)/*||(valueNormativInitial!==valueNormativ)*/);
     }, [valueTitleInitial, valueTitle, valueNameRusInitial, valueNameRus, valueNameEngInitial, valueNameEng, 
-        valueDescrEngInitial, valueDescrEng, valueDescrRusInitial, valueDescrRus, valueParentID, valueParentIDInitial]); 
+        valueDescrEngInitial, valueDescrEng, valueDescrRusInitial, valueDescrRus, valueParentID, valueParentIDInitial, valueNormativ, valueNormativInitial]); 
 
   useEffect(() => {
     if ((!isLoading) && (tableData) && (tableData.length)) {
@@ -77,6 +83,8 @@ const DataTableExpScenario = (props) => {
         setValueDescrEngInitial(`${tableData[0].descr_eng}`);
         setValueParentID(tableData[0].parent_id||-1);
         setValueParentIDInitial(tableData[0].parent_id||-1);
+        setValueNormativ(`${tableData[0].normativ_id}`);
+        setValueNormativInitial(`${tableData[0].normativ_id}`);
       }
     }
     }, [ isLoading, tableData] );
@@ -156,12 +164,14 @@ const DataTableExpScenario = (props) => {
       setValueDescrRus(res[0].descr_rus);
       setValueDescrEng(res[0].descr_eng);    
       setValueParentID(res[0].parent_id||-1);    
+      setValueNormativ(res[0].normativ_id);      
       setValueTitleInitial(res[0].title);
       setValueNameRusInitial(res[0].name_rus);
       setValueNameEngInitial(res[0].name_eng);
       setValueDescrRusInitial(res[0].descr_rus);
       setValueDescrEngInitial(res[0].descr_eng);
       setValueParentIDInitial(res[0].parent_id||-1); 
+      setValueNormativInitial(res[0].normativ_id);
     }   
   }; 
 
@@ -179,6 +189,7 @@ const DataTableExpScenario = (props) => {
       setValueDescrRus(``);
       setValueDescrEng(``);
       setValueParentID(-1);
+      setValueNormativ(``);
     }
   }; 
 
@@ -188,6 +199,13 @@ const DataTableExpScenario = (props) => {
       .then((data) => setTableData(data))
       .then((data) => { lastId = 0;} ); 
   }, [props.table_name])
+
+  useEffect(() => {
+    fetch(`/normativ`)
+      .then((data) => data.json())
+      .then((data) => setNormativ(data))
+      .then((data) => { lastId = 0;} ); 
+  }, [valueNormativ])
 
 
 ///////////////////////////////////////////////////////////////////  Tree load functions and hook  /////////////////////
@@ -265,7 +283,8 @@ const DataTableExpScenario = (props) => {
       name_eng: valueNameEng,
       descr_rus: valueDescrRus,
       descr_eng: valueDescrEng,
-      parent_id: myParentID        
+      parent_id: myParentID,    
+      normativ_id: valueNormativ     
     });
 
     if (!valueId) {
@@ -307,6 +326,8 @@ const DataTableExpScenario = (props) => {
        setValueDescrRusInitial(valueDescrRus);
        setValueDescrEngInitial(valueDescrEng);    
        setValueParentIDInitial(valueParentID);
+       setValueNormativInitial(valueNormativ);
+
      }
     reloadData();     
    }
@@ -322,7 +343,8 @@ const DataTableExpScenario = (props) => {
       name_eng: valueNameEng,
       descr_rus: valueDescrRus,
       descr_eng: valueDescrEng,
-      parent_id: myParentID         
+      parent_id: myParentID,
+      normativ_id: valueNormativ        
     });
     setIsLoading(true);
     try {
@@ -401,6 +423,8 @@ const DataTableExpScenario = (props) => {
         setValueDescrEngInitial(`${tableData[0].descr_eng}`);
         setValueParentID(`${tableData[0].parent_id||-1}`);
         setValueParentIDInitial(`${tableData[0].parent_id||-1}`);
+        setValueNormativ(`${tableData[0].normativ_id}`);
+        setValueNormativInitial(`${tableData[0].normativ_id}`);
       }
     } catch (err) {
       alertText = err.message;
@@ -519,6 +543,8 @@ const DataTableExpScenario = (props) => {
       setValueDescrEngInitial(`${selectedRowData[0].descr_eng}` );
       setValueParentID(selectedRowData[0].parent_id||-1);
       setValueParentIDInitial(selectedRowData[0].parent_id||-1);
+      setValueNormativ(`${selectedRowData[0].normativ_id}`);
+      setValueNormativInitial(`${selectedRowData[0].normativ_id}` );
     }
   }
 
@@ -620,6 +646,32 @@ const DataTableExpScenario = (props) => {
                 })}
         </Select>
       </FormControl>  
+
+      <p/> 
+      <div>
+      {(() => {
+        if (props.table_name==='criterion_gr') {
+          return (
+            <div>
+
+              <FormControl sx={{ width: '30ch' }} size="small">
+                <InputLabel id="ch_normativ_id">Нормативная база</InputLabel>
+                  <Select labelId="ch_normativ_id" id="ch_normativ_id1" label="Нормативная база" value={valueNormativ  || "" } onChange={e => setValueNormativ(e.target.value)} >
+                          {tableNormativ?.map(option => {
+                          return (
+                          <MenuItem key={option.id} value={option.id}>
+                            {option.title ?? option.id}
+                          </MenuItem>
+                          );
+                        })}
+                </Select>
+              </FormControl>   
+            </div>
+          )
+        } 
+      })()}
+      </div>
+
       <p/> 
       <TextField  id="ch_name_rus" sx={{ width: '49ch' }}  size="small" label="Название (рус.яз)"  variant="outlined"  value={valueNameRus || ''} onChange={e => setValueNameRus(e.target.value)} />
       &nbsp;&nbsp;&nbsp;
