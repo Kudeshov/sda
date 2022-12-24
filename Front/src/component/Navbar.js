@@ -5,8 +5,6 @@ import {
   CssBaseline,
   Typography,
   makeStyles,
-//  useTheme,
- // useMediaQuery, 
 } from "@material-ui/core";
 import { Link } from "react-router-dom";
 import Divider from '@mui/material/Divider';
@@ -99,7 +97,7 @@ function Navbar() {
                 anchorEl={anchorE5}
                 open={menuSubstance}
                 onClose={closeMenuSubstance}>
-                <MenuItem onClick={closeMenuSubstance} component={Link} disabled={true} to="/">Химические элементы</MenuItem> 
+                <MenuItem onClick={closeMenuSubstance} component={Link} to="/chelement">{table_names['chelement']}</MenuItem> 
             </Menu> 
 
             <Link onClick={recordButtonPositionDecay} className={classes.link}>

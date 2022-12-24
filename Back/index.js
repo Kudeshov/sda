@@ -39,12 +39,18 @@ pool.on('error', function (err, client) {
     console.error('idle client error', err.message, err.stack);
 });
 
-//CHELEMENT interface - first attempt
-app.get('/chelement', ch_q.getChelement);           //list all
+//CHELEMENT interface
+app.get('/chelement', (req, res) => {ch_q.getChelement(req, res, 'chelement')});           //list all
+app.get('/chelement/:id', (req, res) => {ch_q.getChelementById(req, res, 'chelement')});   //list 1
+app.post('/chelement', (req, res) => {ch_q.createChelement(req, res, 'chelement')});       //create
+app.put('/chelement/:id', (req, res) => {ch_q.updateChelement(req, res, 'chelement')});    //update
+app.delete('/chelement/:id', (req, res) => {ch_q.deleteChelement(req, res, 'chelement')}); //delete
+
+/* app.get('/chelement', ch_q.getChelement);           //list all
 app.get('/chelement/:id', ch_q.getChelementById);   //list 1
 app.post('/chelement', ch_q.createChelement);       //create
 app.put('/chelement/:id', ch_q.updateChelement);    //update
-app.delete('/chelement/:id', ch_q.deleteChelement); //delete
+app.delete('/chelement/:id', ch_q.deleteChelement); //delete */
 
 //DATA_SOURCE interface
 app.get('/data_source', ds_q.getDataSource);           //list all
@@ -150,20 +156,19 @@ app.post('/calcfunction', (req, res) => {cf_q.createCalcFunction(req, res, 'calc
 app.put('/calcfunction/:id', (req, res) => {cf_q.updateCalcFunction(req, res, 'calcfunction')});    //update
 app.delete('/calcfunction/:id', (req, res) => {cf_q.deleteCalcFunction(req, res, 'calcfunction')}); //delete
 
-//GENERIC QUERIES on PEOPLE_CLASS 
+//GENERIC QUERIES on ACTION_LEVEL 
 app.get('/action_level', (req, res) => {gn_q.getGenericNLS(req, res, 'action_level')});           //list all
 app.get('/action_level/:id', (req, res) => {gn_q.getGenericNLSById(req, res, 'action_level')});   //list 1
 app.post('/action_level', (req, res) => {gn_q.createGenericNLS(req, res, 'action_level')});       //create
 app.put('/action_level/:id', (req, res) => {gn_q.updateGenericNLS(req, res, 'action_level')});    //update
 app.delete('/action_level/:id', (req, res) => {gn_q.deleteGenericNLS(req, res, 'action_level')}); //delete
 
-//GENERIC QUERIES on PEOPLE_CLASS 
+//GENERIC QUERIES on ACTION 
 app.get('/action', (req, res) => {gn_q.getGenericNLS(req, res, 'action')});           //list all
 app.get('/action/:id', (req, res) => {gn_q.getGenericNLSById(req, res, 'action')});   //list 1
 app.post('/action', (req, res) => {gn_q.createGenericNLS(req, res, 'action')});       //create
 app.put('/action/:id', (req, res) => {gn_q.updateGenericNLS(req, res, 'action')});    //update
 app.delete('/action/:id', (req, res) => {gn_q.deleteGenericNLS(req, res, 'action')}); //delete
-
 
 app.get('/criterion', function(req, resp){
       pool.query('SELECT * FROM nucl.criterion', (error, res) => {

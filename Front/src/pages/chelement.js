@@ -1,4 +1,4 @@
-import { DataTablePeopleClass } from './dt_people_class';
+import { DataTableChelement } from './dt_chelement';
 import { table_names } from './sda_types';
 import { useEffect } from 'react';
 
@@ -8,11 +8,11 @@ const useDocumentTitle = (title) => {
   }, [title])
 }
 
-function Coeff() {
-  useDocumentTitle(table_names['people_class']);
+function Chelement() {
+  useDocumentTitle(table_names['chelement']);
   return (
     <div className="App">
-    <h3>&nbsp;&nbsp;{table_names['people_class']}</h3>
+    <h3>&nbsp;&nbsp;{table_names['chelement']}</h3>
     <table>
       <tbody>
     <tr>
@@ -20,7 +20,7 @@ function Coeff() {
         &nbsp;
       </td>
       <td width="1600">
-        <DataTablePeopleClass table_name="people_class"/>
+        <DataTableChelement table_name="chelement"/>
      </td>
     </tr>
     </tbody>
@@ -28,4 +28,4 @@ function Coeff() {
     </div>
   );
 }
-export default Coeff;
+export default Chelement;

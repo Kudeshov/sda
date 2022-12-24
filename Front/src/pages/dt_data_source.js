@@ -467,11 +467,11 @@ const DataTableDataSource = (props) => {
   }
 
   return (
-    <div style={{ height: 650, width: 1500 }}>
+    <div style={{ height: 640, width: 1500 }}>
     <table border = "0" style={{ height: 550, width: 1500 }} ><tbody>
     <tr>
-      <td style={{ height: 650, width: 600, verticalAlign: 'top' }}>
-      <div style={{ height: 500, width: 585 }}>
+      <td style={{ height: 640, width: 600, verticalAlign: 'top' }}>
+      <div style={{ height: 486, width: 585 }}>
 
       <DataGrid
         components={{ Toolbar: CustomToolbar1 }}
@@ -550,7 +550,7 @@ const DataTableDataSource = (props) => {
       </FormControl>  
       <p/> 
 
-      <TextField  id="ch_descr" sx={{ width: '100ch' }} size="small" label="Комментарий" multiline rows={7} variant="outlined"   value={valueDescr || ''}   /* defaultValue=" "  */onChange={e => setValueDescr(e.target.value)}/>
+      <TextField  id="ch_descr" sx={{ width: '100ch' }} size="small" label="Комментарий" multiline rows={7} variant="outlined"   value={valueDescr || ''} onChange={e => setValueDescr(e.target.value)}/>
       <p/> 
 
     </td>
