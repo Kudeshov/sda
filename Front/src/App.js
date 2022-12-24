@@ -2,7 +2,7 @@ import React from "react";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Navbar from "./component/Navbar";
 import Sources from "./pages/data_source";
-import Decay from "./pages/decay";
+import Chelement from "./pages/chelement";
 import Norms from "./pages/norms";
 import ClassFunctions from "./pages/class_func";
 import Substance from "./pages/substance";
@@ -30,7 +30,7 @@ function App() {
       <Routes>
         <Route exact path="/" element={<Substance/>} />
         <Route path="/substance" element={<Substance/>} />
-        <Route path="/decay" element={<Decay/>} />
+        <Route path="/chelement" element={<Chelement/>} />
         <Route path="/data_source" element={<Sources/>} />
         <Route path="/norms" element={<Norms/>} />
         <Route path="/class_func" element={<ClassFunctions/>} />

@@ -668,11 +668,11 @@ const DataTableDoseRatio = (props) => {
   }
 
   return (
-    <div style={{ height: 550, width: 1500 }}>
+    <div style={{ height: 640, width: 1500 }}>
     <table border = "0" style={{ height: 550, width: 1500 }} ><tbody>
     <tr>
-      <td style={{ height: 550, width: 600, verticalAlign: 'top' }}>
-      <div style={{ height: 400, width: 585 }}>
+      <td style={{ height: 640, width: 600, verticalAlign: 'top' }}>
+      <div style={{ height: 486, width: 585 }}>
 
       <DataGrid
         components={{ Toolbar: CustomToolbar1 }}
@@ -771,7 +771,7 @@ const DataTableDoseRatio = (props) => {
             <p/>
             <FormControl sx={{ width: '40ch' }} size="small">
             <InputLabel id="type">Используется расчетным модулем</InputLabel>
-              <Select labelId="type" id="type1"  label="Используется расчетным модулем" defaultValue={true} value={valueUsed  || "" }  onChange={e => setValueUsed(e.target.value)}>
+              <Select labelId="type" id="type1"  label="Используется расчетным модулем" defaultValue={true} value={valueUsed  || "" } onChange={e => setValueUsed(e.target.value)}>
                 {valuesYesNo?.map(option => {
                     return (
                       <MenuItem key={option.id} value={option.id}>
@@ -792,7 +792,7 @@ const DataTableDoseRatio = (props) => {
     
         <FormControl sx={{ width: '40ch' }} size="small">
         <InputLabel id="fiz">Физический параметр (из общего списка)</InputLabel>
-          <Select labelId="fiz" id="fiz1" label="Физический параметр (из общего списка)" defaultValue="" value={valuePhysParamID  || "" }  onChange={e => setValuePhysParamId(e.target.value)}>
+          <Select labelId="fiz" id="fiz1" label="Физический параметр (из общего списка)" defaultValue="" value={valuePhysParamID  || "" } onChange={e => setValuePhysParamId(e.target.value)}>
           {tablePhysParam?.map(option => {
                 return (
                   <MenuItem key={option.id} value={option.id}>

@@ -17,7 +17,6 @@ import { Box, IconButton } from '@mui/material';
 import Alert from '@mui/material/Alert';
 import Collapse from '@mui/material/Collapse';
 import CloseIcon from '@mui/icons-material/Close';
-import { DataTableDataSourceClass } from './dt_data_source_class';
 import SvgIcon from '@mui/material/SvgIcon';
 import { ReactComponent as SaveLightIcon } from "./../icons/save.svg";
 import { ReactComponent as PlusLightIcon } from "./../icons/plus.svg";
@@ -31,7 +30,7 @@ var alertText = "Сообщение";
 var alertSeverity = "info";
 var lastId = 0;
 
-const DataTablePeopleClass = (props) => {
+const DataTableChelement = (props) => {
   const [valueId, setValueID] = React.useState();
   const [valueTitle, setValueTitle] = React.useState();
   const [valueTitleInitial, setValueTitleInitial] = React.useState();
@@ -39,10 +38,8 @@ const DataTablePeopleClass = (props) => {
   const [valueNameRusInitial, setValueNameRusInitial] = React.useState();
   const [valueNameEng, setValueNameEng] = React.useState();
   const [valueNameEngInitial, setValueNameEngInitial] = React.useState();
-  const [valueDescrEng, setValueDescrEng] = React.useState();
-  const [valueDescrEngInitial, setValueDescrEngInitial] = React.useState();
-  const [valueDescrRus, setValueDescrRus] = React.useState();
-  const [valueDescrRusInitial, setValueDescrRusInitial] = React.useState();
+  const [valueAtomicNum, setValueAtomicNum] = React.useState();
+  const [valueAtomicNumInitial, setValueAtomicNumInitial] = React.useState();
   const [isLoading, setIsLoading] = React.useState(false);
   const [tableData, setTableData] = useState([]); 
   const [selectionModel, setSelectionModel] = React.useState([]);
@@ -50,9 +47,9 @@ const DataTablePeopleClass = (props) => {
 
   useEffect(() => {
     setEditStarted((valueTitleInitial!==valueTitle)||(valueNameRusInitial!==valueNameRus)||(valueNameEngInitial!==valueNameEng)
-      ||(valueDescrEngInitial!==valueDescrEng)||(valueDescrRusInitial!==valueDescrRus));
+      ||(valueAtomicNumInitial!==valueAtomicNum));
     }, [valueTitleInitial, valueTitle, valueNameRusInitial, valueNameRus, valueNameEngInitial, valueNameEng, 
-        valueDescrEngInitial, valueDescrEng, valueDescrRusInitial, valueDescrRus]); 
+       valueAtomicNumInitial, valueAtomicNum]); 
 
   useEffect(() => {
     if ((!isLoading) && (tableData) && (tableData.length)) {
@@ -64,13 +61,11 @@ const DataTablePeopleClass = (props) => {
         setValueTitle(`${tableData[0].title}`);
         setValueNameRus(`${tableData[0].name_rus}`);
         setValueNameEng(`${tableData[0].name_eng}`);
-        setValueDescrRus(`${tableData[0].descr_rus}`);
-        setValueDescrEng(`${tableData[0].descr_eng}`);
+        setValueAtomicNum(`${tableData[0].atomic_num}`);
         setValueTitleInitial(`${tableData[0].title}`);       
         setValueNameRusInitial(`${tableData[0].name_rus}`);
         setValueNameEngInitial(`${tableData[0].name_eng}`);
-        setValueDescrRusInitial(`${tableData[0].descr_rus}`);
-        setValueDescrEngInitial(`${tableData[0].descr_eng}`);
+        setValueAtomicNumInitial(`${tableData[0].atomic_num}`);
       }
     }
     }, [ isLoading, tableData] );
@@ -86,13 +81,11 @@ const DataTablePeopleClass = (props) => {
       setValueTitle(`${params.row.title}`);
       setValueNameRus(`${params.row.name_rus}`);
       setValueNameEng(`${params.row.name_eng}`);
-      setValueDescrRus(`${params.row.descr_rus}`);
-      setValueDescrEng(`${params.row.descr_eng}` );
+      setValueAtomicNum(`${params.row.atomic_num}`);
       setValueTitleInitial(`${params.row.title}`);
       setValueNameRusInitial(`${params.row.name_rus}`);
       setValueNameEngInitial(`${params.row.name_eng}`);
-      setValueDescrRusInitial(`${params.row.descr_rus}`);
-      setValueDescrEngInitial(`${params.row.descr_eng}` );
+      setValueAtomicNumInitial(`${params.row.atomic_num}`);
     }
   }; 
 
@@ -107,8 +100,7 @@ const DataTablePeopleClass = (props) => {
       setValueTitle(``);
       setValueNameRus(``);
       setValueNameEng(``);
-      setValueDescrRus(``);
-      setValueDescrEng(`` );
+      setValueAtomicNum(``);
     }
   }; 
 
@@ -126,8 +118,7 @@ const DataTablePeopleClass = (props) => {
       title: valueTitle,
       name_rus: valueNameRus,
       name_eng: valueNameEng,
-      descr_rus: valueDescrRus,
-      descr_eng: valueDescrEng         
+      atomic_num: valueAtomicNum,      
     });
     if (!valueId) {
       addRec();
@@ -165,8 +156,7 @@ const DataTablePeopleClass = (props) => {
        setValueTitleInitial(valueTitle);       
        setValueNameRusInitial(valueNameRus); 
        setValueNameEngInitial(valueNameEng);
-       setValueDescrRusInitial(valueDescrRus);
-       setValueDescrEngInitial(valueDescrEng);           
+       setValueAtomicNumInitial(valueAtomicNum);         
      }
     reloadData();     
    }
@@ -178,8 +168,7 @@ const DataTablePeopleClass = (props) => {
       title: valueTitle,
       name_rus: valueNameRus,
       name_eng: valueNameEng,
-      descr_rus: valueDescrRus,
-      descr_eng: valueDescrEng         
+      atomic_num: valueAtomicNum,       
     });
     setIsLoading(true);
     try {
@@ -217,8 +206,7 @@ const DataTablePeopleClass = (props) => {
       setValueTitleInitial(valueTitle);
       setValueNameRusInitial(valueNameRus);
       setValueNameEngInitial(valueNameEng);
-      setValueDescrRusInitial(valueDescrRus);
-      setValueDescrEngInitial(valueDescrEng);           
+      setValueAtomicNumInitial(valueAtomicNum);         
     }
   };
 
@@ -254,13 +242,11 @@ const DataTablePeopleClass = (props) => {
         setValueTitle(`${tableData[0].title}`);
         setValueNameRus(`${tableData[0].name_rus}`);
         setValueNameEng(`${tableData[0].name_eng}`);
-        setValueDescrRus(`${tableData[0].descr_rus}`);
-        setValueDescrEng(`${tableData[0].descr_eng}`);
+        setValueAtomicNum(`${tableData[0].atomic_num}`);
         setValueTitleInitial(`${tableData[0].title}`);
         setValueNameRusInitial(`${tableData[0].name_rus}`);
         setValueNameEngInitial(`${tableData[0].name_eng}`);
-        setValueDescrRusInitial(`${tableData[0].descr_rus}`);
-        setValueDescrEngInitial(`${tableData[0].descr_eng}`);
+        setValueAtomicNumInitial(`${tableData[0].atomic_num}`);
       }
     } catch (err) {
       alertText = err.message;
@@ -353,8 +339,7 @@ const DataTablePeopleClass = (props) => {
     setValueTitle(``);
     setValueNameRus(``);
     setValueNameEng(``);
-    setValueDescrRus(``);
-    setValueDescrEng(`` );
+    setValueAtomicNum(``);
   };
 
   const handleCloseSaveWhenNewYes = () => {
@@ -364,8 +349,7 @@ const DataTablePeopleClass = (props) => {
     setValueTitle(``);
     setValueNameRus(``);
     setValueNameEng(``);
-    setValueDescrRus(``);
-    setValueDescrEng(`` );
+    setValueAtomicNum(``);
   };
 
   //////////////////////////////////////////////////////// ACTIONS ///////////////////////////////
@@ -374,7 +358,7 @@ const DataTablePeopleClass = (props) => {
     { field: 'title', headerName: 'Обозначение', width: 180, hideable: false },
     { field: 'name_rus', headerName: 'Название (рус.яз)', width: 250 },
     { field: 'name_eng', headerName: 'Название (англ.яз)', width: 180 },
-    { field: 'descr_rus', headerName: 'Комментарий (рус.яз)', width: 180 },
+    { field: 'atomic_num', headerName: 'Комментарий (рус.яз)', width: 180 },
     { field: 'descr_eng', headerName: 'Комментарий (англ.яз)', width: 180 },
   ]
 
@@ -389,13 +373,11 @@ const DataTablePeopleClass = (props) => {
       setValueTitle(`${selectedRowData[0].title}`);
       setValueNameRus(`${selectedRowData[0].name_rus}`);
       setValueNameEng(`${selectedRowData[0].name_eng}` );
-      setValueDescrRus(`${selectedRowData[0].descr_rus}`);
-      setValueDescrEng(`${selectedRowData[0].descr_eng}` );
+      setValueAtomicNum(`${selectedRowData[0].atomic_num}`);
       setValueTitleInitial(`${selectedRowData[0].title}`);
       setValueNameRusInitial(`${selectedRowData[0].name_rus}`);
       setValueNameEngInitial(`${selectedRowData[0].name_eng}` );
-      setValueDescrRusInitial(`${selectedRowData[0].descr_rus}`);
-      setValueDescrEngInitial(`${selectedRowData[0].descr_eng}` );
+      setValueAtomicNumInitial(`${selectedRowData[0].atomic_num}`);
     }
   }
 
@@ -446,7 +428,7 @@ const DataTablePeopleClass = (props) => {
           columns: {
             columnVisibilityModel: {
               name_eng: false,
-              descr_rus: false,
+              atomic_num: false,
               descr_eng: false,
             },
           },
@@ -482,17 +464,11 @@ const DataTablePeopleClass = (props) => {
       &nbsp;&nbsp;&nbsp;
       <TextField  id="ch_name" sx={{ width: '40ch' }} label="Обозначение" size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
       <p/>
+      <TextField  id="ch_atomic_num" sx={{ width: '40ch' }} label="Атомный номер" size="small" variant="outlined" value={valueAtomicNum || ''} onChange={e => setValueAtomicNum(e.target.value)}/>
+      <p/>
       <TextField  id="ch_name_rus" sx={{ width: '40ch' }}  size="small" label="Название (рус.яз)"  variant="outlined"  value={valueNameRus || ''} onChange={e => setValueNameRus(e.target.value)} />
       &nbsp;&nbsp;&nbsp;
       <TextField  id="ch_name_eng" sx={{ width: '40ch' }} size="small" label="Название (англ.яз)"  variant="outlined" value={valueNameEng || ''} onChange={e => setValueNameEng(e.target.value)}/>
-      <p/>
-      <TextField  id="ch_descr_rus" sx={{ width: '100ch' }} label="Комментарий (рус.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrRus || ''} onChange={e => setValueDescrRus(e.target.value)}/>
-      <p/> 
-      <TextField  id="ch_descr_rus" sx={{ width: '100ch' }} label="Комментарий (англ.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrEng || ''} onChange={e => setValueDescrEng(e.target.value)}/>
-      <p/>
-      <div style={{ height: 300, width: 800 }}>
-        <DataTableDataSourceClass table_name={props.table_name} rec_id={valueId} />
-      </div>
     </td>
   </tr>
   </tbody>
@@ -522,10 +498,9 @@ const DataTablePeopleClass = (props) => {
         <DialogContentText>
             В запись таблицы {table_names[props.table_name]} с кодом <b>{valueId}</b> внесены изменения.<p/>
             {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p/>
+            {valueAtomicNum === valueAtomicNumInitial ? '' : 'Атомный номер: '+valueAtomicNum+'; ' }<p/>
             {valueNameRus === valueNameRusInitial ? '' : 'Название (рус. яз): '+valueNameRus+'; ' }<p/>
             {valueNameEng === valueNameEngInitial ? '' : 'Название (англ. яз): '+valueNameEng+'; ' }<p/>
-            {valueDescrRus === valueDescrRusInitial ? '' : 'Комментарий (рус. яз): '+valueDescrRus+'; ' }<p/>
-            {valueDescrEng === valueDescrEngInitial ? '' : 'Комментарий (англ. яз): '+valueDescrEng+'; ' }<p/>
             <p/>Вы желаете сохранить указанную запись?
         </DialogContentText>
     </DialogContent>
@@ -543,10 +518,9 @@ const DataTablePeopleClass = (props) => {
         <DialogContentText>
             В запись таблицы {table_names[props.table_name]} с кодом <b>{valueId}</b> внесены изменения.<p/>
             {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p/>
+            {valueAtomicNum === valueAtomicNumInitial ? '' : 'Атомный номер: '+valueAtomicNum+'; ' }<p/>
             {valueNameRus === valueNameRusInitial ? '' : 'Название (рус. яз): '+valueNameRus+'; ' }<p/>
             {valueNameEng === valueNameEngInitial ? '' : 'Название (англ. яз): '+valueNameEng+'; ' }<p/>
-            {valueDescrRus === valueDescrRusInitial ? '' : 'Комментарий (рус. яз): '+valueDescrRus+'; ' }<p/>
-            {valueDescrEng === valueDescrEngInitial ? '' : 'Комментарий (англ. яз): '+valueDescrEng+'; ' }<p/>
             <p/>Вы желаете сохранить указанную запись?
         </DialogContentText>
     </DialogContent>
@@ -559,4 +533,4 @@ const DataTablePeopleClass = (props) => {
   )
 }
 
-export { DataTablePeopleClass, lastId }
+export { DataTableChelement, lastId }
