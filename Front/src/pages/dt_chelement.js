@@ -42,6 +42,8 @@ const DataTableChelement = (props) => {
   const [valueAtomicNumInitial, setValueAtomicNumInitial] = React.useState();
   const [isLoading, setIsLoading] = React.useState(false);
   const [tableData, setTableData] = useState([]); 
+  const [tablePhchForm, setTablePhchForm] = useState([]); 
+  const [tablePhchFormFiltered, setTablePhchFormFiltered] = useState([]); 
   const [selectionModel, setSelectionModel] = React.useState([]);
   const [editStarted, setEditStarted] = useState([false]);
 
@@ -110,6 +112,25 @@ const DataTableChelement = (props) => {
       .then((data) => setTableData(data))
       .then((data) => { lastId = 0;} ); 
   }, [props.table_name])
+
+  useEffect(() => {
+    fetch(`/phchform_chelem`)
+      .then((data) => data.json())
+      .then((data) => setTablePhchForm(data))
+      .then((data) => { lastId = 0;} ); 
+  }, [])
+
+  useEffect(() => {
+
+    let f = tablePhchForm.filter(item => ( Number(item.chelement_id) === Number(valueId) ));
+    console.log(f);
+    setTablePhchFormFiltered(f);
+    //setTablePhchFormFiltered(tablePhchForm.filter(item => ( Number(item.chelement_id) === Number(valueId) )));
+
+    //console.log('govno: '+valueId);
+    //console.log(a);
+  }, [valueId, tablePhchForm])
+
 
   ///////////////////////////////////////////////////////////////////  SAVE  /////////////////////
   const saveRec = async ( fromToolbar ) => {
@@ -362,6 +383,27 @@ const DataTableChelement = (props) => {
     { field: 'descr_eng', headerName: 'Комментарий (англ.яз)', width: 180 },
   ]
 
+  /*
+{"id":1533,"chelement_id":143,"subst_form_id":3,"chem_comp_gr_id":167,"subst_form_title":"gases_vapours",
+"subst_form_nls_name":"газы и пары","subst_form_nls_descr":"растворимые или химически активные газы или пары",
+"chem_comp_gr_title":"noble_gas","chem_comp_gr_formula":null,"chem_comp_gr_nls_name":"инертные газы","chem_comp_gr_nls_descr":null,"chelement_title":"Ar","chelement_atomic_num":null}
+  */
+
+  const columnsPhchform = [
+    { field: 'id', headerName: 'Код', width: 80 },
+    { field: 'chelement_id', headerName: 'Химический элемент, код', width: 80 },
+    { field: 'subst_form_id', headerName: 'Форма вещества, код', width: 80 },
+    { field: 'chem_comp_gr_id', headerName: 'Группа химических соединений, код', width: 180 },
+    { field: 'subst_form_title', headerName: 'Форма вещества, обозначение', width: 180 },
+    { field: 'subst_form_nls_name', headerName: 'Форма вещества, наименование (рус.яз)', width: 180 },
+    { field: 'chem_comp_gr_title', headerName: 'Группа химических соединений, обозначение ', width: 180 },
+    { field: 'chem_comp_gr_formula', headerName: 'Формула химических соединения ', width: 180 },
+    { field: 'chem_comp_gr_nls_name', headerName: 'Группа химических соединений, наименование (рус.яз)', width: 180 },
+    { field: 'chem_comp_gr_nls_descr', headerName: 'Группа химических соединений, описание', width: 180 },
+    { field: 'chelement_title', headerName: 'Химический элемент, обозначение', width: 180 },
+    { field: 'chelement_atomic_num', headerName: 'Химический элемент, атомное значение', width: 180 },
+  ]
+
   const [openAlert, setOpenAlert] = React.useState(false, '');
   const handleCancelClick = () => 
   {
@@ -469,6 +511,44 @@ const DataTableChelement = (props) => {
       <TextField  id="ch_name_rus" sx={{ width: '40ch' }}  size="small" label="Название (рус.яз)"  variant="outlined"  value={valueNameRus || ''} onChange={e => setValueNameRus(e.target.value)} />
       &nbsp;&nbsp;&nbsp;
       <TextField  id="ch_name_eng" sx={{ width: '40ch' }} size="small" label="Название (англ.яз)"  variant="outlined" value={valueNameEng || ''} onChange={e => setValueNameEng(e.target.value)}/>
+      <p/>
+      <DataGrid
+        sx={{ height: 300 }}
+        hideFooterSelectedRowCount={true}
+        localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
+        rowHeight={25}
+        rows={tablePhchFormFiltered}
+        loading={isLoading}
+        columns={columnsPhchform}
+/*         onSelectionModelChange={(newSelectionModel) => {
+          setSelectionModel(newSelectionModel);
+        }}
+        selectionModel={selectionModel}  */       
+        initialState={{
+          columns: {
+            columnVisibilityModel: {
+              id: false,
+              chelement_id: false,
+              subst_form_id: false,
+              chem_comp_gr_id: false,
+              chem_comp_gr_formula: false,
+              chem_comp_gr_nls_descr: false,
+              chelement_title: false,
+              chelement_atomic_num: false,
+            },
+          },
+        }}        
+       /*  onRowClick={handleRowClick} {...tablePhchForm} 
+       
+           { field: 'chem_comp_gr_title', headerName: 'Группа химических соединений, обозначение ', width: 180 },
+    { field: 'chem_comp_gr_formula', headerName: 'Формула химических соединения ', width: 180 },
+    { field: 'chem_comp_gr_nls_name', headerName: 'Группа химических соединений, наименование (рус.яз)', width: 180 },
+    { field: 'chem_comp_gr_nls_descr', headerName: 'Группа химических соединений, описание', width: 180 },
+    { field: 'chelement_title', headerName: 'Химический элемент, обозначение', width: 180 },
+    { field: 'chelement_atomic_num', headerName: 'Химический элемент, атомное значение', width: 180 },
+       
+       */
+      />
     </td>
   </tr>
   </tbody>

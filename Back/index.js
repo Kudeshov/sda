@@ -30,6 +30,7 @@ const cf_q = require('./calcfunction_queries');
 const es_q = require('./exp_scenario_queries');
 const no_q = require('./normativ_queries');
 const ccg_q = require('./chem_comp_gr_queries');
+const pcm_q = require('./phchform_chelem_queries');
 
 const { Pool } = require('pg');
 //var msg = 'a';
@@ -184,6 +185,9 @@ app.get('/normativ', (req, res) => {no_q.getNormativ(req, res, 'normativ')});   
 
 //GENERIC QUERIES on chem_comp_gr 
 app.get('/chem_comp_gr', (req, res) => {ccg_q.getChemCompGr(req, res, 'chem_comp_gr')});           //list all
+
+//GENERIC QUERIES on phchform_chelem 
+app.get('/phchform_chelem', (req, res) => {pcm_q.getPhchFormChelem(req, res, 'phchform_chelem')});           //list all
 
 app.get('/criterion', function(req, resp){
       pool.query('SELECT * FROM nucl.criterion', (error, res) => {

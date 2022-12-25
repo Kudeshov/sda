@@ -32,6 +32,7 @@ import { FormControl } from "@mui/material";
 import { InputLabel } from "@mui/material";
 import { ReactComponent as FileImportLightIcon } from "./../icons/file-import.svg";
 import { ReactComponent as EraserLightIcon } from "./../icons/eraser.svg";
+import { ReactComponent as EditLightIcon } from "./../icons/edit.svg";
 import { table_names } from './sda_types';
 
 var alertText = "Сообщение";
@@ -765,7 +766,7 @@ const DataTableDoseRatio = (props) => {
             <br/>
             &nbsp;<label htmlFor="icon-button-file1">
             <IconButton onClick={()=>{handleClickEdit()}} color="primary" size="small" title="Редактировать">
-              <SvgIcon fontSize="small" component={EraserLightIcon} inheritViewBox /></IconButton>
+              <SvgIcon fontSize="small" component={EditLightIcon} inheritViewBox /></IconButton>
             </label></td></tr>
             </tbody></table>
             <p/>
