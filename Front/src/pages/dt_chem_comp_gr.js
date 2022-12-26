@@ -34,7 +34,7 @@ var alertText = "Сообщение";
 var alertSeverity = "info";
 var lastId = 0;
 
-const DataTableExpScenario = (props) => {
+const DataTableChemCompGr = (props) => {
   const [valueId, setValueID] = React.useState();
   const [valueTitle, setValueTitle] = React.useState();
   const [valueTitleInitial, setValueTitleInitial] = React.useState();
@@ -51,11 +51,9 @@ const DataTableExpScenario = (props) => {
   const [valueNormativ, setValueNormativ] = React.useState();
   const [valueNormativInitial, setValueNormativInitial] = React.useState();
   
-
-  
   const [isLoading, setIsLoading] = React.useState(false);
   const [tableData, setTableData] = useState([]); 
-  const [tableNormativ, setNormativ] = useState([]); 
+  const [tableChelement, setChelement] = useState([]); 
   const [treeData, setTreeData] = useState([]); 
   const [editStarted, setEditStarted] = useState([false]);
 
@@ -197,22 +195,23 @@ const DataTableExpScenario = (props) => {
     fetch(`/${props.table_name}`)
       .then((data) => data.json())
       .then((data) => setTableData(data))
-      .then((data) => { lastId = 0; console.log( 'setSelected ');  console.log( data ); /* setSelected(tableData[0].id); */ } ); 
-  }, [props.table_name])
+      .then((data) => { lastId = 0;} ); 
+  }, [props.table_name]);
 
   useEffect(() => {
     if ((!selected)&&(tableData.length))
     {
       setSelected(tableData[0].id);
+      handleItemClick(tableData[0].id);
     }
-  }, [tableData])
+  }, [tableData]);
 
   useEffect(() => {
-    fetch(`/normativ`)
+    fetch(`/chelement`)
       .then((data) => data.json())
-      .then((data) => setNormativ(data))
+      .then((data) => setChelement(data))
       .then((data) => { lastId = 0;} ); 
-  }, [valueNormativ])
+  }, [valueParentID]);
 
 
 ///////////////////////////////////////////////////////////////////  Tree load functions and hook  /////////////////////
@@ -634,17 +633,19 @@ const DataTableExpScenario = (props) => {
       
       </td>
       <td style={{ height: 550, width: 900, verticalAlign: 'top' }}>
-      <TextField  id="ch_id" disabled={true} label="Код" sx={{ width: '12ch' }} variant="outlined" value={ valueId ||''} size="small" /* onChange={e => setValueID(e.target.value)} *//>
+      {(valueId > 999999 || (!valueId)) &&
+      <div id="right part">
+      <TextField  id="ch_id" disabled={true} label="Код" sx={{ width: '12ch' }} variant="outlined" value={ valueId-1000000 ||''} size="small" /* onChange={e => setValueID(e.target.value)} *//>
       &nbsp;&nbsp;&nbsp;
       <TextField  id="ch_name" sx={{ width: '40ch' }} label="Обозначение" size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
       &nbsp;&nbsp;&nbsp;
       <FormControl sx={{ width: '30ch' }} size="small">
-        <InputLabel id="ch_parent_id">Родительский класс</InputLabel>
-          <Select labelId="ch_parent_id" id="ch_parent_id1" label="Родительский класс" value={valueParentID  || "" } onChange={e => setValueParentID(e.target.value)} >
-          <MenuItem key={-1} value={-1}>
-                    {'Не задан'}
-                  </MenuItem>
-                  {tableData?.map(option => {
+        <InputLabel id="ch_parent_id">Химический элемент</InputLabel>
+          <Select labelId="ch_parent_id" id="ch_parent_id1" label="Родительский класс" value={valueParentID || "" } onChange={e => setValueParentID(e.target.value)} >
+          <MenuItem key={1000000} value={1000000}>
+                    {'Не определено'}
+                  </MenuItem> 
+                  {tableChelement?.map(option => {
                   return (
                   <MenuItem key={option.id} value={option.id}>
                     {option.title ?? option.id}
@@ -664,7 +665,7 @@ const DataTableExpScenario = (props) => {
               <FormControl sx={{ width: '30ch' }} size="small">
                 <InputLabel id="ch_normativ_id">Нормативная база</InputLabel>
                   <Select labelId="ch_normativ_id" id="ch_normativ_id1" label="Нормативная база" value={valueNormativ  || "" } onChange={e => setValueNormativ(e.target.value)} >
-                          {tableNormativ?.map(option => {
+                          {tableChelement?.map(option => {
                           return (
                           <MenuItem key={option.id} value={option.id}>
                             {option.title ?? option.id}
@@ -680,17 +681,19 @@ const DataTableExpScenario = (props) => {
       </div>
 
       <p/> 
-      <TextField  id="ch_name_rus" sx={{ width: '49ch' }}  size="small" label="Название (рус.яз)"  variant="outlined"  value={valueNameRus || ''} onChange={e => setValueNameRus(e.target.value)} />
-      &nbsp;&nbsp;&nbsp;
-      <TextField  id="ch_name_eng" sx={{ width: '49ch' }} size="small" label="Название (англ.яз)"  variant="outlined" value={valueNameEng || ''} onChange={e => setValueNameEng(e.target.value)}/>
+      <TextField  id="ch_name_rus" sx={{ width: '100ch' }}  size="small" label="Название (рус.яз)"  variant="outlined"  value={valueNameRus || ''} onChange={e => setValueNameRus(e.target.value)} />
+      <p/>
+      <TextField  id="ch_name_eng" sx={{ width: '100ch' }} size="small" label="Название (англ.яз)"  variant="outlined" value={valueNameEng || ''} onChange={e => setValueNameEng(e.target.value)}/>
       <p/>
       <TextField  id="ch_descr_rus" sx={{ width: '100ch' }} label="Комментарий (рус.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrRus || ''} onChange={e => setValueDescrRus(e.target.value)}/>
       <p/> 
       <TextField  id="ch_descr_rus" sx={{ width: '100ch' }} label="Комментарий (англ.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrEng || ''} onChange={e => setValueDescrEng(e.target.value)}/>
       <p/>
       <div style={{ height: 300, width: 800 }}>
-        <DataTableDataSourceClass table_name={props.table_name} rec_id={valueId} />
+        <DataTableDataSourceClass table_name={props.table_name} rec_id={(valueId||0)-1000000} />
       </div>
+
+      </div>} {/* right part */}
     </td>
   </tr>
   </tbody>
@@ -757,4 +760,4 @@ const DataTableExpScenario = (props) => {
   )
 }
 
-export { DataTableExpScenario, lastId }
+export { DataTableChemCompGr, lastId }

@@ -1,4 +1,4 @@
-import { DataTableExpScenario } from './dt_exp_scenario';
+import { DataTableChemCompGr } from './dt_chem_comp_gr';
 import { table_names } from './sda_types';
 import { useEffect } from 'react';
 
@@ -20,7 +20,7 @@ function Organ() {
         &nbsp;
       </td>
       <td width="1600">
-        <DataTableExpScenario table_name="chem_comp_gr"/>
+        <DataTableChemCompGr table_name="chem_comp_gr"/>
       </td>
     </tr>
     </tbody>
