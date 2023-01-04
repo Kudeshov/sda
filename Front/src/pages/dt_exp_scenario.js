@@ -33,6 +33,7 @@ import { table_names } from './sda_types';
 var alertText = "Сообщение";
 var alertSeverity = "info";
 var lastId = 0;
+var clickAfterReload = false;
 
 const DataTableExpScenario = (props) => {
   const [valueId, setValueID] = React.useState();
@@ -51,9 +52,7 @@ const DataTableExpScenario = (props) => {
   const [valueNormativ, setValueNormativ] = React.useState();
   const [valueNormativInitial, setValueNormativInitial] = React.useState();
   
-
-  
-  const [isLoading, setIsLoading] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState("false");
   const [tableData, setTableData] = useState([]); 
   const [tableNormativ, setNormativ] = useState([]); 
   const [treeData, setTreeData] = useState([]); 
@@ -70,7 +69,11 @@ const DataTableExpScenario = (props) => {
     if ((!isLoading) && (tableData) && (tableData.length)) {
       if (!lastId) 
       {
+        console.log('lastId ' + lastId); 
+        console.log('tableData[0].id ' + tableData[0].id); 
         lastId = tableData[0].id;
+        console.log('tableData[0].title ' + tableData[0].title); 
+        //setValueID(lastId);
         setValueTitle(`${tableData[0].title}`);
         setValueNameRus(`${tableData[0].name_rus}`);
         setValueNameEng(`${tableData[0].name_eng}`);
@@ -84,10 +87,44 @@ const DataTableExpScenario = (props) => {
         setValueParentID(tableData[0].parent_id||-1);
         setValueParentIDInitial(tableData[0].parent_id||-1);
         setValueNormativ(`${tableData[0].normativ_id}`);
-        setValueNormativInitial(`${tableData[0].normativ_id}`);
+        setValueNormativInitial(`${tableData[0].normativ_id}`);  
       }
     }
     }, [ isLoading, tableData] );
+
+    useEffect(() => {
+      if (clickAfterReload) {
+          clickAfterReload = false;
+          console.log('clickAfterReload ' + lastId); 
+          handleItemClick(lastId); 
+      }
+    }, [ tableData] );
+
+/*     useEffect(() => {
+      console.log('useEffect once tableData.length ' + tableData.length); 
+      if ((!isLoading) && (tableData) && (tableData.length)) {
+        if (!lastId) 
+        {
+          console.log('tableData[0].id ' + tableData[0].id); 
+          lastId = tableData[0].id;
+          console.log('tableData[0].title ' + tableData[0].title); 
+          setValueTitle(`${tableData[0].title}`);
+          setValueNameRus(`${tableData[0].name_rus}`);
+          setValueNameEng(`${tableData[0].name_eng}`);
+          setValueDescrRus(`${tableData[0].descr_rus}`);
+          setValueDescrEng(`${tableData[0].descr_eng}`);
+          setValueTitleInitial(`${tableData[0].title}`);       
+          setValueNameRusInitial(`${tableData[0].name_rus}`);
+          setValueNameEngInitial(`${tableData[0].name_eng}`);
+          setValueDescrRusInitial(`${tableData[0].descr_rus}`);
+          setValueDescrEngInitial(`${tableData[0].descr_eng}`);
+          setValueParentID(tableData[0].parent_id||-1);
+          setValueParentIDInitial(tableData[0].parent_id||-1);
+          setValueNormativ(`${tableData[0].normativ_id}`);
+          setValueNormativInitial(`${tableData[0].normativ_id}`); 
+        }
+      }
+      }, [] );     */
 
     const getTreeItemsFromData = treeItems => {
       return treeItems.map(treeItemData => {
@@ -95,10 +132,11 @@ const DataTableExpScenario = (props) => {
         if (treeItemData.children && treeItemData.children.length > 0) {
           children = getTreeItemsFromData(treeItemData.children);
         }
-        return (
+        //console.log('treeItemData.id ' + treeItemData.id);
+        return ( 
           <TreeItem
             key={treeItemData.id}
-            nodeId= {treeItemData.id}
+            nodeId={treeItemData.id?treeItemData.id.toString():0}
             label={treeItemData.title}
             children={children}
           />
@@ -106,15 +144,15 @@ const DataTableExpScenario = (props) => {
       });
     };
 
-    const [expanded, setExpanded] = React.useState("");
-    const [selected, setSelected] = React.useState("");
+    const [expanded, setExpanded] = React.useState([]);
+    const [selected, setSelected] = React.useState('');
 
     const handleToggle = (event, nodeIds) => {
       setExpanded(nodeIds);
     };
   
     const handleSelect = (event, nodeIds) => {
-      console.log(nodeIds);
+      console.log('handleSelect nodeIds= ' + nodeIds);
       setSelected(nodeIds);
 
       handleItemClick(nodeIds);
@@ -123,7 +161,7 @@ const DataTableExpScenario = (props) => {
     const [treeFilterString, setTreeFilterString] = React.useState('');
 
     const DataTreeView = ({ treeItems }) => {
-      let ids = tableData.map(a => a.id);
+      //let ids = tableData.map(a => a.id);
       return (
         <div>
         <p/>
@@ -140,7 +178,7 @@ const DataTableExpScenario = (props) => {
           //defaultExpanded={[1,2]}
           //expanded={true}
           loading={isLoading}
-          defaultExpanded={ids}
+          //defaultExpanded={ids}
         >
           {getTreeItemsFromData(treeItems)}
         </TreeView></div>
@@ -148,15 +186,30 @@ const DataTableExpScenario = (props) => {
     };
 
   const handleItemClick = (id) => {
+
+    console.log('handleItemClick id ' + id ); 
     if (editStarted)
     {
       handleClickSave(id);
     } 
     else 
     {
+      if (id)
+        lastId = id;
+      //else
+      //  return;
+      //console.log('handleItemClick '+id);
+      //console.log('id '+ id);
+      //console.log('lastId ' + lastId);
+
       var res = tableData.filter(function(item) {
-        return item.id === id;
+        return item.id.toString() === id;
       });
+
+      console.log('res.length ' + res.length);
+ 
+    //  console.log('res[0].id ' + res[0].id);
+    //  console.log('res[0].title ' + res[0].title);
       setValueID(res[0].id); 
       setValueTitle(res[0].title);
       setValueNameRus(res[0].name_rus);
@@ -197,21 +250,29 @@ const DataTableExpScenario = (props) => {
     fetch(`/${props.table_name}`)
       .then((data) => data.json())
       .then((data) => setTableData(data))
-      .then((data) => { lastId = 0; console.log( 'setSelected ');  console.log( data ); /* setSelected(tableData[0].id); */ } ); 
+      .then((data) => {  //lastId = data[0].id||0; clickAfterReload = true; console.log( 'setSelected ');  //console.log( tableData[0].id||0 ); 
+         //handleItemClick(1);
+        //   setSelected( "1" ); 
+          
+          } ); 
   }, [props.table_name])
 
   useEffect(() => {
+    console.log( 'selected = ' + selected + ' tableData.length ' + tableData.length );
     if ((!selected)&&(tableData.length))
     {
-      setSelected(tableData[0].id);
-    }
+      console.log( 'setSelected(tableData[0].id.toString()); = ' + tableData[0].id.toString()  );
+
+      setSelected(tableData[0].id.toString());
+      handleItemClick(tableData[0].id.toString());
+    }      
   }, [tableData])
 
   useEffect(() => {
     fetch(`/normativ`)
       .then((data) => data.json())
       .then((data) => setNormativ(data))
-      .then((data) => { lastId = 0;} ); 
+      .then((data) => { /* lastId = 0; */} ); 
   }, [valueNormativ])
 
 
@@ -255,7 +316,7 @@ const DataTableExpScenario = (props) => {
         i++;
       }      
     }
-    function list_to_tree1(list, filterString) {
+    function list_to_tree1(list, filterString) { 
       var map = {}, node, roots = [], i;
        for (i = 0; i < list.length; i += 1) {
         map[list[i].id] = i;   // initialize the map
@@ -298,7 +359,7 @@ const DataTableExpScenario = (props) => {
       addRec();
       return;
     }
-    setIsLoading(true);
+    setIsLoading("true");
     try {
       const response = await fetch(`/${props.table_name}/`+valueId, {
        method: 'PUT',
@@ -324,7 +385,7 @@ const DataTableExpScenario = (props) => {
      alertSeverity = 'error';
      setOpenAlert(true);
    } finally {
-     setIsLoading(false);
+     setIsLoading('false');
      if (fromToolbar) 
      {
        setValueTitleInitial(valueTitle);       
@@ -353,7 +414,7 @@ const DataTableExpScenario = (props) => {
       parent_id: myParentID,
       normativ_id: valueNormativ        
     });
-    setIsLoading(true);
+    setIsLoading("true");
     try {
       const response = await fetch(`/${props.table_name}/`, {
         method: 'POST',
@@ -382,7 +443,7 @@ const DataTableExpScenario = (props) => {
       alertSeverity = 'error';
       setOpenAlert(true);
     } finally {
-      setIsLoading(false);
+      setIsLoading("false");
       reloadData();
     }
   };
@@ -393,7 +454,7 @@ const DataTableExpScenario = (props) => {
         id: valueId,
         title: valueTitle,
     });
-    setIsLoading(true);
+    setIsLoading("true");
     try {
       const response = await fetch(`/${props.table_name}/`+valueId, {
         method: 'DELETE',
@@ -438,17 +499,21 @@ const DataTableExpScenario = (props) => {
       alertSeverity = 'error';
       setOpenAlert(true);
     } finally {
-      setIsLoading(false);
+      setIsLoading("false");
     }
   };  
 
   /////////////////////////////////////////////////////////////////// RELOAD /////////////////////
-  const reloadDataAlert =  async () => {
+  const handleClickReload = async () => {
     alertSeverity = "info";
     alertText =  'Данные успешно обновлены';
     try 
     {
-      await reloadData();
+      console.log('handleClickReload await reloadData();');
+      clickAfterReload = true;
+      await reloadData().then( console.log('after reload, title = '+tableData[0].title) ) ;
+      //console.log('handleClickReload handleItemClick(lastId); lastId= '+lastId);
+      //handleItemClick(lastId);
     } catch(e)
     {
       alertSeverity = "error";
@@ -456,13 +521,14 @@ const DataTableExpScenario = (props) => {
       setOpenAlert(true);
       return;
     }
+    
     setOpenAlert(true);        
   }
 
   const reloadData = async () => {
     try {
       const response = await fetch(`/${props.table_name}/`);
-       if (!response.ok) {
+      if (!response.ok) {
         alertText = `Ошибка при обновлении данных: ${response.status}`;
         alertSeverity = "false";
         const error = response.status + ' (' +response.statusText+')';  
@@ -476,7 +542,7 @@ const DataTableExpScenario = (props) => {
     } catch (err) {
       throw err;
     } finally {
-      setIsLoading(false);
+      setIsLoading("false");
     }
   };
 
@@ -533,6 +599,7 @@ const DataTableExpScenario = (props) => {
   const [openAlert, setOpenAlert] = React.useState(false, '');
   const handleCancelClick = () => 
   {
+    console.log('handleCancelClick');
     const selectedIDs = selected;
     const selectedRowData = tableData.filter((row) => selectedIDs===row.id);
     if (selectedRowData.length)
@@ -596,13 +663,13 @@ const DataTableExpScenario = (props) => {
           <SvgIcon fontSize="small" component={TrashLightIcon} inheritViewBox /></IconButton>
         <IconButton onClick={()=>handleCancelClick()} disabled={!editStarted} color="primary" size="small" title="Отменить редактирование">
           <SvgIcon fontSize="small" component={UndoLightIcon} inheritViewBox /></IconButton>
-        <IconButton onClick={()=>reloadDataAlert()} color="primary" size="small" title="Обновить данные">
+        <IconButton onClick={()=>handleClickReload()} color="primary" size="small" title="Обновить данные">
           <SvgIcon fontSize="small" component={RepeatLightIcon} inheritViewBox /></IconButton>
         <IconButton onClick={()=> exportdDataCSV()} color="primary" size="small" title="Сохранить в формате CSV">
           <SvgIcon fontSize="small" component={DownloadLightIcon} inheritViewBox /></IconButton>
         <br/><TextField label="Фильтр ..." size = "small" variant="standard" onKeyUp={onFilterKeyUp} />
         <Box sx={{ height: 415, overflowY: 'false' }}>
-          {isLoading && <CircularProgress/>} 
+          {(isLoading==="true") && <CircularProgress/>} 
           <Box sx={{ height: 415, flexGrow: 1, overflowY: 'auto' }} >     
             <DataTreeView treeItems={treeData} />
           </Box> 
@@ -702,7 +769,7 @@ const DataTableExpScenario = (props) => {
       </DialogTitle>
       <DialogContent>
           <DialogContentText>
-          В таблице "{table_names[props.table_name]}" предложена к удалению следующая запись:<p/><b>{valueTitle}</b>; Код в БД = <b>{valueId}</b><p/>
+          В таблице "{table_names[props.table_name]}" предложена к удалению следующая запись:<b><p/>{valueTitle}</b>; Код в БД = <b>{valueId}<p/></b>
           Вы желаете удалить указанную запись?
           </DialogContentText>
       </DialogContent>

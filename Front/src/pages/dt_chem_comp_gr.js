@@ -48,8 +48,8 @@ const DataTableChemCompGr = (props) => {
   const [valueDescrRusInitial, setValueDescrRusInitial] = React.useState();
   const [valueParentID, setValueParentID] = React.useState();
   const [valueParentIDInitial, setValueParentIDInitial] = React.useState();
-  const [valueNormativ, setValueNormativ] = React.useState();
-  const [valueNormativInitial, setValueNormativInitial] = React.useState();
+  const [valueFormula, setValueFormula] = React.useState();
+  const [valueFormulaInitial, setValueFormulaInitial] = React.useState();
   
   const [isLoading, setIsLoading] = React.useState(false);
   const [tableData, setTableData] = useState([]); 
@@ -60,9 +60,9 @@ const DataTableChemCompGr = (props) => {
   useEffect(() => {
     setEditStarted(       
        (valueTitleInitial!==valueTitle)||(valueNameRusInitial!==valueNameRus)||(valueNameEngInitial!==valueNameEng)
-      ||(valueDescrEngInitial!==valueDescrEng) ||(valueDescrRusInitial!==valueDescrRus)||(valueParentIDInitial!==valueParentID)/*||(valueNormativInitial!==valueNormativ)*/);
+      ||(valueDescrEngInitial!==valueDescrEng) ||(valueDescrRusInitial!==valueDescrRus)||(valueParentIDInitial!==valueParentID)/*||(valueFormulaInitial!==valueFormula)*/);
     }, [valueTitleInitial, valueTitle, valueNameRusInitial, valueNameRus, valueNameEngInitial, valueNameEng, 
-        valueDescrEngInitial, valueDescrEng, valueDescrRusInitial, valueDescrRus, valueParentID, valueParentIDInitial, valueNormativ, valueNormativInitial]); 
+        valueDescrEngInitial, valueDescrEng, valueDescrRusInitial, valueDescrRus, valueParentID, valueParentIDInitial, valueFormula, valueFormulaInitial]); 
 
   useEffect(() => {
     if ((!isLoading) && (tableData) && (tableData.length)) {
@@ -81,8 +81,8 @@ const DataTableChemCompGr = (props) => {
         setValueDescrEngInitial(`${tableData[0].descr_eng}`);
         setValueParentID(tableData[0].parent_id||-1);
         setValueParentIDInitial(tableData[0].parent_id||-1);
-        setValueNormativ(`${tableData[0].normativ_id}`);
-        setValueNormativInitial(`${tableData[0].normativ_id}`);
+        setValueFormula(`${tableData[0].formula}`);
+        setValueFormulaInitial(`${tableData[0].formula}`);
       }
     }
     }, [ isLoading, tableData] );
@@ -90,6 +90,7 @@ const DataTableChemCompGr = (props) => {
     const getTreeItemsFromData = treeItems => {
       return treeItems.map(treeItemData => {
         let children = undefined;
+        console.log('перегружается дерево')
         if (treeItemData.children && treeItemData.children.length > 0) {
           children = getTreeItemsFromData(treeItemData.children);
         }
@@ -162,14 +163,14 @@ const DataTableChemCompGr = (props) => {
       setValueDescrRus(res[0].descr_rus);
       setValueDescrEng(res[0].descr_eng);    
       setValueParentID(res[0].parent_id||-1);    
-      setValueNormativ(res[0].normativ_id);      
+      setValueFormula(res[0].formula);      
       setValueTitleInitial(res[0].title);
       setValueNameRusInitial(res[0].name_rus);
       setValueNameEngInitial(res[0].name_eng);
       setValueDescrRusInitial(res[0].descr_rus);
       setValueDescrEngInitial(res[0].descr_eng);
       setValueParentIDInitial(res[0].parent_id||-1); 
-      setValueNormativInitial(res[0].normativ_id);
+      setValueFormulaInitial(res[0].formula);
     }   
   }; 
 
@@ -180,14 +181,18 @@ const DataTableChemCompGr = (props) => {
     } 
     else 
     {
-      setValueID(``);
+      setValueID('');
       setValueTitle(``);
       setValueNameRus(``);
       setValueNameEng(``);
       setValueDescrRus(``);
       setValueDescrEng(``);
-      setValueParentID(-1);
-      setValueNormativ(``);
+      console.log('valueParentID ' + valueParentID + ' valueId ' + valueId)
+      if (valueId > 999999)
+        setValueParentID(valueParentID)
+      else
+        setValueParentID(valueId);
+      setValueFormula(``);
     }
   }; 
 
@@ -195,7 +200,7 @@ const DataTableChemCompGr = (props) => {
     fetch(`/${props.table_name}`)
       .then((data) => data.json())
       .then((data) => setTableData(data))
-      .then((data) => { lastId = 0;} ); 
+      .then((data) => { console.log('fetch main');  lastId = 0;} ); 
   }, [props.table_name]);
 
   useEffect(() => {
@@ -276,30 +281,38 @@ const DataTableChemCompGr = (props) => {
 
     let arr = list_to_tree1( tableData, treeFilterString );
     setTreeData( arr );
-  }, [tableData, treeFilterString]) 
+  }, [ tableData, treeFilterString]) 
 
   ///////////////////////////////////////////////////////////////////  SAVE  /////////////////////
   const saveRec = async ( fromToolbar ) => {
-    let myParentID;
-    myParentID = valueParentID === -1 ? null : valueParentID;  
+    let myId, myParentID;
+    //myParentID = valueParentID ? valueParentID-1000000 : null;
+    
+    if (valueId)
+      myId = valueId - 1000000;
+    if (valueParentID==1000000)
+      myParentID = null;
     const js = JSON.stringify({
-      id: valueId,
+      id: myId,
       title: valueTitle,
       name_rus: valueNameRus,
       name_eng: valueNameEng,
       descr_rus: valueDescrRus,
       descr_eng: valueDescrEng,
       parent_id: myParentID,    
-      normativ_id: valueNormativ     
+      formula: valueFormula     
     });
+
+    console.log(js);
 
     if (!valueId) {
       addRec();
       return;
     }
+
     setIsLoading(true);
     try {
-      const response = await fetch(`/${props.table_name}/`+valueId, {
+      const response = await fetch(`/${props.table_name}/`+myId, {
        method: 'PUT',
        body: js,
        headers: {
@@ -326,16 +339,26 @@ const DataTableChemCompGr = (props) => {
      setIsLoading(false);
      if (fromToolbar) 
      {
-       setValueTitleInitial(valueTitle);       
-       setValueNameRusInitial(valueNameRus); 
-       setValueNameEngInitial(valueNameEng);
-       setValueDescrRusInitial(valueDescrRus);
-       setValueDescrEngInitial(valueDescrEng);    
-       setValueParentIDInitial(valueParentID);
-       setValueNormativInitial(valueNormativ);
+      reloadData();
+      console.log('кнопа нажата') 
+      setValueTitle(valueTitle);       
+      setValueNameRus(valueNameRus); 
+      setValueNameEng(valueNameEng);
+      setValueDescrRus(valueDescrRus);
+      setValueDescrEng(valueDescrEng);    
+      setValueParentID(valueParentID);
+      setValueFormula(valueFormula);
 
-     }
-    reloadData();     
+      setValueTitleInitial(valueTitle);       
+      setValueNameRusInitial(valueNameRus); 
+      setValueNameEngInitial(valueNameEng);
+      setValueDescrRusInitial(valueDescrRus);
+      setValueDescrEngInitial(valueDescrEng);    
+      setValueParentIDInitial(valueParentID);
+      setValueFormulaInitial(valueFormula);
+    }
+    //reloadData();   
+    //handleItemClick(valueId);
    }
  };
 /////////////////////////////////////////////////////////////////// ADDREC ///////////////////// 
@@ -350,7 +373,7 @@ const DataTableChemCompGr = (props) => {
       descr_rus: valueDescrRus,
       descr_eng: valueDescrEng,
       parent_id: myParentID,
-      normativ_id: valueNormativ        
+      formula: valueFormula        
     });
     setIsLoading(true);
     try {
@@ -429,8 +452,8 @@ const DataTableChemCompGr = (props) => {
         setValueDescrEngInitial(`${tableData[0].descr_eng}`);
         setValueParentID(`${tableData[0].parent_id||-1}`);
         setValueParentIDInitial(`${tableData[0].parent_id||-1}`);
-        setValueNormativ(`${tableData[0].normativ_id}`);
-        setValueNormativInitial(`${tableData[0].normativ_id}`);
+        setValueFormula(`${tableData[0].formula}`);
+        setValueFormulaInitial(`${tableData[0].formula}`);
       }
     } catch (err) {
       alertText = err.message;
@@ -549,8 +572,8 @@ const DataTableChemCompGr = (props) => {
       setValueDescrEngInitial(`${selectedRowData[0].descr_eng}` );
       setValueParentID(selectedRowData[0].parent_id||-1);
       setValueParentIDInitial(selectedRowData[0].parent_id||-1);
-      setValueNormativ(`${selectedRowData[0].normativ_id}`);
-      setValueNormativInitial(`${selectedRowData[0].normativ_id}` );
+      setValueFormula(`${selectedRowData[0].formula}`);
+      setValueFormulaInitial(`${selectedRowData[0].formula}` );
     }
   }
 
@@ -633,9 +656,9 @@ const DataTableChemCompGr = (props) => {
       
       </td>
       <td style={{ height: 550, width: 900, verticalAlign: 'top' }}>
-      {(valueId > 999999 || (!valueId)) &&
+      {(valueId > 1000000 || (!valueId)) &&
       <div id="right part">
-      <TextField  id="ch_id" disabled={true} label="Код" sx={{ width: '12ch' }} variant="outlined" value={ valueId-1000000 ||''} size="small" /* onChange={e => setValueID(e.target.value)} *//>
+      <TextField  id="ch_id" disabled={true} label="Код" sx={{ width: '12ch' }} variant="outlined" value={ ((valueId||0)<=999999)?valueId:valueId-1000000 ||''} size="small" /* onChange={e => setValueID(e.target.value)} *//>
       &nbsp;&nbsp;&nbsp;
       <TextField  id="ch_name" sx={{ width: '40ch' }} label="Обозначение" size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
       &nbsp;&nbsp;&nbsp;
@@ -663,8 +686,8 @@ const DataTableChemCompGr = (props) => {
             <div>
 
               <FormControl sx={{ width: '30ch' }} size="small">
-                <InputLabel id="ch_normativ_id">Нормативная база</InputLabel>
-                  <Select labelId="ch_normativ_id" id="ch_normativ_id1" label="Нормативная база" value={valueNormativ  || "" } onChange={e => setValueNormativ(e.target.value)} >
+                <InputLabel id="ch_formula">Нормативная база</InputLabel>
+                  <Select labelId="ch_formula" id="ch_formula1" label="Нормативная база" value={valueFormula  || "" } onChange={e => setValueFormula(e.target.value)} >
                           {tableChelement?.map(option => {
                           return (
                           <MenuItem key={option.id} value={option.id}>
@@ -680,6 +703,8 @@ const DataTableChemCompGr = (props) => {
       })()}
       </div>
 
+      <p/> 
+      <TextField  id="ch_formula" sx={{ width: '100ch' }}  size="small" label="Формула"  variant="outlined"  value={valueFormula || ''} onChange={e => setValueFormula(e.target.value)} />
       <p/> 
       <TextField  id="ch_name_rus" sx={{ width: '100ch' }}  size="small" label="Название (рус.яз)"  variant="outlined"  value={valueNameRus || ''} onChange={e => setValueNameRus(e.target.value)} />
       <p/>

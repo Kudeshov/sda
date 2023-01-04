@@ -38,6 +38,72 @@ const getChemCompGr = (request, response ) => {
   })
 }
 
+const updateChemCompGr = (request, response, table_name ) => {
+  pool.connect((err, client, done) => {
+    const shouldAbort = (err, response) => {
+      if (err) {
+        console.error(`Ошибка изменения записи`, err.message)
+        const { errormsg } = err.message;
+        console.error(`Rollback`)
+        client.query(`ROLLBACK`, err => {
+          console.error(`Rollback прошел`)
+          if (err) {
+            console.error(`Ошибка при откате транзакции`)
+            response.status(400).send(`Ошибка при откате транзакции`);
+            return;
+          }
+          else {
+            console.error(`Транзакция отменена`)
+          }
+        })
+        response.status(400).send(`Ошибка: ` + err.message);
+        // release the client back to the pool
+        done()
+      }
+      return !!err
+    }
+    //id
+    const id = parseInt(request.params.id);
+    const { title, name_rus, name_eng, descr_rus, descr_eng, parent_id, formula } = request.body;
+    client.query(`BEGIN`, err => {
+      console.log(request.body);
+      if (shouldAbort(err, response)) return;
+      console.log(`UPDATE nucl.${table_name} SET title = $1, chelement_id = $2, formula = $3 WHERE id = $4`, [title, parent_id, formula, id]);
+      client.query(`UPDATE nucl.${table_name} SET title = $1, chelement_id = $2, formula = $3 WHERE id = $4`, [title, parent_id, formula, id], (err, res) => {
+        if (shouldAbort(err, response)) return;      
+        // const { id } = res.rows[0];
+        //console.log(`Id = `+id);
+        client.query(`UPDATE nucl.${table_name}_nls SET name = $1, descr=$2 WHERE ${table_name}_id = $3 and lang_id=$4`, 
+                     [name_rus, descr_rus, id, 1], (err, res) => {
+          console.log(`rus изменяется`);         
+          if (shouldAbort(err, response)) return;
+          console.log(`rus изменен`);
+          client.query(`UPDATE nucl.${table_name}_nls SET name = $1, descr=$2 WHERE ${table_name}_id = $3 and lang_id=$4`, 
+                     [name_eng, descr_eng, id, 2], (err, res) => {
+            console.log(`eng изменяется`);  
+            if (shouldAbort(err, response)) return;
+            console.log(`eng изменен`);
+            console.log(`начинаем Commit`);     
+            client.query(`COMMIT`, err => {
+              if (err) {
+                console.error(`Ошибка при подтверждении транзакции`, err.stack);
+                response.status(400).send(`Ошибка при подтверждении транзакции`, err.stack);
+              }
+              else {
+                console.log(`Химическое соединение изменено, ID: ${id}`); 
+                response.status(200).send(`Химическое соединение изменено, ID: ${id}`);
+              }
+              done()
+            })
+          }); 
+        });
+      })
+    })
+  })
+}
+
+
 module.exports = {
-  getChemCompGr
+  getChemCompGr,
+  updateChemCompGr
 }

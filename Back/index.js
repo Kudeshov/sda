@@ -185,6 +185,7 @@ app.get('/normativ', (req, res) => {no_q.getNormativ(req, res, 'normativ')});   
 
 //GENERIC QUERIES on chem_comp_gr 
 app.get('/chem_comp_gr', (req, res) => {ccg_q.getChemCompGr(req, res, 'chem_comp_gr')});           //list all
+app.put('/chem_comp_gr/:id', (req, res) => {ccg_q.updateChemCompGr(req, res, 'chem_comp_gr')});    //update
 
 //GENERIC QUERIES on phchform_chelem 
 app.get('/phchform_chelem', (req, res) => {pcm_q.getPhchFormChelem(req, res, 'phchform_chelem')});           //list all
