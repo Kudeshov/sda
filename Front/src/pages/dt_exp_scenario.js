@@ -29,6 +29,7 @@ import { InputLabel } from "@mui/material";
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { ExportToCsv } from 'export-to-csv-fix-source-map';
 import { table_names } from './sda_types';
+import Backdrop from '@mui/material/Backdrop';
 
 var alertText = "Сообщение";
 var alertSeverity = "info";
@@ -59,6 +60,7 @@ const DataTableExpScenario = (props) => {
   const [editStarted, setEditStarted] = useState([false]);
 
   useEffect(() => {
+    console.log('setEditStarted valueTitleInitial='+valueTitleInitial+' valueTitle = '+ valueTitle);    
     setEditStarted(       
        (valueTitleInitial!==valueTitle)||(valueNameRusInitial!==valueNameRus)||(valueNameEngInitial!==valueNameEng)
       ||(valueDescrEngInitial!==valueDescrEng) ||(valueDescrRusInitial!==valueDescrRus)||(valueParentIDInitial!==valueParentID)/*||(valueNormativInitial!==valueNormativ)*/);
@@ -93,10 +95,43 @@ const DataTableExpScenario = (props) => {
     }, [ isLoading, tableData] );
 
     useEffect(() => {
+      function updateCurrentRec (id)  {
+        /*     console.log('handleItemClick id ' + id ); 
+            if (editStarted)
+            {
+              handleClickSave(id);
+            } 
+            else 
+            { */
+              if (id)
+                lastId = id;
+              var res = tableData.filter(function(item) {
+                return item.id.toString() === id;
+              });
+        
+              console.log('res.length ' + res.length);
+              setValueID(res[0].id); 
+              setValueTitle(res[0].title);
+              setValueNameRus(res[0].name_rus);
+              setValueNameEng(res[0].name_eng);
+              setValueDescrRus(res[0].descr_rus);
+              setValueDescrEng(res[0].descr_eng);    
+              setValueParentID(res[0].parent_id||-1);    
+              setValueNormativ(res[0].normativ_id);      
+              setValueTitleInitial(res[0].title);
+              setValueNameRusInitial(res[0].name_rus);
+              setValueNameEngInitial(res[0].name_eng);
+              setValueDescrRusInitial(res[0].descr_rus);
+              setValueDescrEngInitial(res[0].descr_eng);
+              setValueParentIDInitial(res[0].parent_id||-1); 
+              setValueNormativInitial(res[0].normativ_id);
+           // }   
+          }; 
+        
       if (clickAfterReload) {
           clickAfterReload = false;
           console.log('clickAfterReload ' + lastId); 
-          handleItemClick(lastId); 
+          updateCurrentRec(lastId); 
       }
     }, [ tableData] );
 
@@ -186,7 +221,7 @@ const DataTableExpScenario = (props) => {
     };
 
   const handleItemClick = (id) => {
-
+    setOpenAlert(false);  
     console.log('handleItemClick id ' + id ); 
     if (editStarted)
     {
@@ -196,20 +231,11 @@ const DataTableExpScenario = (props) => {
     {
       if (id)
         lastId = id;
-      //else
-      //  return;
-      //console.log('handleItemClick '+id);
-      //console.log('id '+ id);
-      //console.log('lastId ' + lastId);
-
       var res = tableData.filter(function(item) {
         return item.id.toString() === id;
       });
 
       console.log('res.length ' + res.length);
- 
-    //  console.log('res[0].id ' + res[0].id);
-    //  console.log('res[0].title ' + res[0].title);
       setValueID(res[0].id); 
       setValueTitle(res[0].title);
       setValueNameRus(res[0].name_rus);
@@ -227,6 +253,8 @@ const DataTableExpScenario = (props) => {
       setValueNormativInitial(res[0].normativ_id);
     }   
   }; 
+
+
 
   const handleClearClick = (params) => {
     if (editStarted)
@@ -388,6 +416,7 @@ const DataTableExpScenario = (props) => {
      setIsLoading('false');
      if (fromToolbar) 
      {
+       console.log('fromToolbar valueTitle'+valueTitle)
        setValueTitleInitial(valueTitle);       
        setValueNameRusInitial(valueNameRus); 
        setValueNameEngInitial(valueNameEng);
@@ -436,6 +465,15 @@ const DataTableExpScenario = (props) => {
         alertText =  await response.text();
         lastId = parseInt( alertText.substr(alertText.lastIndexOf('ID:') + 3, 20)); 
         setValueID(lastId);
+        console.log('setSelected ' + lastId.toString());
+        setSelected(lastId.toString());
+        setValueTitleInitial(valueTitle);       
+        setValueNameRusInitial(valueNameRus); 
+        setValueNameEngInitial(valueNameEng);
+        setValueDescrRusInitial(valueDescrRus);
+        setValueDescrEngInitial(valueDescrEng);    
+        setValueParentIDInitial(valueParentID);
+        setValueNormativInitial(valueNormativ);        
         setOpenAlert(true);  
       }
     } catch (err) {
@@ -669,7 +707,17 @@ const DataTableExpScenario = (props) => {
           <SvgIcon fontSize="small" component={DownloadLightIcon} inheritViewBox /></IconButton>
         <br/><TextField label="Фильтр ..." size = "small" variant="standard" onKeyUp={onFilterKeyUp} />
         <Box sx={{ height: 415, overflowY: 'false' }}>
-          {(isLoading==="true") && <CircularProgress/>} 
+
+          {(isLoading==="true") && 
+
+          <Backdrop
+            sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+            open={isLoading}
+           // onClick={handleClose}
+          >
+            <CircularProgress color="inherit" />
+          </Backdrop> } 
+
           <Box sx={{ height: 415, flexGrow: 1, overflowY: 'auto' }} >     
             <DataTreeView treeItems={treeData} />
           </Box> 
