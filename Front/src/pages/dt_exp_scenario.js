@@ -18,6 +18,8 @@ import { ReactComponent as UndoLightIcon } from "./../icons/undo.svg";
 import { ReactComponent as DownloadLightIcon } from "./../icons/download.svg";
 import { ReactComponent as TrashLightIcon } from "./../icons/trash.svg";
 import { ReactComponent as RepeatLightIcon } from "./../icons/repeat.svg";
+import { ReactComponent as CollapseIcon } from "./../icons/chevron-double-right.svg";
+import { ReactComponent as ExpandIcon } from "./../icons/chevron-double-down.svg";
 import TreeView from "@material-ui/lab/TreeView";
 import TreeItem from "@material-ui/lab/TreeItem";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
@@ -34,6 +36,7 @@ import Backdrop from '@mui/material/Backdrop';
 var alertText = "Сообщение";
 var alertSeverity = "info";
 var lastId = 0;
+var clickedId = 0;
 var clickAfterReload = false;
 
 const DataTableExpScenario = (props) => {
@@ -52,7 +55,6 @@ const DataTableExpScenario = (props) => {
   const [valueParentIDInitial, setValueParentIDInitial] = React.useState();
   const [valueNormativ, setValueNormativ] = React.useState();
   const [valueNormativInitial, setValueNormativInitial] = React.useState();
-  
   const [isLoading, setIsLoading] = React.useState("false");
   const [tableData, setTableData] = useState([]); 
   const [tableNormativ, setNormativ] = useState([]); 
@@ -60,7 +62,7 @@ const DataTableExpScenario = (props) => {
   const [editStarted, setEditStarted] = useState([false]);
 
   useEffect(() => {
-    console.log('setEditStarted valueTitleInitial='+valueTitleInitial+' valueTitle = '+ valueTitle);    
+    //console.log('setEditStarted valueTitleInitial='+valueTitleInitial+' valueTitle = '+ valueTitle);    
     setEditStarted(       
        (valueTitleInitial!==valueTitle)||(valueNameRusInitial!==valueNameRus)||(valueNameEngInitial!==valueNameEng)
       ||(valueDescrEngInitial!==valueDescrEng) ||(valueDescrRusInitial!==valueDescrRus)||(valueParentIDInitial!==valueParentID)/*||(valueNormativInitial!==valueNormativ)*/);
@@ -71,11 +73,7 @@ const DataTableExpScenario = (props) => {
     if ((!isLoading) && (tableData) && (tableData.length)) {
       if (!lastId) 
       {
-        console.log('lastId ' + lastId); 
-        console.log('tableData[0].id ' + tableData[0].id); 
         lastId = tableData[0].id;
-        console.log('tableData[0].title ' + tableData[0].title); 
-        //setValueID(lastId);
         setValueTitle(`${tableData[0].title}`);
         setValueNameRus(`${tableData[0].name_rus}`);
         setValueNameEng(`${tableData[0].name_eng}`);
@@ -96,20 +94,13 @@ const DataTableExpScenario = (props) => {
 
     useEffect(() => {
       function updateCurrentRec (id)  {
-        /*     console.log('handleItemClick id ' + id ); 
-            if (editStarted)
-            {
-              handleClickSave(id);
-            } 
-            else 
-            { */
               if (id)
                 lastId = id;
               var res = tableData.filter(function(item) {
                 return item.id.toString() === id;
               });
-        
-              console.log('res.length ' + res.length);
+              if (res.length === 0)
+                return;
               setValueID(res[0].id); 
               setValueTitle(res[0].title);
               setValueNameRus(res[0].name_rus);
@@ -124,42 +115,14 @@ const DataTableExpScenario = (props) => {
               setValueDescrRusInitial(res[0].descr_rus);
               setValueDescrEngInitial(res[0].descr_eng);
               setValueParentIDInitial(res[0].parent_id||-1); 
-              setValueNormativInitial(res[0].normativ_id);
-           // }   
           }; 
         
       if (clickAfterReload) {
           clickAfterReload = false;
-          console.log('clickAfterReload ' + lastId); 
-          updateCurrentRec(lastId); 
+          if (lastId!==0)
+            updateCurrentRec(lastId); 
       }
     }, [ tableData] );
-
-/*     useEffect(() => {
-      console.log('useEffect once tableData.length ' + tableData.length); 
-      if ((!isLoading) && (tableData) && (tableData.length)) {
-        if (!lastId) 
-        {
-          console.log('tableData[0].id ' + tableData[0].id); 
-          lastId = tableData[0].id;
-          console.log('tableData[0].title ' + tableData[0].title); 
-          setValueTitle(`${tableData[0].title}`);
-          setValueNameRus(`${tableData[0].name_rus}`);
-          setValueNameEng(`${tableData[0].name_eng}`);
-          setValueDescrRus(`${tableData[0].descr_rus}`);
-          setValueDescrEng(`${tableData[0].descr_eng}`);
-          setValueTitleInitial(`${tableData[0].title}`);       
-          setValueNameRusInitial(`${tableData[0].name_rus}`);
-          setValueNameEngInitial(`${tableData[0].name_eng}`);
-          setValueDescrRusInitial(`${tableData[0].descr_rus}`);
-          setValueDescrEngInitial(`${tableData[0].descr_eng}`);
-          setValueParentID(tableData[0].parent_id||-1);
-          setValueParentIDInitial(tableData[0].parent_id||-1);
-          setValueNormativ(`${tableData[0].normativ_id}`);
-          setValueNormativInitial(`${tableData[0].normativ_id}`); 
-        }
-      }
-      }, [] );     */
 
     const getTreeItemsFromData = treeItems => {
       return treeItems.map(treeItemData => {
@@ -167,7 +130,6 @@ const DataTableExpScenario = (props) => {
         if (treeItemData.children && treeItemData.children.length > 0) {
           children = getTreeItemsFromData(treeItemData.children);
         }
-        //console.log('treeItemData.id ' + treeItemData.id);
         return ( 
           <TreeItem
             key={treeItemData.id}
@@ -187,16 +149,13 @@ const DataTableExpScenario = (props) => {
     };
   
     const handleSelect = (event, nodeIds) => {
-      console.log('handleSelect nodeIds= ' + nodeIds);
       setSelected(nodeIds);
-
       handleItemClick(nodeIds);
     };  
 
     const [treeFilterString, setTreeFilterString] = React.useState('');
 
     const DataTreeView = ({ treeItems }) => {
-      //let ids = tableData.map(a => a.id);
       return (
         <div>
         <p/>
@@ -222,7 +181,7 @@ const DataTableExpScenario = (props) => {
 
   const handleItemClick = (id) => {
     setOpenAlert(false);  
-    console.log('handleItemClick id ' + id ); 
+    clickedId = id;
     if (editStarted)
     {
       handleClickSave(id);
@@ -234,8 +193,6 @@ const DataTableExpScenario = (props) => {
       var res = tableData.filter(function(item) {
         return item.id.toString() === id;
       });
-
-      console.log('res.length ' + res.length);
       setValueID(res[0].id); 
       setValueTitle(res[0].title);
       setValueNameRus(res[0].name_rus);
@@ -254,8 +211,6 @@ const DataTableExpScenario = (props) => {
     }   
   }; 
 
-
-
   const handleClearClick = (params) => {
     if (editStarted)
     {
@@ -269,7 +224,7 @@ const DataTableExpScenario = (props) => {
       setValueNameEng(``);
       setValueDescrRus(``);
       setValueDescrEng(``);
-      setValueParentID(-1);
+      setValueParentID(valueParentID); //-1
       setValueNormativ(``);
     }
   }; 
@@ -279,22 +234,44 @@ const DataTableExpScenario = (props) => {
       .then((data) => data.json())
       .then((data) => setTableData(data))
       .then((data) => {  //lastId = data[0].id||0; clickAfterReload = true; console.log( 'setSelected ');  //console.log( tableData[0].id||0 ); 
-         //handleItemClick(1);
-        //   setSelected( "1" ); 
-          
           } ); 
   }, [props.table_name])
 
   useEffect(() => {
-    console.log( 'selected = ' + selected + ' tableData.length ' + tableData.length );
+
+    function updateCurrentRec (id)  {
+      if (id)
+        lastId = id;
+      var res = tableData.filter(function(item) {
+        return item.id.toString() === id;
+      });
+
+      //console.log('res.length ' + res.length);
+      setValueID(res[0].id); 
+      setValueTitle(res[0].title);
+      setValueNameRus(res[0].name_rus);
+      setValueNameEng(res[0].name_eng);
+      setValueDescrRus(res[0].descr_rus);
+      setValueDescrEng(res[0].descr_eng);    
+      setValueParentID(res[0].parent_id||-1);    
+      setValueNormativ(res[0].normativ_id);      
+      setValueTitleInitial(res[0].title);
+      setValueNameRusInitial(res[0].name_rus);
+      setValueNameEngInitial(res[0].name_eng);
+      setValueDescrRusInitial(res[0].descr_rus);
+      setValueDescrEngInitial(res[0].descr_eng);
+      setValueParentIDInitial(res[0].parent_id||-1); 
+    }; 
+
+    //console.log( 'selected = ' + selected + ' tableData.length ' + tableData.length );
     if ((!selected)&&(tableData.length))
     {
-      console.log( 'setSelected(tableData[0].id.toString()); = ' + tableData[0].id.toString()  );
+      //console.log( 'setSelected(tableData[0].id.toString()); = ' + tableData[0].id.toString()  );
 
       setSelected(tableData[0].id.toString());
-      handleItemClick(tableData[0].id.toString());
+      updateCurrentRec(tableData[0].id.toString());
     }      
-  }, [tableData])
+  }, [tableData, selected])
 
   useEffect(() => {
     fetch(`/normativ`)
@@ -416,7 +393,7 @@ const DataTableExpScenario = (props) => {
      setIsLoading('false');
      if (fromToolbar) 
      {
-       console.log('fromToolbar valueTitle'+valueTitle)
+       //console.log('fromToolbar valueTitle'+valueTitle)
        setValueTitleInitial(valueTitle);       
        setValueNameRusInitial(valueNameRus); 
        setValueNameEngInitial(valueNameEng);
@@ -465,8 +442,15 @@ const DataTableExpScenario = (props) => {
         alertText =  await response.text();
         lastId = parseInt( alertText.substr(alertText.lastIndexOf('ID:') + 3, 20)); 
         setValueID(lastId);
-        console.log('setSelected ' + lastId.toString());
+        //console.log('setSelected ' + lastId.toString());
         setSelected(lastId.toString());
+        setValueTitle(valueTitle);       
+        setValueNameRus(valueNameRus); 
+        setValueNameEng(valueNameEng);
+        setValueDescrRus(valueDescrRus);
+        setValueDescrEng(valueDescrEng);    
+        setValueParentID(valueParentID);
+        setValueNormativ(valueNormativ);         
         setValueTitleInitial(valueTitle);       
         setValueNameRusInitial(valueNameRus); 
         setValueNameEngInitial(valueNameEng);
@@ -503,14 +487,14 @@ const DataTableExpScenario = (props) => {
         },
       });
       if (!response.ok) {
-        console.log('response not OK');
+        //console.log('response not OK');
         alertSeverity = 'error';
         alertText = await response.text();
         setOpenAlert(true);          
       }
       else
       {
-        console.log('response OK');
+        //console.log('response OK');
         alertSeverity = "success";
         alertText = await response.text();
         setOpenAlert(true); 
@@ -547,7 +531,7 @@ const DataTableExpScenario = (props) => {
     alertText =  'Данные успешно обновлены';
     try 
     {
-      console.log('handleClickReload await reloadData();');
+      //console.log('handleClickReload await reloadData();');
       clickAfterReload = true;
       await reloadData().then( console.log('after reload, title = '+tableData[0].title) ) ;
       //console.log('handleClickReload handleItemClick(lastId); lastId= '+lastId);
@@ -558,8 +542,7 @@ const DataTableExpScenario = (props) => {
       alertText =  'Ошибка при обновлении данных: '+e.message;      
       setOpenAlert(true);
       return;
-    }
-    
+    }    
     setOpenAlert(true);        
   }
 
@@ -606,15 +589,38 @@ const DataTableExpScenario = (props) => {
     setOpenSave(true);
   };
 
+  function updateCurrentRecHandles (id)  {
+    if (id)
+      lastId = id;
+    var res = tableData.filter(function(item) {
+      return item.id.toString() === id;
+    });
+    //console.log('res.length ' + res.length);
+    setValueID(res[0].id); 
+    setValueTitle(res[0].title);
+    setValueNameRus(res[0].name_rus);
+    setValueNameEng(res[0].name_eng);
+    setValueDescrRus(res[0].descr_rus);
+    setValueDescrEng(res[0].descr_eng);    
+    setValueParentID(res[0].parent_id||-1);    
+    setValueNormativ(res[0].normativ_id);      
+    setValueTitleInitial(res[0].title);
+    setValueNameRusInitial(res[0].name_rus);
+    setValueNameEngInitial(res[0].name_eng);
+    setValueDescrRusInitial(res[0].descr_rus);
+    setValueDescrEngInitial(res[0].descr_eng);
+    setValueParentIDInitial(res[0].parent_id||-1); 
+  }; 
+
   const handleCloseSaveNo = () => {
     setOpenSave(false);
-    handleCancelClick();
+    updateCurrentRecHandles(clickedId);
   };
 
   const handleCloseSaveYes = () => {
     setOpenSave(false);
     saveRec(false);
-    handleCancelClick();
+    updateCurrentRecHandles(clickedId);
   };
 
   const handleClickSaveWhenNew = () => {
@@ -622,24 +628,49 @@ const DataTableExpScenario = (props) => {
   };
 
   const handleCloseSaveWhenNewNo = () => {
+    function updateCurrentRec (id)  {
+      if (id)
+        lastId = id;
+      var res = tableData.filter(function(item) {
+        return item.id.toString() === id;
+      });
+      //console.log('res.length ' + res.length);
+      setValueID(res[0].id); 
+      setValueTitle(res[0].title);
+      setValueNameRus(res[0].name_rus);
+      setValueNameEng(res[0].name_eng);
+      setValueDescrRus(res[0].descr_rus);
+      setValueDescrEng(res[0].descr_eng);    
+      setValueParentID(res[0].parent_id||-1);    
+      setValueNormativ(res[0].normativ_id);      
+      setValueTitleInitial(res[0].title);
+      setValueNameRusInitial(res[0].name_rus);
+      setValueNameEngInitial(res[0].name_eng);
+      setValueDescrRusInitial(res[0].descr_rus);
+      setValueDescrEngInitial(res[0].descr_eng);
+      setValueParentIDInitial(res[0].parent_id||-1); 
+    }; 
     setOpenSaveWhenNew(false);
-    handleCancelClick();    
+    updateCurrentRec(clickedId);    
   };
 
   const handleCloseSaveWhenNewYes = () => {
-    console.log('handleCloseSaveYes');
+    //console.log('handleCloseSaveWhenNewYes');
     setOpenSaveWhenNew(false);
     saveRec(true);
-    handleCancelClick();
+    //console.log('handleCloseSaveWhenNewYes lastId = '+lastId);
+    //updateCurrentRec(lastId);    
   };
 
   //////////////////////////////////////////////////////// ACTIONS ///////////////////////////////
   const [openAlert, setOpenAlert] = React.useState(false, '');
   const handleCancelClick = () => 
   {
-    console.log('handleCancelClick');
+    //console.log('handleCancelClick');
     const selectedIDs = selected;
-    const selectedRowData = tableData.filter((row) => selectedIDs===row.id);
+    //console.log('selected = '+selected);
+    const selectedRowData = tableData.filter((row) => selectedIDs===row.id.toString());
+    //console.log('selectedRowData.length = '+selectedRowData.length);
     if (selectedRowData.length)
     {
       setValueID(`${selectedRowData[0].id}`);
@@ -666,8 +697,6 @@ const DataTableExpScenario = (props) => {
     quoteStrings: '"',
     decimalSeparator: '.',
     showLabels: true, 
-    //showTitle: true,
-    //title: table_names['data_source'],
     useTextFile: false,
     useBom: true,
     useKeysAsHeaders: true,
@@ -675,7 +704,7 @@ const DataTableExpScenario = (props) => {
   };
 
   const exportdDataCSV = async () => {
-    console.log('export csv');
+    //console.log('export csv');
     const csvExporter = new ExportToCsv(optionsCSV);
     csvExporter.generateCsv(tableData);   
   } 
@@ -685,6 +714,21 @@ const DataTableExpScenario = (props) => {
     const filter = value.trim();
     setTreeFilterString(filter);
   }  
+
+  const handleExpandClick = () => {
+    var hasChild = [], i;
+    for (i = 0; i < tableData.length; i += 1) {
+      if (tableData[i].parent_id) 
+      {
+        if (hasChild.indexOf(tableData[i].parent_id)=== -1)
+          hasChild.push(tableData[i].parent_id.toString()); 
+      }
+    }
+    var expandedNew = hasChild;
+    if (expanded.length)
+      expandedNew=[]; 
+    setExpanded(expandedNew);
+  };
 
   return (
     <div style={{ height: 650, width: 1500 }}>
@@ -705,6 +749,8 @@ const DataTableExpScenario = (props) => {
           <SvgIcon fontSize="small" component={RepeatLightIcon} inheritViewBox /></IconButton>
         <IconButton onClick={()=> exportdDataCSV()} color="primary" size="small" title="Сохранить в формате CSV">
           <SvgIcon fontSize="small" component={DownloadLightIcon} inheritViewBox /></IconButton>
+        <IconButton onClick={()=> handleExpandClick()} color="primary" size="small" title={expanded.length !== 0?"Свернуть все":"Развернуть все"} >
+          <SvgIcon fontSize="small" component={expanded.length !== 0?CollapseIcon:ExpandIcon} inheritViewBox /></IconButton>
         <br/><TextField label="Фильтр ..." size = "small" variant="standard" onKeyUp={onFilterKeyUp} />
         <Box sx={{ height: 415, overflowY: 'false' }}>
 
@@ -775,7 +821,6 @@ const DataTableExpScenario = (props) => {
         if (props.table_name==='criterion_gr') {
           return (
             <div>
-
               <FormControl sx={{ width: '30ch' }} size="small">
                 <InputLabel id="ch_normativ_id">Нормативная база</InputLabel>
                   <Select labelId="ch_normativ_id" id="ch_normativ_id1" label="Нормативная база" value={valueNormativ  || "" } onChange={e => setValueNormativ(e.target.value)} >
@@ -833,13 +878,16 @@ const DataTableExpScenario = (props) => {
     </DialogTitle>
     <DialogContent>
         <DialogContentText>
-        В запись таблицы "{table_names[props.table_name]}" с кодом <b>{valueId}</b> внесены изменения.<p/>
-            {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p/>
-            {valueNameRus === valueNameRusInitial ? '' : 'Название (рус. яз): '+valueNameRus+'; ' }<p/>
-            {valueNameEng === valueNameEngInitial ? '' : 'Название (англ. яз): '+valueNameEng+'; ' }<p/>
-            {valueDescrRus === valueDescrRusInitial ? '' : 'Комментарий (рус. яз): '+valueDescrRus+'; ' }<p/>
-            {valueDescrEng === valueDescrEngInitial ? '' : 'Комментарий (англ. яз): '+valueDescrEng+'; ' }<p/>
-            <p/>Вы желаете сохранить указанную запись?
+          {valueId?
+          `В запись таблицы "${table_names[props.table_name]}" с кодом ${valueId} внесены изменения.`:
+          `В таблицу "${table_names[props.table_name]}" внесена новая несохраненная запись.`}<p></p>
+            {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p></p>
+            {valueParentID === valueParentIDInitial ? '' : 'Родительский класс: '+valueParentID+'; ' }<p></p>
+            {valueNameRus === valueNameRusInitial ? '' : 'Название (рус. яз): '+valueNameRus+'; ' }<p></p>
+            {valueNameEng === valueNameEngInitial ? '' : 'Название (англ. яз): '+valueNameEng+'; ' }<p></p>
+            {valueDescrRus === valueDescrRusInitial ? '' : 'Комментарий (рус. яз): '+valueDescrRus+'; ' }<p></p>
+            {valueDescrEng === valueDescrEngInitial ? '' : 'Комментарий (англ. яз): '+valueDescrEng+'; ' }<p></p>
+          Вы желаете сохранить указанную запись?
         </DialogContentText>
     </DialogContent>
     <DialogActions>
@@ -853,14 +901,17 @@ const DataTableExpScenario = (props) => {
         Внимание
     </DialogTitle>
     <DialogContent>
-        <DialogContentText>
-            В запись таблицы "{table_names[props.table_name]}" с кодом <b>{valueId}</b> внесены изменения.<p/>
-            {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p/>
-            {valueNameRus === valueNameRusInitial ? '' : 'Название (рус. яз): '+valueNameRus+'; ' }<p/>
-            {valueNameEng === valueNameEngInitial ? '' : 'Название (англ. яз): '+valueNameEng+'; ' }<p/>
-            {valueDescrRus === valueDescrRusInitial ? '' : 'Комментарий (рус. яз): '+valueDescrRus+'; ' }<p/>
-            {valueDescrEng === valueDescrEngInitial ? '' : 'Комментарий (англ. яз): '+valueDescrEng+'; ' }<p/>
-            <p/>Вы желаете сохранить указанную запись?
+    <DialogContentText>
+          {valueId?
+          `В запись таблицы "${table_names[props.table_name]}" с кодом ${valueId} внесены изменения.`:
+          `В таблицу "${table_names[props.table_name]}" внесена новая несохраненная запись.`}<p></p>
+            {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p></p>
+            {valueParentID === valueParentIDInitial ? '' : 'Родительский класс: '+valueParentID+'; ' }<p></p>
+            {valueNameRus === valueNameRusInitial ? '' : 'Название (рус. яз): '+valueNameRus+'; ' }<p></p>
+            {valueNameEng === valueNameEngInitial ? '' : 'Название (англ. яз): '+valueNameEng+'; ' }<p></p>
+            {valueDescrRus === valueDescrRusInitial ? '' : 'Комментарий (рус. яз): '+valueDescrRus+'; ' }<p></p>
+            {valueDescrEng === valueDescrEngInitial ? '' : 'Комментарий (англ. яз): '+valueDescrEng+'; ' }<p></p>
+          Вы желаете сохранить указанную запись?
         </DialogContentText>
     </DialogContent>
     <DialogActions>

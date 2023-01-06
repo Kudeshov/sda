@@ -207,9 +207,9 @@ const DataTableChemCompGr = (props) => {
     if ((!selected)&&(tableData.length))
     {
       setSelected(tableData[0].id);
-      handleItemClick(tableData[0].id);
+      //handleItemClick(tableData[0].id);
     }
-  }, [tableData]);
+  }, [tableData, selected]);
 
   useEffect(() => {
     fetch(`/chelement`)
@@ -290,7 +290,7 @@ const DataTableChemCompGr = (props) => {
     
     if (valueId)
       myId = valueId - 1000000;
-    if (valueParentID==1000000)
+    if (valueParentID===1000000)
       myParentID = null;
     const js = JSON.stringify({
       id: myId,
