@@ -261,6 +261,7 @@ const DataTableExpScenario = (props) => {
       setValueDescrRusInitial(res[0].descr_rus);
       setValueDescrEngInitial(res[0].descr_eng);
       setValueParentIDInitial(res[0].parent_id||-1); 
+      setValueNormativInitial(res[0].normativ_id);      
     }; 
 
     //console.log( 'selected = ' + selected + ' tableData.length ' + tableData.length );
@@ -401,7 +402,6 @@ const DataTableExpScenario = (props) => {
        setValueDescrEngInitial(valueDescrEng);    
        setValueParentIDInitial(valueParentID);
        setValueNormativInitial(valueNormativ);
-
      }
     reloadData();     
    }
@@ -849,7 +849,7 @@ const DataTableExpScenario = (props) => {
       <TextField  id="ch_descr_rus" sx={{ width: '100ch' }} label="Комментарий (англ.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrEng || ''} onChange={e => setValueDescrEng(e.target.value)}/>
       <p/>
       <div style={{ height: 300, width: 800 }}>
-        <DataTableDataSourceClass table_name={props.table_name} rec_id={valueId} />
+        <DataTableDataSourceClass table_name={props.table_name} rec_id={valueId||0} />
       </div>
     </td>
   </tr>

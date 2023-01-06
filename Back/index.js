@@ -32,6 +32,7 @@ const no_q = require('./normativ_queries');
 const ccg_q = require('./chem_comp_gr_queries');
 const pcm_q = require('./phchform_chelem_queries');
 const nuc_q = require('./nuclide_queries');
+const cg_q = require('./criterion_gr_queries');
 
 const { Pool } = require('pg');
 //var msg = 'a';
@@ -127,11 +128,11 @@ app.put('/exp_scenario/:id', (req, res) => {es_q.updateExpScenario(req, res, 'ex
 app.delete('/exp_scenario/:id', (req, res) => {es_q.deleteExpScenario(req, res, 'exp_scenario')}); //delete
 
 //GENERIC QUERIES on criterion_gr
-app.get('/criterion_gr', (req, res) => {es_q.getExpScenario(req, res, 'criterion_gr')});           //list all
-app.get('/criterion_gr/:id', (req, res) => {es_q.getExpScenarioById(req, res, 'criterion_gr')});   //list 1
-app.post('/criterion_gr', (req, res) => {es_q.createExpScenario(req, res, 'criterion_gr')});       //create
-app.put('/criterion_gr/:id', (req, res) => {es_q.updateExpScenario(req, res, 'criterion_gr')});    //update
-app.delete('/criterion_gr/:id', (req, res) => {es_q.deleteExpScenario(req, res, 'criterion_gr')}); //delete
+app.get('/criterion_gr', (req, res) => {cg_q.getCriterionGr(req, res, 'criterion_gr')});           //list all
+app.get('/criterion_gr/:id', (req, res) => {cg_q.getCriterionGrById(req, res, 'criterion_gr')});   //list 1
+app.post('/criterion_gr', (req, res) => {cg_q.createCriterionGr(req, res, 'criterion_gr')});       //create
+app.put('/criterion_gr/:id', (req, res) => {cg_q.updateCriterionGr(req, res, 'criterion_gr')});    //update
+app.delete('/criterion_gr/:id', (req, res) => {cg_q.deleteCriterionGr(req, res, 'criterion_gr')}); //delete
 
 //GENERIC QUERIES on criterion_gr
 app.get('/organ', (req, res) => {es_q.getExpScenario(req, res, 'organ')});           //list all
