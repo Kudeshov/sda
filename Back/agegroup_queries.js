@@ -90,8 +90,8 @@ const createAgeGroup = (request, response, table_name )=> {
                 response.status(400).send(`Ошибка при подтверждении транзакции`, err.stack);
               }
               else {
-                console.log(`Тип облучаемых лиц добавлен, ID: ${id}`); 
-                response.status(201).send(`Тип облучаемых лиц добавлен, ID: ${id}`);
+                console.log(`Запись добавлена, код: ${id}`); 
+                response.status(201).send(`Запись добавлена, код: ${id}`);
               }
               done()
             })
@@ -155,9 +155,9 @@ const deleteAgeGroup = (request, response, table_name ) => {
                     response.status(400).send(`Ошибка при подтверждении транзакции`, err.stack);
                   }
                   else {
-                    console.log(`Тип облучаемых лиц удален, ID: ${id}`); 
+                    console.log(`Запись с кодом ${id} удалена`); 
                     if (res.rowCount == 1)
-                      response.status(200).send(`Тип облучаемых лиц ${id} удален; cтрок удалено: ${res.rowCount} `);
+                      response.status(200).send(`Запись с кодом ${id} удалена; cтрок удалено: ${res.rowCount} `);
                     if (res.rowCount == 0)
                       response.status(400).send(`Запись с кодом ${id} не найдена `)
                   }
@@ -175,7 +175,7 @@ const updateAgeGroup = (request, response, table_name ) => {
   pool.connect((err, client, done) => {
     const shouldAbort = (err, response) => {
       if (err) {
-        console.error(`Ошибка изменения записи`, err.message)
+        console.error(`Ошибка сохранения записи`, err.message)
         const { errormsg } = err.message;
         console.error(`Rollback`)
         client.query(`ROLLBACK`, err => {
@@ -221,8 +221,8 @@ const updateAgeGroup = (request, response, table_name ) => {
                 response.status(400).send(`Ошибка при подтверждении транзакции`, err.stack);
               }
               else {
-                console.log(`Тип облучаемых лиц изменен, ID: ${id}`); 
-                response.status(200).send(`Тип облучаемых лиц изменен, ID: ${id}`);
+                console.log(`Запись с кодом ${id} сохранена`); 
+                response.status(200).send(`Запись с кодом ${id} сохранена`);
               }
               done()
             })

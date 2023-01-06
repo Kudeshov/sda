@@ -160,9 +160,9 @@ const deleteChelement = (request, response, table_name ) => {
                     response.status(400).send(`Ошибка при подтверждении транзакции`, err.stack);
                   }
                   else {
-                    console.log(`Тип облучаемых лиц удален, ID: ${id}`); 
+                    console.log(`Запись с кодом ${id} удалена`); 
                     if (res.rowCount == 1)
-                      response.status(200).send(`Тип облучаемых лиц ${id} удален; cтрок удалено: ${res.rowCount} `);
+                      response.status(200).send(`Запись с кодом ${id} удалена; cтрок удалено: ${res.rowCount}`);
                     if (res.rowCount == 0)
                       response.status(400).send(`Запись с кодом ${id} не найдена `)
                   }

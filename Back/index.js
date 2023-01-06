@@ -31,6 +31,7 @@ const es_q = require('./exp_scenario_queries');
 const no_q = require('./normativ_queries');
 const ccg_q = require('./chem_comp_gr_queries');
 const pcm_q = require('./phchform_chelem_queries');
+const nuc_q = require('./nuclide_queries');
 
 const { Pool } = require('pg');
 //var msg = 'a';
@@ -203,6 +204,10 @@ app.get('/criterion', function(req, resp){
 /* app.delete('/', (req, res) => {
   res.send("DELETE root Request Called")
 }) */
+
+//QUERIES on nuclide 
+app.get('/nuclide/:id', (req, res) => {nuc_q.getNuclideByChelement(req, res, 'nuclide')});    //select by chelement_id
+
 
 var allowCrossDomain = function(req, res, next) {
     res.header('Access-Control-Allow-Origin', "*");

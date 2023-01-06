@@ -46,6 +46,7 @@ const DataTableChelement = (props) => {
   const [tablePhchFormFiltered, setTablePhchFormFiltered] = useState([]); 
   const [selectionModel, setSelectionModel] = React.useState([]);
   const [editStarted, setEditStarted] = useState([false]);
+  const [tableNuclide, setTableNuclide] = useState([]); 
 
   useEffect(() => {
     setEditStarted((valueTitleInitial!==valueTitle)||(valueNameRusInitial!==valueNameRus)||(valueNameEngInitial!==valueNameEng)
@@ -116,19 +117,23 @@ const DataTableChelement = (props) => {
   useEffect(() => {
     fetch(`/phchform_chelem`)
       .then((data) => data.json())
-      .then((data) => setTablePhchForm(data))
-      .then((data) => { lastId = 0;} ); 
+      .then((data) => setTablePhchForm(data)); 
   }, [])
 
   useEffect(() => {
+    if (!valueId) 
+      return;
 
+    fetch(`/nuclide/`+valueId)
+      .then((data) => data.json())
+      .then((data) => setTableNuclide(data))
+      .then(console.log('грузим нуклиды'));
+  }, [valueId])
+
+  useEffect(() => {
     let f = tablePhchForm.filter(item => ( Number(item.chelement_id) === Number(valueId) ));
     console.log(f);
     setTablePhchFormFiltered(f);
-    //setTablePhchFormFiltered(tablePhchForm.filter(item => ( Number(item.chelement_id) === Number(valueId) )));
-
-    //console.log('govno: '+valueId);
-    //console.log(a);
   }, [valueId, tablePhchForm])
 
 
@@ -404,6 +409,15 @@ const DataTableChelement = (props) => {
     { field: 'chelement_atomic_num', headerName: 'Химический элемент, атомное значение', width: 180 },
   ]
 
+  
+  const columnsNuclide = [
+    { field: 'id', headerName: 'Код', width: 80 },
+    { field: 'chelement_id', headerName: 'Химический элемент, код', width: 80 },
+    { field: 'name', headerName: 'Обозначение', width: 300 },
+    { field: 'mass_number', headerName: 'Массовое число', width: 180 },
+  ]
+
+
   const [openAlert, setOpenAlert] = React.useState(false, '');
   const handleCancelClick = () => 
   {
@@ -513,17 +527,13 @@ const DataTableChelement = (props) => {
       <TextField  id="ch_name_eng" sx={{ width: '40ch' }} size="small" label="Название (англ.яз)"  variant="outlined" value={valueNameEng || ''} onChange={e => setValueNameEng(e.target.value)}/>
       <p/>
       <DataGrid
-        sx={{ height: 300 }}
+        sx={{ height: 200 }}
         hideFooterSelectedRowCount={true}
         localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
         rowHeight={25}
         rows={tablePhchFormFiltered}
         loading={isLoading}
         columns={columnsPhchform}
-/*         onSelectionModelChange={(newSelectionModel) => {
-          setSelectionModel(newSelectionModel);
-        }}
-        selectionModel={selectionModel}  */       
         initialState={{
           columns: {
             columnVisibilityModel: {
@@ -538,16 +548,24 @@ const DataTableChelement = (props) => {
             },
           },
         }}        
-       /*  onRowClick={handleRowClick} {...tablePhchForm} 
-       
-           { field: 'chem_comp_gr_title', headerName: 'Группа химических соединений, обозначение ', width: 180 },
-    { field: 'chem_comp_gr_formula', headerName: 'Формула химических соединения ', width: 180 },
-    { field: 'chem_comp_gr_nls_name', headerName: 'Группа химических соединений, наименование (рус.яз)', width: 180 },
-    { field: 'chem_comp_gr_nls_descr', headerName: 'Группа химических соединений, описание', width: 180 },
-    { field: 'chelement_title', headerName: 'Химический элемент, обозначение', width: 180 },
-    { field: 'chelement_atomic_num', headerName: 'Химический элемент, атомное значение', width: 180 },
-       
-       */
+      />
+      <p/>
+      <DataGrid
+        sx={{ height: 200 }}
+        hideFooterSelectedRowCount={true}
+        localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
+        rowHeight={25}
+        rows={tableNuclide}
+        loading={isLoading}
+        columns={columnsNuclide}
+        initialState={{
+          columns: {
+            columnVisibilityModel: {
+              id: false,
+              chelement_id: false,
+            },
+          },
+        }}        
       />
     </td>
   </tr>

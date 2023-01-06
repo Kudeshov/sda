@@ -42,10 +42,10 @@ const createDataSource = (request, response) => {
 
   pool.query('INSERT INTO nucl.data_source (title, shortname, fullname, descr, external_ds) VALUES ($1, $2, $3, $4, $5) RETURNING id', [title, shortname, fullname, descr, external_ds], (error, res) => {
   if (error) {
-      response.status(400).send(`Источник данных не добавлен: ${error.message}`);
+      response.status(400).send(`Запись не добавлена: ${error.message}`);
     } else {
       const { id } = res.rows[0];
-      response.status(201).send(`Источник данных добавлен, ID: ${id}`)
+      response.status(201).send(`Запись с кодом ${id} добавлена`)
     }
   })
 }
@@ -56,14 +56,13 @@ const deleteDataSource = (request, response) => {
 
   pool.query('DELETE FROM nucl.data_source WHERE id = $1', [id], (error, results) => {
     if (error) {
-      response.status(400).send(`Источник данных не удален: ${error.message}`);
+      response.status(400).send(`Запись с кодом не удалена: ${error.message}`);
     }
     else {
-      //response.status(200).send(`Источник данных удален, ID: ${id} : удалено строк: ${results.rowCount} `)
       if (results.rowCount == 1)
-        response.status(200).send(`Источник данных ${id} удален: cтрок удалено: ${results.rowCount} `);
+        response.status(200).send(`Запись с кодом ${id} удален: cтрок удалено: ${results.rowCount} `);
       if (results.rowCount == 0)
-        response.status(400).send(`Запись с кодом ${id} не найдена `)
+        response.status(400).send(`Запись с кодом ${id} не найдена`)
     }
   })
 }
@@ -71,22 +70,20 @@ const deleteDataSource = (request, response) => {
 const updateDataSource = (request, response) => {
   const id = parseInt(request.params.id)
   const { title, shortname, fullname, descr, external_ds } = request.body
-//  console.log( 'id='+id );
-
   pool.query(
     'UPDATE nucl.data_source SET title = $1, shortname = $2, fullname = $3, descr = $4, external_ds = $5 WHERE id = $6',
     [title, shortname, fullname, descr, external_ds, id],
     (error, results) => {
       if (error) 
       {
-        response.status(400).send(`Источник данных с кодом ${id} не изменен: ${error.message} `)
+        response.status(400).send(`Запись с кодом ${id} не сохранена: ${error.message} `)
       }
       else
       {
         if (results.rowCount == 1)
-          response.status(200).send(`Источник данных ${id} изменен. Строк изменено: ${results.rowCount} `);
+          response.status(200).send(`Запись с кодом ${id} сохранена`);
         if (results.rowCount == 0)
-          response.status(400).send(`Источник данных с кодом ${id} не найден `)
+          response.status(400).send(`Запись с кодом ${id} не найдена `)
       }
     }
   )
