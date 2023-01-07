@@ -90,8 +90,8 @@ const createCriterionGr = (request, response, table_name )=> {
                 response.status(400).send(`Ошибка при подтверждении транзакции`, err.stack);
               }
               else {
-                console.log(`Запись с кодом ${id} добавлена`); 
-                response.status(201).send(`Запись с кодом ${id} добавлена`);
+                console.log(`Тип облучаемых лиц добавлен, ID: ${id}`); 
+                response.status(201).send(`Тип облучаемых лиц добавлен, ID: ${id}`);
               }
               done()
             })

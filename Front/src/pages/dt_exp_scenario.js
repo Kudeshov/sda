@@ -115,6 +115,7 @@ const DataTableExpScenario = (props) => {
               setValueDescrRusInitial(res[0].descr_rus);
               setValueDescrEngInitial(res[0].descr_eng);
               setValueParentIDInitial(res[0].parent_id||-1); 
+              setValueNormativInitial(res[0].normativ_id);      
           }; 
         
       if (clickAfterReload) {
@@ -441,8 +442,9 @@ const DataTableExpScenario = (props) => {
         alertSeverity = "success";
         alertText =  await response.text();
         lastId = parseInt( alertText.substr(alertText.lastIndexOf('ID:') + 3, 20)); 
+        console.log('setSelected lastId' + lastId);
         setValueID(lastId);
-        //console.log('setSelected ' + lastId.toString());
+        console.log('setSelected toString' + lastId.toString());
         setSelected(lastId.toString());
         setValueTitle(valueTitle);       
         setValueNameRus(valueNameRus); 
@@ -610,6 +612,7 @@ const DataTableExpScenario = (props) => {
     setValueDescrRusInitial(res[0].descr_rus);
     setValueDescrEngInitial(res[0].descr_eng);
     setValueParentIDInitial(res[0].parent_id||-1); 
+    setValueNormativInitial(res[0].normativ_id);      
   }; 
 
   const handleCloseSaveNo = () => {
@@ -628,30 +631,8 @@ const DataTableExpScenario = (props) => {
   };
 
   const handleCloseSaveWhenNewNo = () => {
-    function updateCurrentRec (id)  {
-      if (id)
-        lastId = id;
-      var res = tableData.filter(function(item) {
-        return item.id.toString() === id;
-      });
-      //console.log('res.length ' + res.length);
-      setValueID(res[0].id); 
-      setValueTitle(res[0].title);
-      setValueNameRus(res[0].name_rus);
-      setValueNameEng(res[0].name_eng);
-      setValueDescrRus(res[0].descr_rus);
-      setValueDescrEng(res[0].descr_eng);    
-      setValueParentID(res[0].parent_id||-1);    
-      setValueNormativ(res[0].normativ_id);      
-      setValueTitleInitial(res[0].title);
-      setValueNameRusInitial(res[0].name_rus);
-      setValueNameEngInitial(res[0].name_eng);
-      setValueDescrRusInitial(res[0].descr_rus);
-      setValueDescrEngInitial(res[0].descr_eng);
-      setValueParentIDInitial(res[0].parent_id||-1); 
-    }; 
     setOpenSaveWhenNew(false);
-    updateCurrentRec(clickedId);    
+    updateCurrentRecHandles(clickedId);    
   };
 
   const handleCloseSaveWhenNewYes = () => {
@@ -666,11 +647,8 @@ const DataTableExpScenario = (props) => {
   const [openAlert, setOpenAlert] = React.useState(false, '');
   const handleCancelClick = () => 
   {
-    //console.log('handleCancelClick');
     const selectedIDs = selected;
-    //console.log('selected = '+selected);
     const selectedRowData = tableData.filter((row) => selectedIDs===row.id.toString());
-    //console.log('selectedRowData.length = '+selectedRowData.length);
     if (selectedRowData.length)
     {
       setValueID(`${selectedRowData[0].id}`);
@@ -683,11 +661,11 @@ const DataTableExpScenario = (props) => {
       setValueNameRusInitial(`${selectedRowData[0].name_rus}`);
       setValueNameEngInitial(`${selectedRowData[0].name_eng}` );
       setValueDescrRusInitial(`${selectedRowData[0].descr_rus}`);
-      setValueDescrEngInitial(`${selectedRowData[0].descr_eng}` );
+      setValueDescrEngInitial(`${selectedRowData[0].descr_eng}`);
       setValueParentID(selectedRowData[0].parent_id||-1);
       setValueParentIDInitial(selectedRowData[0].parent_id||-1);
       setValueNormativ(`${selectedRowData[0].normativ_id}`);
-      setValueNormativInitial(`${selectedRowData[0].normativ_id}` );
+      setValueNormativInitial(`${selectedRowData[0].normativ_id}`);
     }
   }
 

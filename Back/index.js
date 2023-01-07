@@ -186,8 +186,10 @@ app.delete('/action/:id', (req, res) => {gn_q.deleteGenericNLS(req, res, 'action
 app.get('/normativ', (req, res) => {no_q.getNormativ(req, res, 'normativ')});           //list all
 
 //GENERIC QUERIES on chem_comp_gr 
-app.get('/chem_comp_gr', (req, res) => {ccg_q.getChemCompGr(req, res, 'chem_comp_gr')});           //list all
-app.put('/chem_comp_gr/:id', (req, res) => {ccg_q.updateChemCompGr(req, res, 'chem_comp_gr')});    //update
+app.get('/chem_comp_gr', (req, res) => {ccg_q.getChemCompGr(req, res, 'chem_comp_gr')});            //list all
+app.put('/chem_comp_gr/:id', (req, res) => {ccg_q.updateChemCompGr(req, res, 'chem_comp_gr')});     //update
+app.post('/chem_comp_gr', (req, res) => {ccg_q.createChemCompGr(req, res, 'chem_comp_gr')});        //create
+app.delete('/chem_comp_gr/:id', (req, res) => {ccg_q.deleteChemCompGr(req, res, 'chem_comp_gr')});  //delete
 
 //GENERIC QUERIES on phchform_chelem 
 app.get('/phchform_chelem', (req, res) => {pcm_q.getPhchFormChelem(req, res, 'phchform_chelem')});           //list all
