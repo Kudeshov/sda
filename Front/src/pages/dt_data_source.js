@@ -219,8 +219,9 @@ const DataTableDataSource = (props) => {
       else
       {
         alertSeverity = "success";
-        alertText =  await response.text();
-        lastId = parseInt( alertText.substr(alertText.lastIndexOf('ID:') + 3, 20)); 
+        const { id } = await response.json();
+        alertText = `Добавлена запись с кодом ${id}`;
+        lastId = id; //parseInt( alertText.substr(alertText.lastIndexOf('ID:') + 3, 20)); 
         console.log('добавлено lastid = ' + lastId);
         setValueID(lastId);
         setOpenAlert(true);  

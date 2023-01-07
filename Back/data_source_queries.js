@@ -45,7 +45,7 @@ const createDataSource = (request, response) => {
       response.status(400).send(`Запись не добавлена: ${error.message}`);
     } else {
       const { id } = res.rows[0];
-      response.status(201).send(`Запись с кодом ${id} добавлена`)
+      response.status(201).json({id: `${id}`}); 
     }
   })
 }
