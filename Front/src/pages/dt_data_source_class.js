@@ -59,8 +59,8 @@ function DataTableDataSourceClass(props)  {
     lastRecID = props.rec_id||0;
     setlastSrcClassID(0);
     setIsLoading(true);
-    //console.log(`/data_source_class?table_name=${props.table_name}&rec_id=${props.rec_id??0}`);
-    //console.log( lastRecID||0 );
+    console.log(`/data_source_class?table_name=${props.table_name}&rec_id=${props.rec_id}`);
+    console.log( lastRecID );
     fetch(`/data_source_class?table_name=${props.table_name}&rec_id=${lastRecID}`)
       .then((data) => data.json())
       .then((data) => setTableDataSrcClass(data));
@@ -284,7 +284,7 @@ const addRec = async ()  => {
       alertText = `Добавлена запись с кодом ${id}`;
 //      lastId = id; 
       lastAddedId =  id; 
-      //console.log(lastAddedId);
+      console.log(lastAddedId);
       setValueID(lastAddedId);
       setOpenAlert(true);  
     }
@@ -347,7 +347,7 @@ const [noRecords, setNoRecords] = useState(true);
         }}             
       /></td>
       <td style={{ height: 270, width: 100, verticalAlign: 'top' }}>
-      &nbsp;<IconButton onClick={()=>handleClickAdd()} disabled={!props.rec_id} color="primary" size="small" title="Добавить связь с источником данных">
+      &nbsp;<IconButton onClick={()=>handleClickAdd()} disabled={(!props.rec_id)||(props.rec_id==='-1000000')} color="primary" size="small" title="Добавить связь с источником данных">
         <SvgIcon fontSize="small" component={PlusLightIcon} inheritViewBox /></IconButton><br/>
       &nbsp;<IconButton onClick={()=>handleClickEdit()} disabled={noRecords} color="primary" size="small" title="Редактировать связь с источником данных">
         <SvgIcon fontSize="small" component={EditLightIcon} inheritViewBox /></IconButton><br/>

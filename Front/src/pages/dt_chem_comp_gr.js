@@ -437,6 +437,7 @@ const DataTableChemCompGr = (props) => {
   const addRec = async ()  => {
     let myParentID;
     myParentID = valueParentID === -1 ? null : valueParentID;
+
     const js = JSON.stringify({
       id: valueId,
       title: valueTitle,
@@ -468,11 +469,13 @@ const DataTableChemCompGr = (props) => {
         alertSeverity = "success";
         const { id } = await response.json();
         alertText = `Добавлена запись с кодом ${id}`;
-        lastId = id; 
+//        const parsed = parseInt(id);
+//        if (isNaN(parsed)) { return 0; }
+        lastId = parseInt(id)+1000000; 
         console.log('setSelected lastId' + lastId );
-        setValueID(lastId+1000000);
+        setValueID(lastId);
         console.log('setSelected lastId toString' + lastId.toString());
-        setSelected((lastId+1000000).toString());
+        setSelected((lastId).toString());
         setValueTitle(valueTitle);       
         setValueNameRus(valueNameRus); 
         setValueNameEng(valueNameEng);
@@ -859,7 +862,7 @@ const DataTableChemCompGr = (props) => {
       <TextField  id="ch_descr_rus" sx={{ width: '100ch' }} label="Комментарий (англ.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrEng || ''} onChange={e => setValueDescrEng(e.target.value)}/>
       <p/>
       <div style={{ height: 300, width: 800 }}>
-        <DataTableDataSourceClass table_name={props.table_name} rec_id={(valueId||0)-1000000} />
+        <DataTableDataSourceClass table_name={props.table_name} rec_id={(valueId?valueId-1000000:null)} />
       </div>
 
       </div>} {/* right part */}
