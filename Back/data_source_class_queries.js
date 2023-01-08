@@ -66,7 +66,8 @@ const createDataSourceClass = (request, response) => {
 
     } else {
       const { id } = results.rows[0]; 
-      response.status(201).send(`Связь с источником данных добавлена, код: ${id}`)
+      //response.status(201).send(`Связь с источником данных добавлена, код: ${id}`)
+      response.status(201).json({id: `${id}`}); 
     }
   })
 }

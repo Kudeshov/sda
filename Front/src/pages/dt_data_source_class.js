@@ -15,7 +15,6 @@ import { Box, IconButton } from '@mui/material';
 import Alert from '@mui/material/Alert';
 import Collapse from '@mui/material/Collapse';
 import CloseIcon from '@mui/icons-material/Close';
-import CircularProgress from '@material-ui/core/CircularProgress';
 import SvgIcon from '@mui/material/SvgIcon';
 import { ReactComponent as EditLightIcon } from "./../icons/edit.svg";
 import { ReactComponent as PlusLightIcon } from "./../icons/plus.svg";
@@ -57,10 +56,12 @@ function DataTableDataSourceClass(props)  {
   const [tableDataSrcClass, setTableDataSrcClass] = useState([])
   const [tableDataSrc, setTableDataSrc] = useState([])
   useEffect(() => {
-    lastRecID = props.rec_id;
+    lastRecID = props.rec_id||0;
     setlastSrcClassID(0);
     setIsLoading(true);
-    fetch(`/data_source_class?table_name=${props.table_name}&rec_id=${props.rec_id??0}`)
+    //console.log(`/data_source_class?table_name=${props.table_name}&rec_id=${props.rec_id??0}`);
+    //console.log( lastRecID||0 );
+    fetch(`/data_source_class?table_name=${props.table_name}&rec_id=${lastRecID}`)
       .then((data) => data.json())
       .then((data) => setTableDataSrcClass(data));
     setlastSrcClassID(0);
@@ -109,7 +110,7 @@ const [lastSrcClassID, setlastSrcClassID] = React.useState([0]);
 useEffect(() => {
   if ((!isLoading) && (tableDataSrcClass) && (tableDataSrcClass.length))
   {
-    setSelectionModel(tableDataSrcClass[0].id); //выбрать первую строку при перегрузке таблицы
+    setSelectionModel([tableDataSrcClass[0].id]); //выбрать первую строку при перегрузке таблицы
     setValueID(`${tableDataSrcClass[0].id}`);   //обновить переменные
     setValueDataSourceId(`${tableDataSrcClass[0].data_source_id}`);
     setValueTableName(`${tableDataSrcClass[0].table_name}`);
@@ -279,8 +280,10 @@ const addRec = async ()  => {
     else
     {
       alertSeverity = "success";
-      alertText =  await response.text();
-      lastAddedId = parseInt( alertText.substr(alertText.lastIndexOf('ID:') + 3, 20)); 
+      const { id } = await response.json();
+      alertText = `Добавлена запись с кодом ${id}`;
+//      lastId = id; 
+      lastAddedId =  id; 
       //console.log(lastAddedId);
       setValueID(lastAddedId);
       setOpenAlert(true);  
@@ -296,6 +299,7 @@ const addRec = async ()  => {
 };
 
 const handleRowClick/* : GridEventListener<'rowClick'>  */ = (params) => {
+  setOpenAlert(false);
   setValueID(`${params.row.id}`);
   setValueDataSourceId(`${params.row.data_source_id}`);
   setValueTableName(`${params.row.table_name}`);
@@ -378,8 +382,6 @@ const [noRecords, setNoRecords] = useState(true);
         <div style={{
         marginLeft: '40%',
         }}>
-        {isLoading && <CircularProgress/>} 
-        {/*       {!isLoading && <h3>Successfully API Loaded Data</h3>} */}
         </div>
       </Box>
         </td>

@@ -440,8 +440,9 @@ const DataTableExpScenario = (props) => {
       else
       {
         alertSeverity = "success";
-        alertText =  await response.text();
-        lastId = parseInt( alertText.substr(alertText.lastIndexOf('ID:') + 3, 20)); 
+        const { id } = await response.json();
+        alertText = `Добавлена запись с кодом ${id}`;
+        lastId = id;         
         console.log('setSelected lastId' + lastId);
         setValueID(lastId);
         console.log('setSelected toString' + lastId.toString());
@@ -617,12 +618,14 @@ const DataTableExpScenario = (props) => {
 
   const handleCloseSaveNo = () => {
     setOpenSave(false);
+    //handleCancelClick();
     updateCurrentRecHandles(clickedId);
   };
 
   const handleCloseSaveYes = () => {
     setOpenSave(false);
     saveRec(false);
+    //handleCancelClick();
     updateCurrentRecHandles(clickedId);
   };
 
@@ -632,7 +635,7 @@ const DataTableExpScenario = (props) => {
 
   const handleCloseSaveWhenNewNo = () => {
     setOpenSaveWhenNew(false);
-    updateCurrentRecHandles(clickedId);    
+    //updateCurrentRecHandles(clickedId);    
   };
 
   const handleCloseSaveWhenNewYes = () => {

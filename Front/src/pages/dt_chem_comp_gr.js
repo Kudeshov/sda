@@ -466,8 +466,9 @@ const DataTableChemCompGr = (props) => {
       else
       {
         alertSeverity = "success";
-        alertText =  await response.text();
-        lastId = parseInt( alertText.substr(alertText.lastIndexOf('ID:') + 3, 20)); 
+        const { id } = await response.json();
+        alertText = `Добавлена запись с кодом ${id}`;
+        lastId = id; 
         console.log('setSelected lastId' + lastId );
         setValueID(lastId+1000000);
         console.log('setSelected lastId toString' + lastId.toString());

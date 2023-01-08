@@ -91,7 +91,8 @@ const createAgeGroup = (request, response, table_name )=> {
               }
               else {
                 console.log(`Запись добавлена, код: ${id}`); 
-                response.status(201).send(`Запись добавлена, код: ${id}`);
+                response.status(201).json({id: `${id}`}); 
+                //response.status(201).send(`Запись добавлена, код: ${id}`);
               }
               done()
             })

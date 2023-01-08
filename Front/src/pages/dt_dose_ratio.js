@@ -114,24 +114,26 @@ const DataTableDoseRatio = (props) => {
       {
         //console.log('isLoading, tableData ON lastId  '+lastId);  
         lastId = tableData[0].id;
-        setSelectionModel(tableData[0].id);
+        setSelectionModel([tableData[0].id]);
         setValueID(`${tableData[0].id}`);
-        setValueTitle(`${tableData[0].title}`);
-        setValueNameRus(`${tableData[0].name_rus}`);
-        setValueNameEng(`${tableData[0].name_eng}`);
-        setValueDescrRus(`${tableData[0].descr_rus}`);
-        setValueDescrEng(`${tableData[0].descr_eng}`);
+
+        setValueTitle(tableData[0].title);
+        setValueNameRus(tableData[0].name_rus);
+        setValueNameEng(tableData[0].name_eng);
+        setValueDescrRus(tableData[0].descr_rus);
+        setValueDescrEng(tableData[0].descr_eng);
 
         setValueRespRate(`${tableData[0].resp_rate}`);
         setValueRespYear(`${tableData[0].resp_year}`);
         setValueIndoor(`${tableData[0].indoor}`);
         setValueExtCloud(`${tableData[0].extcloud}`);
         setValueExtGround(`${tableData[0].extground}`);
-        setValueTitleInitial(`${tableData[0].title}`);       
-        setValueNameRusInitial(`${tableData[0].name_rus}`);
-        setValueNameEngInitial(`${tableData[0].name_eng}`);
-        setValueDescrRusInitial(`${tableData[0].descr_rus}`);
-        setValueDescrEngInitial(`${tableData[0].descr_eng}`);
+
+        setValueTitleInitial(tableData[0].title);       
+        setValueNameRusInitial(tableData[0].name_rus);
+        setValueNameEngInitial(tableData[0].name_eng);
+        setValueDescrRusInitial(tableData[0].descr_rus);
+        setValueDescrEngInitial(tableData[0].descr_eng);
 
         setValueRespRateInitial(`${tableData[0].resp_rate}`);
         setValueRespYearInitial(`${tableData[0].resp_year}`);
@@ -150,29 +152,30 @@ const DataTableDoseRatio = (props) => {
     }, [ isLoading, tableData] );
 
   const handleRowClick = (params) => {
+    setOpenAlert(false);
     if (editStarted)
     {
       handleClickSave(params);
     } 
     else 
     {
-      setValueID(`${params.row.id}`);
-      setValueTitle(`${params.row.title}`);
-      setValueNameRus(`${params.row.name_rus}`);
-      setValueNameEng(`${params.row.name_eng}`);
-      setValueDescrRus(`${params.row.descr_rus}`);
-      setValueDescrEng(`${params.row.descr_eng}` );
+      setValueID(params.row.id);
+      setValueTitle(params.row.title);
+      setValueNameRus(params.row.name_rus);
+      setValueNameEng(params.row.name_eng);
+      setValueDescrRus(params.row.descr_rus);
+      setValueDescrEng(params.row.descr_eng);
 
       setValueRespRate(`${params.row.resp_rate}` );
       setValueRespYear(`${params.row.resp_year}` );
       setValueIndoor(`${params.row.indoor}` );
       setValueExtCloud(`${params.row.ext_cloud}` );
       setValueExtGround(`${params.row.ext_ground}` );
-      setValueTitleInitial(`${params.row.title}`);
-      setValueNameRusInitial(`${params.row.name_rus}`);
-      setValueNameEngInitial(`${params.row.name_eng}`);
-      setValueDescrRusInitial(`${params.row.descr_rus}`);
-      setValueDescrEngInitial(`${params.row.descr_eng}` );
+      setValueTitleInitial(params.row.title);
+      setValueNameRusInitial(params.row.name_rus);
+      setValueNameEngInitial(params.row.name_eng);
+      setValueDescrRusInitial(params.row.descr_rus);
+      setValueDescrEngInitial(params.row.descr_eng);
 
       setValueRespRateInitial(`${params.row.resp_rate}` );
       setValueRespYearInitial(`${params.row.resp_year}` );
@@ -217,7 +220,7 @@ const DataTableDoseRatio = (props) => {
     fetch(`/${props.table_name}`)
       .then((data) => data.json())
       .then((data) => setTableData(data))
-      .then((data) => { /* console.log('fetch ok'); console.log(data); */  lastId = 0;} ); 
+      .then((data) => { lastId = 0;} ); 
   }, [props.table_name])
 
   useEffect(() => {
@@ -245,10 +248,6 @@ const DataTableDoseRatio = (props) => {
       used: valueUsed,
       parameters: valueParameters
     });
-
-//    console.log('Редактирование записи calcfunction');
-//    console.log(js);
-
     if (!valueId) {
       addRec();
       return;
@@ -294,7 +293,6 @@ const DataTableDoseRatio = (props) => {
        setValueExtGroundInitial(valueExtGround);
        setValuePhysParamIdInitial(valuePhysParamID);            
        setValueUsedInitial(valueUsed);           
-       //console.log('SaveRec valueParameters ' + valueParameters) 
        setValueParametersInitial(valueParameters);
      }
     reloadData();     
@@ -302,7 +300,6 @@ const DataTableDoseRatio = (props) => {
  };
 /////////////////////////////////////////////////////////////////// ADDREC ///////////////////// 
   const addRec = async ()  => {
-    //console.log('addrec executed');
     const js = JSON.stringify({
       id: valueId,
       title: valueTitle,
@@ -315,12 +312,11 @@ const DataTableDoseRatio = (props) => {
       indoor: valueIndoor,
       ext_cloud: valueExtCloud,
       ext_ground: valueExtGround,
-      physparam_id: valuePhysParamID,
+      physparam_id: valuePhysParamID||0,
       used: valueUsed,       
       parameters: valueParameters,
     });
     setIsLoading(true);
-    console.log(js);
     try {
       const response = await fetch(`/${props.table_name}/`, {
         method: 'POST',
@@ -339,9 +335,9 @@ const DataTableDoseRatio = (props) => {
       else
       {
         alertSeverity = "success";
-        alertText =  await response.text();
-        lastId = parseInt( alertText.substr(alertText.lastIndexOf('ID:') + 3, 20)); 
-        //console.log(lastId);
+        const { id } = await response.json();
+        alertText = `Добавлена запись с кодом ${id}`;
+        lastId = id;  
         setValueID(lastId);
         setOpenAlert(true);  
       }
@@ -352,9 +348,23 @@ const DataTableDoseRatio = (props) => {
     } finally {
       setIsLoading(false);
       reloadData();
-      setSelectionModel(lastId);
+      setSelectionModel([lastId]);
       //Refresh initial state
-      //console.log('addRec Refresh initial '+valueTitle+' '+valueNameRus);
+      console.log('addRec Refresh initial '+valueTitle+' '+valueNameRus);
+      setValueTitle(valueTitle);
+      setValueNameRus(valueNameRus);
+      setValueNameEng(valueNameEng);
+      setValueDescrRus(valueDescrRus);
+      setValueDescrEng(valueDescrEng); 
+      setValueRespRate(valueRespRate);
+      setValueRespYear(valueRespYear);
+      setValueIndoor(valueIndoor);
+      setValueExtCloud(valueExtCloud);          
+      setValueExtGround(valueExtGround);
+      setValuePhysParamId(valuePhysParamID);
+      setValueUsed(valueUsed); 
+      setValueParameters(valueParameters);
+
       setValueTitleInitial(valueTitle);
       setValueNameRusInitial(valueNameRus);
       setValueNameEngInitial(valueNameEng);
@@ -373,13 +383,11 @@ const DataTableDoseRatio = (props) => {
 
 /////////////////////////////////////////////////////////////////// DELETE /////////////////////
   const delRec =  async () => {
-    //console.log('delrec clicked');
     const js = JSON.stringify({
         id: valueId,
         title: valueTitle,
     });
     setIsLoading(true);
-    //console.log(js);
     try {
       const response = await fetch(`/${props.table_name}/`+valueId, {
         method: 'DELETE',
@@ -400,13 +408,13 @@ const DataTableDoseRatio = (props) => {
         alertText = await response.text();
         setOpenAlert(true); 
         reloadData();
-        setSelectionModel(tableData[0].id );  
+        setSelectionModel([tableData[0].id ]);  
         setValueID(`${tableData[0].id}`);
-        setValueTitle(`${tableData[0].title}`);
-        setValueNameRus(`${tableData[0].name_rus}`);
-        setValueNameEng(`${tableData[0].name_eng}`);
-        setValueDescrRus(`${tableData[0].descr_rus}`);
-        setValueDescrEng(`${tableData[0].descr_eng}`);
+        setValueTitle(tableData[0].title);
+        setValueNameRus(tableData[0].name_rus);
+        setValueNameEng(tableData[0].name_eng);
+        setValueDescrRus(tableData[0].descr_rus);
+        setValueDescrEng(tableData[0].descr_eng);
 
         setValueRespRate(`${tableData[0].resp_rate}`);
         setValueRespYear(`${tableData[0].resp_year}`);
@@ -414,11 +422,11 @@ const DataTableDoseRatio = (props) => {
         setValueExtCloud(`${tableData[0].ext_cloud}`);
         setValueExtGround(`${tableData[0].ext_ground}`);
 
-        setValueTitleInitial(`${tableData[0].title}`);
-        setValueNameRusInitial(`${tableData[0].name_rus}`);
-        setValueNameEngInitial(`${tableData[0].name_eng}`);
-        setValueDescrRusInitial(`${tableData[0].descr_rus}`);
-        setValueDescrEngInitial(`${tableData[0].descr_eng}`);
+        setValueTitleInitial(tableData[0].title);
+        setValueNameRusInitial(tableData[0].name_rus);
+        setValueNameEngInitial(tableData[0].name_eng);
+        setValueDescrRusInitial(tableData[0].descr_rus);
+        setValueDescrEngInitial(tableData[0].descr_eng);
 
         setValueRespRateInitial(`${tableData[0].resp_rate}`);
         setValueRespYearInitial(`${tableData[0].resp_year}`);
@@ -458,7 +466,6 @@ const DataTableDoseRatio = (props) => {
     try {
       const response = await fetch(`/${props.table_name}/`);
        if (!response.ok) {
-        //console.log('response not ok');
         alertText = `Ошибка при обновлении данных: ${response.status}`;
         alertSeverity = "false";
         const error = response.status + ' (' +response.statusText+')';  
@@ -470,7 +477,6 @@ const DataTableDoseRatio = (props) => {
         setTableData(result);
       }
     } catch (err) {
-      //console.log('catch err');
       throw err;
     } finally {
       setIsLoading(false);
@@ -511,30 +517,62 @@ const DataTableDoseRatio = (props) => {
   };
 
   const handleClickSave = () => {
-    console.log('handleClickSave');
     setOpenSave(true);
   };
+/* 
+  function updateCurrentRecHandles (id)  {
+    if (id)
+      lastId = id;
+    var res = tableData.filter(function(item) {
+      return item.id.toString() === id;
+    });
+    setValueID(res[0].id); 
+    setValueTitle(res[0].title);
+    setValueNameRus(res[0].name_rus);
+    setValueNameEng(res[0].name_eng);
+    setValueDescrRus(res[0].descr_rus);
+    setValueDescrEng(res[0].descr_eng);  
+    setValueTitleInitial(res[0].title);
+    setValueNameRusInitial(res[0].name_rus);
+    setValueNameEngInitial(res[0].name_eng);
+    setValueDescrRusInitial(res[0].descr_rus);
+    setValueDescrEngInitial(res[0].descr_eng);
 
+    setValueRespRate(res[0].resp_rate);
+    setValueRespYear(res[0].resp_year);
+    setValueIndoor(res[0].indoor);
+    setValueExtCloud(res[0].extcloud);
+    setValueExtGround(res[0].extground);
+    setValueRespRateInitial(res[0].resp_rate);
+    setValueRespYearInitial(res[0].resp_year);
+    setValueIndoorInitial(res[0].indoor);
+    setValueExtCloudInitial(res[0].extcloud);
+    setValueExtGroundInitial(res[0].extground);
+
+    setValuePhysParamId(res[0].physparam_id);
+    setValuePhysParamIdInitial(res[0].physparam_id);
+    setValueUsed(res[0].used);
+    setValueUsedInitial(res[0].used);
+    setValueParameters(res[0].parameters);
+    setValueParametersInitial(res[0].parameters);    
+  }; 
+ */
   const handleCloseSaveNo = () => {
-    console.log('handleCloseSaveNo');
     setOpenSave(false);
     handleCancelClick();
   };
 
   const handleCloseSaveYes = () => {
-    console.log('handleCloseSaveYes');
     setOpenSave(false);
     saveRec(false);
     handleCancelClick();
   };
 
   const handleClickSaveWhenNew = () => {
-    console.log('handleClickSaveWhenNew');
     setOpenSaveWhenNew(true);
   };
 
   const handleCloseSaveWhenNewNo = () => {
-    console.log('handleCloseSaveNo');
     setOpenSaveWhenNew(false);
 
     setValueID(``);
@@ -553,7 +591,6 @@ const DataTableDoseRatio = (props) => {
   };
 
   const handleCloseSaveWhenNewYes = () => {
-    console.log('handleCloseSaveYes');
     setOpenSaveWhenNew(false);
     saveRec(true);
     setValueID(``);
@@ -584,34 +621,30 @@ const DataTableDoseRatio = (props) => {
   const [openAlert, setOpenAlert] = React.useState(false, '');
   const handleCancelClick = () => 
   {
-    console.log('handleCancelClick');
-    //console.log('selectionModel');
-    //console.log(selectionModel);
-    //console.log('selectionModel='+selectionModel.row.id);
+    console.log(selectionModel);    
     const selectedIDs = new Set(selectionModel);
     console.log(selectedIDs);
     const selectedRowData = tableData.filter((row) => selectedIDs.has(row.id));
-    //console.log(selectedRowData);
     if (selectedRowData.length)
     {
       setValueID(`${selectedRowData[0].id}`);
-      setValueTitle(`${selectedRowData[0].title}`);
-      setValueNameRus(`${selectedRowData[0].name_rus}`);
-      setValueNameEng(`${selectedRowData[0].name_eng}` );
-      setValueDescrRus(`${selectedRowData[0].descr_rus}`);
-      setValueDescrEng(`${selectedRowData[0].descr_eng}` );
+      setValueTitle(selectedRowData[0].title);
+      setValueNameRus(selectedRowData[0].name_rus);
+      setValueNameEng(selectedRowData[0].name_eng );
+      setValueDescrRus(selectedRowData[0].descr_rus);
+      setValueDescrEng(selectedRowData[0].descr_eng);
       setValueRespRate(`${selectedRowData[0].resp_rate}` );
       setValueRespYear(`${selectedRowData[0].resp_year}` );
       setValueIndoor(`${selectedRowData[0].indoor}` );
       setValueExtCloud(`${selectedRowData[0].ext_cloud}` );
       setValueExtGround(`${selectedRowData[0].ext_ground}` );
       //console.log('handleCancelClick Refresh initial '+selectedRowData[0].title+' '+selectedRowData[0].name_rus);
-      setValueTitleInitial(`${selectedRowData[0].title}`);
-      setValueNameRusInitial(`${selectedRowData[0].name_rus}`);
-      setValueNameEngInitial(`${selectedRowData[0].name_eng}` );
-      setValueDescrRusInitial(`${selectedRowData[0].descr_rus}`);
-      setValueDescrEngInitial(`${selectedRowData[0].descr_eng}` );
-      setValueRespRateInitial(`${selectedRowData[0].resp_rate}` );
+      setValueTitleInitial(selectedRowData[0].title);
+      setValueNameRusInitial(selectedRowData[0].name_rus);
+      setValueNameEngInitial(selectedRowData[0].name_eng );
+      setValueDescrRusInitial(selectedRowData[0].descr_rus);
+      setValueDescrEngInitial(selectedRowData[0].descr_eng);
+      setValueRespRateInitial(`${selectedRowData[0].resp_rate}`);
       setValueRespYearInitial(`${selectedRowData[0].resp_year}` );
       setValueIndoorInitial(`${selectedRowData[0].indoor}` );
       setValueExtCloudInitial(`${selectedRowData[0].ext_cloud}` );
@@ -627,7 +660,7 @@ const DataTableDoseRatio = (props) => {
 
   function CustomToolbar1() {
     const apiRef = useGridApiContext();
-    const handleExport = (options/* : GridCsvExportOptions */) =>
+    const handleExport = (options) =>
       apiRef.current.exportDataAsCsv(options);
 
     return (
@@ -652,8 +685,6 @@ const DataTableDoseRatio = (props) => {
   const valuesYesNo = [
     { title: 'Нет', id: 'false' },
     { title: 'Да', id: 'true' } ];
-
-//  const [file, setFile] = useState()
 
   function handleFileChange(event) {
     //console.log( 'handleFileChange файл '+event.target.files[0] );
@@ -791,9 +822,9 @@ const DataTableDoseRatio = (props) => {
 
 
     
-        <FormControl sx={{ width: '40ch' }} size="small">
+        <FormControl sx={{ width: '60ch' }} size="small">
         <InputLabel id="fiz">Физический параметр (из общего списка)</InputLabel>
-          <Select labelId="fiz" id="fiz1" label="Физический параметр (из общего списка)" defaultValue="" value={valuePhysParamID  || "" } onChange={e => setValuePhysParamId(e.target.value)}>
+          <Select labelId="fiz" id="fiz1" label="Физический параметр (из общего списка)" defaultValue="" value={valuePhysParamID||"0"} onChange={e => setValuePhysParamId(e.target.value)}>
           {tablePhysParam?.map(option => {
                 return (
                   <MenuItem key={option.id} value={option.id}>
@@ -835,7 +866,7 @@ const DataTableDoseRatio = (props) => {
       </DialogActions>
   </Dialog>
 
-  <Dialog open={openEdit} onClose={handleClickEditNo} maxWidth={700}>
+  <Dialog open={openEdit} onClose={handleClickEditNo} maxWidth="700">
       <DialogTitle>
           Параметры функции
       </DialogTitle>
@@ -856,7 +887,7 @@ const DataTableDoseRatio = (props) => {
     </DialogTitle>
     <DialogContent>
         <DialogContentText>
-            В запись таблицы "{table_names[props.table_name]}" с кодом <b>{valueId}</b> внесены изменения.<p/>
+            В запись таблицы {table_names[props.table_name]} с кодом <b>{valueId}</b> внесены изменения.<p/>
             {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p/>
             {valueNameRus === valueNameRusInitial ? '' : 'Название (рус. яз): '+valueNameRus+'; ' }<p/>
             {valueNameEng === valueNameEngInitial ? '' : 'Название (англ. яз): '+valueNameEng+'; ' }<p/>
@@ -885,7 +916,7 @@ const DataTableDoseRatio = (props) => {
     </DialogTitle>
     <DialogContent>
         <DialogContentText>
-            В запись таблицы "Типы облучаемых лиц" с кодом <b>{valueId}</b> внесены изменения.<p/>
+            В запись таблицы {table_names[props.table_name]} с кодом <b>{valueId}</b> внесены изменения.<p/>
             {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p/>
             {valueNameRus === valueNameRusInitial ? '' : 'Название (рус. яз): '+valueNameRus+'; ' }<p/>
             {valueNameEng === valueNameEngInitial ? '' : 'Название (англ. яз): '+valueNameEng+'; ' }<p/>

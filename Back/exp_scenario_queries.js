@@ -91,7 +91,8 @@ const createExpScenario = (request, response, table_name )=> {
               }
               else {
                 console.log(`Тип облучаемых лиц добавлен, ID: ${id}`); 
-                response.status(201).send(`Тип облучаемых лиц добавлен, ID: ${id}`);
+                //response.status(201).send(`Тип облучаемых лиц добавлен, ID: ${id}`);
+                response.status(201).json({id: `${id}`}); 
               }
               done()
             })

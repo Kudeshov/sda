@@ -148,7 +148,8 @@ const createChemCompGr = (request, response, table_name )=> {
               }
               else {
                 console.log(`Запись с кодом ID: ${id} добавлена`); 
-                response.status(201).send(`Запись с кодом ID: ${id} добавлена`);
+                //response.status(201).send(`Запись с кодом ID: ${id} добавлена`);
+                response.status(201).json({id: `${id}`}); 
               }
               done()
             })

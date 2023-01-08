@@ -96,7 +96,7 @@ const createChelement = (request, response, table_name )=> {
               }
               else {
                 console.log(`Химический элемент добавлен, ID: ${id}`); 
-                response.status(201).send(`Химический элемент добавлен, ID: ${id}`);
+                response.status(201).json({id: `${id}`}); //response.status(201).send(`Химический элемент добавлен, ID: ${id}`);
               }
               done()
             })

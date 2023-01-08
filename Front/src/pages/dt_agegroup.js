@@ -81,49 +81,49 @@ const DataTableAgeGroup = (props) => {
       {
         //console.log('isLoading, tableData ON lastId '+lastId);
         lastId = tableData[0].id;
-        setSelectionModel(tableData[0].id);
+        setSelectionModel([tableData[0].id]);
         setValueID(`${tableData[0].id}`);
-        setValueTitle(`${tableData[0].title}`);
-        setValueNameRus(`${tableData[0].name_rus}`);
-        setValueNameEng(`${tableData[0].name_eng}`);
-        setValueDescrRus(`${tableData[0].descr_rus}`);
-        setValueDescrEng(`${tableData[0].descr_eng}`);
+        setValueTitle(tableData[0].title);
+        setValueNameRus(tableData[0].name_rus);
+        setValueNameEng(tableData[0].name_eng);
+        setValueDescrRus(tableData[0].descr_rus);
+        setValueDescrEng(tableData[0].descr_eng);
 
         setValueRespRate(`${tableData[0].resp_rate}`);
         setValueRespYear(`${tableData[0].resp_year}`);
         setValueIndoor(`${tableData[0].indoor}`);
-        setValueExtCloud(`${tableData[0].extcloud}`);
-        setValueExtGround(`${tableData[0].extground}`);
+        setValueExtCloud(`${tableData[0].ext_cloud}`);
+        setValueExtGround(`${tableData[0].ext_ground}`);
         //console.log('useEffect Refresh initial '+tableData[0].title+' '+tableData[0].name_rus);
-        setValueTitleInitial(`${tableData[0].title}`);       
-        setValueNameRusInitial(`${tableData[0].name_rus}`);
-        setValueNameEngInitial(`${tableData[0].name_eng}`);
-        setValueDescrRusInitial(`${tableData[0].descr_rus}`);
-        setValueDescrEngInitial(`${tableData[0].descr_eng}`);
+        setValueTitleInitial(tableData[0].title);       
+        setValueNameRusInitial(tableData[0].name_rus);
+        setValueNameEngInitial(tableData[0].name_eng);
+        setValueDescrRusInitial(tableData[0].descr_rus);
+        setValueDescrEngInitial(tableData[0].descr_eng);
 
         setValueRespRateInitial(`${tableData[0].resp_rate}`);
         setValueRespYearInitial(`${tableData[0].resp_year}`);
         setValueIndoorInitial(`${tableData[0].indoor}`);
-        setValueExtCloudInitial(`${tableData[0].extcloud}`);
-        setValueExtGroundInitial(`${tableData[0].extground}`);
+        setValueExtCloudInitial(`${tableData[0].ext_cloud}`);
+        setValueExtGroundInitial(`${tableData[0].ext_ground}`);
       }
     }
     }, [ isLoading, tableData] );
 
   const handleRowClick = (params) => {
-    console.log('handleRowClick');
+    setOpenAlert(false);
     if (editStarted)
     {
       handleClickSave(params);
     } 
     else 
     {
-      setValueID(`${params.row.id}`);
-      setValueTitle(`${params.row.title}`);
-      setValueNameRus(`${params.row.name_rus}`);
-      setValueNameEng(`${params.row.name_eng}`);
-      setValueDescrRus(`${params.row.descr_rus}`);
-      setValueDescrEng(`${params.row.descr_eng}` );
+      setValueID(params.row.id);
+      setValueTitle(params.row.title);
+      setValueNameRus(params.row.name_rus);
+      setValueNameEng(params.row.name_eng);
+      setValueDescrRus(params.row.descr_rus);
+      setValueDescrEng(params.row.descr_eng);
 
       setValueRespRate(`${params.row.resp_rate}` );
       setValueRespYear(`${params.row.resp_year}` );
@@ -131,11 +131,11 @@ const DataTableAgeGroup = (props) => {
       setValueExtCloud(`${params.row.ext_cloud}` );
       setValueExtGround(`${params.row.ext_ground}` );
       //console.log('handleRowClick Refresh initial '+params.row.title+' '+params.row.name_rus);
-      setValueTitleInitial(`${params.row.title}`);
-      setValueNameRusInitial(`${params.row.name_rus}`);
-      setValueNameEngInitial(`${params.row.name_eng}`);
-      setValueDescrRusInitial(`${params.row.descr_rus}`);
-      setValueDescrEngInitial(`${params.row.descr_eng}` );
+      setValueTitleInitial(params.row.title);
+      setValueNameRusInitial(params.row.name_rus);
+      setValueNameEngInitial(params.row.name_eng);
+      setValueDescrRusInitial(params.row.descr_rus);
+      setValueDescrEngInitial(params.row.descr_eng);
 
       setValueRespRateInitial(`${params.row.resp_rate}` );
       setValueRespYearInitial(`${params.row.resp_year}` );
@@ -146,11 +146,8 @@ const DataTableAgeGroup = (props) => {
   }; 
 
   const handleClearClick = (params) => {
-    console.log('handleClearClick');
     if (editStarted)
     {
-      console.log('params');
-      console.log(params);
       handleClickSaveWhenNew(params);
     } 
     else 
@@ -177,7 +174,7 @@ const DataTableAgeGroup = (props) => {
     fetch(`/${props.table_name}`)
       .then((data) => data.json())
       .then((data) => setTableData(data))
-      .then((data) => {/* console.log('fetch ok'); console.log(data);  */lastId = 0;} ); 
+      .then((data) => { lastId = 0;} ); 
   }, [props.table_name])
 
   ///////////////////////////////////////////////////////////////////  SAVE  /////////////////////
@@ -244,7 +241,6 @@ const DataTableAgeGroup = (props) => {
  };
 /////////////////////////////////////////////////////////////////// ADDREC ///////////////////// 
   const addRec = async ()  => {
-    //console.log('addrec executed');
     const js = JSON.stringify({
       id: valueId,
       title: valueTitle,
@@ -279,9 +275,9 @@ const DataTableAgeGroup = (props) => {
       else
       {
         alertSeverity = "success";
-        alertText =  await response.text();
-        lastId = parseInt( alertText.substr(alertText.lastIndexOf('ID:') + 3, 20)); 
-        //console.log(lastId);
+        const { id } = await response.json();
+        alertText = `Добавлена запись с кодом ${id}`;
+        lastId = id;          
         setValueID(lastId);
         setOpenAlert(true);  
       }
@@ -292,9 +288,20 @@ const DataTableAgeGroup = (props) => {
     } finally {
       setIsLoading(false);
       reloadData();
-      setSelectionModel(lastId);
+      setSelectionModel([lastId]);
       //Refresh initial state
-      //console.log('addRec Refresh initial '+valueTitle+' '+valueNameRus);
+      console.log('addRec Refresh initial '+valueTitle+' '+valueNameRus);
+      setValueTitle(valueTitle);
+      setValueNameRus(valueNameRus);
+      setValueNameEng(valueNameEng);
+      setValueDescrRus(valueDescrRus);
+      setValueDescrEng(valueDescrEng);
+      setValueRespRate(valueRespRate)
+      setValueRespYear(valueRespYear)
+      setValueIndoor(valueIndoor)
+      setValueExtCloud(valueExtCloud)          
+      setValueExtGround(valueExtGround)
+       
       setValueTitleInitial(valueTitle);
       setValueNameRusInitial(valueNameRus);
       setValueNameEngInitial(valueNameEng);
@@ -310,13 +317,11 @@ const DataTableAgeGroup = (props) => {
 
 /////////////////////////////////////////////////////////////////// DELETE /////////////////////
   const delRec =  async () => {
-    //console.log('delrec clicked');
     const js = JSON.stringify({
         id: valueId,
         title: valueTitle,
     });
     setIsLoading(true);
-    //console.log(js);
     try {
       const response = await fetch(`/${props.table_name}/`+valueId, {
         method: 'DELETE',
@@ -337,13 +342,13 @@ const DataTableAgeGroup = (props) => {
         alertText = await response.text();
         setOpenAlert(true); 
         reloadData();
-        setSelectionModel(tableData[0].id );  
+        setSelectionModel([tableData[0].id ]);  
         setValueID(`${tableData[0].id}`);
-        setValueTitle(`${tableData[0].title}`);
-        setValueNameRus(`${tableData[0].name_rus}`);
-        setValueNameEng(`${tableData[0].name_eng}`);
-        setValueDescrRus(`${tableData[0].descr_rus}`);
-        setValueDescrEng(`${tableData[0].descr_eng}`);
+        setValueTitle(tableData[0].title);
+        setValueNameRus(tableData[0].name_rus);
+        setValueNameEng(tableData[0].name_eng);
+        setValueDescrRus(tableData[0].descr_rus);
+        setValueDescrEng(tableData[0].descr_eng);
 
         setValueRespRate(`${tableData[0].resp_rate}`);
         setValueRespYear(`${tableData[0].resp_year}`);
@@ -351,11 +356,11 @@ const DataTableAgeGroup = (props) => {
         setValueExtCloud(`${tableData[0].ext_cloud}`);
         setValueExtGround(`${tableData[0].ext_ground}`);
 
-        setValueTitleInitial(`${tableData[0].title}`);
-        setValueNameRusInitial(`${tableData[0].name_rus}`);
-        setValueNameEngInitial(`${tableData[0].name_eng}`);
-        setValueDescrRusInitial(`${tableData[0].descr_rus}`);
-        setValueDescrEngInitial(`${tableData[0].descr_eng}`);
+        setValueTitleInitial(tableData[0].title);
+        setValueNameRusInitial(tableData[0].name_rus);
+        setValueNameEngInitial(tableData[0].name_eng);
+        setValueDescrRusInitial(tableData[0].descr_rus);
+        setValueDescrEngInitial(tableData[0].descr_eng);
 
         setValueRespRateInitial(`${tableData[0].resp_rate}`);
         setValueRespYearInitial(`${tableData[0].resp_year}`);
@@ -393,7 +398,6 @@ const DataTableAgeGroup = (props) => {
     try {
       const response = await fetch(`/${props.table_name}/`);
        if (!response.ok) {
-        //console.log('response not ok');
         alertText = `Ошибка при обновлении данных: ${response.status}`;
         alertSeverity = "false";
         const error = response.status + ' (' +response.statusText+')';  
@@ -405,7 +409,6 @@ const DataTableAgeGroup = (props) => {
         setTableData(result);
       }
     } catch (err) {
-      //console.log('catch err');
       throw err;
     } finally {
       setIsLoading(false);
@@ -431,30 +434,25 @@ const DataTableAgeGroup = (props) => {
   };
 
   const handleClickSave = () => {
-    console.log('handleClickSave');
     setOpenSave(true);
   };
 
   const handleCloseSaveNo = () => {
-    console.log('handleCloseSaveNo');
     setOpenSave(false);
     handleCancelClick();
   };
 
   const handleCloseSaveYes = () => {
-    console.log('handleCloseSaveYes');
     setOpenSave(false);
     saveRec(false);
     handleCancelClick();
   };
 
   const handleClickSaveWhenNew = () => {
-    console.log('handleClickSaveWhenNew');
     setOpenSaveWhenNew(true);
   };
 
   const handleCloseSaveWhenNewNo = () => {
-    console.log('handleCloseSaveNo');
     setOpenSaveWhenNew(false);
 
     setValueID(``);
@@ -473,7 +471,6 @@ const DataTableAgeGroup = (props) => {
   };
 
   const handleCloseSaveWhenNewYes = () => {
-    console.log('handleCloseSaveYes');
     setOpenSaveWhenNew(false);
     saveRec(true);
     setValueID(``);
@@ -503,10 +500,6 @@ const DataTableAgeGroup = (props) => {
   const [openAlert, setOpenAlert] = React.useState(false, '');
   const handleCancelClick = () => 
   {
-    console.log('handleCancelClick');
-    //console.log('selectionModel');
-    //console.log(selectionModel);
-    //console.log('selectionModel='+selectionModel.row.id);
     const selectedIDs = new Set(selectionModel);
     //console.log(selectedIDs);
     const selectedRowData = tableData.filter((row) => selectedIDs.has(row.id));
@@ -514,22 +507,22 @@ const DataTableAgeGroup = (props) => {
     if (selectedRowData.length)
     {
       setValueID(`${selectedRowData[0].id}`);
-      setValueTitle(`${selectedRowData[0].title}`);
-      setValueNameRus(`${selectedRowData[0].name_rus}`);
-      setValueNameEng(`${selectedRowData[0].name_eng}` );
-      setValueDescrRus(`${selectedRowData[0].descr_rus}`);
-      setValueDescrEng(`${selectedRowData[0].descr_eng}` );
+      setValueTitle(selectedRowData[0].title);
+      setValueNameRus(selectedRowData[0].name_rus);
+      setValueNameEng(selectedRowData[0].name_eng );
+      setValueDescrRus(selectedRowData[0].descr_rus);
+      setValueDescrEng(selectedRowData[0].descr_eng);
       setValueRespRate(`${selectedRowData[0].resp_rate}` );
       setValueRespYear(`${selectedRowData[0].resp_year}` );
       setValueIndoor(`${selectedRowData[0].indoor}` );
       setValueExtCloud(`${selectedRowData[0].ext_cloud}` );
       setValueExtGround(`${selectedRowData[0].ext_ground}` );
       //console.log('handleCancelClick Refresh initial '+selectedRowData[0].title+' '+selectedRowData[0].name_rus);
-      setValueTitleInitial(`${selectedRowData[0].title}`);
-      setValueNameRusInitial(`${selectedRowData[0].name_rus}`);
-      setValueNameEngInitial(`${selectedRowData[0].name_eng}` );
-      setValueDescrRusInitial(`${selectedRowData[0].descr_rus}`);
-      setValueDescrEngInitial(`${selectedRowData[0].descr_eng}` );
+      setValueTitleInitial(selectedRowData[0].title);
+      setValueNameRusInitial(selectedRowData[0].name_rus);
+      setValueNameEngInitial(selectedRowData[0].name_eng );
+      setValueDescrRusInitial(selectedRowData[0].descr_rus);
+      setValueDescrEngInitial(selectedRowData[0].descr_eng);
       setValueRespRateInitial(`${selectedRowData[0].resp_rate}` );
       setValueRespYearInitial(`${selectedRowData[0].resp_year}` );
       setValueIndoorInitial(`${selectedRowData[0].indoor}` );
@@ -540,7 +533,7 @@ const DataTableAgeGroup = (props) => {
 
   function CustomToolbar1() {
     const apiRef = useGridApiContext();
-    const handleExport = (options/* : GridCsvExportOptions */) =>
+    const handleExport = (options) =>
       apiRef.current.exportDataAsCsv(options);
 
     return (
@@ -563,11 +556,11 @@ const DataTableAgeGroup = (props) => {
   }
 
   return (
-    <div style={{ height: 550, width: 1500 }}>
+    <div style={{ height: 640, width: 1500 }}>
     <table border = "0" style={{ height: 550, width: 1500 }} ><tbody>
     <tr>
-      <td style={{ height: 550, width: 600, verticalAlign: 'top' }}>
-      <div style={{ height: 400, width: 585 }}>
+      <td style={{ height: 640, width: 600, verticalAlign: 'top' }}>
+      <div style={{ height: 486, width: 585 }}>
 
       <DataGrid
         components={{ Toolbar: CustomToolbar1 }}
@@ -669,7 +662,7 @@ const DataTableAgeGroup = (props) => {
     </DialogTitle>
     <DialogContent>
         <DialogContentText>
-            В запись таблицы "{table_names[props.table_name]}" с кодом <b>{valueId}</b> внесены изменения.<p/>
+            В запись таблицы {table_names[props.table_name]} с кодом <b>{valueId}</b> внесены изменения.<p/>
             {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p/>
             {valueNameRus === valueNameRusInitial ? '' : 'Название (рус. яз): '+valueNameRus+'; ' }<p/>
             {valueNameEng === valueNameEngInitial ? '' : 'Название (англ. яз): '+valueNameEng+'; ' }<p/>
@@ -695,7 +688,7 @@ const DataTableAgeGroup = (props) => {
     </DialogTitle>
     <DialogContent>
         <DialogContentText>
-            В запись таблицы "{table_names[props.table_name]}" с кодом <b>{valueId}</b> внесены изменения.<p/>
+            В запись таблицы {table_names[props.table_name]} с кодом <b>{valueId}</b> внесены изменения.<p/>
             {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p/>
             {valueNameRus === valueNameRusInitial ? '' : 'Название (рус. яз): '+valueNameRus+'; ' }<p/>
             {valueNameEng === valueNameEngInitial ? '' : 'Название (англ. яз): '+valueNameEng+'; ' }<p/>
