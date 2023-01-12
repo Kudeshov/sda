@@ -835,11 +835,11 @@ const DataTableDoseRatio = (props) => {
           </Select>
           </FormControl>  
           <p/> 
-          <TextField sx={{width: '100ch', input: {color: "black", background: '#EEEEEE'}}} id="physparam_code" label="Код"  size="small" variant="outlined" value={valuePhysParamCode || ''} />
+          <TextField sx={{width: '100ch', input: {background: '#EEEEEE'}}} id="physparam_code" label="Код"  size="small" variant="outlined" value={valuePhysParamCode || ''} />
           <p/>
-          <TextField sx={{width: '100ch', input: {color: "black", background: '#EEEEEE'}}} id="physparam_name_rus" label="Название (рус.яз)"  size="small" variant="outlined" value={valuePhysParamNameRus || ''} />
+          <TextField sx={{width: '100ch', input: {background: '#EEEEEE'}}} id="physparam_name_rus" label="Название (рус.яз)"  size="small" variant="outlined" value={valuePhysParamNameRus || ''} />
           <p/>
-          <TextField sx={{width: '100ch', input: {color: "black", background: '#EEEEEE'}}} id="dimension" label="Eд.измерения (базовая)"  size="small" variant="outlined" value={valuePhysParamDimension || ''} />
+          <TextField sx={{width: '100ch', input: {background: '#EEEEEE'}}} id="dimension" label="Eд.измерения (базовая)"  size="small" variant="outlined" value={valuePhysParamDimension || ''} />
           <p/>
 
       <div style={{ height: 300, width: 800 }}>

@@ -16,7 +16,9 @@ export const table_names = {
     'action': 'Действия',
     'agegroup': 'Возрастные группы населения',
     'organ': 'Органы и ткани',
-    'chem_comp_gr': 'Химические соединения (группы)'
+    'chem_comp_gr': 'Химические соединения (группы)',
+    'isotope': 'Радионуклиды',
+    'isotope_decay': 'Радиоактивные ряды',
   }; 
   
   export default table_names;

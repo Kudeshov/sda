@@ -107,8 +107,7 @@ function Navbar() {
                 anchorEl={anchorEl}
                 open={menuDecay}
                 onClose={closeMenuDecay}>
-                <MenuItem onClick={closeMenuDecay} component={Link} disabled={true} to="/">Радионуклиды</MenuItem> 
- 
+                <MenuItem onClick={closeMenuDecay} component={Link} to="/isotope">Радионуклиды</MenuItem> 
                 <Divider />
                 <MenuItem onClick={closeMenuDecay} component={Link} disabled={true} to="/">Параметры</MenuItem> 
                 <MenuItem onClick={closeMenuDecay} component={Link} disabled={true} to="/">Тип излучения</MenuItem> 

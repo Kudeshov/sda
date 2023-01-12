@@ -22,6 +22,7 @@ import ActionLevel from "./pages/action_level";
 import Action from "./pages/action";
 import Organ from "./pages/organ";
 import ChemCompGr from "./pages/chem_comp_gr";
+import Isotope from "./pages/isotope";
 
 function App() {
   return (
@@ -49,7 +50,8 @@ function App() {
         <Route path="/action_level" element={<ActionLevel/>} />
         <Route path="/action" element={<Action/>} />
         <Route path="/organ" element={<Organ/>} />
-        <Route path="/chem_comp_gr" element={<ChemCompGr/>} />        
+        <Route path="/chem_comp_gr" element={<ChemCompGr/>} />
+        <Route path="/isotope" element={<Isotope/>} />                   
       </Routes>
     </Router>
   );

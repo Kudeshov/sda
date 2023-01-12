@@ -153,7 +153,7 @@ const DataTableChemCompGr = (props) => {
     const handleSelect = (event, nodeIds) => {
       setSelected(nodeIds);
       handleItemClick(nodeIds);
-      console.log('handleSelect ' + nodeIds );
+      //console.log('handleSelect ' + nodeIds );
     };  
 
     const [treeFilterString, setTreeFilterString] = React.useState('');
@@ -230,7 +230,7 @@ const DataTableChemCompGr = (props) => {
       setValueNameEng(``);
       setValueDescrRus(``);
       setValueDescrEng(``);
-      console.log('valueParentID ' + valueParentID + ' valueId ' + valueId)
+      //console.log('valueParentID ' + valueParentID + ' valueId ' + valueId)
       if (valueId > 999999)
         setValueParentID(valueParentID)
       else
@@ -276,7 +276,7 @@ const DataTableChemCompGr = (props) => {
     //console.log( 'selected = ' + selected + ' tableData.length ' + tableData.length );
     if ((!selected)&&(treeData.length))
     {
-       console.log( 'setSelected(treeData[0].id.toString()); = ' + treeData[0].id.toString()  );
+      //console.log( 'setSelected(treeData[0].id.toString()); = ' + treeData[0].id.toString()  );
 
       setSelected(treeData[0].id.toString());
       updateCurrentRec(treeData[0].id.toString());
@@ -376,7 +376,7 @@ const DataTableChemCompGr = (props) => {
       formula: valueFormula     
     });
 
-    console.log(js);
+//    console.log(js);
 
     if (!valueId) {
       addRec();
@@ -412,7 +412,7 @@ const DataTableChemCompGr = (props) => {
      if (fromToolbar) 
      {
       reloadData();
-      console.log('кнопа нажата') 
+      //console.log('кнопа нажата') 
       setValueTitle(valueTitle);       
       setValueNameRus(valueNameRus); 
       setValueNameEng(valueNameEng);
@@ -472,9 +472,9 @@ const DataTableChemCompGr = (props) => {
 //        const parsed = parseInt(id);
 //        if (isNaN(parsed)) { return 0; }
         lastId = parseInt(id)+1000000; 
-        console.log('setSelected lastId' + lastId );
+        //console.log('setSelected lastId' + lastId );
         setValueID(lastId);
-        console.log('setSelected lastId toString' + lastId.toString());
+        //console.log('setSelected lastId toString' + lastId.toString());
         setSelected((lastId).toString());
         setValueTitle(valueTitle);       
         setValueNameRus(valueNameRus); 

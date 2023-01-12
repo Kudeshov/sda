@@ -53,14 +53,14 @@ function DataTableDataSourceClass(props)  {
     setOpen(false);
   };
 
-  const [tableDataSrcClass, setTableDataSrcClass] = useState([])
-  const [tableDataSrc, setTableDataSrc] = useState([])
+  const [tableDataSrcClass, setTableDataSrcClass] = useState([]);
+  const [tableDataSrc, setTableDataSrc] = useState([]);
   useEffect(() => {
     lastRecID = props.rec_id||0;
     setlastSrcClassID(0);
     setIsLoading(true);
-    console.log(`/data_source_class?table_name=${props.table_name}&rec_id=${props.rec_id}`);
-    console.log( lastRecID );
+    //console.log(`/data_source_class?table_name=${props.table_name}&rec_id=${props.rec_id}`);
+    //console.log( lastRecID );
     fetch(`/data_source_class?table_name=${props.table_name}&rec_id=${lastRecID}`)
       .then((data) => data.json())
       .then((data) => setTableDataSrcClass(data));
@@ -284,7 +284,7 @@ const addRec = async ()  => {
       alertText = `Добавлена запись с кодом ${id}`;
 //      lastId = id; 
       lastAddedId =  id; 
-      console.log(lastAddedId);
+      //console.log(lastAddedId);
       setValueID(lastAddedId);
       setOpenAlert(true);  
     }
@@ -475,7 +475,7 @@ const [noRecords, setNoRecords] = useState(true);
       </DialogActions>
       </Dialog>
 
-      </div>
+    </div>
     )
 }
  export  { DataTableDataSourceClass }

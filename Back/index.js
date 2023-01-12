@@ -33,6 +33,7 @@ const ccg_q = require('./chem_comp_gr_queries');
 const pcm_q = require('./phchform_chelem_queries');
 const nuc_q = require('./nuclide_queries');
 const cg_q = require('./criterion_gr_queries');
+const id_q = require('./isotope_decay_queries');
 
 const { Pool } = require('pg');
 //var msg = 'a';
@@ -50,12 +51,6 @@ app.get('/chelement/:id', (req, res) => {ch_q.getChelementById(req, res, 'chelem
 app.post('/chelement', (req, res) => {ch_q.createChelement(req, res, 'chelement')});       //create
 app.put('/chelement/:id', (req, res) => {ch_q.updateChelement(req, res, 'chelement')});    //update
 app.delete('/chelement/:id', (req, res) => {ch_q.deleteChelement(req, res, 'chelement')}); //delete
-
-/* app.get('/chelement', ch_q.getChelement);           //list all
-app.get('/chelement/:id', ch_q.getChelementById);   //list 1
-app.post('/chelement', ch_q.createChelement);       //create
-app.put('/chelement/:id', ch_q.updateChelement);    //update
-app.delete('/chelement/:id', ch_q.deleteChelement); //delete */
 
 //DATA_SOURCE interface
 app.get('/data_source', ds_q.getDataSource);           //list all
@@ -135,11 +130,11 @@ app.put('/criterion_gr/:id', (req, res) => {cg_q.updateCriterionGr(req, res, 'cr
 app.delete('/criterion_gr/:id', (req, res) => {cg_q.deleteCriterionGr(req, res, 'criterion_gr')}); //delete
 
 //GENERIC QUERIES on criterion_gr
-app.get('/organ', (req, res) => {es_q.getExpScenario(req, res, 'organ')});           //list all
-app.get('/organ/:id', (req, res) => {es_q.getExpScenarioById(req, res, 'organ')});   //list 1
-app.post('/organ', (req, res) => {es_q.createExpScenario(req, res, 'organ')});       //create
-app.put('/organ/:id', (req, res) => {es_q.updateExpScenario(req, res, 'organ')});    //update
-app.delete('/organ/:id', (req, res) => {es_q.deleteExpScenario(req, res, 'organ')}); //delete
+app.get('/organ', (req, res) => {es_q.getExpScenario(req, res, 'organ')});                   //list all
+app.get('/organ/:id', (req, res) => {es_q.getExpScenarioById(req, res, 'organ')});           //list 1
+app.post('/organ', (req, res) => {es_q.createExpScenario(req, res, 'organ')});               //create
+app.put('/organ/:id', (req, res) => {es_q.updateExpScenario(req, res, 'organ')});            //update
+app.delete('/organ/:id', (req, res) => {es_q.deleteExpScenario(req, res, 'organ')});         //delete
 
 //GENERIC QUERIES on dose_ratio
 app.get('/dose_ratio', (req, res) => {dr_q.getDoseRatio(req, res, 'dose_ratio')});           //list all
@@ -149,11 +144,11 @@ app.put('/dose_ratio/:id', (req, res) => {dr_q.updateDoseRatio(req, res, 'dose_r
 app.delete('/dose_ratio/:id', (req, res) => {dr_q.deleteDoseRatio(req, res, 'dose_ratio')}); //delete
 
 //GENERIC QUERIES on physparam
-app.get('/physparam', (req, res) => {pp_q.getPhysParam(req, res, 'physparam')});           //list all
-app.get('/physparam/:id', (req, res) => {pp_q.getPhysParamById(req, res, 'physparam')});   //list 1
-app.post('/physparam', (req, res) => {pp_q.createPhysParam(req, res, 'physparam')});       //create
-app.put('/physparam/:id', (req, res) => {pp_q.updatePhysParam(req, res, 'physparam')});    //update
-app.delete('/physparam/:id', (req, res) => {pp_q.deletePhysParam(req, res, 'physparam')}); //delete
+app.get('/physparam', (req, res) => {pp_q.getPhysParam(req, res, 'physparam')});             //list all
+app.get('/physparam/:id', (req, res) => {pp_q.getPhysParamById(req, res, 'physparam')});     //list 1
+app.post('/physparam', (req, res) => {pp_q.createPhysParam(req, res, 'physparam')});         //create
+app.put('/physparam/:id', (req, res) => {pp_q.updatePhysParam(req, res, 'physparam')});      //update
+app.delete('/physparam/:id', (req, res) => {pp_q.deletePhysParam(req, res, 'physparam')});   //delete
  
 //data_source_class_queries
 app.get('/data_source_class', dsc_q.getDataSourceClass);           //list all
@@ -192,25 +187,51 @@ app.post('/chem_comp_gr', (req, res) => {ccg_q.createChemCompGr(req, res, 'chem_
 app.delete('/chem_comp_gr/:id', (req, res) => {ccg_q.deleteChemCompGr(req, res, 'chem_comp_gr')});  //delete
 
 //GENERIC QUERIES on phchform_chelem 
-app.get('/phchform_chelem', (req, res) => {pcm_q.getPhchFormChelem(req, res, 'phchform_chelem')});           //list all
+app.get('/phchform_chelem', (req, res) => {pcm_q.getPhchFormChelem(req, res, 'phchform_chelem')});  //list all
+
+//GENERIC QUERIES on ACTION 
+app.get('/isotope', function(req, resp){
+  pool.query('SELECT * FROM nucl.isotope order by title', (error, res) => {
+    if(error) {
+       return console.error('error running query', error);
+    }
+   console.log(res.rows);
+   resp.json(res.rows);
+   });
+});
+
+app.get('/isotope_min', function(req, resp){
+  pool.query('SELECT id, title FROM nucl.isotope order by title', (error, res) => {
+    if(error) {
+       return console.error('error running query', error);
+    }
+   console.log(res.rows);
+   resp.json(res.rows);
+   });
+});
+/* app.get('/isotope/:id', (req, res) => {gn_q.getIsotopeById(req, res, 'isotope')});   //list 1
+app.post('/isotope', (req, res) => {gn_q.createIsotope(req, res, 'isotope')});       //create
+app.put('/isotope/:id', (req, res) => {gn_q.updateIsotope(req, res, 'isotope')});    //update
+app.delete('/isotope/:id', (req, res) => {gn_q.deleteIsotope(req, res, 'isotope')}); //delete */
 
 app.get('/criterion', function(req, resp){
       pool.query('SELECT * FROM nucl.criterion', (error, res) => {
         if(error) {
            return console.error('error running query', error);
         }
-       console.log(res.rows);
+       //console.log(res.rows);
        resp.json(res.rows);
        });
 });
 
-/* app.delete('/', (req, res) => {
-  res.send("DELETE root Request Called")
-}) */
-
 //QUERIES on nuclide 
 app.get('/nuclide/:id', (req, res) => {nuc_q.getNuclideByChelement(req, res, 'nuclide')});    //select by chelement_id
 
+//QUERIES on isotope_decay 
+app.get('/isotope_decay/:id', (req, res) => {id_q.getIsotopeDecayByIsotope(req, res, 'isotope_decay')});    //select by isotope_id
+app.post('/isotope_decay', (req, res) => {id_q.createIsotopeDecay(req, res, 'isotope_decay')});       //create
+app.put('/isotope_decay/:id', (req, res) => {id_q.updateIsotopeDecay(req, res, 'isotope_decay')}); //update
+app.delete('/isotope_decay/:id', (req, res) => {id_q.deleteIsotopeDecay(req, res, 'isotope_decay')});  //delete 
 
 var allowCrossDomain = function(req, res, next) {
     res.header('Access-Control-Allow-Origin', "*");
