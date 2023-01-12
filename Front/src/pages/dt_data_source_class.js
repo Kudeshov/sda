@@ -26,6 +26,7 @@ var alertText = "Сообщение";
 var alertSeverity = "info";
 var lastAddedId = 0;
 var lastRecID = 0;
+var lastID = 0;
 
 function DataTableDataSourceClass(props)  {
   const [open, setOpen] = React.useState(false);
@@ -51,6 +52,27 @@ function DataTableDataSourceClass(props)  {
 
   const handleCloseNo = () => {
     setOpen(false);
+
+    console.log(lastID);  
+    //setValueId(lastID);
+    var filteredData = tableDataSrcClass.filter(function(element) {
+      return element.id === lastID;
+    });
+    if (filteredData.length > 0) {
+      setValueID(lastID);
+      setValueTitleSrc(filteredData[0].title_src);
+      setValueNameSrc(filteredData[0].name_src);  
+      setValueDataSourceId(filteredData[0].data_source_id);
+      setValueTableName(filteredData[0].table_name);
+      setValueRecID(filteredData[0].rec_id);
+      setValueTitle(filteredData[0].title);    
+      setValueTitleSrc(filteredData[0].title_src);
+      setValueNameSrc(filteredData[0].name_src);
+      setValueShortName(filteredData[0].shortname);
+      setValueFullName(filteredData[0].fullname);
+      setValueDescr(filteredData[0].descr);
+      setValueExternalDS(filteredData[0].external_ds);    
+    }    
   };
 
   const [tableDataSrcClass, setTableDataSrcClass] = useState([]);
@@ -111,6 +133,7 @@ useEffect(() => {
   if ((!isLoading) && (tableDataSrcClass) && (tableDataSrcClass.length))
   {
     setSelectionModel([tableDataSrcClass[0].id]); //выбрать первую строку при перегрузке таблицы
+    lastID = tableDataSrcClass[0].id;
     setValueID(`${tableDataSrcClass[0].id}`);   //обновить переменные
     setValueDataSourceId(`${tableDataSrcClass[0].data_source_id}`);
     setValueTableName(`${tableDataSrcClass[0].table_name}`);
@@ -301,6 +324,7 @@ const addRec = async ()  => {
 const handleRowClick/* : GridEventListener<'rowClick'>  */ = (params) => {
   setOpenAlert(false);
   setValueID(`${params.row.id}`);
+  lastID = params.row.id;
   setValueDataSourceId(`${params.row.data_source_id}`);
   setValueTableName(`${params.row.table_name}`);
   setValueRecID(`${params.row.rec_id}`);

@@ -27,7 +27,7 @@ import { ReactComponent as DownloadLightIcon } from "./../icons/download.svg";
 import { ReactComponent as TrashLightIcon } from "./../icons/trash.svg";
 import { ReactComponent as RepeatLightIcon } from "./../icons/repeat.svg";
 import { table_names } from './sda_types';
-/*
+ 
 import styled from "@emotion/styled";
  import { Tree, TreeNode } from "react-organizational-chart";
 
@@ -36,7 +36,7 @@ const StyledNode = styled.div`
   border-radius: 4px;
   display: inline-block;
   border: 1px solid gray;
-`; */
+`; 
 
 var alertText = "Сообщение";
 var alertSeverity = "info";
@@ -521,7 +521,7 @@ const DataTableIsotope = (props) => {
       <TextField  id="ch_decayconst" sx={{ width: '100ch' }} label="Постоянная распада, 1/сек"  size="small" multiline maxRows={4} variant="outlined" value={valueDecayConst || ''} onChange={e => setValueDecayConst(e.target.value)}/>
       <p/>
 
-{/*    <Tree
+    <Tree
     lineWidth={"2px"}
     lineColor={"gray"}
     lineBorderRadius={"10px"}
@@ -540,7 +540,7 @@ const DataTableIsotope = (props) => {
       <TreeNode label={<StyledNode>Grand Child 1</StyledNode>} />
       <TreeNode label={<StyledNode>Grand Child 2</StyledNode>} />
     </TreeNode>   
-   </Tree>         */}
+   </Tree>         
 
       <div style={{ height: 240, width: 800 }}>
         Радиоактивные ряды<br/>

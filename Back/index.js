@@ -34,6 +34,7 @@ const pcm_q = require('./phchform_chelem_queries');
 const nuc_q = require('./nuclide_queries');
 const cg_q = require('./criterion_gr_queries');
 const id_q = require('./isotope_decay_queries');
+const i_q = require('./isotope_queries');
 
 const { Pool } = require('pg');
 //var msg = 'a';
@@ -190,15 +191,9 @@ app.delete('/chem_comp_gr/:id', (req, res) => {ccg_q.deleteChemCompGr(req, res, 
 app.get('/phchform_chelem', (req, res) => {pcm_q.getPhchFormChelem(req, res, 'phchform_chelem')});  //list all
 
 //GENERIC QUERIES on ACTION 
-app.get('/isotope', function(req, resp){
-  pool.query('SELECT * FROM nucl.isotope order by title', (error, res) => {
-    if(error) {
-       return console.error('error running query', error);
-    }
-   console.log(res.rows);
-   resp.json(res.rows);
-   });
-});
+
+//GENERIC QUERIES on chem_comp_gr 
+app.get('/isotope', (req, res) => {i_q.getIsotope(req, res, 'isotope')});            //list all
 
 app.get('/isotope_min', function(req, resp){
   pool.query('SELECT id, title FROM nucl.isotope order by title', (error, res) => {

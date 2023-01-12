@@ -24,6 +24,7 @@ import { table_names } from './sda_types';
 var alertText = "Сообщение";
 var alertSeverity = "info";
 var lastAddedId = 0;
+var lastID = 0;
 
 function DataTableIsotopeDecay(props)  {
 const columns_decay = [
@@ -41,7 +42,7 @@ const columns_decay = [
 
 const [valueIsotopeDecayId, setValueIsotopeDecayId] = React.useState();
 const [valueChildIsotopeId, setValueChildIsotopeId] = React.useState();
-const [valueParentIsotopeId, setValueParentIsotopeId] = React.useState();
+//const [valueParentIsotopeId, setValueParentIsotopeId] = React.useState();
 const [valueChildTitle, setValueChildTitle] = React.useState();
 const [valueParentTitle, setValueParentTitle] = React.useState();
 const [valueDecayProb, setValueDecayProb] = React.useState();
@@ -78,8 +79,9 @@ useEffect(() => {
     setOpenAlertDecay(false);
     console.log('child title' + params.row.child_title);
     setValueIsotopeDecayId(params.row.id);
+    lastID = params.row.id;
     setValueChildIsotopeId(params.row.child_id);
-    setValueParentIsotopeId(params.row.parent_id);
+    //setValueParentIsotopeId(params.row.parent_id);
     setValueChildTitle(params.row.child_title);
     //setValueParentTitle(params.row.parent_title);
     setValueDecayProb(params.row.decay_prob);
@@ -107,6 +109,17 @@ useEffect(() => {
 
   const handleCloseNoDecay = () => {
     setOpenDecay(false);
+    console.log(lastID);  
+    setValueIsotopeDecayId(lastID);
+    var filteredDecay = tableDecay.filter(function(element) {
+      return element.id === lastID;
+    });
+    if (filteredDecay.length > 0) {
+      setValueChildIsotopeId(filteredDecay[0].child_id);
+      setValueChildTitle(filteredDecay[0].child_title);
+      setValueDecayProb(filteredDecay[0].decay_prob); 
+      console.log(filteredDecay[0].child_title);  
+    }
   };
 
   const handleClickDeleteDecay = () => {
@@ -126,9 +139,10 @@ useEffect(() => {
   if ((!isLoading) && (tableDecay) && (tableDecay.length))
   {
     setSelectionModelDecay([tableDecay[0].id]); //выбрать первую строку при перегрузке таблицы
+    lastID = tableDecay[0].id;
     setValueIsotopeDecayId(tableDecay[0].id);
     setValueChildIsotopeId(tableDecay[0].child_id);
-    setValueParentIsotopeId(tableDecay[0].parent_id);
+    //setValueParentIsotopeId(tableDecay[0].parent_id);
     setValueChildTitle(tableDecay[0].child_title);
     //setValueParentTitle(tableDecay[0].parent_title);
     setValueDecayProb(tableDecay[0].decay_prob);    
