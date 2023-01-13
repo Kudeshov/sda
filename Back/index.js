@@ -207,8 +207,10 @@ app.get('/criterion', function(req, resp){
 
 //QUERIES on nuclide 
 app.get('/nuclide/:id', (req, res) => {nuc_q.getNuclideByChelement(req, res, 'nuclide')});    //select by chelement_id
-
-
+app.post('/nuclide', (req, res) => {nuc_q.createNuclide(req, res, 'nuclide')});          //create
+app.delete('/nuclide/:id', (req, res) => {nuc_q.deleteNuclide(req, res, 'nuclide')});   //delete
+app.put('/nuclide/:id', (req, res) => {nuc_q.updateNuclide(req, res, 'nuclide')});          //update
+ 
 var allowCrossDomain = function(req, res, next) {
     res.header('Access-Control-Allow-Origin', "*");
     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
