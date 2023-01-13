@@ -194,7 +194,7 @@ app.get('/phchform_chelem', (req, res) => {pcm_q.getPhchFormChelem(req, res, 'ph
 
 //GENERIC QUERIES on chem_comp_gr 
 app.get('/isotope', (req, res) => {i_q.getIsotope(req, res, 'isotope')});            //list all
-
+app.get('/isotope_tree/:id', (req, res) => {i_q.getIsotopeTree(req, res, 'isotope')});            //list recursive decay tree
 app.get('/isotope_min', function(req, resp){
   pool.query('SELECT id, title FROM nucl.isotope order by title', (error, res) => {
     if(error) {
@@ -227,6 +227,25 @@ app.get('/isotope_decay/:id', (req, res) => {id_q.getIsotopeDecayByIsotope(req, 
 app.post('/isotope_decay', (req, res) => {id_q.createIsotopeDecay(req, res, 'isotope_decay')});       //create
 app.put('/isotope_decay/:id', (req, res) => {id_q.updateIsotopeDecay(req, res, 'isotope_decay')}); //update
 app.delete('/isotope_decay/:id', (req, res) => {id_q.deleteIsotopeDecay(req, res, 'isotope_decay')});  //delete 
+/* 
+app.get('/isotope_tree/:id', function(req, resp){
+  const id = parseInt(req.params.id);
+  pool.query(
+    'WITH RECURSIVE subordinates AS ( '+
+    'select i_d.id aa, i_d.parent_id id, null parent_id, i_d.decay_prob, i.title, NULL children from nucl.isotope_decay i_d join nucl.isotope i on i.id = i_d.parent_id where i_d.parent_id = $1 '+
+    'union '+ 
+    'select i_d.id aa, i_d.child_id id, i_d.parent_id, i_d.decay_prob, i.title, NULL children from nucl.isotope_decay i_d join nucl.isotope i on i.id = i_d.child_id where i_d.parent_id = $1 '+
+    'union '+ 
+    'select i_d_r.id aa, i_d_r.child_id id, i_d_r.parent_id, i_d_r.decay_prob, i1.title, NULL children from nucl.isotope_decay i_d_r join nucl.isotope i1 on i1.id = i_d_r.child_id '+  
+    'inner join subordinates s on s.id  = i_d_r.parent_id) '+ 
+    'select * from subordinates ', [id], (error, res) => {
+    if(error) {
+       return console.error('error running query', error);
+    }
+   //console.log(res.rows);
+   resp.json(res.rows);
+   });
+}); */
 
 var allowCrossDomain = function(req, res, next) {
     res.header('Access-Control-Allow-Origin', "*");

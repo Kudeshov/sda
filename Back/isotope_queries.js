@@ -28,6 +28,28 @@ const getIsotope = (request, response ) => {
     response.status(200).json(results.rows)
     });
 }
+
+const getIsotopeTree = (request, response ) => {
+  const isotope_id = parseInt(request.params.id||0);  
+  console.log('getIsotopeTree');
+  console.log(request.params);
+  pool.query(
+    'WITH RECURSIVE subordinates AS ( '+
+    'select ist.id, null parent_id, 0 decay_prob, ist.title, ist.half_life_value, ist.half_life_period, NULL children from nucl.isotope ist where ist.id = $1 ' +
+//    'select i_d.id aa, i_d.parent_id id, null parent_id, i_d.decay_prob, i.title, NULL children from nucl.isotope_decay i_d join nucl.isotope i on i.id = i_d.parent_id where i_d.parent_id = $1 '+
+    'union '+ 
+    'select i_d.child_id id, i_d.parent_id, i_d.decay_prob, i.title, i.half_life_value, i.half_life_period, NULL children from nucl.isotope_decay i_d join nucl.isotope i on i.id = i_d.child_id where i_d.parent_id = $1 '+
+    'union '+ 
+    'select i_d_r.child_id id, i_d_r.parent_id, i_d_r.decay_prob, i1.title, i1.half_life_value, i1.half_life_period, NULL children from nucl.isotope_decay i_d_r join nucl.isotope i1 on i1.id = i_d_r.child_id '+  
+    'inner join subordinates s on s.id  = i_d_r.parent_id) '+ 
+    'select * from subordinates ', [isotope_id], (error, res) => {
+    if(error) {
+       return console.error('error running query', error);
+    }
+   //console.log(res.rows);
+    response.status(200).json(res.rows);
+  });  
+} 
 /* 
 const updateIsotopeDecay = (request, response) => {
   const id = parseInt(request.params.id);
@@ -74,5 +96,6 @@ const deleteIsotopeDecay = (request, response) => {
 } */
 
 module.exports = {
-  getIsotope
+  getIsotope,
+  getIsotopeTree
 }

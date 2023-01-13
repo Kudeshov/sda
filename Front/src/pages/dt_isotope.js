@@ -31,6 +31,11 @@ import { table_names } from './sda_types';
 import styled from "@emotion/styled";
  import { Tree, TreeNode } from "react-organizational-chart";
 
+/* import TreeView from "@material-ui/lab/TreeView";
+import TreeItem from "@material-ui/lab/TreeItem";
+import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
+import ChevronRightIcon from "@material-ui/icons/ChevronRight"; */
+
 const StyledNode = styled.div`
   padding: 5px;
   border-radius: 4px;
@@ -57,7 +62,7 @@ const DataTableIsotope = (props) => {
   const [valueDecayConstInitial, setValueDecayConstInitial] = React.useState();
   const [isLoading, setIsLoading] = React.useState(false);
   const [tableData, setTableData] = useState([]); 
-
+  const [tableData1, setTableData1] = useState([]); 
   
   const [selectionModel, setSelectionModel] = React.useState([]);
   const [editStarted, setEditStarted] = useState([false]);
@@ -99,6 +104,7 @@ const DataTableIsotope = (props) => {
     else 
     {
       setValueID(params.row.id);
+      console.log('setValueID '+ params.row.id);
       setValueTitle(params.row.title);
       setValueNIndex(params.row.n_index);
       setValueHalfLifeValue(params.row.half_life_value);
@@ -233,7 +239,7 @@ const DataTableIsotope = (props) => {
       reloadData();
       setSelectionModel([lastId]);
       //Refresh initial state
-      console.log('addRec Refresh initial '+valueTitle+' '+valueNIndex);
+      //console.log('addRec Refresh initial '+valueTitle+' '+valueNIndex);
       setValueTitle(valueTitle);
       setValueNIndex(valueNIndex);
       setValueHalfLifeValue(valueHalfLifeValue);
@@ -407,9 +413,9 @@ const DataTableIsotope = (props) => {
   const handleCancelClick = () => 
   {
     const selectedIDs = new Set(selectionModel);
-    console.log('selectedIDs ' + selectedIDs);
+    //console.log('selectedIDs ' + selectedIDs);
     const selectedRowData = tableData.filter((row) => selectedIDs.has(row.id));
-    console.log('selectedRowData ' + selectedRowData);
+    //console.log('selectedRowData ' + selectedRowData);
     if (selectedRowData.length)
     {
       setValueID(`${selectedRowData[0].id}`);
@@ -449,6 +455,170 @@ const DataTableIsotope = (props) => {
       </GridToolbarContainer>
     );
   }
+
+  ///////////////////////////////////////////////////////////////////  Tree load functions and hook  /////////////////////
+  const [treeFilterString, setTreeFilterString] = React.useState('');
+
+  useEffect(() => {
+ /*    function filterTree( tree1, filterS )
+    {
+      var i;
+      i = 0;
+      while (i < tree1.length) 
+      {
+        if (tree1[i].children.length === 0)
+        {
+          if (tree1[i].title.toLowerCase().indexOf(filterS.toLowerCase()) === -1)
+          {
+            tree1.splice(i, 1); 
+            i--;
+          }
+        }
+        else
+        {
+          filterTree( tree1[i].children, filterS );
+        }
+        i++;
+      }
+      i = 0;
+      while (i < tree1.length) 
+      {
+        if (tree1[i].children.length === 0)
+        {
+          if (tree1[i].title.toLowerCase().indexOf(filterS.toLowerCase()) === -1)
+          {
+            tree1.splice(i, 1); 
+            i--;
+          }
+        }
+        else
+        {
+          filterTree( tree1[i].children, filterS );
+        }
+        i++;
+      }      
+    } */
+    function list_to_tree1(list/* , filterString */) {
+      console.log(list); 
+      var map = {}, node, roots = [], i;
+       for (i = 0; i < list.length; i += 1) {
+        map[list[i].id] = i;   // initialize the map
+        list[i].children = []; // initialize the children
+      }
+      console.log(map);
+      //filterString=filterString||'';
+      for (i = 0; i < list.length; i += 1) {
+        node = list[i];
+        if (node.parent_id) {
+          // if you have dangling branches check that map[node.parentId] exists
+          console.log('map[node.parent_id] node.parent_id id = '+node.parent_id+' ' +node.id);
+          console.log(map[node.parent_id]);
+          list[map[node.parent_id]].children.push(node);
+        } else {
+          roots.push(node);
+        }
+      }
+      //filterTree(roots, filterString.toLowerCase());  
+      return roots;
+    }
+
+    let arr = list_to_tree1( tableData1/* , treeFilterString */ );
+    setTreeData( arr );
+  }, [tableData1/* , treeFilterString */]) 
+
+
+  useEffect(() => {
+    console.log( `/isotope_tree/`+valueId );
+    fetch(`/isotope_tree/`+valueId) 
+      .then((data) => data.json())
+      .then((data) => setTableData1(data))
+      .then((data) => { setTreeFilterString(''); console.log( `fetched /isotope_tree/`+valueId); //lastId = data[0].id||0; clickAfterReload = true; console.log( 'setSelected ');  //console.log( tableData[0].id||0 ); 
+          } );   
+  }, [valueId]);
+
+  const [treeData, setTreeData] = useState([]); 
+
+/*   const [expanded, setExpanded] = React.useState([]);
+  const [selected, setSelected] = React.useState('');
+
+  const handleToggle = (event, nodeIds) => {
+    setExpanded(nodeIds);
+  };
+
+  const handleSelect = (event, nodeIds) => {
+    setSelected(nodeIds);
+    //handleItemClick(nodeIds);
+  };   */
+
+/*   const getTreeItemsFromData = treeItems => {
+    return treeItems.map(treeItemData => {
+      let children = undefined;
+      if (treeItemData.children && treeItemData.children.length > 0) {
+        children = getTreeItemsFromData(treeItemData.children);
+      }
+      return ( 
+        <TreeItem
+          key={treeItemData.id}
+          nodeId={treeItemData.id?treeItemData.id.toString():0}
+          label={treeItemData.title}
+          children={children}
+        />
+      );
+    });
+  };
+ */
+  function probDisplay(prob) {
+    if ((prob==0)||(prob==1))
+      return('')
+    else
+      return(<div><small>P={prob}</small><br></br></div>);
+  }
+  
+  function timeDisplay(val, per) {
+   // if ((val==0)||(val==1))
+   //   return('')
+   // else
+    return(<span> ({val} {per})</span>);
+  }
+
+  const getTreeNodesFromData = treeItems => {
+    return treeItems.map(treeItemData => {
+      let children = undefined;
+      if (treeItemData.children && treeItemData.children.length > 0) {
+        children = getTreeNodesFromData(treeItemData.children);
+      }
+      //children = getTreeNodesFromData(treeItemData.children);
+      return ( 
+        <TreeNode
+          //key={treeItemData.id}
+          //nodeId={treeItemData.id?treeItemData.id.toString():0}
+          //label={treeItemData.title}
+          label={<StyledNode>
+            {probDisplay(treeItemData.decay_prob)}{treeItemData.title} {treeItemData.id} {timeDisplay(treeItemData.half_life_value,treeItemData.half_life_period)}</StyledNode>}
+          children={children}
+        />
+      );
+    });
+  };
+/*   const DataTreeView = ({ treeItems }) => {
+    return (
+      <div>
+      <p/>
+      <TreeView
+        aria-label="Tree navigator"
+        defaultCollapseIcon={<ExpandMoreIcon />}
+        defaultExpandIcon={<ChevronRightIcon />}
+        sx={{ height: 240, flexGrow: 1, maxWidth: 400, overflowY: 'auto' }}
+        onNodeToggle={handleToggle}
+        onNodeSelect={handleSelect}
+        expanded={expanded}
+        selected={selected}          
+         loading={isLoading}
+      >
+        {getTreeItemsFromData(treeItems)}
+      </TreeView></div>
+    );
+  }; */
   
   return (
     <div style={{ height: 640, width: 1500 }}>
@@ -519,29 +689,23 @@ const DataTableIsotope = (props) => {
       <TextField  id="ch_half_life_period" sx={{ width: '40ch' }} label="Ед. изм."  size="small" multiline maxRows={4} variant="outlined" value={valueHalfLifePeriod || ''} onChange={e => setValueHalfLifePeriod(e.target.value)}/>
       <p/>
       <TextField  id="ch_decayconst" sx={{ width: '100ch' }} label="Постоянная распада, 1/сек"  size="small" multiline maxRows={4} variant="outlined" value={valueDecayConst || ''} onChange={e => setValueDecayConst(e.target.value)}/>
-      <p/>
 
-    <Tree
-    lineWidth={"2px"}
-    lineColor={"gray"}
-    lineBorderRadius={"10px"}
-    label={<StyledNode>Ac-223</StyledNode>}>
-     
-    <TreeNode label={<StyledNode>Child 1</StyledNode>}>
-      <TreeNode label={<StyledNode>Grand Child</StyledNode>} />
-    </TreeNode>
-    <TreeNode label={<StyledNode>Child 2</StyledNode>}>
-      <TreeNode label={<StyledNode>Grand Child</StyledNode>}>
-        <TreeNode label={<StyledNode>Great Grand Child 1</StyledNode>} />
-        <TreeNode label={<StyledNode>Great Grand Child 2</StyledNode>} />
-      </TreeNode>
-    </TreeNode>
-    <TreeNode label={<StyledNode>Child 3</StyledNode>}>
-      <TreeNode label={<StyledNode>Grand Child 1</StyledNode>} />
-      <TreeNode label={<StyledNode>Grand Child 2</StyledNode>} />
-    </TreeNode>   
-   </Tree>         
 
+{/*       <Box sx={{ height: 415, flexGrow: 1, overflowY: 'auto' }} >     
+            <DataTreeView treeItems={treeData} />
+          </Box> 
+ */}
+
+
+      <p></p>
+      <Tree
+      lineWidth={"2px"}
+      lineColor={"gray"}
+      lineBorderRadius={"10x"}
+      label={<StyledNode>Радиоактивные ряды: {valueTitle}</StyledNode>}> 
+        {getTreeNodesFromData(treeData)}
+      </Tree>         
+      <p></p>
       <div style={{ height: 240, width: 800 }}>
         Радиоактивные ряды<br/>
         <DataTableIsotopeDecay table_name={valueTitle} rec_id={valueId} />

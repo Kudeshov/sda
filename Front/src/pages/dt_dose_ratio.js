@@ -519,44 +519,7 @@ const DataTableDoseRatio = (props) => {
   const handleClickSave = () => {
     setOpenSave(true);
   };
-/* 
-  function updateCurrentRecHandles (id)  {
-    if (id)
-      lastId = id;
-    var res = tableData.filter(function(item) {
-      return item.id.toString() === id;
-    });
-    setValueID(res[0].id); 
-    setValueTitle(res[0].title);
-    setValueNameRus(res[0].name_rus);
-    setValueNameEng(res[0].name_eng);
-    setValueDescrRus(res[0].descr_rus);
-    setValueDescrEng(res[0].descr_eng);  
-    setValueTitleInitial(res[0].title);
-    setValueNameRusInitial(res[0].name_rus);
-    setValueNameEngInitial(res[0].name_eng);
-    setValueDescrRusInitial(res[0].descr_rus);
-    setValueDescrEngInitial(res[0].descr_eng);
 
-    setValueRespRate(res[0].resp_rate);
-    setValueRespYear(res[0].resp_year);
-    setValueIndoor(res[0].indoor);
-    setValueExtCloud(res[0].extcloud);
-    setValueExtGround(res[0].extground);
-    setValueRespRateInitial(res[0].resp_rate);
-    setValueRespYearInitial(res[0].resp_year);
-    setValueIndoorInitial(res[0].indoor);
-    setValueExtCloudInitial(res[0].extcloud);
-    setValueExtGroundInitial(res[0].extground);
-
-    setValuePhysParamId(res[0].physparam_id);
-    setValuePhysParamIdInitial(res[0].physparam_id);
-    setValueUsed(res[0].used);
-    setValueUsedInitial(res[0].used);
-    setValueParameters(res[0].parameters);
-    setValueParametersInitial(res[0].parameters);    
-  }; 
- */
   const handleCloseSaveNo = () => {
     setOpenSave(false);
     handleCancelClick();

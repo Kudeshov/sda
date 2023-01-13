@@ -59,7 +59,7 @@ useEffect(() => {
   fetch(`/isotope_min`)
     .then((data) => data.json())
     .then((data) => setTableIsotope(data))
-    .then((data) => { console.log('load isotope')} ); 
+    .then((data) => { /* console.log('load isotope') */ } ); 
 }, [])
 
 useEffect(() => {
@@ -68,7 +68,7 @@ useEffect(() => {
   fetch(`/isotope_decay/`+props.rec_id)
     .then((data) => data.json())
     .then((data) => setTableDecay(data))
-    .then(console.log('грузим decay'));
+    .then( /* console.log('грузим decay') */ );
 }, [props.rec_id])
 
 /* useEffect(() => {
@@ -77,7 +77,7 @@ useEffect(() => {
  */
   const handleRowClickDecay = (params) => {
     setOpenAlertDecay(false);
-    console.log('child title' + params.row.child_title);
+    //console.log('child title' + params.row.child_title);
     setValueIsotopeDecayId(params.row.id);
     lastID = params.row.id;
     setValueChildIsotopeId(params.row.child_id);
@@ -109,7 +109,7 @@ useEffect(() => {
 
   const handleCloseNoDecay = () => {
     setOpenDecay(false);
-    console.log(lastID);  
+    //console.log(lastID);  
     setValueIsotopeDecayId(lastID);
     var filteredDecay = tableDecay.filter(function(element) {
       return element.id === lastID;
@@ -118,7 +118,7 @@ useEffect(() => {
       setValueChildIsotopeId(filteredDecay[0].child_id);
       setValueChildTitle(filteredDecay[0].child_title);
       setValueDecayProb(filteredDecay[0].decay_prob); 
-      console.log(filteredDecay[0].child_title);  
+      //console.log(filteredDecay[0].child_title);  
     }
   };
 
@@ -396,9 +396,16 @@ const addRecDecay = async ()  => {
         <p/> 
         <TextField
           variant="outlined"
+          type="number"
           id="name_src"
           label="Вероятность распада"
           value={valueDecayProb || ''}
+          InputProps={{
+            inputProps: {
+              type: 'number',
+              min: 0, max: 1,
+            },
+          }}          
           fullWidth
           onChange={e => setValueDecayProb(e.target.value)}
         />        
