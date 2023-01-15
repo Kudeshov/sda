@@ -39,13 +39,12 @@ const getDataSourceById = (request, response) => {
 
 const createDataSource = (request, response) => {
   const { title, shortname, fullname, descr, external_ds } = request.body;
-
   pool.query('INSERT INTO nucl.data_source (title, shortname, fullname, descr, external_ds) VALUES ($1, $2, $3, $4, $5) RETURNING id', [title, shortname, fullname, descr, external_ds], (error, res) => {
   if (error) {
       response.status(400).send(`Запись не добавлена: ${error.message}`);
     } else {
       const { id } = res.rows[0];
-      response.status(201).send(`Запись с кодом ${id} добавлена`)
+      response.status(201).json({id: `${id}`}); 
     }
   })
 }

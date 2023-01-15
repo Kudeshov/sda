@@ -92,7 +92,7 @@ const createCalcFunction = (request, response, table_name )=> {
               }
               else {
                 console.log(`Функция добавлена, ID: ${id}`); 
-                response.status(201).send(`Функция добавлена, ID: ${id}`);
+                response.status(201).json({id: `${id}`}); //response.status(201).send(`Функция добавлена, ID: ${id}`);
               }
               done()
             })

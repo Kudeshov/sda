@@ -65,7 +65,7 @@ const DataTableChelement = (props) => {
       if (!lastId) 
       {
         lastId = tableData[0].id;
-        setSelectionModel(tableData[0].id);
+        setSelectionModel([tableData[0].id]);
         setValueID(`${tableData[0].id}`);
         setValueTitle(`${tableData[0].title}`);
         setValueNameRus(`${tableData[0].name_rus}`);
@@ -226,8 +226,9 @@ const DataTableChelement = (props) => {
       else
       {
         alertSeverity = "success";
-        alertText =  await response.text();
-        lastId = parseInt( alertText.substr(alertText.lastIndexOf('ID:') + 3, 20)); 
+        const { id } = await response.json();
+        alertText = `Добавлена запись с кодом ${id}`;
+        lastId = id; 
         setValueID(lastId);
         setOpenAlert(true);  
       }
@@ -238,7 +239,7 @@ const DataTableChelement = (props) => {
     } finally {
       setIsLoading(false);
       reloadData();
-      setSelectionModel(lastId);
+      setSelectionModel([lastId]);
       //Refresh initial state
       setValueTitleInitial(valueTitle);
       setValueNameRusInitial(valueNameRus);
@@ -274,7 +275,7 @@ const DataTableChelement = (props) => {
         alertText = await response.text();
         setOpenAlert(true); 
         reloadData();
-        setSelectionModel(tableData[0].id );  
+        setSelectionModel([tableData[0].id ]);  
         setValueID(`${tableData[0].id}`);
         setValueTitle(`${tableData[0].title}`);
         setValueNameRus(`${tableData[0].name_rus}`);

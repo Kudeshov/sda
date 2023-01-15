@@ -59,40 +59,41 @@ const DataTablePeopleClass = (props) => {
       if (!lastId) 
       {
         lastId = tableData[0].id;
-        setSelectionModel(tableData[0].id);
+        setSelectionModel([tableData[0].id]);
         setValueID(`${tableData[0].id}`);
-        setValueTitle(`${tableData[0].title}`);
-        setValueNameRus(`${tableData[0].name_rus}`);
-        setValueNameEng(`${tableData[0].name_eng}`);
-        setValueDescrRus(`${tableData[0].descr_rus}`);
-        setValueDescrEng(`${tableData[0].descr_eng}`);
-        setValueTitleInitial(`${tableData[0].title}`);       
-        setValueNameRusInitial(`${tableData[0].name_rus}`);
-        setValueNameEngInitial(`${tableData[0].name_eng}`);
-        setValueDescrRusInitial(`${tableData[0].descr_rus}`);
-        setValueDescrEngInitial(`${tableData[0].descr_eng}`);
+        setValueTitle(tableData[0].title);
+        setValueNameRus(tableData[0].name_rus);
+        setValueNameEng(tableData[0].name_eng);
+        setValueDescrRus(tableData[0].descr_rus);
+        setValueDescrEng(tableData[0].descr_eng);
+        setValueTitleInitial(tableData[0].title);       
+        setValueNameRusInitial(tableData[0].name_rus);
+        setValueNameEngInitial(tableData[0].name_eng);
+        setValueDescrRusInitial(tableData[0].descr_rus);
+        setValueDescrEngInitial(tableData[0].descr_eng);
       }
     }
     }, [ isLoading, tableData] );
 
   const handleRowClick = (params) => {
+    setOpenAlert(false);
     if (editStarted)
     {
       handleClickSave(params);
     } 
     else 
     {
-      setValueID(`${params.row.id}`);
-      setValueTitle(`${params.row.title}`);
-      setValueNameRus(`${params.row.name_rus}`);
-      setValueNameEng(`${params.row.name_eng}`);
-      setValueDescrRus(`${params.row.descr_rus}`);
-      setValueDescrEng(`${params.row.descr_eng}` );
-      setValueTitleInitial(`${params.row.title}`);
-      setValueNameRusInitial(`${params.row.name_rus}`);
-      setValueNameEngInitial(`${params.row.name_eng}`);
-      setValueDescrRusInitial(`${params.row.descr_rus}`);
-      setValueDescrEngInitial(`${params.row.descr_eng}` );
+      setValueID(params.row.id);
+      setValueTitle(params.row.title);
+      setValueNameRus(params.row.name_rus);
+      setValueNameEng(params.row.name_eng);
+      setValueDescrRus(params.row.descr_rus);
+      setValueDescrEng(params.row.descr_eng);
+      setValueTitleInitial(params.row.title);
+      setValueNameRusInitial(params.row.name_rus);
+      setValueNameEngInitial(params.row.name_eng);
+      setValueDescrRusInitial(params.row.descr_rus);
+      setValueDescrEngInitial(params.row.descr_eng);
     }
   }; 
 
@@ -200,8 +201,9 @@ const DataTablePeopleClass = (props) => {
       else
       {
         alertSeverity = "success";
-        alertText =  await response.text();
-        lastId = parseInt( alertText.substr(alertText.lastIndexOf('ID:') + 3, 20)); 
+        const { id } = await response.json();
+        alertText = `Добавлена запись с кодом ${id}`;
+        lastId = id;  
         setValueID(lastId);
         setOpenAlert(true);  
       }
@@ -212,8 +214,14 @@ const DataTablePeopleClass = (props) => {
     } finally {
       setIsLoading(false);
       reloadData();
-      setSelectionModel(lastId);
+      setSelectionModel([lastId]);
       //Refresh initial state
+      console.log('addRec Refresh initial '+valueTitle+' '+valueNameRus);
+      setValueTitle(valueTitle);
+      setValueNameRus(valueNameRus);
+      setValueNameEng(valueNameEng);
+      setValueDescrRus(valueDescrRus);
+      setValueDescrEng(valueDescrEng); 
       setValueTitleInitial(valueTitle);
       setValueNameRusInitial(valueNameRus);
       setValueNameEngInitial(valueNameEng);
@@ -249,18 +257,18 @@ const DataTablePeopleClass = (props) => {
         alertText = await response.text();
         setOpenAlert(true); 
         reloadData();
-        setSelectionModel(tableData[0].id );  
+        setSelectionModel([tableData[0].id ]);  
         setValueID(`${tableData[0].id}`);
-        setValueTitle(`${tableData[0].title}`);
-        setValueNameRus(`${tableData[0].name_rus}`);
-        setValueNameEng(`${tableData[0].name_eng}`);
-        setValueDescrRus(`${tableData[0].descr_rus}`);
-        setValueDescrEng(`${tableData[0].descr_eng}`);
-        setValueTitleInitial(`${tableData[0].title}`);
-        setValueNameRusInitial(`${tableData[0].name_rus}`);
-        setValueNameEngInitial(`${tableData[0].name_eng}`);
-        setValueDescrRusInitial(`${tableData[0].descr_rus}`);
-        setValueDescrEngInitial(`${tableData[0].descr_eng}`);
+        setValueTitle(tableData[0].title);
+        setValueNameRus(tableData[0].name_rus);
+        setValueNameEng(tableData[0].name_eng);
+        setValueDescrRus(tableData[0].descr_rus);
+        setValueDescrEng(tableData[0].descr_eng);
+        setValueTitleInitial(tableData[0].title);
+        setValueNameRusInitial(tableData[0].name_rus);
+        setValueNameEngInitial(tableData[0].name_eng);
+        setValueDescrRusInitial(tableData[0].descr_rus);
+        setValueDescrEngInitial(tableData[0].descr_eng);
       }
     } catch (err) {
       alertText = err.message;
@@ -382,20 +390,22 @@ const DataTablePeopleClass = (props) => {
   const handleCancelClick = () => 
   {
     const selectedIDs = new Set(selectionModel);
+    console.log('selectedIDs ' + selectedIDs);
     const selectedRowData = tableData.filter((row) => selectedIDs.has(row.id));
+    console.log('selectedRowData ' + selectedRowData);
     if (selectedRowData.length)
     {
       setValueID(`${selectedRowData[0].id}`);
-      setValueTitle(`${selectedRowData[0].title}`);
-      setValueNameRus(`${selectedRowData[0].name_rus}`);
-      setValueNameEng(`${selectedRowData[0].name_eng}` );
-      setValueDescrRus(`${selectedRowData[0].descr_rus}`);
-      setValueDescrEng(`${selectedRowData[0].descr_eng}` );
-      setValueTitleInitial(`${selectedRowData[0].title}`);
-      setValueNameRusInitial(`${selectedRowData[0].name_rus}`);
-      setValueNameEngInitial(`${selectedRowData[0].name_eng}` );
-      setValueDescrRusInitial(`${selectedRowData[0].descr_rus}`);
-      setValueDescrEngInitial(`${selectedRowData[0].descr_eng}` );
+      setValueTitle(selectedRowData[0].title);
+      setValueNameRus(selectedRowData[0].name_rus);
+      setValueNameEng(selectedRowData[0].name_eng );
+      setValueDescrRus(selectedRowData[0].descr_rus);
+      setValueDescrEng(selectedRowData[0].descr_eng);
+      setValueTitleInitial(selectedRowData[0].title);
+      setValueNameRusInitial(selectedRowData[0].name_rus);
+      setValueNameEngInitial(selectedRowData[0].name_eng );
+      setValueDescrRusInitial(selectedRowData[0].descr_rus);
+      setValueDescrEngInitial(selectedRowData[0].descr_eng);
     }
   }
 

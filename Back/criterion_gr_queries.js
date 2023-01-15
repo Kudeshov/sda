@@ -20,8 +20,8 @@ pool.on(`error`, function (err, client) {
     console.error(`idle client error`, err.message, err.stack);
 });
 
-const getAgeGroup = (request, response, table_name ) => {
-  pool.query(`SELECT pc.*, pcn1.name name_rus, pcn2.name name_eng, pcn1.descr descr_rus, pcn2.descr descr_eng FROM nucl.${table_name} pc `+
+const getCriterionGr = (request, response, table_name ) => {
+  pool.query(`SELECT pc.*, pcn1.name name_rus, pcn2.name name_eng, pcn1.descr descr_rus, pcn2.descr descr_eng, null children FROM nucl.${table_name} pc `+
   `left join nucl.${table_name}_nls pcn1 on pc.id=pcn1.${table_name}_id and pcn1.lang_id=1 `+
   `left join nucl.${table_name}_nls pcn2 on pc.id=pcn2.${table_name}_id and pcn2.lang_id=2 `+
   `ORDER BY pc.id ASC`, (error, results) => {
@@ -32,7 +32,7 @@ const getAgeGroup = (request, response, table_name ) => {
   })
 }
 
-const getAgeGroupById = (request, response, table_name ) => {
+const getCriterionGrById = (request, response, table_name ) => {
   const id = parseInt(request.params.id||0);
   pool.query(`SELECT pc.*, pcn1.name name_rus, pcn2.name name_eng, pcn1.descr descr_rus, pcn2.descr descr_eng FROM nucl.${table_name} pc `+
   `left join nucl.${table_name}_nls pcn1 on pc.id=pcn1.${table_name}_id and pcn1.lang_id=1 `+
@@ -45,7 +45,7 @@ const getAgeGroupById = (request, response, table_name ) => {
   })
 }
 
-const createAgeGroup = (request, response, table_name )=> {
+const createCriterionGr = (request, response, table_name )=> {
   pool.connect((err, client, done) => {
     const shouldAbort = (err, response) => {
       if (err) {
@@ -70,10 +70,10 @@ const createAgeGroup = (request, response, table_name )=> {
       return !!err
     }
 
-    const { title, name_rus, name_eng, descr_rus, descr_eng, resp_rate, resp_year, indoor, ext_cloud, ext_ground } = request.body;
+    const { title, name_rus, name_eng, descr_rus, descr_eng, parent_id, normativ_id } = request.body;
     client.query(`BEGIN`, err => {
       if (shouldAbort(err, response)) return;
-      client.query(`INSERT INTO nucl.${table_name}( title, resp_rate, resp_year, indoor, ext_cloud, ext_ground  ) VALUES ($1,$2,$3,$4,$5,$6) RETURNING id`, [title, resp_rate, resp_year, indoor, ext_cloud, ext_ground], (err, res) => {
+      client.query(`INSERT INTO nucl.${table_name}( title, parent_id, normativ_id ) VALUES ($1,$2,$3) RETURNING id`, [title, parent_id, normativ_id], (err, res) => {
         if (shouldAbort(err, response)) return;      
         const { id } = res.rows[0];
         console.log(`Id = `+id);
@@ -90,9 +90,9 @@ const createAgeGroup = (request, response, table_name )=> {
                 response.status(400).send(`Ошибка при подтверждении транзакции`, err.stack);
               }
               else {
-                console.log(`Запись добавлена, код: ${id}`); 
+                console.log(`Тип облучаемых лиц добавлен, ID: ${id}`); 
+                //response.status(201).send(`Тип облучаемых лиц добавлен, ID: ${id}`);
                 response.status(201).json({id: `${id}`}); 
-                //response.status(201).send(`Запись добавлена, код: ${id}`);
               }
               done()
             })
@@ -103,7 +103,7 @@ const createAgeGroup = (request, response, table_name )=> {
   })
 }
 
-const deleteAgeGroup = (request, response, table_name ) => {
+const deleteCriterionGr = (request, response, table_name ) => {
   pool.connect((err, client, done) => {
     const shouldAbort = (err, response) => {
       if (err) {
@@ -172,11 +172,11 @@ const deleteAgeGroup = (request, response, table_name ) => {
   })
 }
 
-const updateAgeGroup = (request, response, table_name ) => {
+const updateCriterionGr = (request, response, table_name ) => {
   pool.connect((err, client, done) => {
     const shouldAbort = (err, response) => {
       if (err) {
-        console.error(`Ошибка сохранения записи`, err.message)
+        console.error(`Ошибка изменения записи`, err.message)
         const { errormsg } = err.message;
         console.error(`Rollback`)
         client.query(`ROLLBACK`, err => {
@@ -198,10 +198,10 @@ const updateAgeGroup = (request, response, table_name ) => {
     }
     //id
     const id = parseInt(request.params.id);
-    const { title, name_rus, name_eng, descr_rus, descr_eng, resp_rate, resp_year, indoor, ext_cloud, ext_ground } = request.body;
+    const { title, name_rus, name_eng, descr_rus, descr_eng, parent_id, normativ_id } = request.body;
     client.query(`BEGIN`, err => {
       if (shouldAbort(err, response)) return;
-      client.query(`UPDATE nucl.${table_name} SET title = $1, resp_rate=$3, resp_year=$4, indoor=$5, ext_cloud=$6, ext_ground=$7 WHERE id = $2`, [title, id, resp_rate, resp_year, indoor, ext_cloud, ext_ground], (err, res) => {
+      client.query(`UPDATE nucl.${table_name} SET title = $1, parent_id = $2, normativ_id = $3 WHERE id = $4`, [title, parent_id, normativ_id, id], (err, res) => {
         if (shouldAbort(err, response)) return;      
         // const { id } = res.rows[0];
         //console.log(`Id = `+id);
@@ -235,9 +235,9 @@ const updateAgeGroup = (request, response, table_name ) => {
 }
 
 module.exports = {
-  getAgeGroup,
-  getAgeGroupById,
-  createAgeGroup,
-  deleteAgeGroup,
-  updateAgeGroup
+  getCriterionGr,
+  getCriterionGrById,
+  createCriterionGr,
+  deleteCriterionGr,
+  updateCriterionGr
 }

@@ -20,6 +20,12 @@ pool.on('error', function (err, client) {
 
 const getDataSourceClass = (request, response) => {
   const { rec_id, table_name } = request.query;
+  if (!rec_id||rec_id==='NaN')
+  {
+    //response.status(400).send(`Некорректный код родительской записи`);  
+    //return;
+    rec_id=0;  
+  }
   console.log( request.query );  
   pool.query(
     'SELECT data_source_class.*, data_source.title, data_source.shortname, '+
@@ -60,7 +66,8 @@ const createDataSourceClass = (request, response) => {
 
     } else {
       const { id } = results.rows[0]; 
-      response.status(201).send(`Связь с источником данных добавлена, код: ${id}`)
+      //response.status(201).send(`Связь с источником данных добавлена, код: ${id}`)
+      response.status(201).json({id: `${id}`}); 
     }
   })
 }

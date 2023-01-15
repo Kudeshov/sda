@@ -90,8 +90,8 @@ const updateChemCompGr = (request, response, table_name ) => {
                 response.status(400).send(`Ошибка при подтверждении транзакции`, err.stack);
               }
               else {
-                console.log(`Химическое соединение изменено, ID: ${id}`); 
-                response.status(200).send(`Химическое соединение изменено, ID: ${id}`);
+                console.log(`Запись с кодом ${id} сохранена`); 
+                response.status(200).send(`Запись с кодом ${id} сохранена`);
               }
               done()
             })
@@ -102,8 +102,138 @@ const updateChemCompGr = (request, response, table_name ) => {
   })
 }
 
+const createChemCompGr = (request, response, table_name )=> {
+  pool.connect((err, client, done) => {
+    const shouldAbort = (err, response) => {
+      if (err) {
+        console.error(`Ошибка создания записи`, err.message)
+        const { errormsg } = err.message;
+        console.error(`Rollback`)
+        client.query(`ROLLBACK`, err => {
+          console.error(`Rollback прошел`)
+          if (err) {
+            console.error(`Ошибка при откате транзакции`)
+            response.status(400).send(`Ошибка при откате транзакции`);
+            return;
+          }
+          else {
+            console.error(`Транзакция отменена`)
+          }
+        })
+        response.status(400).send(`Ошибка: ` + err.message);
+        // release the client back to the pool
+        done()
+      }
+      return !!err
+    }
+
+    const { title, name_rus, name_eng, descr_rus, descr_eng, parent_id, formula } = request.body;
+    client.query(`BEGIN`, err => {
+      if (shouldAbort(err, response)) return;
+      client.query(`INSERT INTO nucl.${table_name}( title, chelement_id, formula ) VALUES ($1,$2,$3) RETURNING id`, [title, parent_id, formula], (err, res) => {
+        if (shouldAbort(err, response)) return;      
+        const { id } = res.rows[0];
+        console.log(`Id = `+id);
+        client.query(`INSERT INTO nucl.${table_name}_nls( name, descr, ${table_name}_id, lang_id ) `+
+                  `VALUES ($1, $2, $3, 1)`, [name_rus, descr_rus, id], (err, res) => {
+          if (shouldAbort(err, response)) return;
+          client.query(`INSERT INTO nucl.${table_name}_nls( name, descr, ${table_name}_id, lang_id ) `+
+          `VALUES ($1, $2, $3, 2)`, [name_eng, descr_eng, id], (err, res) => {
+            if (shouldAbort(err, response)) return;
+            console.log(`начинаем Commit`);     
+            client.query(`COMMIT`, err => {
+              if (err) {
+                console.error(`Ошибка при подтверждении транзакции`, err.stack);
+                response.status(400).send(`Ошибка при подтверждении транзакции`, err.stack);
+              }
+              else {
+                console.log(`Запись с кодом ID: ${id} добавлена`); 
+                //response.status(201).send(`Запись с кодом ID: ${id} добавлена`);
+                response.status(201).json({id: `${id}`}); 
+              }
+              done()
+            })
+          }); 
+        });
+      })
+    })
+  })
+}
+
+const deleteChemCompGr = (request, response, table_name ) => {
+  pool.connect((err, client, done) => {
+    const shouldAbort = (err, response) => {
+      if (err) {
+        console.error(`Ошибка удаления записи`, err.message)
+        const { errormsg } = err.message;
+        console.error(`Rollback`)
+        client.query(`ROLLBACK`, err => {
+          console.error(`Rollback прошел`)
+          if (err) {
+            console.error(`Ошибка при откате транзакции`)
+            response.status(400).send(`Ошибка при откате транзакции`);
+            return;
+          }
+          else {
+            console.error(`Транзакция отменена`)
+          }
+        })
+        response.status(400).send(`Ошибка: ` + err.message);
+        // release the client back to the pool
+        done()
+      }
+      return !!err
+    }
+
+    const id = parseInt(request.params.id||0);
+
+    client.query(`select count(id) as cnt from nucl.data_source_class where table_name = $1 and rec_id = $2 `, [table_name,id], (err, res) => {
+      const { cnt } = res.rows[0];
+      console.log(`Cnt = ` + cnt );   
+      if (cnt > 1) {
+        response.status(400).send(`Для записи с кодом ${id} существуют записи в таблице "Связь с источником данных"`);
+        return;
+      } else if (cnt > 0) {
+        response.status(400).send(`Для записи с кодом ${id} существует запись в таблице "Связь с источником данных"`);
+        return;
+      } else 
+      {
+        client.query(`BEGIN`, err => {
+          if (shouldAbort(err, response)) return;
+          client.query(`DELETE FROM nucl.${table_name}_nls WHERE ${table_name}_id = $1`, [id], (err, res) => {
+            if (shouldAbort(err, response)) return;      
+            console.log(`Id = `+id);
+            client.query(`DELETE FROM nucl.${table_name} WHERE id = $1`, [id], (err, res) => {
+              console.log(`DELETE FROM nucl.${table_name}`);         
+              if (shouldAbort(err, response)) return;
+              console.log(`DELETE FROM nucl.${table_name} готово`);
+                client.query(`COMMIT`, err => {
+                  if (err) {
+                    console.error(`Ошибка при подтверждении транзакции`, err.stack);
+                    response.status(400).send(`Ошибка при подтверждении транзакции`, err.stack);
+                  }
+                  else {
+                    console.log(`Запись с кодом ${id} удалена`); 
+                    if (res.rowCount == 1)
+                      response.status(200).send(`Запись с кодом ${id} удалена; cтрок удалено: ${res.rowCount} `);
+                    if (res.rowCount == 0)
+                      response.status(400).send(`Запись с кодом ${id} не найдена `)
+                  }
+                  done()
+                })
+            });
+          })
+        })
+      }
+    })
+  })
+}
+
+
 
 module.exports = {
   getChemCompGr,
-  updateChemCompGr
+  updateChemCompGr,
+  createChemCompGr,
+  deleteChemCompGr
 }

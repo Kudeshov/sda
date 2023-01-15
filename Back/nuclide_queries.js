@@ -83,8 +83,24 @@ const updateNuclide = (request, response) => {
 }
 
 
+
+
+const getNuclide = (request, response ) => { 
+  pool.query("select n.id, c.title||'-'||n.mass_number title from nucl.nuclide n join nucl.chelement c on c.id = n.chelement_id order by c.title,n.mass_number", (error, results) => {
+    if (error) {
+      throw error
+    }
+    response.status(200).json(results.rows)
+  })
+}
+
+
+
+
+
 module.exports = {
   getNuclideByChelement,
+  getNuclide,
   createNuclide,
   deleteNuclide,
   updateNuclide

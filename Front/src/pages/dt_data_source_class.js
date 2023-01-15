@@ -15,7 +15,6 @@ import { Box, IconButton } from '@mui/material';
 import Alert from '@mui/material/Alert';
 import Collapse from '@mui/material/Collapse';
 import CloseIcon from '@mui/icons-material/Close';
-import CircularProgress from '@material-ui/core/CircularProgress';
 import SvgIcon from '@mui/material/SvgIcon';
 import { ReactComponent as EditLightIcon } from "./../icons/edit.svg";
 import { ReactComponent as PlusLightIcon } from "./../icons/plus.svg";
@@ -27,6 +26,7 @@ var alertText = "Сообщение";
 var alertSeverity = "info";
 var lastAddedId = 0;
 var lastRecID = 0;
+var lastID = 0;
 
 function DataTableDataSourceClass(props)  {
   const [open, setOpen] = React.useState(false);
@@ -52,15 +52,38 @@ function DataTableDataSourceClass(props)  {
 
   const handleCloseNo = () => {
     setOpen(false);
+
+    console.log(lastID);  
+    //setValueId(lastID);
+    var filteredData = tableDataSrcClass.filter(function(element) {
+      return element.id === lastID;
+    });
+    if (filteredData.length > 0) {
+      setValueID(lastID);
+      setValueTitleSrc(filteredData[0].title_src);
+      setValueNameSrc(filteredData[0].name_src);  
+      setValueDataSourceId(filteredData[0].data_source_id);
+      setValueTableName(filteredData[0].table_name);
+      setValueRecID(filteredData[0].rec_id);
+      setValueTitle(filteredData[0].title);    
+      setValueTitleSrc(filteredData[0].title_src);
+      setValueNameSrc(filteredData[0].name_src);
+      setValueShortName(filteredData[0].shortname);
+      setValueFullName(filteredData[0].fullname);
+      setValueDescr(filteredData[0].descr);
+      setValueExternalDS(filteredData[0].external_ds);    
+    }    
   };
 
-  const [tableDataSrcClass, setTableDataSrcClass] = useState([])
-  const [tableDataSrc, setTableDataSrc] = useState([])
+  const [tableDataSrcClass, setTableDataSrcClass] = useState([]);
+  const [tableDataSrc, setTableDataSrc] = useState([]);
   useEffect(() => {
-    lastRecID = props.rec_id;
+    lastRecID = props.rec_id||0;
     setlastSrcClassID(0);
     setIsLoading(true);
-    fetch(`/data_source_class?table_name=${props.table_name}&rec_id=${props.rec_id??0}`)
+    //console.log(`/data_source_class?table_name=${props.table_name}&rec_id=${props.rec_id}`);
+    //console.log( lastRecID );
+    fetch(`/data_source_class?table_name=${props.table_name}&rec_id=${lastRecID}`)
       .then((data) => data.json())
       .then((data) => setTableDataSrcClass(data));
     setlastSrcClassID(0);
@@ -109,7 +132,8 @@ const [lastSrcClassID, setlastSrcClassID] = React.useState([0]);
 useEffect(() => {
   if ((!isLoading) && (tableDataSrcClass) && (tableDataSrcClass.length))
   {
-    setSelectionModel(tableDataSrcClass[0].id); //выбрать первую строку при перегрузке таблицы
+    setSelectionModel([tableDataSrcClass[0].id]); //выбрать первую строку при перегрузке таблицы
+    lastID = tableDataSrcClass[0].id;
     setValueID(`${tableDataSrcClass[0].id}`);   //обновить переменные
     setValueDataSourceId(`${tableDataSrcClass[0].data_source_id}`);
     setValueTableName(`${tableDataSrcClass[0].table_name}`);
@@ -279,8 +303,10 @@ const addRec = async ()  => {
     else
     {
       alertSeverity = "success";
-      alertText =  await response.text();
-      lastAddedId = parseInt( alertText.substr(alertText.lastIndexOf('ID:') + 3, 20)); 
+      const { id } = await response.json();
+      alertText = `Добавлена запись с кодом ${id}`;
+//      lastId = id; 
+      lastAddedId =  id; 
       //console.log(lastAddedId);
       setValueID(lastAddedId);
       setOpenAlert(true);  
@@ -296,7 +322,9 @@ const addRec = async ()  => {
 };
 
 const handleRowClick/* : GridEventListener<'rowClick'>  */ = (params) => {
+  setOpenAlert(false);
   setValueID(`${params.row.id}`);
+  lastID = params.row.id;
   setValueDataSourceId(`${params.row.data_source_id}`);
   setValueTableName(`${params.row.table_name}`);
   setValueRecID(`${params.row.rec_id}`);
@@ -343,7 +371,7 @@ const [noRecords, setNoRecords] = useState(true);
         }}             
       /></td>
       <td style={{ height: 270, width: 100, verticalAlign: 'top' }}>
-      &nbsp;<IconButton onClick={()=>handleClickAdd()} disabled={!props.rec_id} color="primary" size="small" title="Добавить связь с источником данных">
+      &nbsp;<IconButton onClick={()=>handleClickAdd()} disabled={(!props.rec_id)||(props.rec_id==='-1000000')} color="primary" size="small" title="Добавить связь с источником данных">
         <SvgIcon fontSize="small" component={PlusLightIcon} inheritViewBox /></IconButton><br/>
       &nbsp;<IconButton onClick={()=>handleClickEdit()} disabled={noRecords} color="primary" size="small" title="Редактировать связь с источником данных">
         <SvgIcon fontSize="small" component={EditLightIcon} inheritViewBox /></IconButton><br/>
@@ -378,8 +406,6 @@ const [noRecords, setNoRecords] = useState(true);
         <div style={{
         marginLeft: '40%',
         }}>
-        {isLoading && <CircularProgress/>} 
-        {/*       {!isLoading && <h3>Successfully API Loaded Data</h3>} */}
         </div>
       </Box>
         </td>
@@ -473,7 +499,7 @@ const [noRecords, setNoRecords] = useState(true);
       </DialogActions>
       </Dialog>
 
-      </div>
+    </div>
     )
 }
  export  { DataTableDataSourceClass }

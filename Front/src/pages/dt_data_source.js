@@ -29,6 +29,8 @@ import { FormControl } from "@mui/material";
 import { InputLabel } from "@mui/material";
 import { Select } from "@mui/material";
 import { MenuItem } from "@mui/material";
+import CircularProgress from '@material-ui/core/CircularProgress';
+import Backdrop from '@mui/material/Backdrop';
 
 var alertText = "Сообщение";
 var alertSeverity = "info";
@@ -70,7 +72,7 @@ const DataTableDataSource = (props) => {
       {
         //console.log('isLoading, tableData ON lastId '+lastId);
         lastId = tableData[0].id;
-        setSelectionModel(tableData[0].id);
+        setSelectionModel([tableData[0].id]);
         setValueID(`${tableData[0].id}`);
 
         setValueTitle(`${tableData[0].title}`);
@@ -89,6 +91,7 @@ const DataTableDataSource = (props) => {
     }, [ isLoading, tableData] );
 
   const handleRowClick = (params) => {
+    setOpenAlert(false);
     console.log('handleRowClick');
     if (editStarted)
     {
@@ -219,9 +222,10 @@ const DataTableDataSource = (props) => {
       else
       {
         alertSeverity = "success";
-        alertText =  await response.text();
-        lastId = parseInt( alertText.substr(alertText.lastIndexOf('ID:') + 3, 20)); 
-        console.log('добавлено lastid = ' + lastId);
+        const { id } = await response.json();
+        alertText = `Добавлена запись с кодом ${id}`;
+        lastId = id;  
+        //console.log('добавлено lastid = ' + lastId);
         setValueID(lastId);
         setOpenAlert(true);  
       }
@@ -232,10 +236,14 @@ const DataTableDataSource = (props) => {
     } finally {
       setIsLoading(false);
       reloadData();
-
-      console.log('setSelectionModel lastid = ' + lastId);
-      setSelectionModel(lastId);
+      setSelectionModel([lastId]);
       //Refresh initial state
+      console.log('addRec Refresh initial '+valueTitle+' '+valueShortName);      
+      setValueTitle(valueTitle);       
+      setValueShortName(valueShortName);
+      setValueFullName(valueFullName);
+      setValueExternalDS(valueExternalDS);
+      setValueDescr(valueDescr);       
       setValueTitleInitial(valueTitle);       
       setValueShortNameInitial(valueShortName);
       setValueFullNameInitial(valueFullName);
@@ -273,7 +281,7 @@ const DataTableDataSource = (props) => {
         alertText = await response.text();
         setOpenAlert(true); 
         reloadData();
-        setSelectionModel(tableData[0].id ); 
+        setSelectionModel([tableData[0].id ]);  
         setValueID(`${tableData[0].id}`);
 
         setValueTitle(`${tableData[0].title}`);
@@ -479,7 +487,7 @@ const DataTableDataSource = (props) => {
         localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
         rowHeight={25}
         rows={tableData}
-        loading={isLoading}
+        //loading={isLoading}
         columns={columns}
         onSelectionModelChange={(newSelectionModel) => {
           setSelectionModel(newSelectionModel);
@@ -528,15 +536,15 @@ const DataTableDataSource = (props) => {
       <p/>
       <TextField  id="ch_fullname" sx={{ width: '100ch' }} label="Полное название" size="small" variant="outlined" value={valueFullName || ''} onChange={e => setValueFullName(e.target.value)}/>
       <p/>
-      <FormControl sx={{ width: '40ch' }}>
+      <FormControl sx={{ width: '40ch' }} size="small">
         <InputLabel id="demo-controlled-open-select-label">Тип источника</InputLabel>
         <Select
           labelId="demo-controlled-open-select-label"
           id="demo-controlled-open-select"
-          value={valueExternalDS  || "" }
+          value={valueExternalDS || "" }
           label="Тип источника"
           defaultValue={true}
-          size="small"
+          
           onChange={e => setValueExternalDS(e.target.value)}
         >
         {valuesExtDS?.map(option => {
@@ -557,6 +565,15 @@ const DataTableDataSource = (props) => {
   </tr>
   </tbody>
   </table>
+
+  {(isLoading) && 
+
+  <Backdrop
+    sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+    open={isLoading}
+  >
+    <CircularProgress color="inherit" />
+  </Backdrop> } 
 
   <Dialog open={openDel} onClose={handleCloseDelNo} fullWidth={true}>
       <DialogTitle>

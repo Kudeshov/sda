@@ -18,6 +18,8 @@ import { ReactComponent as UndoLightIcon } from "./../icons/undo.svg";
 import { ReactComponent as DownloadLightIcon } from "./../icons/download.svg";
 import { ReactComponent as TrashLightIcon } from "./../icons/trash.svg";
 import { ReactComponent as RepeatLightIcon } from "./../icons/repeat.svg";
+import { ReactComponent as CollapseIcon } from "./../icons/chevron-double-right.svg";
+import { ReactComponent as ExpandIcon } from "./../icons/chevron-double-down.svg";
 import TreeView from "@material-ui/lab/TreeView";
 import TreeItem from "@material-ui/lab/TreeItem";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
@@ -29,10 +31,13 @@ import { InputLabel } from "@mui/material";
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { ExportToCsv } from 'export-to-csv-fix-source-map';
 import { table_names } from './sda_types';
+import Backdrop from '@mui/material/Backdrop';
 
 var alertText = "Сообщение";
 var alertSeverity = "info";
 var lastId = 0;
+var clickedId = 0;
+var clickAfterReload = false;
 
 const DataTableChemCompGr = (props) => {
   const [valueId, setValueID] = React.useState();
@@ -51,7 +56,7 @@ const DataTableChemCompGr = (props) => {
   const [valueFormula, setValueFormula] = React.useState();
   const [valueFormulaInitial, setValueFormulaInitial] = React.useState();
   
-  const [isLoading, setIsLoading] = React.useState(false);
+  const [isLoading, setIsLoading] = React.useState("false");
   const [tableData, setTableData] = useState([]); 
   const [tableChelement, setChelement] = useState([]); 
   const [treeData, setTreeData] = useState([]); 
@@ -87,17 +92,50 @@ const DataTableChemCompGr = (props) => {
     }
     }, [ isLoading, tableData] );
 
+    useEffect(() => {
+      function updateCurrentRec (id)  {
+              if (id)
+                lastId = id;
+              var res = tableData.filter(function(item) {
+                return item.id.toString() === id;
+              });
+              if (res.length === 0)
+                return;
+              setValueID(res[0].id); 
+              setValueTitle(res[0].title);
+              setValueNameRus(res[0].name_rus);
+              setValueNameEng(res[0].name_eng);
+              setValueDescrRus(res[0].descr_rus);
+              setValueDescrEng(res[0].descr_eng);    
+              setValueParentID(res[0].parent_id||-1);    
+              setValueFormula(res[0].formula);      
+              setValueTitleInitial(res[0].title);
+              setValueNameRusInitial(res[0].name_rus);
+              setValueNameEngInitial(res[0].name_eng);
+              setValueDescrRusInitial(res[0].descr_rus);
+              setValueDescrEngInitial(res[0].descr_eng);
+              setValueParentIDInitial(res[0].parent_id||-1); 
+              setValueFormulaInitial(res[0].formula);      
+          }; 
+        
+      if (clickAfterReload) {
+          clickAfterReload = false;
+          if (lastId!==0)
+            updateCurrentRec(lastId); 
+      }
+    }, [ tableData] );
+
     const getTreeItemsFromData = treeItems => {
       return treeItems.map(treeItemData => {
         let children = undefined;
-        console.log('перегружается дерево')
+        //console.log('перегружается дерево')
         if (treeItemData.children && treeItemData.children.length > 0) {
           children = getTreeItemsFromData(treeItemData.children);
         }
-        return (
+        return ( 
           <TreeItem
             key={treeItemData.id}
-            nodeId= {treeItemData.id}
+            nodeId={treeItemData.id?treeItemData.id.toString():"0"} //
             label={treeItemData.title}
             children={children}
           />
@@ -105,24 +143,22 @@ const DataTableChemCompGr = (props) => {
       });
     };
 
-    const [expanded, setExpanded] = React.useState("");
-    const [selected, setSelected] = React.useState("");
+    const [expanded, setExpanded] = React.useState([]);
+    const [selected, setSelected] = React.useState('');
 
     const handleToggle = (event, nodeIds) => {
       setExpanded(nodeIds);
     };
   
     const handleSelect = (event, nodeIds) => {
-      console.log(nodeIds);
       setSelected(nodeIds);
-
       handleItemClick(nodeIds);
+      //console.log('handleSelect ' + nodeIds );
     };  
 
     const [treeFilterString, setTreeFilterString] = React.useState('');
 
     const DataTreeView = ({ treeItems }) => {
-      let ids = tableData.map(a => a.id);
       return (
         <div>
         <p/>
@@ -139,7 +175,7 @@ const DataTableChemCompGr = (props) => {
           //defaultExpanded={[1,2]}
           //expanded={true}
           loading={isLoading}
-          defaultExpanded={ids}
+          //defaultExpanded={ids}
         >
           {getTreeItemsFromData(treeItems)}
         </TreeView></div>
@@ -147,15 +183,22 @@ const DataTableChemCompGr = (props) => {
     };
 
   const handleItemClick = (id) => {
+    setOpenAlert(false);  
+    //console.log('handleItemClick = ' + id);
+    clickedId = id;
     if (editStarted)
     {
       handleClickSave(id);
     } 
     else 
     {
+      if (id)
+        lastId = id;
       var res = tableData.filter(function(item) {
-        return item.id === id;
+        return item.id.toString() === id;
       });
+      //console.log('res.length = ' + res.length);
+      //console.log(tableData);
       setValueID(res[0].id); 
       setValueTitle(res[0].title);
       setValueNameRus(res[0].name_rus);
@@ -181,13 +224,13 @@ const DataTableChemCompGr = (props) => {
     } 
     else 
     {
-      setValueID('');
+      setValueID(``);
       setValueTitle(``);
       setValueNameRus(``);
       setValueNameEng(``);
       setValueDescrRus(``);
       setValueDescrEng(``);
-      console.log('valueParentID ' + valueParentID + ' valueId ' + valueId)
+      //console.log('valueParentID ' + valueParentID + ' valueId ' + valueId)
       if (valueId > 999999)
         setValueParentID(valueParentID)
       else
@@ -200,17 +243,46 @@ const DataTableChemCompGr = (props) => {
     fetch(`/${props.table_name}`)
       .then((data) => data.json())
       .then((data) => setTableData(data))
-      .then((data) => { console.log('fetch main');  lastId = 0;} ); 
+      .then((data) => { /* console.log('fetch main');  lastId = 0;   lastId = null;*/ } ); 
   }, [props.table_name]);
 
-  useEffect(() => {
-    if ((!selected)&&(tableData.length))
-    {
-      setSelected(tableData[0].id);
-      //handleItemClick(tableData[0].id);
-    }
-  }, [tableData, selected]);
+   useEffect(() => {
 
+    function updateCurrentRec (id)  {
+      if (id)
+        lastId = id;
+      var res = tableData.filter(function(item) {
+        return item.id.toString() === id;
+      });
+
+      //console.log('res.length ' + res.length);
+      setValueID(res[0].id); 
+      setValueTitle(res[0].title);
+      setValueNameRus(res[0].name_rus);
+      setValueNameEng(res[0].name_eng);
+      setValueDescrRus(res[0].descr_rus);
+      setValueDescrEng(res[0].descr_eng);    
+      setValueParentID(res[0].parent_id||-1);    
+      setValueFormula(res[0].formula);        
+      setValueTitleInitial(res[0].title);
+      setValueNameRusInitial(res[0].name_rus);
+      setValueNameEngInitial(res[0].name_eng);
+      setValueDescrRusInitial(res[0].descr_rus);
+      setValueDescrEngInitial(res[0].descr_eng);
+      setValueParentIDInitial(res[0].parent_id||-1); 
+      setValueFormulaInitial(res[0].formula);      
+    }; 
+
+    //console.log( 'selected = ' + selected + ' tableData.length ' + tableData.length );
+    if ((!selected)&&(treeData.length))
+    {
+      //console.log( 'setSelected(treeData[0].id.toString()); = ' + treeData[0].id.toString()  );
+
+      setSelected(treeData[0].id.toString());
+      updateCurrentRec(treeData[0].id.toString());
+    }      
+  }, [treeData, tableData, selected])
+  
   useEffect(() => {
     fetch(`/chelement`)
       .then((data) => data.json())
@@ -259,7 +331,7 @@ const DataTableChemCompGr = (props) => {
         i++;
       }      
     }
-    function list_to_tree1(list, filterString) {
+    function list_to_tree1(list, filterString) { 
       var map = {}, node, roots = [], i;
        for (i = 0; i < list.length; i += 1) {
         map[list[i].id] = i;   // initialize the map
@@ -281,15 +353,16 @@ const DataTableChemCompGr = (props) => {
 
     let arr = list_to_tree1( tableData, treeFilterString );
     setTreeData( arr );
-  }, [ tableData, treeFilterString]) 
+  }, [tableData, treeFilterString]) 
 
   ///////////////////////////////////////////////////////////////////  SAVE  /////////////////////
   const saveRec = async ( fromToolbar ) => {
     let myId, myParentID;
     //myParentID = valueParentID ? valueParentID-1000000 : null;
-    
     if (valueId)
-      myId = valueId - 1000000;
+      myId = valueId - 1000000;    
+    if (valueParentID)
+      myParentID = valueParentID;
     if (valueParentID===1000000)
       myParentID = null;
     const js = JSON.stringify({
@@ -303,14 +376,13 @@ const DataTableChemCompGr = (props) => {
       formula: valueFormula     
     });
 
-    console.log(js);
+//    console.log(js);
 
     if (!valueId) {
       addRec();
       return;
     }
-
-    setIsLoading(true);
+    setIsLoading("true");
     try {
       const response = await fetch(`/${props.table_name}/`+myId, {
        method: 'PUT',
@@ -336,11 +408,11 @@ const DataTableChemCompGr = (props) => {
      alertSeverity = 'error';
      setOpenAlert(true);
    } finally {
-     setIsLoading(false);
+     setIsLoading('false');
      if (fromToolbar) 
      {
       reloadData();
-      console.log('кнопа нажата') 
+      //console.log('кнопа нажата') 
       setValueTitle(valueTitle);       
       setValueNameRus(valueNameRus); 
       setValueNameEng(valueNameEng);
@@ -365,6 +437,7 @@ const DataTableChemCompGr = (props) => {
   const addRec = async ()  => {
     let myParentID;
     myParentID = valueParentID === -1 ? null : valueParentID;
+
     const js = JSON.stringify({
       id: valueId,
       title: valueTitle,
@@ -375,7 +448,7 @@ const DataTableChemCompGr = (props) => {
       parent_id: myParentID,
       formula: valueFormula        
     });
-    setIsLoading(true);
+    setIsLoading("true");
     try {
       const response = await fetch(`/${props.table_name}/`, {
         method: 'POST',
@@ -394,9 +467,29 @@ const DataTableChemCompGr = (props) => {
       else
       {
         alertSeverity = "success";
-        alertText =  await response.text();
-        lastId = parseInt( alertText.substr(alertText.lastIndexOf('ID:') + 3, 20)); 
+        const { id } = await response.json();
+        alertText = `Добавлена запись с кодом ${id}`;
+//        const parsed = parseInt(id);
+//        if (isNaN(parsed)) { return 0; }
+        lastId = parseInt(id)+1000000; 
+        //console.log('setSelected lastId' + lastId );
         setValueID(lastId);
+        //console.log('setSelected lastId toString' + lastId.toString());
+        setSelected((lastId).toString());
+        setValueTitle(valueTitle);       
+        setValueNameRus(valueNameRus); 
+        setValueNameEng(valueNameEng);
+        setValueDescrRus(valueDescrRus);
+        setValueDescrEng(valueDescrEng);    
+        setValueParentID(valueParentID);
+        setValueFormula(valueFormula);         
+        setValueTitleInitial(valueTitle);       
+        setValueNameRusInitial(valueNameRus); 
+        setValueNameEngInitial(valueNameEng);
+        setValueDescrRusInitial(valueDescrRus);
+        setValueDescrEngInitial(valueDescrEng);    
+        setValueParentIDInitial(valueParentID);
+        setValueFormulaInitial(valueFormula);        
         setOpenAlert(true);  
       }
     } catch (err) {
@@ -404,7 +497,7 @@ const DataTableChemCompGr = (props) => {
       alertSeverity = 'error';
       setOpenAlert(true);
     } finally {
-      setIsLoading(false);
+      setIsLoading("false");
       reloadData();
     }
   };
@@ -412,12 +505,12 @@ const DataTableChemCompGr = (props) => {
 /////////////////////////////////////////////////////////////////// DELETE /////////////////////
   const delRec =  async () => {
     const js = JSON.stringify({
-        id: valueId,
+        id: valueId-1000000,
         title: valueTitle,
     });
-    setIsLoading(true);
+    setIsLoading("true");
     try {
-      const response = await fetch(`/${props.table_name}/`+valueId, {
+      const response = await fetch(`/${props.table_name}/`+(valueId-1000000).toString(), {
         method: 'DELETE',
         body: js,
         headers: {
@@ -426,14 +519,14 @@ const DataTableChemCompGr = (props) => {
         },
       });
       if (!response.ok) {
-        console.log('response not OK');
+        //console.log('response not OK');
         alertSeverity = 'error';
         alertText = await response.text();
         setOpenAlert(true);          
       }
       else
       {
-        console.log('response OK');
+        //console.log('response OK');
         alertSeverity = "success";
         alertText = await response.text();
         setOpenAlert(true); 
@@ -460,31 +553,35 @@ const DataTableChemCompGr = (props) => {
       alertSeverity = 'error';
       setOpenAlert(true);
     } finally {
-      setIsLoading(false);
+      setIsLoading("false");
     }
   };  
 
   /////////////////////////////////////////////////////////////////// RELOAD /////////////////////
-  const reloadDataAlert =  async () => {
+  const handleClickReload =  async () => {
     alertSeverity = "info";
     alertText =  'Данные успешно обновлены';
     try 
     {
-      await reloadData();
+      //console.log('handleClickReload await reloadData();');
+      clickAfterReload = true;
+      await reloadData().then( console.log('after reload, title = '+tableData[0].title) ) ;
+      //console.log('handleClickReload handleItemClick(lastId); lastId= '+lastId);
+      //handleItemClick(lastId);
     } catch(e)
     {
       alertSeverity = "error";
       alertText =  'Ошибка при обновлении данных: '+e.message;      
       setOpenAlert(true);
       return;
-    }
+    }    
     setOpenAlert(true);        
   }
 
   const reloadData = async () => {
     try {
       const response = await fetch(`/${props.table_name}/`);
-       if (!response.ok) {
+      if (!response.ok) {
         alertText = `Ошибка при обновлении данных: ${response.status}`;
         alertSeverity = "false";
         const error = response.status + ' (' +response.statusText+')';  
@@ -498,7 +595,7 @@ const DataTableChemCompGr = (props) => {
     } catch (err) {
       throw err;
     } finally {
-      setIsLoading(false);
+      setIsLoading("false");
     }
   };
 
@@ -524,15 +621,39 @@ const DataTableChemCompGr = (props) => {
     setOpenSave(true);
   };
 
+  function updateCurrentRecHandles (id)  {
+    if (id)
+      lastId = id;
+    var res = tableData.filter(function(item) {
+      return item.id.toString() === id;
+    });
+    //console.log('res.length ' + res.length);
+    setValueID(res[0].id); 
+    setValueTitle(res[0].title);
+    setValueNameRus(res[0].name_rus);
+    setValueNameEng(res[0].name_eng);
+    setValueDescrRus(res[0].descr_rus);
+    setValueDescrEng(res[0].descr_eng);    
+    setValueParentID(res[0].parent_id||-1);    
+    setValueFormula(res[0].formula);      
+    setValueTitleInitial(res[0].title);
+    setValueNameRusInitial(res[0].name_rus);
+    setValueNameEngInitial(res[0].name_eng);
+    setValueDescrRusInitial(res[0].descr_rus);
+    setValueDescrEngInitial(res[0].descr_eng);
+    setValueParentIDInitial(res[0].parent_id||-1); 
+    setValueFormulaInitial(res[0].formula);      
+  }; 
+
   const handleCloseSaveNo = () => {
     setOpenSave(false);
-    handleCancelClick();
+    updateCurrentRecHandles(clickedId);
   };
 
   const handleCloseSaveYes = () => {
     setOpenSave(false);
     saveRec(false);
-    handleCancelClick();
+    updateCurrentRecHandles(clickedId);
   };
 
   const handleClickSaveWhenNew = () => {
@@ -541,14 +662,15 @@ const DataTableChemCompGr = (props) => {
 
   const handleCloseSaveWhenNewNo = () => {
     setOpenSaveWhenNew(false);
-    handleCancelClick();    
+    updateCurrentRecHandles(clickedId);    
   };
 
   const handleCloseSaveWhenNewYes = () => {
-    console.log('handleCloseSaveYes');
+    //console.log('handleCloseSaveWhenNewYes');
     setOpenSaveWhenNew(false);
     saveRec(true);
-    handleCancelClick();
+    //console.log('handleCloseSaveWhenNewYes lastId = '+lastId);
+    //updateCurrentRec(lastId);    
   };
 
   //////////////////////////////////////////////////////// ACTIONS ///////////////////////////////
@@ -556,7 +678,7 @@ const DataTableChemCompGr = (props) => {
   const handleCancelClick = () => 
   {
     const selectedIDs = selected;
-    const selectedRowData = tableData.filter((row) => selectedIDs===row.id);
+    const selectedRowData = tableData.filter((row) => selectedIDs===row.id.toString());
     if (selectedRowData.length)
     {
       setValueID(`${selectedRowData[0].id}`);
@@ -569,11 +691,11 @@ const DataTableChemCompGr = (props) => {
       setValueNameRusInitial(`${selectedRowData[0].name_rus}`);
       setValueNameEngInitial(`${selectedRowData[0].name_eng}` );
       setValueDescrRusInitial(`${selectedRowData[0].descr_rus}`);
-      setValueDescrEngInitial(`${selectedRowData[0].descr_eng}` );
+      setValueDescrEngInitial(`${selectedRowData[0].descr_eng}`);
       setValueParentID(selectedRowData[0].parent_id||-1);
       setValueParentIDInitial(selectedRowData[0].parent_id||-1);
       setValueFormula(`${selectedRowData[0].formula}`);
-      setValueFormulaInitial(`${selectedRowData[0].formula}` );
+      setValueFormulaInitial(`${selectedRowData[0].formula}`);
     }
   }
 
@@ -583,8 +705,6 @@ const DataTableChemCompGr = (props) => {
     quoteStrings: '"',
     decimalSeparator: '.',
     showLabels: true, 
-    //showTitle: true,
-    //title: table_names['data_source'],
     useTextFile: false,
     useBom: true,
     useKeysAsHeaders: true,
@@ -592,7 +712,7 @@ const DataTableChemCompGr = (props) => {
   };
 
   const exportdDataCSV = async () => {
-    console.log('export csv');
+    //console.log('export csv');
     const csvExporter = new ExportToCsv(optionsCSV);
     csvExporter.generateCsv(tableData);   
   } 
@@ -603,6 +723,21 @@ const DataTableChemCompGr = (props) => {
     setTreeFilterString(filter);
   }  
 
+  const handleExpandClick = () => {
+    var hasChild = [], i;
+    for (i = 0; i < tableData.length; i += 1) {
+      if (tableData[i].parent_id) 
+      {
+        if (hasChild.indexOf(tableData[i].parent_id)=== -1)
+          hasChild.push(tableData[i].parent_id.toString()); 
+      }
+    }
+    var expandedNew = hasChild;
+    if (expanded.length)
+      expandedNew=[]; 
+    setExpanded(expandedNew);
+  };
+
   return (
     <div style={{ height: 650, width: 1500 }}>
     <table border = "0" style={{ height: 650, width: 1500 }} ><tbody>
@@ -612,19 +747,31 @@ const DataTableChemCompGr = (props) => {
       <Box sx={{ border: 1, borderRadius: '4px', borderColor: 'grey.300', height: 500, p: '4px' }} >
         <IconButton onClick={()=>handleClearClick()}  color="primary" size="small" title="Создать запись">
           <SvgIcon fontSize="small" component={PlusLightIcon} inheritViewBox /></IconButton>
-        <IconButton onClick={()=>saveRec(true)}  color="primary" size="small" title="Сохранить запись в БД">
+        <IconButton onClick={()=>saveRec(true)}  color="primary" size="small" title="Сохранить запись в БД" disabled={!((valueId > 1000000 )||(!valueId))}>
           <SvgIcon fontSize="small" component={SaveLightIcon} inheritViewBox/></IconButton>
-        <IconButton onClick={()=>handleClickDelete()}  color="primary" size="small" title="Удалить запись">
+        <IconButton onClick={()=>handleClickDelete()}  color="primary" size="small" title="Удалить запись" disabled={!((valueId > 1000000 )||(!valueId))}>
           <SvgIcon fontSize="small" component={TrashLightIcon} inheritViewBox /></IconButton>
         <IconButton onClick={()=>handleCancelClick()} disabled={!editStarted} color="primary" size="small" title="Отменить редактирование">
           <SvgIcon fontSize="small" component={UndoLightIcon} inheritViewBox /></IconButton>
-        <IconButton onClick={()=>reloadDataAlert()} color="primary" size="small" title="Обновить данные">
+        <IconButton onClick={()=>handleClickReload()} color="primary" size="small" title="Обновить данные">
           <SvgIcon fontSize="small" component={RepeatLightIcon} inheritViewBox /></IconButton>
         <IconButton onClick={()=> exportdDataCSV()} color="primary" size="small" title="Сохранить в формате CSV">
           <SvgIcon fontSize="small" component={DownloadLightIcon} inheritViewBox /></IconButton>
+        <IconButton onClick={()=> handleExpandClick()} color="primary" size="small" title={expanded.length !== 0?"Свернуть все":"Развернуть все"} >
+          <SvgIcon fontSize="small" component={expanded.length !== 0?CollapseIcon:ExpandIcon} inheritViewBox /></IconButton>
         <br/><TextField label="Фильтр ..." size = "small" variant="standard" onKeyUp={onFilterKeyUp} />
         <Box sx={{ height: 415, overflowY: 'false' }}>
-          {isLoading && <CircularProgress/>} 
+
+          {(isLoading==="true") && 
+
+          <Backdrop
+            sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+            open={isLoading}
+           // onClick={handleClose}
+          >
+            <CircularProgress color="inherit" />
+          </Backdrop> } 
+
           <Box sx={{ height: 415, flexGrow: 1, overflowY: 'auto' }} >     
             <DataTreeView treeItems={treeData} />
           </Box> 
@@ -656,7 +803,7 @@ const DataTableChemCompGr = (props) => {
       
       </td>
       <td style={{ height: 550, width: 900, verticalAlign: 'top' }}>
-      {(valueId > 1000000 || (!valueId)) &&
+      {((valueId > 1000000 )||(!valueId)) &&
       <div id="right part">
       <TextField  id="ch_id" disabled={true} label="Код" sx={{ width: '12ch' }} variant="outlined" value={ ((valueId||0)<=999999)?valueId:valueId-1000000 ||''} size="small" /* onChange={e => setValueID(e.target.value)} *//>
       &nbsp;&nbsp;&nbsp;
@@ -715,7 +862,7 @@ const DataTableChemCompGr = (props) => {
       <TextField  id="ch_descr_rus" sx={{ width: '100ch' }} label="Комментарий (англ.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrEng || ''} onChange={e => setValueDescrEng(e.target.value)}/>
       <p/>
       <div style={{ height: 300, width: 800 }}>
-        <DataTableDataSourceClass table_name={props.table_name} rec_id={(valueId||0)-1000000} />
+        <DataTableDataSourceClass table_name={props.table_name} rec_id={(valueId?valueId-1000000:null)} />
       </div>
 
       </div>} {/* right part */}
@@ -730,7 +877,7 @@ const DataTableChemCompGr = (props) => {
       </DialogTitle>
       <DialogContent>
           <DialogContentText>
-          В таблице "{table_names[props.table_name]}" предложена к удалению следующая запись:<p/><b>{valueTitle}</b>; Код в БД = <b>{valueId}</b><p/>
+          В таблице "{table_names[props.table_name]}" предложена к удалению следующая запись:<b><p/>{valueTitle}</b>; Код в БД = <b>{valueId-1000000}<p/></b>
           Вы желаете удалить указанную запись?
           </DialogContentText>
       </DialogContent>
@@ -746,13 +893,16 @@ const DataTableChemCompGr = (props) => {
     </DialogTitle>
     <DialogContent>
         <DialogContentText>
-        В запись таблицы "{table_names[props.table_name]}" с кодом <b>{valueId}</b> внесены изменения.<p/>
-            {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p/>
-            {valueNameRus === valueNameRusInitial ? '' : 'Название (рус. яз): '+valueNameRus+'; ' }<p/>
-            {valueNameEng === valueNameEngInitial ? '' : 'Название (англ. яз): '+valueNameEng+'; ' }<p/>
-            {valueDescrRus === valueDescrRusInitial ? '' : 'Комментарий (рус. яз): '+valueDescrRus+'; ' }<p/>
-            {valueDescrEng === valueDescrEngInitial ? '' : 'Комментарий (англ. яз): '+valueDescrEng+'; ' }<p/>
-            <p/>Вы желаете сохранить указанную запись?
+          {valueId?
+          `В запись таблицы "${table_names[props.table_name]}" с кодом ${valueId} внесены изменения.`:
+          `В таблицу "${table_names[props.table_name]}" внесена новая несохраненная запись.`}<p></p>
+            {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p></p>
+            {valueParentID === valueParentIDInitial ? '' : 'Родительский класс: '+valueParentID+'; ' }<p></p>
+            {valueNameRus === valueNameRusInitial ? '' : 'Название (рус. яз): '+valueNameRus+'; ' }<p></p>
+            {valueNameEng === valueNameEngInitial ? '' : 'Название (англ. яз): '+valueNameEng+'; ' }<p></p>
+            {valueDescrRus === valueDescrRusInitial ? '' : 'Комментарий (рус. яз): '+valueDescrRus+'; ' }<p></p>
+            {valueDescrEng === valueDescrEngInitial ? '' : 'Комментарий (англ. яз): '+valueDescrEng+'; ' }<p></p>
+          Вы желаете сохранить указанную запись?
         </DialogContentText>
     </DialogContent>
     <DialogActions>
@@ -766,14 +916,17 @@ const DataTableChemCompGr = (props) => {
         Внимание
     </DialogTitle>
     <DialogContent>
-        <DialogContentText>
-            В запись таблицы "{table_names[props.table_name]}" с кодом <b>{valueId}</b> внесены изменения.<p/>
-            {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p/>
-            {valueNameRus === valueNameRusInitial ? '' : 'Название (рус. яз): '+valueNameRus+'; ' }<p/>
-            {valueNameEng === valueNameEngInitial ? '' : 'Название (англ. яз): '+valueNameEng+'; ' }<p/>
-            {valueDescrRus === valueDescrRusInitial ? '' : 'Комментарий (рус. яз): '+valueDescrRus+'; ' }<p/>
-            {valueDescrEng === valueDescrEngInitial ? '' : 'Комментарий (англ. яз): '+valueDescrEng+'; ' }<p/>
-            <p/>Вы желаете сохранить указанную запись?
+    <DialogContentText>
+          {valueId?
+          `В запись таблицы "${table_names[props.table_name]}" с кодом ${valueId} внесены изменения.`:
+          `В таблицу "${table_names[props.table_name]}" внесена новая несохраненная запись.`}<p></p>
+            {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p></p>
+            {valueParentID === valueParentIDInitial ? '' : 'Родительский класс: '+valueParentID+'; ' }<p></p>
+            {valueNameRus === valueNameRusInitial ? '' : 'Название (рус. яз): '+valueNameRus+'; ' }<p></p>
+            {valueNameEng === valueNameEngInitial ? '' : 'Название (англ. яз): '+valueNameEng+'; ' }<p></p>
+            {valueDescrRus === valueDescrRusInitial ? '' : 'Комментарий (рус. яз): '+valueDescrRus+'; ' }<p></p>
+            {valueDescrEng === valueDescrEngInitial ? '' : 'Комментарий (англ. яз): '+valueDescrEng+'; ' }<p></p>
+          Вы желаете сохранить указанную запись?
         </DialogContentText>
     </DialogContent>
     <DialogActions>
