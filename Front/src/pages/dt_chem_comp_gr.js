@@ -161,7 +161,7 @@ const DataTableChemCompGr = (props) => {
     const DataTreeView = ({ treeItems }) => {
       return (
         <div>
-        <p/>
+        <p></p>
         <TreeView
           aria-label="Tree navigator"
           defaultCollapseIcon={<ExpandMoreIcon />}
@@ -763,12 +763,8 @@ const DataTableChemCompGr = (props) => {
         <Box sx={{ height: 415, overflowY: 'false' }}>
 
           {(isLoading==="true") && 
-
           <Backdrop
-            sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
-            open={isLoading}
-           // onClick={handleClose}
-          >
+            sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }} open={true}>
             <CircularProgress color="inherit" />
           </Backdrop> } 
 
@@ -825,7 +821,7 @@ const DataTableChemCompGr = (props) => {
         </Select>
       </FormControl>  
 
-      <p/> 
+      <p></p> 
       <div>
       {(() => {
         if (props.table_name==='criterion_gr') {
@@ -850,17 +846,17 @@ const DataTableChemCompGr = (props) => {
       })()}
       </div>
 
-      <p/> 
+      <p></p> 
       <TextField  id="ch_formula" sx={{ width: '100ch' }}  size="small" label="Формула"  variant="outlined"  value={valueFormula || ''} onChange={e => setValueFormula(e.target.value)} />
-      <p/> 
+      <p></p> 
       <TextField  id="ch_name_rus" sx={{ width: '100ch' }}  size="small" label="Название (рус.яз)"  variant="outlined"  value={valueNameRus || ''} onChange={e => setValueNameRus(e.target.value)} />
-      <p/>
+      <p></p>
       <TextField  id="ch_name_eng" sx={{ width: '100ch' }} size="small" label="Название (англ.яз)"  variant="outlined" value={valueNameEng || ''} onChange={e => setValueNameEng(e.target.value)}/>
-      <p/>
+      <p></p>
       <TextField  id="ch_descr_rus" sx={{ width: '100ch' }} label="Комментарий (рус.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrRus || ''} onChange={e => setValueDescrRus(e.target.value)}/>
-      <p/> 
+      <p></p> 
       <TextField  id="ch_descr_rus" sx={{ width: '100ch' }} label="Комментарий (англ.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrEng || ''} onChange={e => setValueDescrEng(e.target.value)}/>
-      <p/>
+      <p></p>
       <div style={{ height: 300, width: 800 }}>
         <DataTableDataSourceClass table_name={props.table_name} rec_id={(valueId?valueId-1000000:null)} />
       </div>
@@ -877,7 +873,7 @@ const DataTableChemCompGr = (props) => {
       </DialogTitle>
       <DialogContent>
           <DialogContentText>
-          В таблице "{table_names[props.table_name]}" предложена к удалению следующая запись:<b><p/>{valueTitle}</b>; Код в БД = <b>{valueId-1000000}<p/></b>
+          В таблице "{table_names[props.table_name]}" предложена к удалению следующая запись:<b><p></p>{valueTitle}</b>; Код в БД = <b>{valueId-1000000}<p></p></b>
           Вы желаете удалить указанную запись?
           </DialogContentText>
       </DialogContent>

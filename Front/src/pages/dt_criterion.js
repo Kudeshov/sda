@@ -32,6 +32,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import { ExportToCsv } from 'export-to-csv-fix-source-map';
 import { table_names } from './sda_types';
 import Backdrop from '@mui/material/Backdrop';
+import Autocomplete from '@mui/material/Autocomplete';
 
 var alertText = "Сообщение";
 var alertSeverity = "info";
@@ -39,7 +40,7 @@ var lastId = 0;
 var clickedId = 0;
 var clickAfterReload = false;
 
-const DataTableExpScenario = (props) => {
+const DataTableCriterion= (props) => {
   const [valueId, setValueID] = React.useState();
   const [valueTitle, setValueTitle] = React.useState();
   const [valueTitleInitial, setValueTitleInitial] = React.useState();
@@ -209,6 +210,14 @@ const DataTableExpScenario = (props) => {
       setValueDescrEngInitial(res[0].descr_eng);
       setValueParentIDInitial(res[0].parent_id||-1); 
       setValueNormativInitial(res[0].normativ_id);
+
+      //console.log(tableData);
+      var res2 = tableData.filter(function(item) {
+        return item.id === res[0].parent_id;
+      });
+      //console.log('res2 ' + res2[0].parent_id);
+      //console.log(res2);
+      setValueAC(res2[0]);
     }   
   }; 
 
@@ -705,11 +714,12 @@ const DataTableExpScenario = (props) => {
           hasChild.push(tableData[i].parent_id.toString()); 
       }
     }
-    var expandedNew = hasChild;
+/*     var expandedNew = hasChild;
     if (expanded.length)
-      expandedNew=[]; 
-    setExpanded(expandedNew);
+      expandedNew=[];  */
   };
+
+  const [valueAC, setValueAC] = React.useState(tableData[0]);
 
   return (
     <div style={{ height: 650, width: 1500 }}>
@@ -772,7 +782,23 @@ const DataTableExpScenario = (props) => {
       <TextField  id="ch_id" disabled={true} label="Код" sx={{ width: '12ch' }} variant="outlined" value={ valueId ||''} size="small" /* onChange={e => setValueID(e.target.value)} *//>
       &nbsp;&nbsp;&nbsp;
       <TextField  id="ch_name" sx={{ width: '40ch' }} label="Обозначение" size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
-      &nbsp;&nbsp;&nbsp;
+      <p></p>
+      <Autocomplete
+        size="small"
+        disablePortal
+        id="combo-box-demo"
+        value={ valueAC || ""}
+        //isOptionEqualToValue={(option, value) => value.id  === option.id }
+        onChange={(event, newValueAC) => { console.log(newValueAC?newValueAC.id:-1); setValueAC(newValueAC);  setValueParentID(newValueAC?newValueAC.id:-1) } }
+
+        //value={valueParentID || "" } 
+        options={tableData}
+        sx={{ width: 300 }}
+        getOptionLabel={option => option?option.title:"Не задан"}
+        renderInput={(params) => <TextField {...params} label="Родительский класс" />}
+      />      
+      <p></p>
+
       <FormControl sx={{ width: '30ch' }} size="small">
         <InputLabel id="ch_parent_id">Родительский класс</InputLabel>
           <Select labelId="ch_parent_id" id="ch_parent_id1" label="Родительский класс" value={valueParentID  || "" } onChange={e => setValueParentID(e.target.value)} >
@@ -897,4 +923,4 @@ const DataTableExpScenario = (props) => {
   )
 }
 
-export { DataTableExpScenario, lastId }
+export { DataTableCriterion, lastId }

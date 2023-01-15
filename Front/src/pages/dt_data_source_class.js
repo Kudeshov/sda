@@ -418,7 +418,7 @@ const [noRecords, setNoRecords] = useState(true);
           <DialogContentText>
             Задать связь с источником данных
           </DialogContentText>
-        <p/>        
+        <p></p>        
         <FormControl sx={{ width: '40ch' }}>
             <InputLabel id="demo-controlled-open-select-label">Тип источника</InputLabel>
             <Select
@@ -438,7 +438,7 @@ const [noRecords, setNoRecords] = useState(true);
             })}
             </Select>
           </FormControl>  
-          <p/> 
+          <p></p> 
           <TextField
             variant="outlined"
             margin="dense"
@@ -448,7 +448,7 @@ const [noRecords, setNoRecords] = useState(true);
             fullWidth
             onChange={e => setValueTitleSrc(e.target.value)}
           />
-          <p/>
+          <p></p>
           <TextField
             variant="outlined"
             id="name_src"
@@ -470,7 +470,7 @@ const [noRecords, setNoRecords] = useState(true);
       </DialogTitle>
       <DialogContent>
           <DialogContentText>
-              В таблице "{table_names[props.table_name]}" предложена к удалению следующая запись:<p/><b>{valueTitleSrc}</b>; Код в БД = <b>{valueId}</b><p/>
+              В таблице "{table_names[props.table_name]}" предложена к удалению следующая запись:<p></p><b>{valueTitleSrc}</b>; Код в БД = <b>{valueId}</b><p></p>
               Вы желаете удалить указанную запись?        
           </DialogContentText>
       </DialogContent>
@@ -486,12 +486,12 @@ const [noRecords, setNoRecords] = useState(true);
       </DialogTitle>
       <DialogContent>
           <DialogContentText>
-              Код: <b>{valueDataSourceId}</b><p/>
-              Обозначение: <b>{valueTitle}</b><p/>
-              Краткое название: <b>{valueShortName}</b><p/> 
-              Полное название: <b>{valueFullName}</b><p/> 
-              Тип источника: <b>{valueExternalDS === 'false' ? 'Целевая БД' : 'Внешний источник' }</b><p/> 
-              Комментарий: <b>{valueDescr}</b><p/> 
+              Код: <b>{valueDataSourceId}</b><p></p>
+              Обозначение: <b>{valueTitle}</b><p></p>
+              Краткое название: <b>{valueShortName}</b><p></p> 
+              Полное название: <b>{valueFullName}</b><p></p> 
+              Тип источника: <b>{valueExternalDS === 'false' ? 'Целевая БД' : 'Внешний источник' }</b><p></p> 
+              Комментарий: <b>{valueDescr}</b><p></p> 
           </DialogContentText>
       </DialogContent>
       <DialogActions>

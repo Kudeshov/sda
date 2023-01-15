@@ -6,7 +6,7 @@ import Chelement from "./pages/chelement";
 import Norms from "./pages/norms";
 import ClassFunctions from "./pages/class_func";
 import Substance from "./pages/substance";
-import Db from "./pages/db";
+import SubstForm from "./pages/substform";
 import PeopleClass from "./pages/people_class";
 import Irradiation from "./pages/irradiation";
 import IntegralPeriod from "./pages/integral_period";
@@ -23,6 +23,7 @@ import Action from "./pages/action";
 import Organ from "./pages/organ";
 import ChemCompGr from "./pages/chem_comp_gr";
 import Isotope from "./pages/isotope";
+import Griterion from "./pages/criterion";
 
 function App() {
   return (
@@ -43,7 +44,7 @@ function App() {
         <Route path="/let_level" element={<LetLevel/>} />       
         <Route path="/exp_scenario" element={<ExpScenario/>} />               
         <Route path="/agegroup" element={<AgeGroup/>} />
-        <Route path="/db" element={<Db/>} />
+        <Route path="/subst_form" element={<SubstForm/>} />
         <Route path="/dose_ratio" element={<DoseRatio/>} />
         <Route path="/calcfunction" element={<CalcFunction/>} />
         <Route path="/criterion_gr" element={<GriterionGr/>} />
@@ -51,7 +52,8 @@ function App() {
         <Route path="/action" element={<Action/>} />
         <Route path="/organ" element={<Organ/>} />
         <Route path="/chem_comp_gr" element={<ChemCompGr/>} />
-        <Route path="/isotope" element={<Isotope/>} />                   
+        <Route path="/isotope" element={<Isotope/>} />
+        <Route path="/criterion" element={<Griterion/>} />                   
       </Routes>
     </Router>
   );

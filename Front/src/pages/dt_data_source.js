@@ -238,7 +238,7 @@ const DataTableDataSource = (props) => {
       reloadData();
       setSelectionModel([lastId]);
       //Refresh initial state
-      console.log('addRec Refresh initial '+valueTitle+' '+valueShortName);      
+      //console.log('addRec Refresh initial '+valueTitle+' '+valueShortName);      
       setValueTitle(valueTitle);       
       setValueShortName(valueShortName);
       setValueFullName(valueFullName);
@@ -531,11 +531,11 @@ const DataTableDataSource = (props) => {
       <TextField  id="ch_id"  disabled={true} label="Код" sx={{ width: '12ch' }} variant="outlined" value={valueId || ''} size="small" onChange={e => setValueID(e.target.value)}/>
       &nbsp;&nbsp;&nbsp;
       <TextField  id="ch_name" sx={{ width: '40ch' }} label="Обозначение" size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
-      <p/>
+      <p></p>
       <TextField  id="ch_shortname" sx={{ width: '100ch' }} label="Краткое название" size="small" variant="outlined" value={valueShortName || ''} onChange={e => setValueShortName(e.target.value)}/>
-      <p/>
+      <p></p>
       <TextField  id="ch_fullname" sx={{ width: '100ch' }} label="Полное название" size="small" variant="outlined" value={valueFullName || ''} onChange={e => setValueFullName(e.target.value)}/>
-      <p/>
+      <p></p>
       <FormControl sx={{ width: '40ch' }} size="small">
         <InputLabel id="demo-controlled-open-select-label">Тип источника</InputLabel>
         <Select
@@ -556,10 +556,10 @@ const DataTableDataSource = (props) => {
         })}
         </Select>
       </FormControl>  
-      <p/> 
+      <p></p> 
 
       <TextField  id="ch_descr" sx={{ width: '100ch' }} size="small" label="Комментарий" multiline rows={7} variant="outlined"   value={valueDescr || ''} onChange={e => setValueDescr(e.target.value)}/>
-      <p/> 
+      <p></p> 
 
     </td>
   </tr>

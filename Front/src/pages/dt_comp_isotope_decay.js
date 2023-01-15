@@ -360,7 +360,7 @@ const addRecDecay = async ()  => {
 {/*             <DialogContentText>
           Радиоактивные ряды (элемент)
         </DialogContentText> */}
-        <p/>
+        <p></p>
         <TextField  sx={{width: '50ch', input: {background: '#EEEEEE'}}}
           variant="outlined"
           margin="dense"
@@ -373,7 +373,7 @@ const addRecDecay = async ()  => {
             { readOnly: true, }
           }
         />
-        <p/>                    
+        <p></p>                    
         <FormControl sx={{ width: '50ch' }}>
           <InputLabel id="demo-controlled-open-select-label">Дочерний изотоп</InputLabel>
           <Select
@@ -393,7 +393,7 @@ const addRecDecay = async ()  => {
           })}
           </Select>
         </FormControl>  
-        <p/> 
+        <p></p> 
         <TextField
           variant="outlined"
           type="number"
@@ -422,7 +422,7 @@ const addRecDecay = async ()  => {
     </DialogTitle>
     <DialogContent>
         <DialogContentText>
-            В таблице "{table_names['isotope_decay']}" предложена к удалению следующая запись:<p/><b>{valueParentTitle + '->' + valueChildTitle}</b>; Код в БД = <b>{valueIsotopeDecayId}</b><p/>
+            В таблице "{table_names['isotope_decay']}" предложена к удалению следующая запись:<p></p><b>{valueParentTitle + '->' + valueChildTitle}</b>; Код в БД = <b>{valueIsotopeDecayId}</b><p></p>
             Вы желаете удалить указанную запись?        
         </DialogContentText>
     </DialogContent>

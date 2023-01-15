@@ -350,7 +350,7 @@ const DataTableDoseRatio = (props) => {
       reloadData();
       setSelectionModel([lastId]);
       //Refresh initial state
-      console.log('addRec Refresh initial '+valueTitle+' '+valueNameRus);
+      //console.log('addRec Refresh initial '+valueTitle+' '+valueNameRus);
       setValueTitle(valueTitle);
       setValueNameRus(valueNameRus);
       setValueNameEng(valueNameEng);
@@ -720,15 +720,15 @@ const DataTableDoseRatio = (props) => {
       <TextField  id="ch_id"  disabled={true} label="Код" sx={{ width: '12ch' }} variant="outlined" value={valueId || ''} size="small" onChange={e => setValueID(e.target.value)}/>
       &nbsp;&nbsp;&nbsp;
       <TextField  id="ch_name" sx={{ width: '40ch' }} label="Обозначение" size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
-      <p/>
+      <p></p>
       <TextField  id="ch_name_rus" sx={{ width: '40ch' }}  size="small" label="Название (рус.яз)"  variant="outlined"  value={valueNameRus || ''} onChange={e => setValueNameRus(e.target.value)} />
       &nbsp;&nbsp;&nbsp;
       <TextField  id="ch_name_eng" sx={{ width: '40ch' }} size="small" label="Название (англ.яз)"  variant="outlined" value={valueNameEng || ''} onChange={e => setValueNameEng(e.target.value)}/>
-      <p/>
+      <p></p>
       <TextField  id="ch_descr_rus" sx={{ width: '100ch' }} label="Комментарий (рус.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrRus || ''} onChange={e => setValueDescrRus(e.target.value)}/>
-      <p/> 
+      <p></p> 
       <TextField  id="ch_descr_rus" sx={{ width: '100ch' }} label="Комментарий (англ.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrEng || ''} onChange={e => setValueDescrEng(e.target.value)}/>
-      <p/>
+      <p></p>
 
       <div>
       {(() => {
@@ -737,7 +737,7 @@ const DataTableDoseRatio = (props) => {
             <div>
 {/*             <Button variant="contained" component="label">Загрузить из файла
               <input hidden accept="text/xml" type="file" onChange={handleFileChange}/>
-            </Button><p/> */}
+            </Button><p></p> */}
 {/*             <Button variant="contained" onClick={() => {setValueParameters(""); }}>Очистить</Button>   */}     
 
             <table border = "0" cellSpacing={0} cellPadding={0} style={{ height: 110, width: 886, verticalAlign: 'top' }}><tbody><tr>
@@ -763,7 +763,7 @@ const DataTableDoseRatio = (props) => {
               <SvgIcon fontSize="small" component={EditLightIcon} inheritViewBox /></IconButton>
             </label></td></tr>
             </tbody></table>
-            <p/>
+            <p></p>
             <FormControl sx={{ width: '40ch' }} size="small">
             <InputLabel id="type">Используется расчетным модулем</InputLabel>
               <Select labelId="type" id="type1"  label="Используется расчетным модулем" defaultValue={true} value={valueUsed  || "" } onChange={e => setValueUsed(e.target.value)}>
@@ -776,7 +776,7 @@ const DataTableDoseRatio = (props) => {
                     })}
               </Select>
             </FormControl>    
-            <p/> 
+            <p></p> 
             </div>
           )
         } 
@@ -797,13 +797,13 @@ const DataTableDoseRatio = (props) => {
                 })}
           </Select>
           </FormControl>  
-          <p/> 
+          <p></p> 
           <TextField sx={{width: '100ch', input: {background: '#EEEEEE'}}} id="physparam_code" label="Код"  size="small" variant="outlined" value={valuePhysParamCode || ''} />
-          <p/>
+          <p></p>
           <TextField sx={{width: '100ch', input: {background: '#EEEEEE'}}} id="physparam_name_rus" label="Название (рус.яз)"  size="small" variant="outlined" value={valuePhysParamNameRus || ''} />
-          <p/>
+          <p></p>
           <TextField sx={{width: '100ch', input: {background: '#EEEEEE'}}} id="dimension" label="Eд.измерения (базовая)"  size="small" variant="outlined" value={valuePhysParamDimension || ''} />
-          <p/>
+          <p></p>
 
       <div style={{ height: 300, width: 800 }}>
         <DataTableDataSourceClass table_name={props.table_name} rec_id={valueId} />
@@ -819,7 +819,7 @@ const DataTableDoseRatio = (props) => {
       </DialogTitle>
       <DialogContent>
           <DialogContentText>
-          В таблице "{table_names[props.table_name]}" предложена к удалению следующая запись:<p/><b>{valueTitle}</b>; Код в БД = <b>{valueId}</b><p/>
+          В таблице "{table_names[props.table_name]}" предложена к удалению следующая запись:<p></p><b>{valueTitle}</b>; Код в БД = <b>{valueId}</b><p></p>
           Вы желаете удалить указанную запись?
           </DialogContentText>
       </DialogContent>
@@ -850,21 +850,21 @@ const DataTableDoseRatio = (props) => {
     </DialogTitle>
     <DialogContent>
         <DialogContentText>
-            В запись таблицы {table_names[props.table_name]} с кодом <b>{valueId}</b> внесены изменения.<p/>
-            {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p/>
-            {valueNameRus === valueNameRusInitial ? '' : 'Название (рус. яз): '+valueNameRus+'; ' }<p/>
-            {valueNameEng === valueNameEngInitial ? '' : 'Название (англ. яз): '+valueNameEng+'; ' }<p/>
-            {valueDescrRus === valueDescrRusInitial ? '' : 'Комментарий (рус. яз): '+valueDescrRus+'; ' }<p/>
-            {valueDescrEng === valueDescrEngInitial ? '' : 'Комментарий (англ. яз): '+valueDescrEng+'; ' }<p/>
-            {valueRespRate === valueRespRateInitial ? '' : 'Скорость дыхания, куб.м/сек: '+valueRespRate+'; ' }<p/>
-            {valueRespYear === valueRespYearInitial ? '' : 'Годовой объем вдыхаемого воздуха, куб.м: '+valueRespYear+'; ' }<p/>
-            {valueIndoor === valueIndoorInitial ? '' : 'Доля времени, проводимая индивидуумом в помещении: '+valueIndoor+'; ' }<p/>
-            {valueExtCloud === valueExtCloudInitial ? '' : 'Коэффициент для дозы внешнего облучения от облака: '+valueExtCloud+'; ' }<p/>
-            {valueExtGround === valueExtGroundInitial ? '' : 'Коэффициент для дозы внешнего облучения от поверхности: '+valueExtGround+'; ' }<p/>
-            {valuePhysParamID === valuePhysParamIDInitial ? '' : 'Физический параметр (из общего списка): '+valuePhysParamID+'; ' }<p/>
-            {valueUsed === valueUsedInitial ? '' : 'Используется расчетным модулем '+valueUsed+'; ' }<p/>
-            {valueParameters === valueParametersInitial ? '' : 'Параметры функции'+valueParameters+'; ' }<p/>
-            <p/>Вы желаете сохранить указанную запись?
+            В запись таблицы {table_names[props.table_name]} с кодом <b>{valueId}</b> внесены изменения.<p></p>
+            {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p></p>
+            {valueNameRus === valueNameRusInitial ? '' : 'Название (рус. яз): '+valueNameRus+'; ' }<p></p>
+            {valueNameEng === valueNameEngInitial ? '' : 'Название (англ. яз): '+valueNameEng+'; ' }<p></p>
+            {valueDescrRus === valueDescrRusInitial ? '' : 'Комментарий (рус. яз): '+valueDescrRus+'; ' }<p></p>
+            {valueDescrEng === valueDescrEngInitial ? '' : 'Комментарий (англ. яз): '+valueDescrEng+'; ' }<p></p>
+            {valueRespRate === valueRespRateInitial ? '' : 'Скорость дыхания, куб.м/сек: '+valueRespRate+'; ' }<p></p>
+            {valueRespYear === valueRespYearInitial ? '' : 'Годовой объем вдыхаемого воздуха, куб.м: '+valueRespYear+'; ' }<p></p>
+            {valueIndoor === valueIndoorInitial ? '' : 'Доля времени, проводимая индивидуумом в помещении: '+valueIndoor+'; ' }<p></p>
+            {valueExtCloud === valueExtCloudInitial ? '' : 'Коэффициент для дозы внешнего облучения от облака: '+valueExtCloud+'; ' }<p></p>
+            {valueExtGround === valueExtGroundInitial ? '' : 'Коэффициент для дозы внешнего облучения от поверхности: '+valueExtGround+'; ' }<p></p>
+            {valuePhysParamID === valuePhysParamIDInitial ? '' : 'Физический параметр (из общего списка): '+valuePhysParamID+'; ' }<p></p>
+            {valueUsed === valueUsedInitial ? '' : 'Используется расчетным модулем '+valueUsed+'; ' }<p></p>
+            {valueParameters === valueParametersInitial ? '' : 'Параметры функции'+valueParameters+'; ' }<p></p>
+            <p></p>Вы желаете сохранить указанную запись?
         </DialogContentText>
     </DialogContent>
     <DialogActions>
@@ -879,21 +879,21 @@ const DataTableDoseRatio = (props) => {
     </DialogTitle>
     <DialogContent>
         <DialogContentText>
-            В запись таблицы {table_names[props.table_name]} с кодом <b>{valueId}</b> внесены изменения.<p/>
-            {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p/>
-            {valueNameRus === valueNameRusInitial ? '' : 'Название (рус. яз): '+valueNameRus+'; ' }<p/>
-            {valueNameEng === valueNameEngInitial ? '' : 'Название (англ. яз): '+valueNameEng+'; ' }<p/>
-            {valueDescrRus === valueDescrRusInitial ? '' : 'Комментарий (рус. яз): '+valueDescrRus+'; ' }<p/>
-            {valueDescrEng === valueDescrEngInitial ? '' : 'Комментарий (англ. яз): '+valueDescrEng+'; ' }<p/>
-            {valueRespRate === valueRespRateInitial ? '' : 'Скорость дыхания, куб.м/сек: '+valueRespRate+'; ' }<p/>
-            {valueRespYear === valueRespYearInitial ? '' : 'Годовой объем вдыхаемого воздуха, куб.м: '+valueRespYear+'; ' }<p/>
-            {valueIndoor === valueIndoorInitial ? '' : 'Доля времени, проводимая индивидуумом в помещении: '+valueIndoor+'; ' }<p/>
-            {valueExtCloud === valueExtCloudInitial ? '' : 'Коэффициент для дозы внешнего облучения от облака: '+valueExtCloud+'; ' }<p/>
-            {valueExtGround === valueExtGroundInitial ? '' : 'Коэффициент для дозы внешнего облучения от поверхности: '+valueExtGround+'; ' }<p/>
-            {valuePhysParamID === valuePhysParamIDInitial ? '' : 'Физический параметр (из общего списка): '+valuePhysParamID+'; ' }<p/>
-            {valueUsed === valueUsedInitial ? '' : 'Используется расчетным модулем '+valueUsed+'; ' }<p/>
-            {valueParameters === valueParametersInitial ? '' : 'Параметры функции'+valueParameters+'; ' }<p/>
-            <p/>Вы желаете сохранить указанную запись?
+            В запись таблицы {table_names[props.table_name]} с кодом <b>{valueId}</b> внесены изменения.<p></p>
+            {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p></p>
+            {valueNameRus === valueNameRusInitial ? '' : 'Название (рус. яз): '+valueNameRus+'; ' }<p></p>
+            {valueNameEng === valueNameEngInitial ? '' : 'Название (англ. яз): '+valueNameEng+'; ' }<p></p>
+            {valueDescrRus === valueDescrRusInitial ? '' : 'Комментарий (рус. яз): '+valueDescrRus+'; ' }<p></p>
+            {valueDescrEng === valueDescrEngInitial ? '' : 'Комментарий (англ. яз): '+valueDescrEng+'; ' }<p></p>
+            {valueRespRate === valueRespRateInitial ? '' : 'Скорость дыхания, куб.м/сек: '+valueRespRate+'; ' }<p></p>
+            {valueRespYear === valueRespYearInitial ? '' : 'Годовой объем вдыхаемого воздуха, куб.м: '+valueRespYear+'; ' }<p></p>
+            {valueIndoor === valueIndoorInitial ? '' : 'Доля времени, проводимая индивидуумом в помещении: '+valueIndoor+'; ' }<p></p>
+            {valueExtCloud === valueExtCloudInitial ? '' : 'Коэффициент для дозы внешнего облучения от облака: '+valueExtCloud+'; ' }<p></p>
+            {valueExtGround === valueExtGroundInitial ? '' : 'Коэффициент для дозы внешнего облучения от поверхности: '+valueExtGround+'; ' }<p></p>
+            {valuePhysParamID === valuePhysParamIDInitial ? '' : 'Физический параметр (из общего списка): '+valuePhysParamID+'; ' }<p></p>
+            {valueUsed === valueUsedInitial ? '' : 'Используется расчетным модулем '+valueUsed+'; ' }<p></p>
+            {valueParameters === valueParametersInitial ? '' : 'Параметры функции'+valueParameters+'; ' }<p></p>
+            <p></p>Вы желаете сохранить указанную запись?
         </DialogContentText>
     </DialogContent>
     <DialogActions>

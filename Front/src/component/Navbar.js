@@ -86,70 +86,56 @@ function Navbar() {
       <Toolbar>
         <Typography variant="h4" className={classes.logo}>
           IBRAE:SDA
-          
         </Typography>
        { 
           <div className={classes.navlinks}>
             <Link onClick={recordButtonPositionSubstance} className={classes.link}>
               Вещество
             </Link>
-            <Menu
-                anchorEl={anchorE5}
-                open={menuSubstance}
-                onClose={closeMenuSubstance}>
-                <MenuItem onClick={closeMenuSubstance} component={Link} to="/chelement">{table_names['chelement']}</MenuItem> 
+            <Menu anchorEl={anchorE5} open={menuSubstance} onClose={closeMenuSubstance}>
+              <MenuItem onClick={closeMenuSubstance} component={Link} to="/chelement">{table_names['chelement']}</MenuItem> 
             </Menu> 
-
             <Link onClick={recordButtonPositionDecay} className={classes.link}>
               Радиоактивный распад
             </Link>
-            <Menu
-                anchorEl={anchorEl}
-                open={menuDecay}
-                onClose={closeMenuDecay}>
-                <MenuItem onClick={closeMenuDecay} component={Link} to="/isotope">Радионуклиды</MenuItem> 
-                <Divider />
-                <MenuItem onClick={closeMenuDecay} component={Link} disabled={true} to="/">Параметры</MenuItem> 
-                <MenuItem onClick={closeMenuDecay} component={Link} disabled={true} to="/">Тип излучения</MenuItem> 
-                <MenuItem onClick={closeMenuDecay} component={Link} disabled={true} to="/">Форма распада</MenuItem> 
+            <Menu anchorEl={anchorEl} open={menuDecay} onClose={closeMenuDecay}>
+              <MenuItem onClick={closeMenuDecay} component={Link} to="/isotope">Радионуклиды</MenuItem> 
+              <Divider />
+              <MenuItem onClick={closeMenuDecay} component={Link} disabled={true} to="/">Параметры</MenuItem> 
+              <MenuItem onClick={closeMenuDecay} component={Link} disabled={true} to="/">Тип излучения</MenuItem> 
+              <MenuItem onClick={closeMenuDecay} component={Link} disabled={true} to="/">Форма распада</MenuItem> 
             </Menu>            
             <Link onClick={recordButtonPositionCoeff}  className={classes.link}>
               Дозовые коэффициенты
             </Link>            
-            <Menu
-                anchorEl={anchorE2}
-                open={menuCoeff}
-                onClose={closeMenuCoeff}>
-                <MenuItem onClick={closeMenuCoeff} component={Link} disabled={true} to="/">Внутреннее облучение</MenuItem> 
-                <MenuItem onClick={closeMenuCoeff} component={Link} disabled={true} to="/">Внешнее облучение</MenuItem> 
-                <Divider />
-                <MenuItem onClick={closeMenuCoeff} component={Link} to="/dose_ratio">{table_names['dose_ratio']}</MenuItem> 
-                <MenuItem onClick={closeMenuCoeff} component={Link} to="/irradiation">{table_names['irradiation']}</MenuItem> 
-                <MenuItem onClick={closeMenuCoeff} component={Link} to="/organ">{table_names['organ']}</MenuItem> 
-                <MenuItem onClick={closeMenuCoeff} component={Link} to="/integral_period">{table_names['integral_period']}</MenuItem> 
-                <MenuItem onClick={closeMenuCoeff} component={Link} to="/db">{table_names['subst_form']}</MenuItem> 
-                <MenuItem onClick={closeMenuCoeff} component={Link} to="/chem_comp_gr">{table_names['chem_comp_gr']}</MenuItem> 
-                <MenuItem onClick={closeMenuCoeff} component={Link} to="/people_class">{table_names['people_class']}</MenuItem>
-                <MenuItem onClick={closeMenuCoeff} component={Link} to="/aerosol_sol">{table_names['aerosol_sol']}</MenuItem> 
-                <MenuItem onClick={closeMenuCoeff} component={Link} to="/aerosol_amad">{table_names['aerosol_amad']}</MenuItem> 
-                <MenuItem onClick={closeMenuCoeff} component={Link} to="/let_level">{table_names['let_level']}</MenuItem> 
-                <MenuItem onClick={closeMenuCoeff} component={Link} to="/exp_scenario">{table_names['exp_scenario']}</MenuItem> 
-                <MenuItem onClick={closeMenuCoeff} component={Link} to="/agegroup">{table_names['agegroup']}</MenuItem> 
+            <Menu anchorEl={anchorE2} open={menuCoeff} onClose={closeMenuCoeff}>
+              <MenuItem onClick={closeMenuCoeff} component={Link} disabled={true} to="/">Внутреннее облучение</MenuItem> 
+              <MenuItem onClick={closeMenuCoeff} component={Link} disabled={true} to="/">Внешнее облучение</MenuItem> 
+              <Divider />
+              <MenuItem onClick={closeMenuCoeff} component={Link} to="/dose_ratio">{table_names['dose_ratio']}</MenuItem> 
+              <MenuItem onClick={closeMenuCoeff} component={Link} to="/irradiation">{table_names['irradiation']}</MenuItem> 
+              <MenuItem onClick={closeMenuCoeff} component={Link} to="/organ">{table_names['organ']}</MenuItem> 
+              <MenuItem onClick={closeMenuCoeff} component={Link} to="/integral_period">{table_names['integral_period']}</MenuItem> 
+              <MenuItem onClick={closeMenuCoeff} component={Link} to="/subst_form">{table_names['subst_form']}</MenuItem> 
+              <MenuItem onClick={closeMenuCoeff} component={Link} to="/chem_comp_gr">{table_names['chem_comp_gr']}</MenuItem> 
+              <MenuItem onClick={closeMenuCoeff} component={Link} to="/people_class">{table_names['people_class']}</MenuItem>
+              <MenuItem onClick={closeMenuCoeff} component={Link} to="/aerosol_sol">{table_names['aerosol_sol']}</MenuItem> 
+              <MenuItem onClick={closeMenuCoeff} component={Link} to="/aerosol_amad">{table_names['aerosol_amad']}</MenuItem> 
+              <MenuItem onClick={closeMenuCoeff} component={Link} to="/let_level">{table_names['let_level']}</MenuItem> 
+              <MenuItem onClick={closeMenuCoeff} component={Link} to="/exp_scenario">{table_names['exp_scenario']}</MenuItem> 
+              <MenuItem onClick={closeMenuCoeff} component={Link} to="/agegroup">{table_names['agegroup']}</MenuItem> 
             </Menu>
             <Link onClick={recordButtonPositionNorm} className={classes.link}>
               Нормы и критерии
             </Link>
-            <Menu 
-             anchorEl={anchorE3}
-             open={menuNorm}
-             onClose={closeMenuNorm}>
-            <MenuItem onClick={closeMenuNorm} component={Link} disabled={true} to="/">Нормы и критерии</MenuItem> 
-            <MenuItem onClick={closeMenuNorm} component={Link} to="/calcfunction">Функции</MenuItem> 
-            <MenuItem onClick={closeMenuNorm} component={Link} to="/criterion_gr">Группы критериев</MenuItem> 
-            <MenuItem onClick={closeMenuNorm} component={Link} to="/action">Действия</MenuItem>
-            <MenuItem onClick={closeMenuNorm} component={Link} to="/action_level">Уровни вмешательства</MenuItem> 
+            <Menu anchorEl={anchorE3} open={menuNorm} onClose={closeMenuNorm}>
+              <MenuItem onClick={closeMenuNorm} component={Link} to="/criterion">Критерии</MenuItem>
+              <Divider /> 
+              <MenuItem onClick={closeMenuNorm} component={Link} to="/calcfunction">Функции</MenuItem> 
+              <MenuItem onClick={closeMenuNorm} component={Link} to="/criterion_gr">Группы критериев</MenuItem> 
+              <MenuItem onClick={closeMenuNorm} component={Link} to="/action">Действия</MenuItem>
+              <MenuItem onClick={closeMenuNorm} component={Link} to="/action_level">Уровни вмешательства</MenuItem> 
             </Menu>
-
             <Link to="/data_source" className={classes.link}>
               Источники данных
             </Link>
@@ -157,7 +143,6 @@ function Navbar() {
               Целевые БД
             </Link>
           </div>
-        //)
         }
       </Toolbar>
     </AppBar>

@@ -457,7 +457,7 @@ const DataTableIsotope = (props) => {
   }
 
   ///////////////////////////////////////////////////////////////////  Tree load functions and hook  /////////////////////
-  const [treeFilterString, setTreeFilterString] = React.useState('');
+  //const [treeFilterString, setTreeFilterString] = React.useState('');
 
   useEffect(() => {
  /*    function filterTree( tree1, filterS )
@@ -528,11 +528,14 @@ const DataTableIsotope = (props) => {
 
 
   useEffect(() => {
+    if (!valueId)
+      return;
+
     console.log( `/isotope_tree/`+valueId );
-    fetch(`/isotope_tree/`+valueId) 
+    fetch(`/isotope_tree/`+valueId||0) 
       .then((data) => data.json())
       .then((data) => setTableData1(data))
-      .then((data) => { setTreeFilterString(''); console.log( `fetched /isotope_tree/`+valueId); //lastId = data[0].id||0; clickAfterReload = true; console.log( 'setSelected ');  //console.log( tableData[0].id||0 ); 
+      .then((data) => { console.log( `fetched /isotope_tree/`+valueId); //lastId = data[0].id||0; clickAfterReload = true; console.log( 'setSelected ');  //console.log( tableData[0].id||0 ); 
           } );   
   }, [valueId]);
 
@@ -568,7 +571,7 @@ const DataTableIsotope = (props) => {
   };
  */
   function probDisplay(prob) {
-    if ((prob==0)||(prob==1))
+    if ((parseInt(prob)===0)||(parseInt(prob)===1))
       return('')
     else
       return(<div><small>P={prob}</small><br></br></div>);
@@ -594,7 +597,7 @@ const DataTableIsotope = (props) => {
           //nodeId={treeItemData.id?treeItemData.id.toString():0}
           //label={treeItemData.title}
           label={<StyledNode>
-            {probDisplay(treeItemData.decay_prob)}{treeItemData.title} {treeItemData.id} {timeDisplay(treeItemData.half_life_value,treeItemData.half_life_period)}</StyledNode>}
+            {probDisplay(treeItemData.decay_prob)}{treeItemData.title} {/* {treeItemData.id} */} {timeDisplay(treeItemData.half_life_value,treeItemData.half_life_period)}</StyledNode>}
           children={children}
         />
       );
@@ -603,7 +606,7 @@ const DataTableIsotope = (props) => {
 /*   const DataTreeView = ({ treeItems }) => {
     return (
       <div>
-      <p/>
+      <p></p>
       <TreeView
         aria-label="Tree navigator"
         defaultCollapseIcon={<ExpandMoreIcon />}
@@ -680,14 +683,14 @@ const DataTableIsotope = (props) => {
       <TextField  id="ch_name" sx={{ width: '40ch' }} label="Обозначение" size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
       &nbsp;&nbsp;&nbsp;
       Радиоизотоп - сюда добавить выбор из списка Nuclide (из БД)
-      <p/>
+      <p></p>
       <TextField  id="ch_n_index" sx={{ width: '40ch' }}  size="small" label="Индекс"  variant="outlined"  value={valueNIndex || ''} onChange={e => setValueNIndex(e.target.value)} />
       &nbsp;&nbsp;&nbsp;
       <TextField  id="ch_half_life_value" sx={{ width: '40ch' }} size="small" label="Период полураспада"  variant="outlined" value={valueHalfLifeValue || ''} onChange={e => setValueHalfLifeValue(e.target.value)}/>
-      <p/>
+      <p></p>
       Ед. изм: 4Заменить на список из (n, m, d, y, s, us, ms, h) 
       <TextField  id="ch_half_life_period" sx={{ width: '40ch' }} label="Ед. изм."  size="small" multiline maxRows={4} variant="outlined" value={valueHalfLifePeriod || ''} onChange={e => setValueHalfLifePeriod(e.target.value)}/>
-      <p/>
+      <p></p>
       <TextField  id="ch_decayconst" sx={{ width: '100ch' }} label="Постоянная распада, 1/сек"  size="small" multiline maxRows={4} variant="outlined" value={valueDecayConst || ''} onChange={e => setValueDecayConst(e.target.value)}/>
 
 
@@ -726,7 +729,7 @@ const DataTableIsotope = (props) => {
       </DialogTitle>
       <DialogContent>
           <DialogContentText>
-          В таблице "{table_names[props.table_name]}" предложена к удалению следующая запись:<p/><b>{valueTitle}</b>; Код в БД = <b>{valueId}</b><p/>
+          В таблице "{table_names[props.table_name]}" предложена к удалению следующая запись:<p></p><b>{valueTitle}</b>; Код в БД = <b>{valueId}</b><p></p>
           Вы желаете удалить указанную запись?
           </DialogContentText>
       </DialogContent>
@@ -742,13 +745,13 @@ const DataTableIsotope = (props) => {
     </DialogTitle>
     <DialogContent>
         <DialogContentText>
-            В запись таблицы {table_names[props.table_name]} с кодом <b>{valueId}</b> внесены изменения.<p/>
-            {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p/>
-            {valueNIndex === valueNameRusInitial ? '' : 'Название (рус. яз): '+valueNIndex+'; ' }<p/>
-            {valueHalfLifeValue === valueHalfLifeValueInitial ? '' : 'Название (англ. яз): '+valueHalfLifeValue+'; ' }<p/>
-            {valueDecayConst === valueDecayConstInitial ? '' : 'Комментарий (рус. яз): '+valueDecayConst+'; ' }<p/>
-            {valueHalfLifePeriod === valueHalfLifePeriodInitial ? '' : 'Комментарий (англ. яз): '+valueHalfLifePeriod+'; ' }<p/>
-            <p/>Вы желаете сохранить указанную запись?
+            В запись таблицы {table_names[props.table_name]} с кодом <b>{valueId}</b> внесены изменения.<p></p>
+            {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p></p>
+            {valueNIndex === valueNameRusInitial ? '' : 'Название (рус. яз): '+valueNIndex+'; ' }<p></p>
+            {valueHalfLifeValue === valueHalfLifeValueInitial ? '' : 'Название (англ. яз): '+valueHalfLifeValue+'; ' }<p></p>
+            {valueDecayConst === valueDecayConstInitial ? '' : 'Комментарий (рус. яз): '+valueDecayConst+'; ' }<p></p>
+            {valueHalfLifePeriod === valueHalfLifePeriodInitial ? '' : 'Комментарий (англ. яз): '+valueHalfLifePeriod+'; ' }<p></p>
+            <p></p>Вы желаете сохранить указанную запись?
         </DialogContentText>
     </DialogContent>
     <DialogActions>
@@ -763,13 +766,13 @@ const DataTableIsotope = (props) => {
     </DialogTitle>
     <DialogContent>
         <DialogContentText>
-            В запись таблицы {table_names[props.table_name]} с кодом <b>{valueId}</b> внесены изменения.<p/>
-            {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p/>
-            {valueNIndex === valueNameRusInitial ? '' : 'Название (рус. яз): '+valueNIndex+'; ' }<p/>
-            {valueHalfLifeValue === valueHalfLifeValueInitial ? '' : 'Название (англ. яз): '+valueHalfLifeValue+'; ' }<p/>
-            {valueDecayConst === valueDecayConstInitial ? '' : 'Комментарий (рус. яз): '+valueDecayConst+'; ' }<p/>
-            {valueHalfLifePeriod === valueHalfLifePeriodInitial ? '' : 'Комментарий (англ. яз): '+valueHalfLifePeriod+'; ' }<p/>
-            <p/>Вы желаете сохранить указанную запись?
+            В запись таблицы {table_names[props.table_name]} с кодом <b>{valueId}</b> внесены изменения.<p></p>
+            {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p></p>
+            {valueNIndex === valueNameRusInitial ? '' : 'Название (рус. яз): '+valueNIndex+'; ' }<p></p>
+            {valueHalfLifeValue === valueHalfLifeValueInitial ? '' : 'Название (англ. яз): '+valueHalfLifeValue+'; ' }<p></p>
+            {valueDecayConst === valueDecayConstInitial ? '' : 'Комментарий (рус. яз): '+valueDecayConst+'; ' }<p></p>
+            {valueHalfLifePeriod === valueHalfLifePeriodInitial ? '' : 'Комментарий (англ. яз): '+valueHalfLifePeriod+'; ' }<p></p>
+            <p></p>Вы желаете сохранить указанную запись?
         </DialogContentText>
     </DialogContent>
     <DialogActions>

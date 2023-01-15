@@ -520,13 +520,13 @@ const DataTableChelement = (props) => {
       <TextField  id="ch_id"  disabled={true} label="Код" sx={{ width: '12ch' }} variant="outlined" value={valueId || ''} size="small"  onChange={e => setValueID(e.target.value)}/>
       &nbsp;&nbsp;&nbsp;
       <TextField  id="ch_name" sx={{ width: '40ch' }} label="Обозначение" size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
-      <p/>
+      <p></p>
       <TextField  id="ch_atomic_num" sx={{ width: '40ch' }} label="Атомный номер" size="small" variant="outlined" value={valueAtomicNum || ''} onChange={e => setValueAtomicNum(e.target.value)}/>
-      <p/>
+      <p></p>
       <TextField  id="ch_name_rus" sx={{ width: '40ch' }}  size="small" label="Название (рус.яз)"  variant="outlined"  value={valueNameRus || ''} onChange={e => setValueNameRus(e.target.value)} />
       &nbsp;&nbsp;&nbsp;
       <TextField  id="ch_name_eng" sx={{ width: '40ch' }} size="small" label="Название (англ.яз)"  variant="outlined" value={valueNameEng || ''} onChange={e => setValueNameEng(e.target.value)}/>
-      <p/>
+      <p></p>
       <DataGrid
         sx={{ height: 200 }}
         hideFooterSelectedRowCount={true}
@@ -550,7 +550,7 @@ const DataTableChelement = (props) => {
           },
         }}        
       />
-      <p/>
+      <p></p>
       <DataGrid
         sx={{ height: 200 }}
         hideFooterSelectedRowCount={true}
@@ -579,7 +579,7 @@ const DataTableChelement = (props) => {
       </DialogTitle>
       <DialogContent>
           <DialogContentText>
-          В таблице "{table_names[props.table_name]}" предложена к удалению следующая запись:<p/><b>{valueTitle}</b>; Код в БД = <b>{valueId}</b><p/>
+          В таблице "{table_names[props.table_name]}" предложена к удалению следующая запись:<p></p><b>{valueTitle}</b>; Код в БД = <b>{valueId}</b><p></p>
           Вы желаете удалить указанную запись?
           </DialogContentText>
       </DialogContent>
@@ -595,12 +595,12 @@ const DataTableChelement = (props) => {
     </DialogTitle>
     <DialogContent>
         <DialogContentText>
-            В запись таблицы {table_names[props.table_name]} с кодом <b>{valueId}</b> внесены изменения.<p/>
-            {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p/>
-            {valueAtomicNum === valueAtomicNumInitial ? '' : 'Атомный номер: '+valueAtomicNum+'; ' }<p/>
-            {valueNameRus === valueNameRusInitial ? '' : 'Название (рус. яз): '+valueNameRus+'; ' }<p/>
-            {valueNameEng === valueNameEngInitial ? '' : 'Название (англ. яз): '+valueNameEng+'; ' }<p/>
-            <p/>Вы желаете сохранить указанную запись?
+            В запись таблицы {table_names[props.table_name]} с кодом <b>{valueId}</b> внесены изменения.<p></p>
+            {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p></p>
+            {valueAtomicNum === valueAtomicNumInitial ? '' : 'Атомный номер: '+valueAtomicNum+'; ' }<p></p>
+            {valueNameRus === valueNameRusInitial ? '' : 'Название (рус. яз): '+valueNameRus+'; ' }<p></p>
+            {valueNameEng === valueNameEngInitial ? '' : 'Название (англ. яз): '+valueNameEng+'; ' }<p></p>
+            <p></p>Вы желаете сохранить указанную запись?
         </DialogContentText>
     </DialogContent>
     <DialogActions>
@@ -615,12 +615,12 @@ const DataTableChelement = (props) => {
     </DialogTitle>
     <DialogContent>
         <DialogContentText>
-            В запись таблицы {table_names[props.table_name]} с кодом <b>{valueId}</b> внесены изменения.<p/>
-            {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p/>
-            {valueAtomicNum === valueAtomicNumInitial ? '' : 'Атомный номер: '+valueAtomicNum+'; ' }<p/>
-            {valueNameRus === valueNameRusInitial ? '' : 'Название (рус. яз): '+valueNameRus+'; ' }<p/>
-            {valueNameEng === valueNameEngInitial ? '' : 'Название (англ. яз): '+valueNameEng+'; ' }<p/>
-            <p/>Вы желаете сохранить указанную запись?
+            В запись таблицы {table_names[props.table_name]} с кодом <b>{valueId}</b> внесены изменения.<p></p>
+            {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p></p>
+            {valueAtomicNum === valueAtomicNumInitial ? '' : 'Атомный номер: '+valueAtomicNum+'; ' }<p></p>
+            {valueNameRus === valueNameRusInitial ? '' : 'Название (рус. яз): '+valueNameRus+'; ' }<p></p>
+            {valueNameEng === valueNameEngInitial ? '' : 'Название (англ. яз): '+valueNameEng+'; ' }<p></p>
+            <p></p>Вы желаете сохранить указанную запись?
         </DialogContentText>
     </DialogContent>
     <DialogActions>

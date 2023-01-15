@@ -193,7 +193,7 @@ app.get('/phchform_chelem', (req, res) => {pcm_q.getPhchFormChelem(req, res, 'ph
 //GENERIC QUERIES on ACTION 
 
 //GENERIC QUERIES on chem_comp_gr 
-app.get('/isotope', (req, res) => {i_q.getIsotope(req, res, 'isotope')});            //list all
+app.get('/isotope', (req, res) => {i_q.getIsotope(req, res, 'isotope')});                         //list all
 app.get('/isotope_tree/:id', (req, res) => {i_q.getIsotopeTree(req, res, 'isotope')});            //list recursive decay tree
 app.get('/isotope_min', function(req, resp){
   pool.query('SELECT id, title FROM nucl.isotope order by title', (error, res) => {
@@ -205,9 +205,9 @@ app.get('/isotope_min', function(req, resp){
    });
 });
 /* app.get('/isotope/:id', (req, res) => {gn_q.getIsotopeById(req, res, 'isotope')});   //list 1
-app.post('/isotope', (req, res) => {gn_q.createIsotope(req, res, 'isotope')});       //create
-app.put('/isotope/:id', (req, res) => {gn_q.updateIsotope(req, res, 'isotope')});    //update
-app.delete('/isotope/:id', (req, res) => {gn_q.deleteIsotope(req, res, 'isotope')}); //delete */
+app.post('/isotope', (req, res) => {gn_q.createIsotope(req, res, 'isotope')});          //create
+app.put('/isotope/:id', (req, res) => {gn_q.updateIsotope(req, res, 'isotope')});       //update
+app.delete('/isotope/:id', (req, res) => {gn_q.deleteIsotope(req, res, 'isotope')});    //delete */
 
 app.get('/criterion', function(req, resp){
       pool.query('SELECT * FROM nucl.criterion', (error, res) => {
