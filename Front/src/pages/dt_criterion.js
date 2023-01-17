@@ -58,6 +58,7 @@ const DataTableCriterion= (props) => {
   const [valueNormativInitial, setValueNormativInitial] = React.useState();
   const [isLoading, setIsLoading] = React.useState("false");
   const [tableData, setTableData] = useState([]); 
+  const [tableDataPlus, setTableDataPlus] = useState([]); //для списка - с нулл-значением для выбора "Не задано". Значение id= 0?
   const [tableNormativ, setNormativ] = useState([]); 
   const [treeData, setTreeData] = useState([]); 
   const [editStarted, setEditStarted] = useState([false]);
@@ -124,6 +125,8 @@ const DataTableCriterion= (props) => {
           if (lastId!==0)
             updateCurrentRec(lastId); 
       }
+
+      setTableDataPlus(addNondefValue(tableData));
     }, [ tableData] );
 
     const getTreeItemsFromData = treeItems => {
@@ -216,8 +219,20 @@ const DataTableCriterion= (props) => {
         return item.id === res[0].parent_id;
       });
       //console.log('res2 ' + res2[0].parent_id);
-      //console.log(res2);
+      console.log(res2[0]);
       setValueAC(res2[0]);
+/* 
+      setValueAC({
+        "id": 32178,
+        "title": "rrr",
+        "normativ_id": 1,
+        "parent_id": 30377,
+        "name_rus": "wqer",
+        "name_eng": "wqer",
+        "descr_rus": "wqer",
+        "descr_eng": "wqer",
+        "children": []
+      }); */
     }   
   }; 
 
@@ -239,11 +254,58 @@ const DataTableCriterion= (props) => {
     }
   }; 
 
+  function addNondefValue( arr ) {
+    //arr.push( {
+    //  "id": -1,
+   //   "title": "Не задан"});]
+
+   if (!arr) 
+     return;
+   if (arr.length===0)
+     return;
+     //var newarr = arr[0];
+     //newarr.concat(arr);
+     var array1 = [{
+      "id": -1,
+      "title": "Не задан",
+      "normativ_id": 1,
+      "parent_id": 30377,
+      "name_rus": "Уровни облучения для срочного вмешательства",
+      "name_eng": "Radiation levels for emergency response actions",
+      "descr_rus": "Прогнозируемые уровни облучения, при которых необходимо срочное вмешательство",
+      "descr_eng": null,
+      "children": []
+  }];
+     console.log(array1);
+     //array1[0].id=-1;
+     //array1[0].label='Не задан';
+     const array2 = array1.concat(arr);
+    //newarr.splice(0, 1);
+/*     newarr.push( arr[0] );  
+    newarr.push( arr[0] );  
+    newarr.push( arr[0] );  */ 
+    return(array2);
+
+  }
+  
+ 
   useEffect(() => {
     fetch(`/${props.table_name}`)
       .then((data) => data.json())
+/*       .then((data) => {data.push( {
+        "id": -1,
+        "title": "Не задано",
+        "normativ_id": 0,
+        "parent_id": 0,
+        "name_rus": "",
+        "name_eng": "",
+        "descr_rus": "",
+        "descr_eng": "",
+        "children": []
+    })}) */
       .then((data) => setTableData(data))
-      .then((data) => {  //lastId = data[0].id||0; clickAfterReload = true; console.log( 'setSelected ');  //console.log( tableData[0].id||0 ); 
+     // .then((data) => setTableDataPlus(data))
+      .then((data) => { console.log(data); //lastId = data[0].id||0; clickAfterReload = true; console.log( 'setSelected ');  //console.log( tableData[0].id||0 ); 
           } ); 
   }, [props.table_name])
 
@@ -719,7 +781,7 @@ const DataTableCriterion= (props) => {
       expandedNew=[];  */
   };
 
-  const [valueAC, setValueAC] = React.useState(tableData[0]);
+  const [valueAC, setValueAC] = React.useState(tableData[0]);/* tableData[0]) */
 
   return (
     <div style={{ height: 650, width: 1500 }}>
@@ -787,19 +849,22 @@ const DataTableCriterion= (props) => {
         size="small"
         disablePortal
         id="combo-box-demo"
-        value={ valueAC || ""}
+        value={ valueAC|| {
+          "id": -1,
+          "title": "Не задан"} }
+        isOptionEqualToValue={(option, value) => (option.id === value.id)||((!value.id)&&(!option.id)) }
         //isOptionEqualToValue={(option, value) => value.id  === option.id }
         onChange={(event, newValueAC) => { console.log(newValueAC?newValueAC.id:-1); setValueAC(newValueAC);  setValueParentID(newValueAC?newValueAC.id:-1) } }
 
         //value={valueParentID || "" } 
-        options={tableData}
+        options={tableDataPlus}
         sx={{ width: 300 }}
-        getOptionLabel={option => option?option.title:"Не задан"}
+        getOptionLabel={option => option?option.title:""}
         renderInput={(params) => <TextField {...params} label="Родительский класс" />}
       />      
       <p></p>
 
-      <FormControl sx={{ width: '30ch' }} size="small">
+{/*       <FormControl sx={{ width: '30ch' }} size="small">
         <InputLabel id="ch_parent_id">Родительский класс</InputLabel>
           <Select labelId="ch_parent_id" id="ch_parent_id1" label="Родительский класс" value={valueParentID  || "" } onChange={e => setValueParentID(e.target.value)} >
           <MenuItem key={-1} value={-1}>
@@ -813,7 +878,7 @@ const DataTableCriterion= (props) => {
                   );
                 })}
         </Select>
-      </FormControl>  
+      </FormControl>   */}
 
       <p></p> 
       <div>

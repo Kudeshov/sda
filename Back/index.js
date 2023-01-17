@@ -204,6 +204,12 @@ app.get('/isotope_min', function(req, resp){
    resp.json(res.rows);
    });
 });
+app.put('/isotope/:id', (req, res) => {i_q.updateIsotope(req, res, 'isotope')});          //update
+app.delete('/isotope/:id', (req, res) => {i_q.deleteIsotope(req, res, 'isotope')});   //delete
+app.post('/isotope', (req, res) => {i_q.createIsotope(req, res, 'isotope')});       //create
+app.get('/isotope_nodes/:id', (req, res) => {i_q.getIsotopeNodes(req, res, 'isotope')});  
+app.get('/isotope_edges/:id', (req, res) => {i_q.getIsotopeEdges(req, res, 'isotope')});  
+
 /* app.get('/isotope/:id', (req, res) => {gn_q.getIsotopeById(req, res, 'isotope')});   //list 1
 app.post('/isotope', (req, res) => {gn_q.createIsotope(req, res, 'isotope')});          //create
 app.put('/isotope/:id', (req, res) => {gn_q.updateIsotope(req, res, 'isotope')});       //update
@@ -221,31 +227,17 @@ app.get('/criterion', function(req, resp){
 
 //QUERIES on nuclide 
 app.get('/nuclide/:id', (req, res) => {nuc_q.getNuclideByChelement(req, res, 'nuclide')});    //select by chelement_id
+app.post('/nuclide', (req, res) => {nuc_q.createNuclide(req, res, 'nuclide')});          //create
+app.delete('/nuclide/:id', (req, res) => {nuc_q.deleteNuclide(req, res, 'nuclide')});   //delete
+app.put('/nuclide/:id', (req, res) => {nuc_q.updateNuclide(req, res, 'nuclide')});          //update
 
 //QUERIES on isotope_decay 
 app.get('/isotope_decay/:id', (req, res) => {id_q.getIsotopeDecayByIsotope(req, res, 'isotope_decay')});    //select by isotope_id
 app.post('/isotope_decay', (req, res) => {id_q.createIsotopeDecay(req, res, 'isotope_decay')});       //create
 app.put('/isotope_decay/:id', (req, res) => {id_q.updateIsotopeDecay(req, res, 'isotope_decay')}); //update
 app.delete('/isotope_decay/:id', (req, res) => {id_q.deleteIsotopeDecay(req, res, 'isotope_decay')});  //delete 
-/* 
-app.get('/isotope_tree/:id', function(req, resp){
-  const id = parseInt(req.params.id);
-  pool.query(
-    'WITH RECURSIVE subordinates AS ( '+
-    'select i_d.id aa, i_d.parent_id id, null parent_id, i_d.decay_prob, i.title, NULL children from nucl.isotope_decay i_d join nucl.isotope i on i.id = i_d.parent_id where i_d.parent_id = $1 '+
-    'union '+ 
-    'select i_d.id aa, i_d.child_id id, i_d.parent_id, i_d.decay_prob, i.title, NULL children from nucl.isotope_decay i_d join nucl.isotope i on i.id = i_d.child_id where i_d.parent_id = $1 '+
-    'union '+ 
-    'select i_d_r.id aa, i_d_r.child_id id, i_d_r.parent_id, i_d_r.decay_prob, i1.title, NULL children from nucl.isotope_decay i_d_r join nucl.isotope i1 on i1.id = i_d_r.child_id '+  
-    'inner join subordinates s on s.id  = i_d_r.parent_id) '+ 
-    'select * from subordinates ', [id], (error, res) => {
-    if(error) {
-       return console.error('error running query', error);
-    }
-   //console.log(res.rows);
-   resp.json(res.rows);
-   });
-}); */
+
+app.get('/nuclide', (req, res) => {nuc_q.getNuclide(req, res, 'nuclide')});   
 
 var allowCrossDomain = function(req, res, next) {
     res.header('Access-Control-Allow-Origin', "*");

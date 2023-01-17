@@ -24,6 +24,9 @@ import { ReactComponent as UndoLightIcon } from "./../icons/undo.svg";
 import { ReactComponent as DownloadLightIcon } from "./../icons/download.svg";
 import { ReactComponent as TrashLightIcon } from "./../icons/trash.svg";
 import { ReactComponent as RepeatLightIcon } from "./../icons/repeat.svg";
+import CircularProgress from '@material-ui/core/CircularProgress';
+import { ReactComponent as EditLightIcon } from "./../icons/edit.svg";
+//import { ReactComponent as InfoLightIcon } from "./../icons/info.svg";
 import { table_names } from './sda_types';
 
 var alertText = "Сообщение";
@@ -47,6 +50,9 @@ const DataTableChelement = (props) => {
   const [selectionModel, setSelectionModel] = React.useState([]);
   const [editStarted, setEditStarted] = useState([false]);
   const [tableNuclide, setTableNuclide] = useState([]); 
+  const [valueMassNumber, setValueMassNumber] = React.useState();
+
+  const [valueNuclideId, setValueNuclideID] = React.useState();
 
   useEffect(() => {
     setEditStarted((valueTitleInitial!==valueTitle)||(valueNameRusInitial!==valueNameRus)||(valueNameEngInitial!==valueNameEng)
@@ -90,6 +96,11 @@ const DataTableChelement = (props) => {
       setValueNameEngInitial(`${params.row.name_eng}`);
       setValueAtomicNumInitial(`${params.row.atomic_num}`);
     }
+  }; 
+
+  const handleRowNuclideClick = (params) => {
+    setValueNuclideID(params.row.id);
+    setValueMassNumber(params.row.mass_number);
   }; 
 
   const handleClearClick = (params) => {
@@ -461,6 +472,211 @@ const DataTableChelement = (props) => {
       </GridToolbarContainer>
     );
   }
+  /////////////////////////////////////////////////////////////////////////////////////////////Delete
+
+  const delNuclide =  async () => {
+    console.log('delNuclide clicked');
+     const js = JSON.stringify({
+       id: valueNuclideId,
+    });  
+    setIsLoading(true);
+    console.log('del nuclide');
+    console.log(valueNuclideId);
+    try {
+      const response = await fetch(`/nuclide/`+valueNuclideId, {
+        method: 'DELETE',
+        body: js,
+        headers: {
+          'Content-Type': 'Application/json',
+          Accept: '*/*',
+        },
+      });
+      if (!response.ok) {
+        
+        alertSeverity = 'error';
+        alertText = await response.text();
+        console.log(response.text());
+        setOpenAlert(true);          
+      }
+      else
+      {
+        alertSeverity = "success";
+        alertText = await response.text();
+        console.log(alertText);
+        setOpenAlert(true);  
+      }
+    } catch (err) {
+    } finally {
+      setIsLoading(false);
+      reloadNuclide();
+    }
+  };  
+///////////////////////////////////////////////////////////////////////////////////////////////Nuclide
+  const reloadNuclide = async () => {
+    setIsLoading(true);
+    try {
+
+      if (!valueId) 
+      return;
+
+      const response = await fetch(`/nuclide/`+valueId);
+
+      if (!response.ok) {
+        alertText =  'Ошибка при обновлении нуклидов';
+        alertSeverity = "false";
+        setOpenAlert(true);  
+        throw new Error(`Error! status: ${response.status}`);
+      }  
+      const result = await response.json();
+      setTableNuclide(result);
+    } catch (err) {
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const addNuclide = async ()  => {
+    const js = JSON.stringify({
+      chelement_id: valueId,
+      mass_number: valueMassNumber,
+    });
+    setIsLoading(true);
+    try {
+      const response = await fetch('/nuclide/', {
+        method: 'POST',
+        body: js,
+        headers: {
+          'Content-Type': 'Application/json',
+          Accept: '*/*',
+        },
+      });
+      if (!response.ok) {
+        alertSeverity = 'error';
+        alertText = await response.text();
+        setOpenAlert(true);          
+      }
+      else
+      {
+        alertSeverity = "success";
+        alertText =  await response.text();
+        //lastAddedId = parseInt( alertText.substr(alertText.lastIndexOf('ID:') + 3, 20)); 
+        //setValueID(lastAddedId);
+        setOpenAlert(true);  
+      }
+    } catch (err) {
+      alertText = err.message;
+      alertSeverity = 'error';
+      setOpenAlert(true);
+    } finally {
+      setIsLoading(false);
+      reloadNuclide(); 
+    }
+  };
+
+
+
+  const saveNuclide = async ()  => {
+    const js = JSON.stringify({
+      nuclide_id: valueNuclideId,
+      mass_number: valueMassNumber,
+    });
+    setIsLoading(true);
+    try {
+      const response = await fetch('/nuclide/' + valueNuclideId, {
+        method: 'PUT',
+        body: js,
+        headers: {
+          'Content-Type': 'Application/json',
+          Accept: '*/*',
+        },
+      });
+      if (!response.ok) {
+        alertSeverity = 'error';
+        alertText = await response.text();
+        setOpenAlert(true);          
+      }
+      else
+      {
+        alertSeverity = "success";
+        alertText =  await response.text();
+        //lastAddedId = parseInt( alertText.substr(alertText.lastIndexOf('ID:') + 3, 20)); 
+        //setValueID(lastAddedId);
+        setOpenAlert(true);  
+      }
+    } catch (err) {
+      alertText = err.message;
+      alertSeverity = 'error';
+      setOpenAlert(true);
+    } finally {
+      setIsLoading(false);
+      reloadNuclide(); 
+    }
+  };
+
+
+  const [openNuclide, setOpenNuclide] = React.useState(false);
+  const [openDelNuclide, setOpenDelNuclide] = React.useState(false);
+
+
+  //function DataTableChelement(props)  {
+  //  const [open, setOpen] = React.useState(false);
+  
+ /*    const handleClickAddNuclide = () => {
+      setValueID(null);
+      setValueDataSourceId(null);
+      setValueRecID(props.rec_id);
+      setValueTableName(props.table_name);
+      setValueTitleSrc("");
+      setValueNameSrc("");
+      setOpen(true);
+    };
+   
+    const handleCloseYes = () => {
+      setOpen(false);
+      saveRec();
+    };
+  
+    const handleCloseNo = () => {
+      setOpen(false);
+    }; */
+  
+ 
+  const handleClickEditNuclide = () => {
+      setOpenNuclide(true); 
+  };
+
+
+  const handleClickAddNuclide = () => {
+    setValueNuclideID(null);
+    setValueMassNumber(null);
+    setOpenNuclide(true); 
+  };
+
+  const handleCloseNuclideYes = () => {
+    setOpenNuclide(false);
+
+    if (!valueNuclideId)
+      addNuclide()
+    else
+      saveNuclide();
+  };
+
+  const handleCloseNuclideNo = () => {
+    setOpenNuclide(false);
+  };
+
+  const handleClickDelNuclide = () => {
+    setOpenDelNuclide(true); 
+  };
+
+  const handleCloseDelNuclideYes = () => {
+    setOpenDelNuclide(false);
+    delNuclide();
+  };
+
+  const handleCloseDelNuclideNo = () => {
+    setOpenDelNuclide(false);
+  };
 
   return (
     <div style={{ height: 640, width: 1500 }}>
@@ -528,7 +744,8 @@ const DataTableChelement = (props) => {
       <TextField  id="ch_name_eng" sx={{ width: '40ch' }} size="small" label="Название (англ.яз)"  variant="outlined" value={valueNameEng || ''} onChange={e => setValueNameEng(e.target.value)}/>
       <p></p>
       <DataGrid
-        sx={{ height: 200 }}
+        style={{ height: 270, width: 800, verticalAlign: 'top' }}
+        //sx={{ height: 200 }}
         hideFooterSelectedRowCount={true}
         localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
         rowHeight={25}
@@ -548,16 +765,23 @@ const DataTableChelement = (props) => {
               chelement_atomic_num: false,
             },
           },
-        }}        
+
+        }}    
       />
+
       <p></p>
-      <DataGrid
-        sx={{ height: 200 }}
+
+
+      <table cellSpacing={0} cellPadding={0} style={{ height: 270, width: 886, verticalAlign: 'top' }} border="0"><tbody><tr>
+        <td style={{ height: 270, width: 800, verticalAlign: 'top' }}>
+        <DataGrid
+        style={{ height: 270, width: 800, verticalAlign: 'top' }}
         hideFooterSelectedRowCount={true}
         localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
         rowHeight={25}
         rows={tableNuclide}
         loading={isLoading}
+        
         columns={columnsNuclide}
         initialState={{
           columns: {
@@ -566,8 +790,57 @@ const DataTableChelement = (props) => {
               chelement_id: false,
             },
           },
-        }}        
+ 
+        }}   
+        onRowClick={handleRowNuclideClick} {...tableData}     
       />
+      </td>
+      <td style={{ height: 270, width: 100, verticalAlign: 'top' }}>
+       &nbsp;<IconButton onClick={()=>handleClickAddNuclide()}  disabled={false} color="primary" size="small" title="Добавить нуклид">
+        <SvgIcon fontSize="small" component={PlusLightIcon} inheritViewBox /></IconButton><br/>
+       &nbsp;<IconButton onClick={()=>handleClickDelNuclide()} disabled={false} color="primary" size="small" title="Удалить нуклид">
+        <SvgIcon fontSize="small" component={TrashLightIcon} inheritViewBox /></IconButton><br/>
+     &nbsp;<IconButton onClick={()=>handleClickEditNuclide()} disabled={false} color="primary" size="small" title="Редактировать нуклид">
+        <SvgIcon fontSize="small" component={EditLightIcon} inheritViewBox /></IconButton><br/>
+      {/* 
+      &nbsp;<IconButton onClick={()=>handleOpenDSInfo()} disabled={noRecords} color="primary" size="small" title="Информация по источнику данныъ">
+        <SvgIcon fontSize="small" component={InfoLightIcon} inheritViewBox /></IconButton> */}
+      </td></tr>
+      <tr>
+        <td>
+        <Box sx={{ width: '100%' }}>
+        <Collapse in={openAlert}>
+          <Alert
+            severity={alertSeverity}
+            action={
+              <IconButton
+                aria-label="close"
+                color="inherit"
+                size="small"
+                onClick={() => {
+                  setOpenAlert(false);
+                }}
+              >
+                <CloseIcon fontSize="inherit" />
+              </IconButton>
+            }
+            sx={{ mb: 2 }}
+          >
+            {alertText}
+          </Alert>
+        </Collapse>
+        <div style={{
+        marginLeft: '40%',
+        }}>
+        {isLoading && <CircularProgress/>} 
+        {/*       {!isLoading && <h3>Successfully API Loaded Data</h3>} */}
+        </div>
+      </Box>
+        </td>
+      </tr>
+      </tbody>
+      </table>
+
     </td>
   </tr>
   </tbody>
@@ -595,6 +868,7 @@ const DataTableChelement = (props) => {
     </DialogTitle>
     <DialogContent>
         <DialogContentText>
+
             В запись таблицы {table_names[props.table_name]} с кодом <b>{valueId}</b> внесены изменения.<p></p>
             {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p></p>
             {valueAtomicNum === valueAtomicNumInitial ? '' : 'Атомный номер: '+valueAtomicNum+'; ' }<p></p>
@@ -615,6 +889,7 @@ const DataTableChelement = (props) => {
     </DialogTitle>
     <DialogContent>
         <DialogContentText>
+
             В запись таблицы {table_names[props.table_name]} с кодом <b>{valueId}</b> внесены изменения.<p></p>
             {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p></p>
             {valueAtomicNum === valueAtomicNumInitial ? '' : 'Атомный номер: '+valueAtomicNum+'; ' }<p></p>
@@ -628,6 +903,45 @@ const DataTableChelement = (props) => {
         <Button variant="outlined" onClick={handleCloseSaveWhenNewYes} >Да</Button>
     </DialogActions>
   </Dialog>
+
+  <Dialog open={openNuclide} onClose={handleCloseNuclideNo} fullWidth={false} maxWidth="800px">
+      <DialogTitle>Нуклид</DialogTitle>  
+        <DialogContent>
+          <DialogContentText>
+            Ввести нуклид
+          </DialogContentText>
+          <p></p>        
+          <TextField
+            variant="outlined"
+            margin="dense"
+            id="title"
+            label="Атомное число"
+            value={valueMassNumber}
+            fullWidth
+            onChange={e => setValueMassNumber(e.target.value)}  
+          />
+          </DialogContent>
+        <DialogActions>
+          <Button variant="outlined" onClick={handleCloseNuclideNo}>Отмена</Button>
+          <Button variant="outlined" onClick={handleCloseNuclideYes}>Сохранить</Button>
+        </DialogActions>
+      </Dialog>
+
+  <Dialog open={openDelNuclide} onClose={handleCloseDelNuclideNo} fullWidth={true}>
+      <DialogTitle>
+          Внимание
+      </DialogTitle>
+      <DialogContent>
+          <DialogContentText>
+          В таблице "Нуклиды" предложена к удалению следующая запись:<p></p><b>{valueMassNumber}</b>; Код в БД = <b>{valueNuclideId}</b><p></p>
+          Вы желаете удалить указанную запись?
+          </DialogContentText>
+      </DialogContent>
+      <DialogActions>
+          <Button variant="outlined" onClick={handleCloseDelNuclideNo} autoFocus>Нет</Button>
+          <Button variant="outlined" onClick={handleCloseDelNuclideYes} >Да</Button>
+      </DialogActions>
+  </Dialog>      
  </div>     
   )
 }
