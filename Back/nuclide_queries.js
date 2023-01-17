@@ -83,8 +83,6 @@ const updateNuclide = (request, response) => {
 }
 
 
-
-
 const getNuclide = (request, response ) => { 
   pool.query("select n.id, c.title||'-'||n.mass_number title from nucl.nuclide n join nucl.chelement c on c.id = n.chelement_id order by c.title,n.mass_number", (error, results) => {
     if (error) {

@@ -85,10 +85,15 @@ const deleteDataSourceClass = (request, response) => {
       '(SELECT COUNT(id) FROM nucl.value_ext_dose WHERE data_source_id = $1 and '+table_name+'_id = $2) AS ext_dose_count '+
       'FROM nucl.value_int_dose LIMIT 1', [data_source_id, rec_id], (err, res) => 
       {
+        if (err) 
+        {
+          response.status(400).send(`Ошибка при проверке связей: ${err.message} `)
+        }
+        else
         if (res.rowCount>0)
         {
           const { int_dose_count, ratio_git_count, ext_dose_count } = res.rows[0];
-          console.log( 'tint_dose_count, ratio_git_count, ext_dose_count=', int_dose_count, ratio_git_count, ext_dose_count );
+          console.log( 'int_dose_count, ratio_git_count, ext_dose_count=', int_dose_count, ratio_git_count, ext_dose_count );
           if  (int_dose_count==0 && ratio_git_count==0 && ext_dose_count==0) 
           {
             pool.query('DELETE FROM nucl.data_source_class WHERE id = $1', [id], (error, results) => {

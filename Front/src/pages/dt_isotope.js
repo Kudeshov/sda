@@ -31,9 +31,19 @@ import { Select } from "@mui/material";
 import { MenuItem } from "@mui/material";
 import { FormControl } from "@mui/material";
 import { InputLabel } from "@mui/material";
- 
+import Autocomplete from '@mui/material/Autocomplete';
 import styled from "@emotion/styled";
- import { Tree, TreeNode } from "react-organizational-chart";
+import { Tree, TreeNode } from "react-organizational-chart";
+import { makeStyles } from "@material-ui/core/styles";
+
+const useStyles = makeStyles((theme) => ({
+  root: {
+    "& > .MuiAutocomplete-root .MuiFormControl-root .MuiInputBase-root": {
+      flexWrap: "nowrap",
+      overflowX: "scroll"  // or "hidden"
+    }
+  }
+}));
 
 /* import TreeView from "@material-ui/lab/TreeView";
 import TreeItem from "@material-ui/lab/TreeItem";
@@ -57,7 +67,7 @@ const DataTableIsotope = (props) => {
   const [valueTitleInitial, setValueTitleInitial] = React.useState();
 
   const [valueNIndex, setValueNIndex] = React.useState();
-  const [valueNameRusInitial, setValueNameRusInitial] = React.useState();
+  const [valueNIndexInitial, setValueNIndexInitial] = React.useState();
   const [valueHalfLifeValue, setValueHalfLifeValue] = React.useState();
   const [valueHalfLifeValueInitial, setValueHalfLifeValueInitial] = React.useState();
   const [valueHalfLifePeriod, setValueHalfLifePeriod] = React.useState();
@@ -71,12 +81,13 @@ const DataTableIsotope = (props) => {
   const [valueNuclideIdInitial, setValueNuclideIdInitial] = React.useState();
   const [selectionModel, setSelectionModel] = React.useState([]);
   const [editStarted, setEditStarted] = useState([false]);
+  //const [valueAC, setValueAC] = useState([]);
 
   useEffect(() => {
-    setEditStarted((valueTitleInitial!==valueTitle)||(valueNameRusInitial!==valueNIndex)||(valueHalfLifeValueInitial!==valueHalfLifeValue)
+    setEditStarted((valueTitleInitial!==valueTitle)||(valueNIndexInitial!==valueNIndex)||(valueHalfLifeValueInitial!==valueHalfLifeValue)
       ||(valueHalfLifePeriodInitial!==valueHalfLifePeriod)||(valueDecayConstInitial!==valueDecayConst)||(valueNuclideIdInitial!==valueNuclideId));
 
-    }, [valueTitleInitial, valueTitle, valueNameRusInitial, valueNIndex, valueHalfLifeValueInitial, valueHalfLifeValue, 
+    }, [valueTitleInitial, valueTitle, valueNIndexInitial, valueNIndex, valueHalfLifeValueInitial, valueHalfLifeValue, 
         valueHalfLifePeriodInitial, valueHalfLifePeriod, valueDecayConstInitial, valueDecayConst, valueNuclideIdInitial, valueNuclideId]); 
 
   useEffect(() => {
@@ -86,14 +97,16 @@ const DataTableIsotope = (props) => {
         lastId = tableData[0].id;
         setSelectionModel([tableData[0].id]);
         setValueID(`${tableData[0].id}`);
+
         setValueTitle(tableData[0].title);
         setValueNIndex(tableData[0].n_index);
         setValueHalfLifeValue(tableData[0].half_life_value);
         setValueDecayConst(tableData[0].decayconst);
         setValueHalfLifePeriod(tableData[0].half_life_period);
         setValueNuclideId(tableData[0].nuclide_id);
+
         setValueTitleInitial(tableData[0].title);       
-        setValueNameRusInitial(tableData[0].n_index);
+        setValueNIndexInitial(tableData[0].n_index);
         setValueHalfLifeValueInitial(tableData[0].half_life_value);
         setValueDecayConstInitial(tableData[0].decayconst);
         setValueHalfLifePeriodInitial(tableData[0].half_life_period);
@@ -120,11 +133,15 @@ const DataTableIsotope = (props) => {
       setValueHalfLifePeriod(params.row.half_life_period);
       setValueNuclideId(params.row.nuclide_id);
       setValueTitleInitial(params.row.title);
-      setValueNameRusInitial(params.row.n_index);
+      setValueNIndexInitial(params.row.n_index);
       setValueHalfLifeValueInitial(params.row.half_life_value);
       setValueDecayConstInitial(params.row.decayconst);
       setValueHalfLifePeriodInitial(params.row.half_life_period);
       setValueNuclideIdInitial(params.row.nuclide_id);
+
+/*       var arr= tableNuclide.filter((row) => params.row.nuclide_id===row.id);
+      console.log(arr);
+      setValueAC(arr[0]); */
     }
   }; 
 
@@ -216,7 +233,7 @@ const DataTableIsotope = (props) => {
      if (fromToolbar) 
      {
        setValueTitleInitial(valueTitle);       
-       setValueNameRusInitial(valueNIndex); 
+       setValueNIndexInitial(valueNIndex); 
        setValueHalfLifeValueInitial(valueHalfLifeValue);
        setValueDecayConstInitial(valueDecayConst);
        setValueHalfLifePeriodInitial(valueHalfLifePeriod);          
@@ -278,7 +295,7 @@ const DataTableIsotope = (props) => {
       setValueHalfLifePeriod(valueHalfLifePeriod); 
       setValueNuclideId(valueNuclideId); 
       setValueTitleInitial(valueTitle);
-      setValueNameRusInitial(valueNIndex);
+      setValueNIndexInitial(valueNIndex);
       setValueHalfLifeValueInitial(valueHalfLifeValue);
       setValueDecayConstInitial(valueDecayConst);
       setValueHalfLifePeriodInitial(valueHalfLifePeriod);  
@@ -327,7 +344,7 @@ const DataTableIsotope = (props) => {
         setValueHalfLifePeriod(tableData[0].half_life_period);
         setValueNuclideId(tableData[0].nuclide_id);
         setValueTitleInitial(tableData[0].title);
-        setValueNameRusInitial(tableData[0].n_index);
+        setValueNIndexInitial(tableData[0].n_index);
         setValueHalfLifeValueInitial(tableData[0].half_life_value);
         setValueDecayConstInitial(tableData[0].decayconst);
         setValueHalfLifePeriodInitial(tableData[0].half_life_period);
@@ -469,7 +486,7 @@ const DataTableIsotope = (props) => {
       setValueNuclideId(selectedRowData[0].nuclide_id);
 
       setValueTitleInitial(selectedRowData[0].title);
-      setValueNameRusInitial(selectedRowData[0].n_index);
+      setValueNIndexInitial(selectedRowData[0].n_index);
       setValueHalfLifeValueInitial(selectedRowData[0].half_life_value );
       setValueDecayConstInitial(selectedRowData[0].decayconst);
       setValueHalfLifePeriodInitial(selectedRowData[0].half_life_period);
@@ -623,11 +640,20 @@ const DataTableIsotope = (props) => {
   }
   
   function timeDisplay(val, per) {
-   // if ((val==0)||(val==1))
-   //   return('')
-   // else
     return(<span> ({val} {per})</span>);
   }
+  
+  function getNuclideNameById(n_id) {
+    if (n_id) {
+      var arr= tableNuclide.filter((row) => n_id===row.id);
+      if (arr.length) {
+        return(arr[0].title);
+      }      
+    }
+    else {
+      return('');
+    }
+   }
 
   const getTreeNodesFromData = treeItems => {
     return treeItems.map(treeItemData => {
@@ -667,12 +693,14 @@ const DataTableIsotope = (props) => {
       </TreeView></div>
     );
   }; */
+
+  const classes = useStyles();
   
   return (
-    <div style={{ height: 640, width: 1500 }}>
+    <div style={{ /* height: 640, */ width: 1500 }}>
     <table border = "0" style={{ height: 550, width: 1500 }} ><tbody>
     <tr>
-      <td style={{ height: 640, width: 600, verticalAlign: 'top' }}>
+      <td style={{   height: 940,  width: 600, verticalAlign: 'top' }}>
       <div style={{ height: 486, width: 585 }}>
 
       <DataGrid
@@ -723,12 +751,26 @@ const DataTableIsotope = (props) => {
       
       </td>
       <td style={{ height: 550, width: 900, verticalAlign: 'top' }}>
-      <TextField  id="ch_id"  disabled={true} label="Код" sx={{ width: '12ch' }} variant="outlined" value={valueId || ''} size="small"  onChange={e => setValueID(e.target.value)}/>
-      &nbsp;&nbsp;&nbsp;
-      <TextField  id="ch_name" sx={{ width: '40ch' }} label="Обозначение" size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
-      &nbsp;&nbsp;&nbsp;
+      {/* <p></p> &nbsp;&nbsp;&nbsp; */}
+{/*       <div className={classes.root}> */}
 
-      <p></p>
+<table border = "0" cellspacing="0" cellpadding="0"><tbody>
+    <tr>      
+      <td>
+      <TextField  id="ch_id"  disabled={true} label="Код" sx={{ width: '12ch' }} variant="outlined" value={valueId || ''} size="small"  onChange={e => setValueID(e.target.value)}/>
+      </td>
+      <td>
+        &nbsp;&nbsp;&nbsp;
+      </td>
+      <td>
+        <TextField  id="ch_name" sx={{ width: '40ch' }} label="Обозначение" size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
+      </td>
+      <td>
+        &nbsp;&nbsp;&nbsp;
+      </td>
+      <td>
+
+{/*       <p></p>
       <FormControl sx={{ width: '60ch' }} size="small">
         <InputLabel id="fiz">Радиоизотоп</InputLabel>
           <Select labelId="fiz" id="fiz1" label="Радиоизотоп" defaultValue="" value={valueNuclideId||""} onChange={e => setValueNuclideId(e.target.value)}>
@@ -740,14 +782,39 @@ const DataTableIsotope = (props) => {
                 );
                 })}
           </Select>
-          </FormControl>  
-      <p></p>
-      <TextField  id="ch_n_index" sx={{ width: '40ch' }}  size="small" label="Индекс"  variant="outlined"  value={valueNIndex || ''} onChange={e => setValueNIndex(e.target.value)} />
-      &nbsp;&nbsp;&nbsp;
-      <TextField  id="ch_half_life_value" sx={{ width: '40ch' }} size="small" label="Период полураспада"  variant="outlined" value={valueHalfLifeValue || ''} onChange={e => setValueHalfLifeValue(e.target.value)}/>
-      <p></p>
+          </FormControl> */}
 
-      <FormControl sx={{ width: '40ch' }} size="small">
+      <Autocomplete
+        size="small"
+        sx={{ width: '20ch' }}
+        disablePortal
+        id="combo-box-demo"
+        //value={ valueAC }
+        value={tableNuclide.find((option) => option.id === valueNuclideId)||'' }
+        disableClearable
+        isOptionEqualToValue={(option, value) => option.id === value.id }  
+        onChange={(event, newValueAC) => {  console.log(newValueAC?newValueAC.id:-1);  setValueNuclideId(newValueAC?newValueAC.id:-1) } }
+        options={tableNuclide}
+        //sx={{ width: 300 }}
+        getOptionLabel={option => option?option.title:""}
+        renderInput={(params) => <TextField {...params} label="Радиоизотоп" />}
+      />
+      </td>      
+      <td>
+        &nbsp;&nbsp;&nbsp;
+      </td>
+      <td>
+        <TextField  id="ch_n_index" sx={{ width: '20ch' }}  size="small" label="Индекс"  variant="outlined"  value={valueNIndex || ''} onChange={e => setValueNIndex(e.target.value)} />
+      </td>
+      </tr></tbody></table>
+      
+{/*       </div>   */}    
+      
+      <p></p>
+      <TextField  id="ch_half_life_value" sx={{ width: '40ch' }} size="small" label="Период полураспада"  variant="outlined" value={valueHalfLifeValue || ''} onChange={e => setValueHalfLifeValue(e.target.value)}/>
+      &nbsp;&nbsp;&nbsp;
+
+      <FormControl sx={{ width: '20ch' }} size="small">
             <InputLabel id="type">Ед. изм.</InputLabel>
               <Select labelId="type" id="type1"  label="Ед. изм." defaultValue={true} value={valueHalfLifePeriod  || "" } onChange={e => setValueHalfLifePeriod(e.target.value)}>
                 {valuesMbae?.map(option => {
@@ -769,24 +836,30 @@ const DataTableIsotope = (props) => {
  */}
 
 
-      <p></p>
+{/*       <p></p>
       <Tree
       lineWidth={"2px"}
       lineColor={"gray"}
       lineBorderRadius={"10x"}
       label={<StyledNode>Радиоактивные ряды: {valueTitle}</StyledNode>}> 
         {getTreeNodesFromData(treeData)}
-      </Tree>         
-      <p></p>
-      <div style={{ height: 240, width: 800 }}>
-        Радиоактивные ряды<br/>
-        <DataTableIsotopeDecay table_name={valueTitle} rec_id={valueId} />
-      </div>
+      </Tree>      */}
+      <p></p>    
+      <table border = "0" cellspacing="0" cellpadding="0">
+        <tbody>
+          <tr>      
+            <td>Радиоактивные ряды<br/>
+              <DataTableIsotopeDecay table_name={valueTitle} rec_id={valueId} />
+            </td>
+          </tr>
+          <tr>      
+            <td>Источники данных<br/>
+              <DataTableDataSourceClass table_name={props.table_name} rec_id={valueId} />
+            </td>
+          </tr>
+        </tbody>
+      </table>      
 
-      <div style={{ height: 300, width: 800 }}>
-        Источники данных<br/>
-        <DataTableDataSourceClass table_name={props.table_name} rec_id={valueId} />
-      </div>
     </td>
   </tr>
   </tbody>
@@ -816,11 +889,11 @@ const DataTableIsotope = (props) => {
         <DialogContentText>
             В запись таблицы {table_names[props.table_name]} с кодом <b>{valueId}</b> внесены изменения.<p></p>
             {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p></p>
-            {valueNIndex === valueNameRusInitial ? '' : 'Название (рус. яз): '+valueNIndex+'; ' }<p></p>
-            {valueHalfLifeValue === valueHalfLifeValueInitial ? '' : 'Название (англ. яз): '+valueHalfLifeValue+'; ' }<p></p>
-            {valueDecayConst === valueDecayConstInitial ? '' : 'Комментарий (рус. яз): '+valueDecayConst+'; ' }<p></p>
-            {valueHalfLifePeriod === valueHalfLifePeriodInitial ? '' : 'Комментарий (англ. яз): '+valueHalfLifePeriod+'; ' }<p></p>
-            {valueNuclideId === valueNuclideIdInitial ? '' : 'Комментарий (англ. яз): '+valueNuclideId+'; ' }<p></p>
+            {valueNIndex === valueNIndexInitial ? '' : 'Индекс: '+valueNIndex+'; ' }<p></p>
+            {valueHalfLifeValue === valueHalfLifeValueInitial ? '' : 'Период полураспада: '+valueHalfLifeValue+'; ' }<p></p>
+            {valueHalfLifePeriod === valueHalfLifePeriodInitial ? '' : 'Ед. изм.: '+valueHalfLifePeriod+'; ' }<p></p>
+            {valueDecayConst === valueDecayConstInitial ? '' : 'Постоянная распада (1/сек) '+valueDecayConst+'; ' }<p></p>
+            {valueNuclideId === valueNuclideIdInitial ? '' : 'Нуклид: '+getNuclideNameById(valueNuclideId)+'; ' }<p></p>
             <p></p>Вы желаете сохранить указанную запись?
         </DialogContentText>
     </DialogContent>
@@ -838,12 +911,12 @@ const DataTableIsotope = (props) => {
         <DialogContentText>
             В запись таблицы {table_names[props.table_name]} с кодом <b>{valueId}</b> внесены изменения.<p></p>
             {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p></p>
-            {valueNIndex === valueNameRusInitial ? '' : 'Название (рус. яз): '+valueNIndex+'; ' }<p></p>
-            {valueHalfLifeValue === valueHalfLifeValueInitial ? '' : 'Название (англ. яз): '+valueHalfLifeValue+'; ' }<p></p>
-            {valueDecayConst === valueDecayConstInitial ? '' : 'Комментарий (рус. яз): '+valueDecayConst+'; ' }<p></p>
-            {valueHalfLifePeriod === valueHalfLifePeriodInitial ? '' : 'Комментарий (англ. яз): '+valueHalfLifePeriod+'; ' }<p></p>
-            {valueNuclideId === valueNuclideIdInitial ? '' : 'Комментарий (англ. яз): '+valueNuclideId+'; ' }<p></p>
-            <p></p>Вы желаете сохранить указанную запись?
+            {valueNIndex === valueNIndexInitial ? '' : 'Индекс: '+valueNIndex+'; ' }<p></p>
+            {valueHalfLifeValue === valueHalfLifeValueInitial ? '' : 'Период полураспада: '+valueHalfLifeValue+'; ' }<p></p>
+            {valueHalfLifePeriod === valueHalfLifePeriodInitial ? '' : 'Ед. изм.: '+valueHalfLifePeriod+'; ' }<p></p>
+            {valueDecayConst === valueDecayConstInitial ? '' : 'Постоянная распада (1/сек) '+valueDecayConst+'; ' }<p></p>
+{/*             {valueNuclideId === valueNuclideIdInitial ? '' : 'Нуклид: '+tableNuclide.find((option) => option.id === valueNuclideId).title+'; ' }<p></p>
+ */}            <p></p>Вы желаете сохранить указанную запись?
         </DialogContentText>
     </DialogContent>
     <DialogActions>

@@ -63,9 +63,10 @@ useEffect(() => {
 }, [])
 
 useEffect(() => {
-  if (!props.rec_id) 
-    return;
-  fetch(`/isotope_decay/`+props.rec_id)
+  var rid = 0; 
+  if (props.rec_id) 
+    rid = props.rec_id;
+  fetch(`/isotope_decay/`+rid)
     .then((data) => data.json())
     .then((data) => setTableDecay(data))
     .then( /* console.log('грузим decay') */ );
@@ -287,10 +288,23 @@ const addRecDecay = async ()  => {
   }
 };
 
-  return (
-    <div style={{ height: 210, width: 886 }}>
+const [heightVal, setHeightVal] = React.useState(260);
+useEffect(() => {
+  if (openAlertDecay)
+  {
+    setHeightVal(290)  
+  }
+  else 
+  {
+    setHeightVal(260)  
+  } 
+}, [openAlertDecay]); 
+
+
+return (
+    <div style={{ height: {heightVal} , width: 886 }}> 
     <table cellSpacing={0} cellPadding={0} style={{ height: 270, width: 886, verticalAlign: 'top' }} border="0"><tbody><tr>
-      <td style={{ height: 160, width: 800, verticalAlign: 'top' }}>
+      <td style={{ height: 250, width: 800, verticalAlign: 'top' }}>
       <DataGrid
         hideFooterSelectedRowCount={true}
         localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}

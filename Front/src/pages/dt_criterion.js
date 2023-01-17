@@ -214,13 +214,10 @@ const DataTableCriterion= (props) => {
       setValueParentIDInitial(res[0].parent_id||-1); 
       setValueNormativInitial(res[0].normativ_id);
 
-      //console.log(tableData);
-      var res2 = tableData.filter(function(item) {
+       var res2 = tableData.filter(function(item) {
         return item.id === res[0].parent_id;
       });
-      //console.log('res2 ' + res2[0].parent_id);
-      console.log(res2[0]);
-      setValueAC(res2[0]);
+       setValueAC(res2[0]);
 /* 
       setValueAC({
         "id": 32178,
@@ -254,40 +251,28 @@ const DataTableCriterion= (props) => {
     }
   }; 
 
+  const emptyParentItem = {
+    "id": -1,
+    "title": "Не задан",
+    "normativ_id": 0,
+    "parent_id": 0,
+    "name_rus": "",
+    "name_eng": "",
+    "descr_rus": "",
+    "descr_eng": "",
+    "children": []
+};
+
   function addNondefValue( arr ) {
-    //arr.push( {
-    //  "id": -1,
-   //   "title": "Не задан"});]
-
-   if (!arr) 
-     return;
-   if (arr.length===0)
-     return;
-     //var newarr = arr[0];
-     //newarr.concat(arr);
-     var array1 = [{
-      "id": -1,
-      "title": "Не задан",
-      "normativ_id": 1,
-      "parent_id": 30377,
-      "name_rus": "Уровни облучения для срочного вмешательства",
-      "name_eng": "Radiation levels for emergency response actions",
-      "descr_rus": "Прогнозируемые уровни облучения, при которых необходимо срочное вмешательство",
-      "descr_eng": null,
-      "children": []
-  }];
-     console.log(array1);
-     //array1[0].id=-1;
-     //array1[0].label='Не задан';
-     const array2 = array1.concat(arr);
-    //newarr.splice(0, 1);
-/*     newarr.push( arr[0] );  
-    newarr.push( arr[0] );  
-    newarr.push( arr[0] );  */ 
+    if (!arr) 
+      return;
+    if (arr.length===0)
+      return;
+      var array1 = [emptyParentItem];
+      //console.log(array1);
+      const array2 = array1.concat(arr);
     return(array2);
-
   }
-  
  
   useEffect(() => {
     fetch(`/${props.table_name}`)
@@ -333,7 +318,11 @@ const DataTableCriterion= (props) => {
       setValueDescrRusInitial(res[0].descr_rus);
       setValueDescrEngInitial(res[0].descr_eng);
       setValueParentIDInitial(res[0].parent_id||-1); 
-      setValueNormativInitial(res[0].normativ_id);      
+      setValueNormativInitial(res[0].normativ_id);  
+      var res2 = tableData.filter(function(item) {
+        return item.id === res[0].parent_id;
+      });
+       setValueAC(res2[0]);
     }; 
 
     //console.log( 'selected = ' + selected + ' tableData.length ' + tableData.length );
@@ -684,7 +673,11 @@ const DataTableCriterion= (props) => {
     setValueDescrRusInitial(res[0].descr_rus);
     setValueDescrEngInitial(res[0].descr_eng);
     setValueParentIDInitial(res[0].parent_id||-1); 
-    setValueNormativInitial(res[0].normativ_id);      
+    setValueNormativInitial(res[0].normativ_id);  
+    var res2 = tableData.filter(function(item) {
+      return item.id === res[0].parent_id;
+    });
+     setValueAC(res2[0]);  
   }; 
 
   const handleCloseSaveNo = () => {
@@ -740,6 +733,11 @@ const DataTableCriterion= (props) => {
       setValueParentIDInitial(selectedRowData[0].parent_id||-1);
       setValueNormativ(`${selectedRowData[0].normativ_id}`);
       setValueNormativInitial(`${selectedRowData[0].normativ_id}`);
+
+      var res2 = tableData.filter(function(item) {
+        return item.id === selectedRowData[0].parent_id;
+      });
+       setValueAC(res2[0]);
     }
   }
 
@@ -851,13 +849,21 @@ const DataTableCriterion= (props) => {
         id="combo-box-demo"
         value={ valueAC|| {
           "id": -1,
-          "title": "Не задан"} }
-        isOptionEqualToValue={(option, value) => (option.id === value.id)||((!value.id)&&(!option.id)) }
+          "title": "Не задан",
+          "normativ_id": 0,
+          "parent_id": 0,
+          "name_rus": "",
+          "name_eng": "",
+          "descr_rus": "",
+          "descr_eng": "",
+          "children": []
+      } }
+        isOptionEqualToValue={(option, value) => (option.id === value.id)||((!value.id)) } //&&(!option.id)
         //isOptionEqualToValue={(option, value) => value.id  === option.id }
         onChange={(event, newValueAC) => { console.log(newValueAC?newValueAC.id:-1); setValueAC(newValueAC);  setValueParentID(newValueAC?newValueAC.id:-1) } }
 
         //value={valueParentID || "" } 
-        options={tableDataPlus}
+        options={tableDataPlus||tableData||[]}
         sx={{ width: 300 }}
         getOptionLabel={option => option?option.title:""}
         renderInput={(params) => <TextField {...params} label="Родительский класс" />}
