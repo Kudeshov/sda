@@ -66,15 +66,15 @@ const DataTableChelement = (props) => {
       {
         lastId = tableData[0].id;
         setSelectionModel([tableData[0].id]);
-        setValueID(`${tableData[0].id}`);
-        setValueTitle(`${tableData[0].title}`);
+        setValueID(tableData[0].id);
+        setValueTitle(tableData[0].title);
         setValueNameRus(tableData[0].name_rus);
         setValueNameEng(tableData[0].name_eng);
-        setValueAtomicNum(`${tableData[0].atomic_num}`);
-        setValueTitleInitial(`${tableData[0].title}`);       
+        setValueAtomicNum(tableData[0].atomic_num);
+        setValueTitleInitial(tableData[0].title);       
         setValueNameRusInitial(tableData[0].name_rus);
         setValueNameEngInitial(tableData[0].name_eng);
-        setValueAtomicNumInitial(`${tableData[0].atomic_num}`);
+        setValueAtomicNumInitial(tableData[0].atomic_num);
       }
     }
     }, [ isLoading, tableData] );
@@ -86,12 +86,12 @@ const DataTableChelement = (props) => {
     } 
     else 
     {
-      setValueID(`${params.row.id}`);
-      setValueTitle(`${params.row.title}`);
+      setValueID(params.row.id);
+      setValueTitle(params.row.title);
       setValueNameRus(params.row.name_rus);
       setValueNameEng(params.row.name_eng);
       setValueAtomicNum(`${params.row.atomic_num}`);
-      setValueTitleInitial(`${params.row.title}`);
+      setValueTitleInitial(params.row.title);
       setValueNameRusInitial(params.row.name_rus);
       setValueNameEngInitial(params.row.name_eng);
       setValueAtomicNumInitial(`${params.row.atomic_num}`);
@@ -276,15 +276,15 @@ const DataTableChelement = (props) => {
         setOpenAlert(true); 
         reloadData();
         setSelectionModel([tableData[0].id ]);  
-        setValueID(`${tableData[0].id}`);
-        setValueTitle(`${tableData[0].title}`);
+        setValueID(tableData[0].id);
+        setValueTitle(tableData[0].title);
         setValueNameRus(tableData[0].name_rus);
         setValueNameEng(tableData[0].name_eng);
-        setValueAtomicNum(`${tableData[0].atomic_num}`);
-        setValueTitleInitial(`${tableData[0].title}`);
+        setValueAtomicNum(tableData[0].atomic_num);
+        setValueTitleInitial(tableData[0].title);
         setValueNameRusInitial(tableData[0].name_rus);
         setValueNameEngInitial(tableData[0].name_eng);
-        setValueAtomicNumInitial(`${tableData[0].atomic_num}`);
+        setValueAtomicNumInitial(tableData[0].atomic_num);
       }
     } catch (err) {
       alertText = err.message;
@@ -437,12 +437,12 @@ const DataTableChelement = (props) => {
     const selectedRowData = tableData.filter((row) => selectedIDs.has(row.id));
     if (selectedRowData.length)
     {
-      setValueID(`${selectedRowData[0].id}`);
-      setValueTitle(`${selectedRowData[0].title}`);
+      setValueID(selectedRowData[0].id);
+      setValueTitle(selectedRowData[0].title);
       setValueNameRus(selectedRowData[0].name_rus);
       setValueNameEng(selectedRowData[0].name_eng);
       setValueAtomicNum(`${selectedRowData[0].atomic_num}`);
-      setValueTitleInitial(`${selectedRowData[0].title}`);
+      setValueTitleInitial(selectedRowData[0].title);
       setValueNameRusInitial(selectedRowData[0].name_rus);
       setValueNameEngInitial(selectedRowData[0].name_eng);
       setValueAtomicNumInitial(`${selectedRowData[0].atomic_num}`);

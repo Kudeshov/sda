@@ -60,7 +60,7 @@ const DataTablePeopleClass = (props) => {
       {
         lastId = tableData[0].id;
         setSelectionModel([tableData[0].id]);
-        setValueID(`${tableData[0].id}`);
+        setValueID(tableData[0].id);
         setValueTitle(tableData[0].title);
         setValueNameRus(tableData[0].name_rus);
         setValueNameEng(tableData[0].name_eng);
@@ -258,7 +258,7 @@ const DataTablePeopleClass = (props) => {
         setOpenAlert(true); 
         reloadData();
         setSelectionModel([tableData[0].id ]);  
-        setValueID(`${tableData[0].id}`);
+        setValueID(tableData[0].id);
         setValueTitle(tableData[0].title);
         setValueNameRus(tableData[0].name_rus);
         setValueNameEng(tableData[0].name_eng);
@@ -395,7 +395,7 @@ const DataTablePeopleClass = (props) => {
     console.log('selectedRowData ' + selectedRowData);
     if (selectedRowData.length)
     {
-      setValueID(`${selectedRowData[0].id}`);
+      setValueID(selectedRowData[0].id);
       setValueTitle(selectedRowData[0].title);
       setValueNameRus(selectedRowData[0].name_rus);
       setValueNameEng(selectedRowData[0].name_eng );

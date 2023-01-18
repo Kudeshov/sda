@@ -82,14 +82,14 @@ const DataTableAgeGroup = (props) => {
         //console.log('isLoading, tableData ON lastId '+lastId);
         lastId = tableData[0].id;
         setSelectionModel([tableData[0].id]);
-        setValueID(`${tableData[0].id}`);
+        setValueID(tableData[0].id);
         setValueTitle(tableData[0].title);
         setValueNameRus(tableData[0].name_rus);
         setValueNameEng(tableData[0].name_eng);
         setValueDescrRus(tableData[0].descr_rus);
         setValueDescrEng(tableData[0].descr_eng);
 
-        setValueRespRate(`${tableData[0].resp_rate}`);
+        setValueRespRate(tableData[0].resp_rate);
         setValueRespYear(`${tableData[0].resp_year}`);
         setValueIndoor(`${tableData[0].indoor}`);
         setValueExtCloud(`${tableData[0].ext_cloud}`);
@@ -101,7 +101,7 @@ const DataTableAgeGroup = (props) => {
         setValueDescrRusInitial(tableData[0].descr_rus);
         setValueDescrEngInitial(tableData[0].descr_eng);
 
-        setValueRespRateInitial(`${tableData[0].resp_rate}`);
+        setValueRespRateInitial(tableData[0].resp_rate);
         setValueRespYearInitial(`${tableData[0].resp_year}`);
         setValueIndoorInitial(`${tableData[0].indoor}`);
         setValueExtCloudInitial(`${tableData[0].ext_cloud}`);
@@ -343,14 +343,14 @@ const DataTableAgeGroup = (props) => {
         setOpenAlert(true); 
         reloadData();
         setSelectionModel([tableData[0].id ]);  
-        setValueID(`${tableData[0].id}`);
+        setValueID(tableData[0].id);
         setValueTitle(tableData[0].title);
         setValueNameRus(tableData[0].name_rus);
         setValueNameEng(tableData[0].name_eng);
         setValueDescrRus(tableData[0].descr_rus);
         setValueDescrEng(tableData[0].descr_eng);
 
-        setValueRespRate(`${tableData[0].resp_rate}`);
+        setValueRespRate(tableData[0].resp_rate);
         setValueRespYear(`${tableData[0].resp_year}`);
         setValueIndoor(`${tableData[0].indoor}`);
         setValueExtCloud(`${tableData[0].ext_cloud}`);
@@ -362,7 +362,7 @@ const DataTableAgeGroup = (props) => {
         setValueDescrRusInitial(tableData[0].descr_rus);
         setValueDescrEngInitial(tableData[0].descr_eng);
 
-        setValueRespRateInitial(`${tableData[0].resp_rate}`);
+        setValueRespRateInitial(tableData[0].resp_rate);
         setValueRespYearInitial(`${tableData[0].resp_year}`);
         setValueIndoorInitial(`${tableData[0].indoor}`);
         setValueExtCloudInitial(`${tableData[0].ext_cloud}`);
@@ -506,7 +506,7 @@ const DataTableAgeGroup = (props) => {
     //console.log(selectedRowData);
     if (selectedRowData.length)
     {
-      setValueID(`${selectedRowData[0].id}`);
+      setValueID(selectedRowData[0].id);
       setValueTitle(selectedRowData[0].title);
       setValueNameRus(selectedRowData[0].name_rus);
       setValueNameEng(selectedRowData[0].name_eng );

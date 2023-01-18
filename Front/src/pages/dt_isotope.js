@@ -112,7 +112,7 @@ const DataTableIsotope = (props) => {
       {
         lastId = tableData[0].id;
         setSelectionModel([tableData[0].id]);
-        setValueID(`${tableData[0].id}`);
+        setValueID(tableData[0].id);
 
         setValueTitle(tableData[0].title);
         setValueNIndex(tableData[0].n_index);
@@ -310,7 +310,7 @@ const DataTableIsotope = (props) => {
       setValueDecayConst(valueDecayConst);
       setValueHalfLifePeriod(valueHalfLifePeriod); 
       setValueNuclideId(valueNuclideId); 
-      
+
       setValueTitleInitial(valueTitle);
       setValueNIndexInitial(valueNIndex);
       setValueHalfLifeValueInitial(valueHalfLifeValue);
@@ -353,7 +353,7 @@ const DataTableIsotope = (props) => {
         setOpenAlert(true); 
         reloadData();
         setSelectionModel([tableData[0].id ]);  
-        setValueID(`${tableData[0].id}`);
+        setValueID(tableData[0].id);
         setValueTitle(tableData[0].title);
         setValueNIndex(tableData[0].n_index);
         setValueHalfLifeValue(tableData[0].half_life_value);
@@ -494,7 +494,7 @@ const DataTableIsotope = (props) => {
     //console.log('selectedRowData ' + selectedRowData);
     if (selectedRowData.length)
     {
-      setValueID(`${selectedRowData[0].id}`);
+      setValueID(selectedRowData[0].id);
       setValueTitle(selectedRowData[0].title);
       setValueNIndex(selectedRowData[0].n_index);
       setValueHalfLifeValue(selectedRowData[0].half_life_value );

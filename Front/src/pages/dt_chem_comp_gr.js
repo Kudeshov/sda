@@ -75,20 +75,20 @@ const DataTableChemCompGr = (props) => {
       if (!lastId) 
       {
         lastId = tableData[0].id;
-        setValueTitle(`${tableData[0].title}`);
-        setValueNameRus(`${tableData[0].name_rus}`);
-        setValueNameEng(`${tableData[0].name_eng}`);
-        setValueDescrRus(`${tableData[0].descr_rus}`);
-        setValueDescrEng(`${tableData[0].descr_eng}`);
-        setValueTitleInitial(`${tableData[0].title}`);       
-        setValueNameRusInitial(`${tableData[0].name_rus}`);
-        setValueNameEngInitial(`${tableData[0].name_eng}`);
-        setValueDescrRusInitial(`${tableData[0].descr_rus}`);
-        setValueDescrEngInitial(`${tableData[0].descr_eng}`);
+        setValueTitle(tableData[0].title);
+        setValueNameRus(tableData[0].name_rus);
+        setValueNameEng(tableData[0].name_eng);
+        setValueDescrRus(tableData[0].descr_rus);
+        setValueDescrEng(tableData[0].descr_eng);
+        setValueTitleInitial(tableData[0].title);       
+        setValueNameRusInitial(tableData[0].name_rus);
+        setValueNameEngInitial(tableData[0].name_eng);
+        setValueDescrRusInitial(tableData[0].descr_rus);
+        setValueDescrEngInitial(tableData[0].descr_eng);
         setValueParentID(tableData[0].parent_id||-1);
         setValueParentIDInitial(tableData[0].parent_id||-1);
-        setValueFormula(`${tableData[0].formula}`);
-        setValueFormulaInitial(`${tableData[0].formula}`);
+        setValueFormula(tableData[0].formula);
+        setValueFormulaInitial(tableData[0].formula);
       }
     }
     }, [ isLoading, tableData] );
@@ -533,21 +533,21 @@ const DataTableChemCompGr = (props) => {
         setOpenAlert(true); 
         reloadData();
         //setSelectionModel(tableData[0].id );  
-        setValueID(`${tableData[0].id}`);
-        setValueTitle(`${tableData[0].title}`);
-        setValueNameRus(`${tableData[0].name_rus}`);
-        setValueNameEng(`${tableData[0].name_eng}`);
-        setValueDescrRus(`${tableData[0].descr_rus}`);
-        setValueDescrEng(`${tableData[0].descr_eng}`);
-        setValueTitleInitial(`${tableData[0].title}`);
-        setValueNameRusInitial(`${tableData[0].name_rus}`);
-        setValueNameEngInitial(`${tableData[0].name_eng}`);
-        setValueDescrRusInitial(`${tableData[0].descr_rus}`);
-        setValueDescrEngInitial(`${tableData[0].descr_eng}`);
+        setValueID(tableData[0].id);
+        setValueTitle(tableData[0].title);
+        setValueNameRus(tableData[0].name_rus);
+        setValueNameEng(tableData[0].name_eng);
+        setValueDescrRus(tableData[0].descr_rus);
+        setValueDescrEng(tableData[0].descr_eng);
+        setValueTitleInitial(tableData[0].title);
+        setValueNameRusInitial(tableData[0].name_rus);
+        setValueNameEngInitial(tableData[0].name_eng);
+        setValueDescrRusInitial(tableData[0].descr_rus);
+        setValueDescrEngInitial(tableData[0].descr_eng);
         setValueParentID(`${tableData[0].parent_id||-1}`);
         setValueParentIDInitial(`${tableData[0].parent_id||-1}`);
-        setValueFormula(`${tableData[0].formula}`);
-        setValueFormulaInitial(`${tableData[0].formula}`);
+        setValueFormula(tableData[0].formula);
+        setValueFormulaInitial(tableData[0].formula);
       }
     } catch (err) {
       alertText = err.message;
@@ -682,21 +682,21 @@ const DataTableChemCompGr = (props) => {
     const selectedRowData = tableData.filter((row) => selectedIDs===row.id.toString());
     if (selectedRowData.length)
     {
-      setValueID(`${selectedRowData[0].id}`);
-      setValueTitle(`${selectedRowData[0].title}`);
-      setValueNameRus(`${selectedRowData[0].name_rus}`);
-      setValueNameEng(`${selectedRowData[0].name_eng}` );
-      setValueDescrRus(`${selectedRowData[0].descr_rus}`);
-      setValueDescrEng(`${selectedRowData[0].descr_eng}` );
-      setValueTitleInitial(`${selectedRowData[0].title}`);
-      setValueNameRusInitial(`${selectedRowData[0].name_rus}`);
-      setValueNameEngInitial(`${selectedRowData[0].name_eng}` );
-      setValueDescrRusInitial(`${selectedRowData[0].descr_rus}`);
-      setValueDescrEngInitial(`${selectedRowData[0].descr_eng}`);
+      setValueID(selectedRowData[0].id);
+      setValueTitle(selectedRowData[0].title);
+      setValueNameRus(selectedRowData[0].name_rus);
+      setValueNameEng(selectedRowData[0].name_eng );
+      setValueDescrRus(selectedRowData[0].descr_rus);
+      setValueDescrEng(selectedRowData[0].descr_eng );
+      setValueTitleInitial(selectedRowData[0].title);
+      setValueNameRusInitial(selectedRowData[0].name_rus);
+      setValueNameEngInitial(selectedRowData[0].name_eng );
+      setValueDescrRusInitial(selectedRowData[0].descr_rus);
+      setValueDescrEngInitial(selectedRowData[0].descr_eng);
       setValueParentID(selectedRowData[0].parent_id||-1);
       setValueParentIDInitial(selectedRowData[0].parent_id||-1);
-      setValueFormula(`${selectedRowData[0].formula}`);
-      setValueFormulaInitial(`${selectedRowData[0].formula}`);
+      setValueFormula(selectedRowData[0].formula);
+      setValueFormulaInitial(selectedRowData[0].formula);
     }
   }
 

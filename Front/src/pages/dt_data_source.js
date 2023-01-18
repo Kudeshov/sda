@@ -73,15 +73,15 @@ const DataTableDataSource = (props) => {
         //console.log('isLoading, tableData ON lastId '+lastId);
         lastId = tableData[0].id;
         setSelectionModel([tableData[0].id]);
-        setValueID(`${tableData[0].id}`);
+        setValueID(tableData[0].id);
 
-        setValueTitle(`${tableData[0].title}`);
+        setValueTitle(tableData[0].title);
         setValueShortName(`${tableData[0].shortname}`);
         setValueFullName( `${tableData[0].fullname}` || "" );
         setValueExternalDS(`${tableData[0].external_ds}`);
         setValueDescr( `${tableData[0].descr}` || "" );
 
-        setValueTitleInitial(`${tableData[0].title}`);
+        setValueTitleInitial(tableData[0].title);
         setValueShortNameInitial(`${tableData[0].shortname}`);
         setValueFullNameInitial( `${tableData[0].fullname}` || "" );
         setValueExternalDSInitial(`${tableData[0].external_ds}`);
@@ -99,18 +99,18 @@ const DataTableDataSource = (props) => {
     } 
     else 
     {
-      setValueID(`${params.row.id}`);
+      setValueID(params.row.id);
 
-      setValueTitle(`${params.row.title}`);
-      setValueShortName(`${params.row.shortname}`);
+      setValueTitle(params.row.title);
+      setValueShortName(params.row.shortname);
       setValueFullName( params.row.fullname || "" );
-      setValueExternalDS(`${params.row.external_ds}`);
+      setValueExternalDS(params.row.external_ds);
       setValueDescr( params.row.descr  || "" );
 
-      setValueTitleInitial(`${params.row.title}`);
-      setValueShortNameInitial(`${params.row.shortname}`);
+      setValueTitleInitial(params.row.title);
+      setValueShortNameInitial(params.row.shortname);
       setValueFullNameInitial( params.row.fullname || "" );
-      setValueExternalDSInitial(`${params.row.external_ds}`);
+      setValueExternalDSInitial(params.row.external_ds);
       setValueDescrInitial( params.row.descr  || "" );
     }
   }; 
@@ -282,15 +282,15 @@ const DataTableDataSource = (props) => {
         setOpenAlert(true); 
         reloadData();
         setSelectionModel([tableData[0].id ]);  
-        setValueID(`${tableData[0].id}`);
+        setValueID(tableData[0].id);
 
-        setValueTitle(`${tableData[0].title}`);
+        setValueTitle(tableData[0].title);
         setValueShortName(`${tableData[0].shortname}`);
         setValueFullName( `${tableData[0].fullname}` || "" );
         setValueExternalDS(`${tableData[0].external_ds}`);
         setValueDescr( `${tableData[0].descr}` || "" );
 
-        setValueTitleInitial(`${tableData[0].title}`);
+        setValueTitleInitial(tableData[0].title);
         setValueShortNameInitial(`${tableData[0].shortname}`);
         setValueFullNameInitial( `${tableData[0].fullname}` || "" );
         setValueExternalDSInitial(`${tableData[0].external_ds}`);
@@ -434,15 +434,15 @@ const DataTableDataSource = (props) => {
     //console.log(selectedRowData);
     if (selectedRowData.length)
     {
-      setValueID(`${selectedRowData[0].id}`);
+      setValueID(selectedRowData[0].id);
 
-      setValueTitle(`${selectedRowData[0].title}`);
+      setValueTitle(selectedRowData[0].title);
       setValueShortName(`${selectedRowData[0].shortname}`);
       setValueFullName( selectedRowData[0].fullname || "" );
       setValueExternalDS(`${selectedRowData[0].external_ds}`);
       setValueDescr( selectedRowData[0].descr  || "" );
 
-      setValueTitleInitial(`${selectedRowData[0].title}`);
+      setValueTitleInitial(selectedRowData[0].title);
       setValueShortNameInitial(`${selectedRowData[0].shortname}`);
       setValueFullNameInitial( selectedRowData[0].fullname || "" );
       setValueExternalDSInitial(`${selectedRowData[0].external_ds}`);
