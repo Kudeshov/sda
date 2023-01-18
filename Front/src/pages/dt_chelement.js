@@ -757,7 +757,7 @@ const DataTableChelement = (props) => {
       &nbsp;&nbsp;&nbsp;&nbsp;
       <TextField  id="ch_name" sx={{ width: '40ch' }} label="Обозначение" size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
       &nbsp;&nbsp;&nbsp;&nbsp;
-      <TextField  id="ch_atomic_num" sx={{ width: '20ch' }} label="Атомный номер" size="small" variant="outlined" value={valueAtomicNum || ''} onChange={e => setValueAtomicNum(e.target.value)}/>
+      <TextField  id="ch_atomic_num" sx={{ width: '20ch' }} label="Атомный номер" size="small" type="number" variant="outlined" value={valueAtomicNum || ''} onChange={e => setValueAtomicNum(e.target.value)}/>
       <p></p>
       <TextField  id="ch_name_rus" sx={{ width: '49ch' }}  size="small" label="Название (рус.яз)"  variant="outlined"  value={valueNameRus || ''} onChange={e => setValueNameRus(e.target.value)} />
       &nbsp;&nbsp;&nbsp;&nbsp;
@@ -934,7 +934,8 @@ const DataTableChelement = (props) => {
             variant="outlined"
             margin="dense"
             id="title"
-            label="Атомное число"
+            type="number"
+            label="Массовое число"
             value={valueMassNumber}
             fullWidth
             onChange={e => setValueMassNumber(e.target.value)}  

@@ -20,6 +20,7 @@ pool.on(`error`, function (err, client) {
 });
 
 const getIsotope = (request, response ) => {
+  console.log('getIsotope');
   pool.query('SELECT * FROM nucl.isotope order by title', (error, results) => {
     if(error) {
         return console.error('error running query', error);
@@ -30,7 +31,8 @@ const getIsotope = (request, response ) => {
 }
 
 const getIsotopeTree = (request, response ) => {
-  const isotope_id = parseInt(request.params.id||0);  
+  const isotope_id = parseInt(request.params.id||0);
+  console.log('getIsotopeTree');  
 /*   console.log('getIsotopeTree');
   console.log(request.params); */
   pool.query(
@@ -52,6 +54,7 @@ const getIsotopeTree = (request, response ) => {
 } 
 
 const getIsotopeNodes = (request, response ) => {
+  console.log('getIsotopeNodes'); 
   const isotope_id = parseInt(request.params.id||0);  
 /*   console.log('getIsotopeTree');
   console.log(request.params); */
@@ -78,7 +81,12 @@ const getIsotopeNodes = (request, response ) => {
 } 
 
 const getIsotopeEdges = (request, response ) => {
-  const isotope_id = parseInt(request.params.id||0);  
+  console.log('getIsotopeEdges'); 
+  const isotope_id = 0;
+  if (request.params.id) 
+    isotope_id = parseInt(request.params.id);
+  isotope_id = isotope_id || 0;  
+    
   pool.query(
     'WITH RECURSIVE subordinates AS ( '+
     'select i_d.id id, i_d.child_id as "to", i_d.parent_id as "from", i_d.decay_prob as "label", i.title, i.half_life_value, i.half_life_period, NULL children from nucl.isotope_decay i_d join nucl.isotope i on i.id = i_d.child_id where i_d.parent_id = $1 '+

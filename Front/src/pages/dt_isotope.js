@@ -36,6 +36,22 @@ import Autocomplete from '@mui/material/Autocomplete';
 //import { Tree, TreeNode } from "react-organizational-chart";
 /* import { makeStyles } from "@material-ui/core/styles";
 
+const useStyles = makeStyles({
+  input: {
+    '& input[type=number]': {
+        '-moz-appearance': 'textfield'
+    },
+    '& input[type=number]::-webkit-outer-spin-button': {
+        '-webkit-appearance': 'none',
+        margin: 0
+    },
+    '& input[type=number]::-webkit-inner-spin-button': {
+        '-webkit-appearance': 'none',
+        margin: 0
+    }
+  },
+}); */
+/*
 const useStyles = makeStyles((theme) => ({
   root: {
     "& > .MuiAutocomplete-root .MuiFormControl-root .MuiInputBase-root": {
@@ -465,7 +481,7 @@ const DataTableIsotope = (props) => {
     { field: 'n_index', headerName: 'Индекс', width: 85 },
     { field: 'half_life_value', headerName: 'Период полураспада', width: 180 },
     { field: 'half_life_period', headerName: 'Единица измерения периода полураспада', width: 180 },
-    { field: 'decayconst', headerName: 'Постоянная распада 1/сек', width: 180 },
+    { field: 'decayconst', headerName: 'Постоянная распада, 1/сек', width: 180 },
   ]
 
   const [openAlert, setOpenAlert] = React.useState(false, '');
@@ -660,6 +676,18 @@ const DataTableIsotope = (props) => {
 
   //const classes = useStyles();
   
+/*   const useStyles = makeStyles((theme) => ({
+    inputStyle: {
+        "&::-webkit-outer-spin-button, &::-webkit-inner-spin-button": {
+            "-webkit-appearance": "none",
+            display: "none"
+        }
+    }
+  }));
+*/
+
+//  const classes = useStyles(); 
+
   return (
     <div style={{ /* height: 640, */ width: 1500 }}>
     <table border = "0" style={{ height: 550, width: 1500 }} ><tbody>
@@ -771,9 +799,9 @@ const DataTableIsotope = (props) => {
       </tr></tbody></table>
       
 {/*       </div>   */}    
-      
+
       <p></p>
-      <TextField  id="ch_half_life_value" sx={{ width: '40ch' }} size="small" label="Период полураспада"  variant="outlined" value={valueHalfLifeValue || ''} onChange={e => setValueHalfLifeValue(e.target.value)}/>
+      <TextField id="ch_half_life_value" sx={{ width: '40ch' }} size="small" type="number"/*    className={classes.input}*/label="Период полураспада"  variant="outlined" value={valueHalfLifeValue || ''} onChange={e => setValueHalfLifeValue(e.target.value)}/>
       &nbsp;&nbsp;&nbsp;&nbsp;
 
       <FormControl sx={{ width: '20ch' }} size="small">
@@ -789,7 +817,7 @@ const DataTableIsotope = (props) => {
               </Select>
             </FormControl>    
             <p></p>
-      <TextField  id="ch_decayconst" sx={{ width: '100ch' }} label="Постоянная распада, 1/сек"  size="small" multiline maxRows={4} variant="outlined" value={valueDecayConst || ''} onChange={e => setValueDecayConst(e.target.value)}/>
+      <TextField  id="ch_decayconst" sx={{ width: '100ch' }} label="Постоянная распада, 1/сек"  type="number" size="small" maxRows={4} variant="outlined" value={valueDecayConst || ''} onChange={e => setValueDecayConst(e.target.value)}/>
       
 
 {/*       <Box sx={{ height: 415, flexGrow: 1, overflowY: 'auto' }} >     
@@ -854,7 +882,7 @@ const DataTableIsotope = (props) => {
             {valueNIndex === valueNIndexInitial ? '' : 'Индекс: '+valueNIndex+'; ' }<p></p>
             {valueHalfLifeValue === valueHalfLifeValueInitial ? '' : 'Период полураспада: '+valueHalfLifeValue+'; ' }<p></p>
             {valueHalfLifePeriod === valueHalfLifePeriodInitial ? '' : 'Ед. изм.: '+valueHalfLifePeriod+'; ' }<p></p>
-            {valueDecayConst === valueDecayConstInitial ? '' : 'Постоянная распада (1/сек) '+valueDecayConst+'; ' }<p></p>
+            {valueDecayConst === valueDecayConstInitial ? '' : 'Постоянная распада, (1/сек) '+valueDecayConst+'; ' }<p></p>
             {valueNuclideId === valueNuclideIdInitial ? '' : 'Нуклид: '+getNuclideNameById(valueNuclideId)+'; ' }<p></p>
             <p></p>Вы желаете сохранить указанную запись?
         </DialogContentText>
@@ -876,7 +904,7 @@ const DataTableIsotope = (props) => {
             {valueNIndex === valueNIndexInitial ? '' : 'Индекс: '+valueNIndex+'; ' }<p></p>
             {valueHalfLifeValue === valueHalfLifeValueInitial ? '' : 'Период полураспада: '+valueHalfLifeValue+'; ' }<p></p>
             {valueHalfLifePeriod === valueHalfLifePeriodInitial ? '' : 'Ед. изм.: '+valueHalfLifePeriod+'; ' }<p></p>
-            {valueDecayConst === valueDecayConstInitial ? '' : 'Постоянная распада (1/сек) '+valueDecayConst+'; ' }<p></p>
+            {valueDecayConst === valueDecayConstInitial ? '' : 'Постоянная распада, (1/сек) '+valueDecayConst+'; ' }<p></p>
             {valueNuclideId === valueNuclideIdInitial ? '' : 'Нуклид: '+getNuclideNameById(valueNuclideId)+'; ' }<p></p>
             <p></p>Вы желаете сохранить указанную запись?
         </DialogContentText>

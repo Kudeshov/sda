@@ -58,7 +58,7 @@ const columns_decay = [
   { field: 'n_index', headerName: 'Индекс', width: 80 },
   { field: 'half_life_value', headerName: 'Период полураспада', width: 180 },
   { field: 'half_life_period', headerName: 'Единица измерения периода полураспада', width: 180 },
-  { field: 'decayconst', headerName: 'Постоянная распада 1/сек', width: 180 },
+  { field: 'decayconst', headerName: 'Постоянная распада, 1/сек', width: 180 },
 ]
 
 const [valueIsotopeDecayId, setValueIsotopeDecayId] = React.useState();
@@ -362,18 +362,22 @@ const [edges, setEdges] = useState([]);
 const [nodes, setNodes] = useState([]);
 
 useEffect(() => {
+  if (!openAlertDecay)
+    return;
   fetch(`/isotope_nodes/`+props.rec_id)
     .then((data) => data.json())
     .then((data) => setNodes(data))
     .then((data) => {console.log('useEffect nodes');/*  console.log(data); */} ); 
-}, [props.rec_id]);  
+}, [props.rec_id, openAlertDecay]);  
 
 useEffect(() => {
+  if (!openAlertDecay)
+    return;
   fetch(`/isotope_edges/`+props.rec_id)
     .then((data) => data.json())
     .then((data) => setEdges(data))
     .then((data) => {console.log('useEffect edges'); /* console.log(data); */} ); 
-}, [props.rec_id]);  
+}, [props.rec_id, openAlertDecay]);  
  
  useEffect(() => {
   setGraph({nodes, edges});
@@ -480,14 +484,13 @@ return (
         />
       <p></p> 
       <Autocomplete
-        //sx={{ width: '50ch' }}
         fullWidth
         disablePortal
         id="combo-box-child-isotope"
         value={tableIsotope.find((option) => option.id === valueChildIsotopeId)||'' }
         disableClearable
         isOptionEqualToValue={(option, value) => option.id === value.id }  
-        onChange={(event, newValueAC) => { /*  console.log(newValueAC?newValueAC.id:-1);  */ setValueChildIsotopeId(newValueAC?newValueAC.id:-1) } }
+        onChange={(event, newValueAC) => { setValueChildIsotopeId(newValueAC?newValueAC.id:-1) } }
         options={tableIsotope}
         getOptionLabel={option => option?option.title:""}
         renderInput={(params) => <TextField {...params} label="Дочерний изотоп" />}
@@ -552,10 +555,12 @@ return (
 
     </Dialog>
 
-    <Dialog open={openGraph} onClose={handleCloseGraph} fullWidth={true}>
+    <Dialog s
+    /* style={{width: '640px',  backgroundColor: 'lightgray'}} */
+    open={openGraph} onClose={handleCloseGraph} fullWidth={true}/*  sx={{ '& .MuiBackdrop-root': { backgroundColor: 'transparent' } }} */ >
       <DialogContent style={{height:'640px', width: '600px'}}>
           <DialogContentText>
-            Перемещайте мышь с зажатой ЛКМ для панорамирования. Используйте колесо мыши для масштабирования.
+            Перемещайте мышь с зажатой кнопкой для панорамирования. Используйте колесо мыши для масштабирования.
             <Paper className={classes.paper}>
               <Graph
               graph={graph}  
