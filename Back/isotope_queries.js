@@ -56,13 +56,17 @@ const getIsotopeNodes = (request, response ) => {
 /*   console.log('getIsotopeTree');
   console.log(request.params); */
   pool.query(
-    'WITH RECURSIVE subordinates AS ( '+
-    'select ist.id, ist.title as "label", ist.half_life_value, ist.half_life_period, NULL children from nucl.isotope ist where ist.id = $1 ' +
+    "WITH RECURSIVE subordinates AS ( "+
+    "select ist.id, ist.title || '\n'  || ist.half_life_value || ist.half_life_period as " + //|| '\n' || ist.half_life_value || ' ' || ist.half_life_period as "+
+    '"label", ist.half_life_value, ist.half_life_period, NULL children from nucl.isotope ist where ist.id = $1 ' +
 //    'select i_d.id aa, i_d.parent_id id, null parent_id, i_d.decay_prob, i.title, NULL children from nucl.isotope_decay i_d join nucl.isotope i on i.id = i_d.parent_id where i_d.parent_id = $1 '+
+    'union '+ //|| '\n' || i.half_life_value || ' ' || i.half_life_period
+    "select i_d.child_id id, i.title || '\n' || i.half_life_value || i.half_life_period as "+
+    '"label", i.half_life_value, i.half_life_period, NULL children from nucl.isotope_decay i_d join nucl.isotope i on i.id = i_d.child_id where i_d.parent_id = $1 '+
     'union '+ 
-    'select i_d.child_id id, i.title as "label", i.half_life_value, i.half_life_period, NULL children from nucl.isotope_decay i_d join nucl.isotope i on i.id = i_d.child_id where i_d.parent_id = $1 '+
-    'union '+ 
-    'select i_d_r.child_id id, i1.title as "label", i1.half_life_value, i1.half_life_period, NULL children from nucl.isotope_decay i_d_r join nucl.isotope i1 on i1.id = i_d_r.child_id '+  
+    "select i_d_r.child_id id, i1.title || '\n' || i1.half_life_value || i1.half_life_period as "+
+    
+    '"label", i1.half_life_value, i1.half_life_period, NULL children from nucl.isotope_decay i_d_r join nucl.isotope i1 on i1.id = i_d_r.child_id '+  
     'inner join subordinates s on s.id  = i_d_r.parent_id) '+ 
     'select * from subordinates order by id ', [isotope_id], (error, res) => {
     if(error) {
@@ -77,9 +81,9 @@ const getIsotopeEdges = (request, response ) => {
   const isotope_id = parseInt(request.params.id||0);  
   pool.query(
     'WITH RECURSIVE subordinates AS ( '+
-    'select i_d.id id, i_d.child_id as "to", i_d.parent_id as "from", i_d.decay_prob, i.title as "label", i.half_life_value, i.half_life_period, NULL children from nucl.isotope_decay i_d join nucl.isotope i on i.id = i_d.child_id where i_d.parent_id = $1 '+
+    'select i_d.id id, i_d.child_id as "to", i_d.parent_id as "from", i_d.decay_prob as "label", i.title, i.half_life_value, i.half_life_period, NULL children from nucl.isotope_decay i_d join nucl.isotope i on i.id = i_d.child_id where i_d.parent_id = $1 '+
     'union '+ 
-    'select i_d_r.id id, i_d_r.child_id as "to", i_d_r.parent_id as "from", i_d_r.decay_prob, i1.title as "label", i1.half_life_value, i1.half_life_period, NULL children from nucl.isotope_decay i_d_r join nucl.isotope i1 on i1.id = i_d_r.child_id '+  
+    'select i_d_r.id id, i_d_r.child_id as "to", i_d_r.parent_id as "from", i_d_r.decay_prob as "label", i1.title, i1.half_life_value, i1.half_life_period, NULL children from nucl.isotope_decay i_d_r join nucl.isotope i1 on i1.id = i_d_r.child_id '+  
     'inner join subordinates s on "to"  = i_d_r.parent_id) '+ 
     'select * from subordinates order by id ', [isotope_id], (error, res) => {
     if(error) {

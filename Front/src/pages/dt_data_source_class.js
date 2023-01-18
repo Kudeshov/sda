@@ -335,6 +335,8 @@ const handleRowClick = (params) => {
 
 const [noRecords, setNoRecords] = useState(true);
 
+
+
   return (
     <div style={{ height: 270, width: 886 }}>
       <table cellSpacing={0} cellPadding={0} style={{ height: 270, width: 886, verticalAlign: 'top' }} border="0"><tbody><tr>

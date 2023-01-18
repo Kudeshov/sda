@@ -18,9 +18,29 @@ import CloseIcon from '@mui/icons-material/Close';
 import SvgIcon from '@mui/material/SvgIcon';
 import { ReactComponent as EditLightIcon } from "./../icons/edit.svg";
 import { ReactComponent as PlusLightIcon } from "./../icons/plus.svg";
+//import { ReactComponent as InfoLightIcon } from "./../icons/info.svg";
+import { ReactComponent as NetworkLightIcon } from "./../icons/chart-network.svg";
 import { ReactComponent as TrashLightIcon } from "./../icons/trash.svg";
 import { table_names } from './sda_types';
 import Autocomplete from '@mui/material/Autocomplete';
+import Paper from "@material-ui/core/Paper";
+import { makeStyles } from "@material-ui/core/styles";
+import Graph from "react-graph-vis";
+
+const useStyles = makeStyles(theme => ({
+  root: {
+    flexGrow: 1
+  },
+  paper: {
+      height: 550,
+    //height: "100%",
+       width: 550
+    //width: "100%"
+  },
+  control: {
+    padding: theme.spacing(2)
+  }
+}));
 
 var alertText = "Сообщение";
 var alertSeverity = "info";
@@ -55,6 +75,7 @@ const [selectionModelDecay, setSelectionModelDecay] = React.useState([]);
 const [tableDecay, setTableDecay] = useState([]); 
 const [openAlertDecay, setOpenAlertDecay] = React.useState(false, '');
 const [isLoading, setIsLoading] = React.useState(false);
+const [openGraph, setOpenGraph] = useState(false); 
 
 useEffect(() => {
   fetch(`/isotope_min`)
@@ -136,6 +157,16 @@ useEffect(() => {
     setOpenConfirmDeleteDecay(false);
     delRecDecay();
   };
+
+  const handleCloseGraph = () => {
+    setOpenGraph(false);
+  };
+
+  const handleOpenGraph = () => {
+    setOpenGraph(true);
+  };
+
+  
 //====================================================================================
  useEffect(() => {
   if ((!isLoading) && (tableDecay) && (tableDecay.length))
@@ -301,6 +332,59 @@ useEffect(() => {
   } 
 }, [openAlertDecay]); 
 
+const classes = useStyles();
+
+var gr_options = {
+  nodes: {
+    shape: "circle",
+  },
+  layout: {
+    improvedLayout:true,
+    hierarchical: {
+      enabled:true,
+      sortMethod: 'directed', //'directed',
+      shakeTowards:'leaves',// 'roots',
+    },
+  },
+};
+
+const events = {
+  hoverNode: function(event) {
+    //highlightConnectedNodes(event, event.node);
+  },
+  blurNode: function(event) {
+    //generatePseudoCypher("", false);
+  }
+};
+
+
+const [edges, setEdges] = useState([]);
+const [nodes, setNodes] = useState([]);
+
+useEffect(() => {
+  fetch(`/isotope_nodes/`+props.rec_id)
+    .then((data) => data.json())
+    .then((data) => setNodes(data))
+    .then((data) => {console.log('useEffect nodes');/*  console.log(data); */} ); 
+}, [props.rec_id]);  
+
+useEffect(() => {
+  fetch(`/isotope_edges/`+props.rec_id)
+    .then((data) => data.json())
+    .then((data) => setEdges(data))
+    .then((data) => {console.log('useEffect edges'); /* console.log(data); */} ); 
+}, [props.rec_id]);  
+ 
+ useEffect(() => {
+  setGraph({nodes, edges});
+}, [nodes, edges]);  
+
+
+const [graph, setGraph] = useState({
+  nodes: nodes,
+  edges: edges
+});
+
 
 return (
     <div style={{ height: {heightVal} , width: 886 }}> 
@@ -336,6 +420,8 @@ return (
       <SvgIcon fontSize="small" component={EditLightIcon} inheritViewBox /></IconButton><br/>
     &nbsp;<IconButton onClick={()=>handleClickDeleteDecay()} disabled={noRecordsDecay} color="primary" size="small" title="Удалить связь с источником данных">
       <SvgIcon fontSize="small" component={TrashLightIcon} inheritViewBox /></IconButton><br/>
+      &nbsp;<IconButton onClick={()=>handleOpenGraph()} disabled={noRecordsDecay} color="primary" size="small" title="Радиоактивные ряды - графическое представление">
+        <SvgIcon fontSize="small" component={NetworkLightIcon} inheritViewBox /></IconButton>
     </td></tr>
     <tr>
       <td>
@@ -465,6 +551,29 @@ return (
     </DialogActions>
 
     </Dialog>
+
+    <Dialog open={openGraph} onClose={handleCloseGraph} fullWidth={true}>
+      <DialogContent style={{height:'640px', width: '600px'}}>
+          <DialogContentText>
+            Перемещайте мышь с зажатой ЛКМ для панорамирования. Используйте колесо мыши для масштабирования.
+            <Paper className={classes.paper}>
+              <Graph
+              graph={graph}  
+              width={600}
+              height={600}
+              options={gr_options}
+              events={events}
+              getNetwork={network => {
+                //  if you want access to vis.js network api you can set the state in a parent component using this property
+              }}
+            />  
+            </Paper>
+          </DialogContentText>
+      </DialogContent>
+      <DialogActions>
+          <Button variant="outlined" onClick={handleCloseGraph} autoFocus>Закрыть</Button>
+      </DialogActions>
+      </Dialog>
   </div>
   )
 }
