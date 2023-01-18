@@ -70,29 +70,31 @@ const DataTableDataSource = (props) => {
     if ((!isLoading) && (tableData) && (tableData.length)) {
       if (!lastId) 
       {
-        //console.log('isLoading, tableData ON lastId '+lastId);
+        console.log('isLoading, tableData[0].external_ds '+tableData[0].external_ds);
         lastId = tableData[0].id;
         setSelectionModel([tableData[0].id]);
         setValueID(tableData[0].id);
 
         setValueTitle(tableData[0].title);
-        setValueShortName(`${tableData[0].shortname}`);
-        setValueFullName( `${tableData[0].fullname}` || "" );
-        setValueExternalDS(`${tableData[0].external_ds}`);
-        setValueDescr( `${tableData[0].descr}` || "" );
+        setValueShortName(tableData[0].shortname);
+        setValueFullName(tableData[0].fullname || "" );
+        setValueExternalDS(tableData[0].external_ds);
+        setValueDescr(tableData[0].descr || "" );
 
         setValueTitleInitial(tableData[0].title);
-        setValueShortNameInitial(`${tableData[0].shortname}`);
-        setValueFullNameInitial( `${tableData[0].fullname}` || "" );
-        setValueExternalDSInitial(`${tableData[0].external_ds}`);
-        setValueDescrInitial( `${tableData[0].descr}` || "" );  
+        setValueShortNameInitial(tableData[0].shortname);
+        setValueFullNameInitial(tableData[0].fullname || "" );
+        setValueExternalDSInitial(tableData[0].external_ds);
+        setValueDescrInitial(tableData[0].descr || "" ); 
+        
+        
       }
     }
     }, [ isLoading, tableData] );
 
   const handleRowClick = (params) => {
     setOpenAlert(false);
-    console.log('handleRowClick');
+    console.log('handleRowClick params.row.external_ds'+ params.row.external_ds);
     if (editStarted)
     {
       handleClickSave(params);
@@ -203,7 +205,7 @@ const DataTableDataSource = (props) => {
       descr: valueDescr         
    });
     setIsLoading(true);
-    //console.log(js);
+    console.log(js);
     try {
       const response = await fetch(`/${props.table_name}/`, {
         method: 'POST',
@@ -285,16 +287,16 @@ const DataTableDataSource = (props) => {
         setValueID(tableData[0].id);
 
         setValueTitle(tableData[0].title);
-        setValueShortName(`${tableData[0].shortname}`);
-        setValueFullName( `${tableData[0].fullname}` || "" );
-        setValueExternalDS(`${tableData[0].external_ds}`);
-        setValueDescr( `${tableData[0].descr}` || "" );
+        setValueShortName(tableData[0].shortname);
+        setValueFullName( tableData[0].fullname || "" );
+        setValueExternalDS(tableData[0].external_ds);
+        setValueDescr( tableData[0].descr || "" );
 
         setValueTitleInitial(tableData[0].title);
-        setValueShortNameInitial(`${tableData[0].shortname}`);
-        setValueFullNameInitial( `${tableData[0].fullname}` || "" );
-        setValueExternalDSInitial(`${tableData[0].external_ds}`);
-        setValueDescrInitial( `${tableData[0].descr}` || "" );  
+        setValueShortNameInitial(tableData[0].shortname);
+        setValueFullNameInitial( tableData[0].fullname || "" );
+        setValueExternalDSInitial(tableData[0].external_ds);
+        setValueDescrInitial( tableData[0].descr || "" );  
       }
     } catch (err) {
       alertText = err.message;
@@ -437,15 +439,15 @@ const DataTableDataSource = (props) => {
       setValueID(selectedRowData[0].id);
 
       setValueTitle(selectedRowData[0].title);
-      setValueShortName(`${selectedRowData[0].shortname}`);
+      setValueShortName(selectedRowData[0].shortname);
       setValueFullName( selectedRowData[0].fullname || "" );
-      setValueExternalDS(`${selectedRowData[0].external_ds}`);
+      setValueExternalDS(selectedRowData[0].external_ds);
       setValueDescr( selectedRowData[0].descr  || "" );
 
       setValueTitleInitial(selectedRowData[0].title);
-      setValueShortNameInitial(`${selectedRowData[0].shortname}`);
+      setValueShortNameInitial(selectedRowData[0].shortname);
       setValueFullNameInitial( selectedRowData[0].fullname || "" );
-      setValueExternalDSInitial(`${selectedRowData[0].external_ds}`);
+      setValueExternalDSInitial(selectedRowData[0].external_ds);
       setValueDescrInitial( selectedRowData[0].descr  || "" );
     }
   }
@@ -541,7 +543,7 @@ const DataTableDataSource = (props) => {
         <Select
           labelId="demo-controlled-open-select-label"
           id="demo-controlled-open-select"
-          value={valueExternalDS || "" }
+          value={valueExternalDS}
           label="Тип источника"
           defaultValue={true}
           
