@@ -34,6 +34,7 @@ import { ReactComponent as FileImportLightIcon } from "./../icons/file-import.sv
 import { ReactComponent as EraserLightIcon } from "./../icons/eraser.svg";
 import { ReactComponent as EditLightIcon } from "./../icons/edit.svg";
 import { table_names } from './sda_types';
+import Autocomplete from '@mui/material/Autocomplete';
 
 var alertText = "Сообщение";
 var alertSeverity = "info";
@@ -784,8 +785,23 @@ const DataTableDoseRatio = (props) => {
       </div>
 
 
-    
-        <FormControl sx={{ width: '60ch' }} size="small">
+      <Autocomplete
+        //sx={{ width: '50ch' }}
+        fullWidth
+        sx={{ width: '60ch' }} size="small"
+        disablePortal
+        id="combo-box-child-isotope"
+        value={tablePhysParam.find((option) => option.id === valuePhysParamID)||'' }
+        disableClearable
+        isOptionEqualToValue={(option, value) => option.id === value.id }  
+        onChange={(event, newValueAC) => { /*  console.log(newValueAC?newValueAC.id:-1);  */ setValuePhysParamId(newValueAC?newValueAC.id:-1) } }
+        options={tablePhysParam}
+        getOptionLabel={option => option?option.title:""} 
+        renderInput={(params) => <TextField {...params} label="Физический параметр (из общего списка)" />}
+      />
+        <p></p>  
+
+   {/*      <FormControl sx={{ width: '60ch' }} size="small">
         <InputLabel id="fiz">Физический параметр (из общего списка)</InputLabel>
           <Select labelId="fiz" id="fiz1" label="Физический параметр (из общего списка)" defaultValue="" value={valuePhysParamID||"0"} onChange={e => setValuePhysParamId(e.target.value)}>
           {tablePhysParam?.map(option => {
@@ -796,8 +812,8 @@ const DataTableDoseRatio = (props) => {
                 );
                 })}
           </Select>
-          </FormControl>  
-          <p></p> 
+          </FormControl>   
+          <p></p> */}
           <TextField sx={{width: '100ch', input: {background: '#EEEEEE'}}} id="physparam_code" label="Код"  size="small" variant="outlined" value={valuePhysParamCode || ''} />
           <p></p>
           <TextField sx={{width: '100ch', input: {background: '#EEEEEE'}}} id="physparam_name_rus" label="Название (рус.яз)"  size="small" variant="outlined" value={valuePhysParamNameRus || ''} />
