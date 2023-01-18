@@ -68,12 +68,12 @@ const DataTableChelement = (props) => {
         setSelectionModel([tableData[0].id]);
         setValueID(`${tableData[0].id}`);
         setValueTitle(`${tableData[0].title}`);
-        setValueNameRus(`${tableData[0].name_rus}`);
-        setValueNameEng(`${tableData[0].name_eng}`);
+        setValueNameRus(tableData[0].name_rus);
+        setValueNameEng(tableData[0].name_eng);
         setValueAtomicNum(`${tableData[0].atomic_num}`);
         setValueTitleInitial(`${tableData[0].title}`);       
-        setValueNameRusInitial(`${tableData[0].name_rus}`);
-        setValueNameEngInitial(`${tableData[0].name_eng}`);
+        setValueNameRusInitial(tableData[0].name_rus);
+        setValueNameEngInitial(tableData[0].name_eng);
         setValueAtomicNumInitial(`${tableData[0].atomic_num}`);
       }
     }
@@ -88,12 +88,12 @@ const DataTableChelement = (props) => {
     {
       setValueID(`${params.row.id}`);
       setValueTitle(`${params.row.title}`);
-      setValueNameRus(`${params.row.name_rus}`);
-      setValueNameEng(`${params.row.name_eng}`);
+      setValueNameRus(params.row.name_rus);
+      setValueNameEng(params.row.name_eng);
       setValueAtomicNum(`${params.row.atomic_num}`);
       setValueTitleInitial(`${params.row.title}`);
-      setValueNameRusInitial(`${params.row.name_rus}`);
-      setValueNameEngInitial(`${params.row.name_eng}`);
+      setValueNameRusInitial(params.row.name_rus);
+      setValueNameEngInitial(params.row.name_eng);
       setValueAtomicNumInitial(`${params.row.atomic_num}`);
     }
   }; 
@@ -278,12 +278,12 @@ const DataTableChelement = (props) => {
         setSelectionModel([tableData[0].id ]);  
         setValueID(`${tableData[0].id}`);
         setValueTitle(`${tableData[0].title}`);
-        setValueNameRus(`${tableData[0].name_rus}`);
-        setValueNameEng(`${tableData[0].name_eng}`);
+        setValueNameRus(tableData[0].name_rus);
+        setValueNameEng(tableData[0].name_eng);
         setValueAtomicNum(`${tableData[0].atomic_num}`);
         setValueTitleInitial(`${tableData[0].title}`);
-        setValueNameRusInitial(`${tableData[0].name_rus}`);
-        setValueNameEngInitial(`${tableData[0].name_eng}`);
+        setValueNameRusInitial(tableData[0].name_rus);
+        setValueNameEngInitial(tableData[0].name_eng);
         setValueAtomicNumInitial(`${tableData[0].atomic_num}`);
       }
     } catch (err) {
@@ -439,12 +439,12 @@ const DataTableChelement = (props) => {
     {
       setValueID(`${selectedRowData[0].id}`);
       setValueTitle(`${selectedRowData[0].title}`);
-      setValueNameRus(`${selectedRowData[0].name_rus}`);
-      setValueNameEng(`${selectedRowData[0].name_eng}` );
+      setValueNameRus(selectedRowData[0].name_rus);
+      setValueNameEng(selectedRowData[0].name_eng);
       setValueAtomicNum(`${selectedRowData[0].atomic_num}`);
       setValueTitleInitial(`${selectedRowData[0].title}`);
-      setValueNameRusInitial(`${selectedRowData[0].name_rus}`);
-      setValueNameEngInitial(`${selectedRowData[0].name_eng}` );
+      setValueNameRusInitial(selectedRowData[0].name_rus);
+      setValueNameEngInitial(selectedRowData[0].name_eng);
       setValueAtomicNumInitial(`${selectedRowData[0].atomic_num}`);
     }
   }
@@ -678,6 +678,26 @@ const DataTableChelement = (props) => {
     setOpenDelNuclide(false);
   };
 
+  //====================================================================================
+
+  const [selectionModelNuclide, setSelectionModelNuclide] = React.useState([]);
+
+  useEffect(() => {
+  if ((!isLoading) && (tableNuclide) && (tableNuclide.length))
+  {
+
+    setValueNuclideID(tableNuclide[0].id);
+    setValueMassNumber(tableNuclide[0].mass_number);
+
+    setSelectionModelNuclide([tableNuclide[0].id]); //выбрать первую строку при перегрузке таблицы
+  }
+  if ((!isLoading) && (tableNuclide) )
+  {
+    //обновить блокировку кнопок "Редактировать" и "Удалить" в зависимости от наличия записей в таблице
+    //setNoRecordsDecay(!tableDecay.length);
+  }
+}, [isLoading, tableNuclide]); 
+
   return (
     <div style={{ height: 640, width: 1500 }}>
     <table border = "0" style={{ height: 550, width: 1500 }} ><tbody>
@@ -734,17 +754,17 @@ const DataTableChelement = (props) => {
       </td>
       <td style={{ height: 550, width: 900, verticalAlign: 'top' }}>
       <TextField  id="ch_id"  disabled={true} label="Код" sx={{ width: '12ch' }} variant="outlined" value={valueId || ''} size="small"  onChange={e => setValueID(e.target.value)}/>
-      &nbsp;&nbsp;&nbsp;
+      &nbsp;&nbsp;&nbsp;&nbsp;
       <TextField  id="ch_name" sx={{ width: '40ch' }} label="Обозначение" size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
+      &nbsp;&nbsp;&nbsp;&nbsp;
+      <TextField  id="ch_atomic_num" sx={{ width: '20ch' }} label="Атомный номер" size="small" variant="outlined" value={valueAtomicNum || ''} onChange={e => setValueAtomicNum(e.target.value)}/>
       <p></p>
-      <TextField  id="ch_atomic_num" sx={{ width: '40ch' }} label="Атомный номер" size="small" variant="outlined" value={valueAtomicNum || ''} onChange={e => setValueAtomicNum(e.target.value)}/>
-      <p></p>
-      <TextField  id="ch_name_rus" sx={{ width: '40ch' }}  size="small" label="Название (рус.яз)"  variant="outlined"  value={valueNameRus || ''} onChange={e => setValueNameRus(e.target.value)} />
-      &nbsp;&nbsp;&nbsp;
-      <TextField  id="ch_name_eng" sx={{ width: '40ch' }} size="small" label="Название (англ.яз)"  variant="outlined" value={valueNameEng || ''} onChange={e => setValueNameEng(e.target.value)}/>
+      <TextField  id="ch_name_rus" sx={{ width: '49ch' }}  size="small" label="Название (рус.яз)"  variant="outlined"  value={valueNameRus || ''} onChange={e => setValueNameRus(e.target.value)} />
+      &nbsp;&nbsp;&nbsp;&nbsp;
+      <TextField  id="ch_name_eng" sx={{ width: '49ch' }} size="small" label="Название (англ.яз)"  variant="outlined" value={valueNameEng || ''} onChange={e => setValueNameEng(e.target.value)}/>
       <p></p>
       <DataGrid
-        style={{ height: 270, width: 800, verticalAlign: 'top' }}
+        style={{ height: 230, width: 800, verticalAlign: 'top' }}
         //sx={{ height: 200 }}
         hideFooterSelectedRowCount={true}
         localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
@@ -770,8 +790,6 @@ const DataTableChelement = (props) => {
       />
 
       <p></p>
-
-
       <table cellSpacing={0} cellPadding={0} style={{ height: 270, width: 886, verticalAlign: 'top' }} border="0"><tbody><tr>
         <td style={{ height: 270, width: 800, verticalAlign: 'top' }}>
         <DataGrid
@@ -781,8 +799,11 @@ const DataTableChelement = (props) => {
         rowHeight={25}
         rows={tableNuclide}
         loading={isLoading}
-        
         columns={columnsNuclide}
+        onSelectionModelChange={(newSelectionModel) => {
+          setSelectionModelNuclide(newSelectionModel);
+        }}        
+        selectionModel={selectionModelNuclide} 
         initialState={{
           columns: {
             columnVisibilityModel: {
@@ -798,10 +819,10 @@ const DataTableChelement = (props) => {
       <td style={{ height: 270, width: 100, verticalAlign: 'top' }}>
        &nbsp;<IconButton onClick={()=>handleClickAddNuclide()}  disabled={false} color="primary" size="small" title="Добавить нуклид">
         <SvgIcon fontSize="small" component={PlusLightIcon} inheritViewBox /></IconButton><br/>
+       &nbsp;<IconButton onClick={()=>handleClickEditNuclide()} disabled={false} color="primary" size="small" title="Редактировать нуклид">
+        <SvgIcon fontSize="small" component={EditLightIcon} inheritViewBox /></IconButton><br/>
        &nbsp;<IconButton onClick={()=>handleClickDelNuclide()} disabled={false} color="primary" size="small" title="Удалить нуклид">
         <SvgIcon fontSize="small" component={TrashLightIcon} inheritViewBox /></IconButton><br/>
-     &nbsp;<IconButton onClick={()=>handleClickEditNuclide()} disabled={false} color="primary" size="small" title="Редактировать нуклид">
-        <SvgIcon fontSize="small" component={EditLightIcon} inheritViewBox /></IconButton><br/>
       {/* 
       &nbsp;<IconButton onClick={()=>handleOpenDSInfo()} disabled={noRecords} color="primary" size="small" title="Информация по источнику данныъ">
         <SvgIcon fontSize="small" component={InfoLightIcon} inheritViewBox /></IconButton> */}
@@ -868,7 +889,6 @@ const DataTableChelement = (props) => {
     </DialogTitle>
     <DialogContent>
         <DialogContentText>
-
             В запись таблицы {table_names[props.table_name]} с кодом <b>{valueId}</b> внесены изменения.<p></p>
             {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p></p>
             {valueAtomicNum === valueAtomicNumInitial ? '' : 'Атомный номер: '+valueAtomicNum+'; ' }<p></p>
@@ -889,7 +909,6 @@ const DataTableChelement = (props) => {
     </DialogTitle>
     <DialogContent>
         <DialogContentText>
-
             В запись таблицы {table_names[props.table_name]} с кодом <b>{valueId}</b> внесены изменения.<p></p>
             {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p></p>
             {valueAtomicNum === valueAtomicNumInitial ? '' : 'Атомный номер: '+valueAtomicNum+'; ' }<p></p>
@@ -906,7 +925,7 @@ const DataTableChelement = (props) => {
 
   <Dialog open={openNuclide} onClose={handleCloseNuclideNo} fullWidth={false} maxWidth="800px">
       <DialogTitle>Нуклид</DialogTitle>  
-        <DialogContent>
+        <DialogContent style={{height:'280px', width: '700px'}}>
           <DialogContentText>
             Ввести нуклид
           </DialogContentText>

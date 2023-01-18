@@ -7,10 +7,10 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import { FormControl } from "@mui/material";
+/* import { FormControl } from "@mui/material";
 import { InputLabel } from "@mui/material";
 import { Select } from "@mui/material";
-import { MenuItem } from "@mui/material";
+import { MenuItem } from "@mui/material"; */
 import { Box, IconButton } from '@mui/material';
 import Alert from '@mui/material/Alert';
 import Collapse from '@mui/material/Collapse';
@@ -20,6 +20,7 @@ import { ReactComponent as EditLightIcon } from "./../icons/edit.svg";
 import { ReactComponent as PlusLightIcon } from "./../icons/plus.svg";
 import { ReactComponent as TrashLightIcon } from "./../icons/trash.svg";
 import { table_names } from './sda_types';
+import Autocomplete from '@mui/material/Autocomplete';
 
 var alertText = "Сообщение";
 var alertSeverity = "info";
@@ -368,27 +369,45 @@ return (
     </tr>
     </tbody></table>
 
-    <Dialog open={openDecay} onClose={handleCloseNoDecay} fullWidth={false} maxWidth="800px">
+    <Dialog open={openDecay} onClose={handleCloseNoDecay} fullWidth={false} maxWidth="800px"
+      height="800px"
+/*       sx={{ height: 800, flexGrow: 1, overflowY: 'auto' }} */
+    
+    >
     <DialogTitle>Радиоактивные ряды (элемент)</DialogTitle>  
-      <DialogContent>
+      <DialogContent style={{height:'480px', width: '700px'}}>
 {/*             <DialogContentText>
           Радиоактивные ряды (элемент)
         </DialogContentText> */}
         <p></p>
-        <TextField  sx={{width: '50ch', input: {background: '#EEEEEE'}}}
+        <TextField  sx={{ input: {background: '#EEEEEE'}}}
+          fullWidth
           variant="outlined"
           margin="dense"
           id="title"
           label="Родительский изотоп"
           value={valueParentTitle || ''}
-          fullWidth
           onChange={e => setValueParentTitle(e.target.value)}
           inputProps={
             { readOnly: true, }
           }
         />
+      <p></p> 
+      <Autocomplete
+        //sx={{ width: '50ch' }}
+        fullWidth
+        disablePortal
+        id="combo-box-child-isotope"
+        value={tableIsotope.find((option) => option.id === valueChildIsotopeId)||'' }
+        disableClearable
+        isOptionEqualToValue={(option, value) => option.id === value.id }  
+        onChange={(event, newValueAC) => { /*  console.log(newValueAC?newValueAC.id:-1);  */ setValueChildIsotopeId(newValueAC?newValueAC.id:-1) } }
+        options={tableIsotope}
+        getOptionLabel={option => option?option.title:""}
+        renderInput={(params) => <TextField {...params} label="Дочерний изотоп" />}
+      />
         <p></p>                    
-        <FormControl sx={{ width: '50ch' }}>
+{/*         <FormControl sx={{ width: '50ch' }}>
           <InputLabel id="demo-controlled-open-select-label">Дочерний изотоп</InputLabel>
           <Select
             labelId="demo-controlled-open-select-label"
@@ -407,7 +426,7 @@ return (
           })}
           </Select>
         </FormControl>  
-        <p></p> 
+        <p></p>  */}
         <TextField
           variant="outlined"
           type="number"

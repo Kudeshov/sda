@@ -32,9 +32,9 @@ import { MenuItem } from "@mui/material";
 import { FormControl } from "@mui/material";
 import { InputLabel } from "@mui/material";
 import Autocomplete from '@mui/material/Autocomplete';
-import styled from "@emotion/styled";
-import { Tree, TreeNode } from "react-organizational-chart";
-import { makeStyles } from "@material-ui/core/styles";
+//import styled from "@emotion/styled";
+//import { Tree, TreeNode } from "react-organizational-chart";
+/* import { makeStyles } from "@material-ui/core/styles";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -43,20 +43,20 @@ const useStyles = makeStyles((theme) => ({
       overflowX: "scroll"  // or "hidden"
     }
   }
-}));
+})); */
 
 /* import TreeView from "@material-ui/lab/TreeView";
 import TreeItem from "@material-ui/lab/TreeItem";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight"; */
 
-const StyledNode = styled.div`
+/* const StyledNode = styled.div`
   padding: 5px;
   border-radius: 4px;
   display: inline-block;
   border: 1px solid gray;
 `; 
-
+ */
 var alertText = "Сообщение";
 var alertSeverity = "info";
 var lastId = 0;
@@ -76,7 +76,7 @@ const DataTableIsotope = (props) => {
   const [valueDecayConstInitial, setValueDecayConstInitial] = React.useState();
   const [isLoading, setIsLoading] = React.useState(false);
   const [tableData, setTableData] = useState([]); 
-  const [tableData1, setTableData1] = useState([]); 
+  //const [tableData1, setTableData1] = useState([]); 
   const [valueNuclideId, setValueNuclideId] = React.useState();
   const [valueNuclideIdInitial, setValueNuclideIdInitial] = React.useState();
   const [selectionModel, setSelectionModel] = React.useState([]);
@@ -521,46 +521,8 @@ const DataTableIsotope = (props) => {
   ///////////////////////////////////////////////////////////////////  Tree load functions and hook  /////////////////////
   //const [treeFilterString, setTreeFilterString] = React.useState('');
 
-  useEffect(() => {
- /*    function filterTree( tree1, filterS )
-    {
-      var i;
-      i = 0;
-      while (i < tree1.length) 
-      {
-        if (tree1[i].children.length === 0)
-        {
-          if (tree1[i].title.toLowerCase().indexOf(filterS.toLowerCase()) === -1)
-          {
-            tree1.splice(i, 1); 
-            i--;
-          }
-        }
-        else
-        {
-          filterTree( tree1[i].children, filterS );
-        }
-        i++;
-      }
-      i = 0;
-      while (i < tree1.length) 
-      {
-        if (tree1[i].children.length === 0)
-        {
-          if (tree1[i].title.toLowerCase().indexOf(filterS.toLowerCase()) === -1)
-          {
-            tree1.splice(i, 1); 
-            i--;
-          }
-        }
-        else
-        {
-          filterTree( tree1[i].children, filterS );
-        }
-        i++;
-      }      
-    } */
-    function list_to_tree1(list/* , filterString */) {
+  /* useEffect(() => {
+    function list_to_tree1(list) {
       console.log(list); 
       var map = {}, node, roots = [], i;
        for (i = 0; i < list.length; i += 1) {
@@ -584,12 +546,12 @@ const DataTableIsotope = (props) => {
       return roots;
     }
 
-    let arr = list_to_tree1( tableData1/* , treeFilterString */ );
+    let arr = list_to_tree1( tableData1 );
     setTreeData( arr );
-  }, [tableData1/* , treeFilterString */]) 
+  }, [tableData1]) 
+ */
 
-
-  useEffect(() => {
+/*   useEffect(() => {
     if (!valueId)
       return;
 
@@ -600,8 +562,8 @@ const DataTableIsotope = (props) => {
       .then((data) => { console.log( `fetched /isotope_tree/`+valueId); //lastId = data[0].id||0; clickAfterReload = true; console.log( 'setSelected ');  //console.log( tableData[0].id||0 ); 
           } );   
   }, [valueId]);
-
-  const [treeData, setTreeData] = useState([]); 
+ */
+  //const [treeData, setTreeData] = useState([]); 
 
 /*   const [expanded, setExpanded] = React.useState([]);
   const [selected, setSelected] = React.useState('');
@@ -632,7 +594,7 @@ const DataTableIsotope = (props) => {
     });
   };
  */
-  function probDisplay(prob) {
+/*   function probDisplay(prob) {
     if ((parseInt(prob)===0)||(parseInt(prob)===1))
       return('')
     else
@@ -642,7 +604,7 @@ const DataTableIsotope = (props) => {
   function timeDisplay(val, per) {
     return(<span> ({val} {per})</span>);
   }
-  
+   */
   function getNuclideNameById(n_id) {
     if (n_id) {
       var arr= tableNuclide.filter((row) => n_id===row.id);
@@ -655,7 +617,7 @@ const DataTableIsotope = (props) => {
     }
    }
 
-  const getTreeNodesFromData = treeItems => {
+/*   const getTreeNodesFromData = treeItems => {
     return treeItems.map(treeItemData => {
       let children = undefined;
       if (treeItemData.children && treeItemData.children.length > 0) {
@@ -668,12 +630,14 @@ const DataTableIsotope = (props) => {
           //nodeId={treeItemData.id?treeItemData.id.toString():0}
           //label={treeItemData.title}
           label={<StyledNode>
-            {probDisplay(treeItemData.decay_prob)}{treeItemData.title} {/* {treeItemData.id} */} {timeDisplay(treeItemData.half_life_value,treeItemData.half_life_period)}</StyledNode>}
+            {probDisplay(treeItemData.decay_prob)}{treeItemData.title} {} {timeDisplay(treeItemData.half_life_value,treeItemData.half_life_period)}</StyledNode>}
           children={children}
         />
       );
     });
-  };
+  }; */
+
+
 /*   const DataTreeView = ({ treeItems }) => {
     return (
       <div>
@@ -694,7 +658,7 @@ const DataTableIsotope = (props) => {
     );
   }; */
 
-  const classes = useStyles();
+  //const classes = useStyles();
   
   return (
     <div style={{ /* height: 640, */ width: 1500 }}>
@@ -760,13 +724,13 @@ const DataTableIsotope = (props) => {
       <TextField  id="ch_id"  disabled={true} label="Код" sx={{ width: '12ch' }} variant="outlined" value={valueId || ''} size="small"  onChange={e => setValueID(e.target.value)}/>
       </td>
       <td>
-        &nbsp;&nbsp;&nbsp;
+        &nbsp;&nbsp;&nbsp;&nbsp;
       </td>
       <td>
         <TextField  id="ch_name" sx={{ width: '40ch' }} label="Обозначение" size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
       </td>
       <td>
-        &nbsp;&nbsp;&nbsp;
+        &nbsp;&nbsp;&nbsp;&nbsp;
       </td>
       <td>
 
@@ -788,20 +752,18 @@ const DataTableIsotope = (props) => {
         size="small"
         sx={{ width: '20ch' }}
         disablePortal
-        id="combo-box-demo"
-        //value={ valueAC }
+        id="combo-box-nuclide"
         value={tableNuclide.find((option) => option.id === valueNuclideId)||'' }
         disableClearable
         isOptionEqualToValue={(option, value) => option.id === value.id }  
-        onChange={(event, newValueAC) => {  console.log(newValueAC?newValueAC.id:-1);  setValueNuclideId(newValueAC?newValueAC.id:-1) } }
+        onChange={(event, newValueAC) => { /*  console.log(newValueAC?newValueAC.id:-1);  */ setValueNuclideId(newValueAC?newValueAC.id:-1) } }
         options={tableNuclide}
-        //sx={{ width: 300 }}
         getOptionLabel={option => option?option.title:""}
         renderInput={(params) => <TextField {...params} label="Радиоизотоп" />}
       />
       </td>      
       <td>
-        &nbsp;&nbsp;&nbsp;
+        &nbsp;&nbsp;&nbsp;&nbsp;
       </td>
       <td>
         <TextField  id="ch_n_index" sx={{ width: '20ch' }}  size="small" label="Индекс"  variant="outlined"  value={valueNIndex || ''} onChange={e => setValueNIndex(e.target.value)} />
@@ -812,7 +774,7 @@ const DataTableIsotope = (props) => {
       
       <p></p>
       <TextField  id="ch_half_life_value" sx={{ width: '40ch' }} size="small" label="Период полураспада"  variant="outlined" value={valueHalfLifeValue || ''} onChange={e => setValueHalfLifeValue(e.target.value)}/>
-      &nbsp;&nbsp;&nbsp;
+      &nbsp;&nbsp;&nbsp;&nbsp;
 
       <FormControl sx={{ width: '20ch' }} size="small">
             <InputLabel id="type">Ед. изм.</InputLabel>
@@ -915,8 +877,8 @@ const DataTableIsotope = (props) => {
             {valueHalfLifeValue === valueHalfLifeValueInitial ? '' : 'Период полураспада: '+valueHalfLifeValue+'; ' }<p></p>
             {valueHalfLifePeriod === valueHalfLifePeriodInitial ? '' : 'Ед. изм.: '+valueHalfLifePeriod+'; ' }<p></p>
             {valueDecayConst === valueDecayConstInitial ? '' : 'Постоянная распада (1/сек) '+valueDecayConst+'; ' }<p></p>
-{/*             {valueNuclideId === valueNuclideIdInitial ? '' : 'Нуклид: '+tableNuclide.find((option) => option.id === valueNuclideId).title+'; ' }<p></p>
- */}            <p></p>Вы желаете сохранить указанную запись?
+            {valueNuclideId === valueNuclideIdInitial ? '' : 'Нуклид: '+getNuclideNameById(valueNuclideId)+'; ' }<p></p>
+            <p></p>Вы желаете сохранить указанную запись?
         </DialogContentText>
     </DialogContent>
     <DialogActions>

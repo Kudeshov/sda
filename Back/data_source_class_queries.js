@@ -144,12 +144,12 @@ const updateDataSourceClass = (request, response) => {
     (error, results) => {
       if (error) 
       {
-        response.status(400).send(`Связь с источником данных с кодом ${id} не изменена: ${error.message} `)
+        response.status(400).send(`Связь с источником данных с кодом ${id} не сохранена: ${error.message} `)
       }
       else
       { 
         if (results.rowCount == 1)
-          response.status(200).send(`Связь с источником данных ${id} изменена. Строк изменено: ${results.rowCount} `);
+          response.status(200).send(`Связь с источником данных ${id} сохранена.`);
         if (results.rowCount == 0)
           response.status(400).send(`Связь с источником данных с кодом ${id} не найдена`)
       }

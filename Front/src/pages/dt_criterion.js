@@ -95,6 +95,27 @@ const DataTableCriterion= (props) => {
     }, [ isLoading, tableData] );
 
     useEffect(() => {
+      const emptyParentItem1 = {
+        "id": -1,
+        "title": "Не задан",
+        "normativ_id": 0,
+        "parent_id": 0,
+        "name_rus": "",
+        "name_eng": "",
+        "descr_rus": "",
+        "descr_eng": "",
+        "children": []
+    };
+      function addNondefValue( arr ) {
+        if (!arr) 
+          return;
+        if (arr.length===0)
+          return;
+          var array1 = [emptyParentItem1];
+          //console.log(array1);
+          const array2 = array1.concat(arr);
+        return(array2);
+      }
       function updateCurrentRec (id)  {
               if (id)
                 lastId = id;
@@ -251,7 +272,7 @@ const DataTableCriterion= (props) => {
     }
   }; 
 
-  const emptyParentItem = {
+/*   const emptyParentItem = {
     "id": -1,
     "title": "Не задан",
     "normativ_id": 0,
@@ -261,18 +282,9 @@ const DataTableCriterion= (props) => {
     "descr_rus": "",
     "descr_eng": "",
     "children": []
-};
+}; */
 
-  function addNondefValue( arr ) {
-    if (!arr) 
-      return;
-    if (arr.length===0)
-      return;
-      var array1 = [emptyParentItem];
-      //console.log(array1);
-      const array2 = array1.concat(arr);
-    return(array2);
-  }
+
  
   useEffect(() => {
     fetch(`/${props.table_name}`)

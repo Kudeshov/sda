@@ -19,6 +19,7 @@ export const table_names = {
     'chem_comp_gr': 'Химические соединения (группы)',
     'isotope': 'Радионуклиды',
     'isotope_decay': 'Радиоактивные ряды',
-  }; 
+    'criterion': 'Критерии',
+}; 
   
   export default table_names;

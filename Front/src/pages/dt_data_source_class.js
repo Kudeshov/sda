@@ -134,17 +134,17 @@ useEffect(() => {
   {
     setSelectionModel([tableDataSrcClass[0].id]); //выбрать первую строку при перегрузке таблицы
     lastID = tableDataSrcClass[0].id;
-    setValueID(`${tableDataSrcClass[0].id}`);   //обновить переменные
-    setValueDataSourceId(`${tableDataSrcClass[0].data_source_id}`);
-    setValueTableName(`${tableDataSrcClass[0].table_name}`);
-    setValueRecID(`${tableDataSrcClass[0].rec_id}`);
-    setValueTitle(`${tableDataSrcClass[0].title}`);    
-    setValueTitleSrc(`${tableDataSrcClass[0].title_src}`);
-    setValueNameSrc(`${tableDataSrcClass[0].name_src}`);
-    setValueShortName(`${tableDataSrcClass[0].shortname}`);
-    setValueFullName(`${tableDataSrcClass[0].fullname}`);
-    setValueDescr(`${tableDataSrcClass[0].descr}`);
-    setValueExternalDS(`${tableDataSrcClass[0].external_ds}`);      
+    setValueID(tableDataSrcClass[0].id);   //обновить переменные
+    setValueDataSourceId(tableDataSrcClass[0].data_source_id);
+    setValueTableName(tableDataSrcClass[0].table_name);
+    setValueRecID(tableDataSrcClass[0].rec_id);
+    setValueTitle(tableDataSrcClass[0].title);    
+    setValueTitleSrc(tableDataSrcClass[0].title_src);
+    setValueNameSrc(tableDataSrcClass[0].name_src);
+    setValueShortName(tableDataSrcClass[0].shortname);
+    setValueFullName(tableDataSrcClass[0].fullname);
+    setValueDescr(tableDataSrcClass[0].descr);
+    setValueExternalDS(tableDataSrcClass[0].external_ds);      
   }
   if ((!isLoading) && (tableDataSrcClass) )
   {
@@ -197,14 +197,12 @@ const handleCloseConfirmDeleteYes = () => {
 };
 /////////////////////////////////////////////////////////////////// DELETE /////////////////////
 const delRec =  async () => {
-  //console.log('delrec clicked');
   const js = JSON.stringify({
      id: valueId,
      table_name: props.table_name,
      master_id: props.rec_id
   });
   setIsLoading(true);
-  //console.log(js);
   try {
     const response = await fetch('/data_source_class/'+valueId, {
       method: 'DELETE',
@@ -305,9 +303,7 @@ const addRec = async ()  => {
       alertSeverity = "success";
       const { id } = await response.json();
       alertText = `Добавлена запись с кодом ${id}`;
-//      lastId = id; 
       lastAddedId =  id; 
-      //console.log(lastAddedId);
       setValueID(lastAddedId);
       setOpenAlert(true);  
     }
@@ -321,20 +317,20 @@ const addRec = async ()  => {
   }
 };
 
-const handleRowClick/* : GridEventListener<'rowClick'>  */ = (params) => {
+const handleRowClick = (params) => {
   setOpenAlert(false);
-  setValueID(`${params.row.id}`);
+  setValueID(params.row.id);
   lastID = params.row.id;
-  setValueDataSourceId(`${params.row.data_source_id}`);
-  setValueTableName(`${params.row.table_name}`);
-  setValueRecID(`${params.row.rec_id}`);
-  setValueTitle(`${params.row.title}`);
-  setValueTitleSrc(`${params.row.title_src}`);
-  setValueNameSrc(`${params.row.name_src}`);
-  setValueShortName(`${params.row.shortname}`);  
-  setValueFullName(`${params.row.fullname}`);  
-  setValueDescr(`${params.row.descr}`);  
-  setValueExternalDS(`${params.row.external_ds}`);  
+  setValueDataSourceId(params.row.data_source_id);
+  setValueTableName(params.row.table_name);
+  setValueRecID(params.row.rec_id);
+  setValueTitle(params.row.title);
+  setValueTitleSrc(params.row.title_src);
+  setValueNameSrc(params.row.name_src);
+  setValueShortName(params.row.shortname);  
+  setValueFullName(params.row.fullname);  
+  setValueDescr(params.row.descr);  
+  setValueExternalDS(params.row.external_ds);  
 }; 
 
 const [noRecords, setNoRecords] = useState(true);
@@ -414,12 +410,12 @@ const [noRecords, setNoRecords] = useState(true);
 
       <Dialog open={open} onClose={handleCloseNo} fullWidth={false} maxWidth="800px">
       <DialogTitle>Связь с источником данных</DialogTitle>  
-        <DialogContent>
+        <DialogContent style={{height:'480px', width: '700px'}}>
           <DialogContentText>
             Задать связь с источником данных
           </DialogContentText>
         <p></p>        
-        <FormControl sx={{ width: '40ch' }}>
+        <FormControl fullWidth>
             <InputLabel id="demo-controlled-open-select-label">Тип источника</InputLabel>
             <Select
               labelId="demo-controlled-open-select-label"
@@ -427,6 +423,7 @@ const [noRecords, setNoRecords] = useState(true);
               value={valueDataSourceId  || "" }
               label="Источник данных"
               defaultValue={true}
+              fullWidth
               onChange={e => setValueDataSourceId(e.target.value)}
             >
             {tableDataSrc?.map(option => {

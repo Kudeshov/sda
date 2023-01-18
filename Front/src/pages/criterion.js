@@ -9,10 +9,10 @@ const useDocumentTitle = (title) => {
 }
 
 function Criterion() {
-  useDocumentTitle(table_names['criterion_gr']);
+  useDocumentTitle(table_names['criterion'] + ' - в работе');
   return (
     <div className="App">
-    <h3>&nbsp;&nbsp;{table_names['criterion_gr']}</h3>
+    <h3>&nbsp;&nbsp;{table_names['criterion']}   - в работе </h3>
     <table>
       <tbody>
     <tr>
