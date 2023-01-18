@@ -116,7 +116,7 @@ const DataTableDoseRatio = (props) => {
         //console.log('isLoading, tableData ON lastId  '+lastId);  
         lastId = tableData[0].id;
         setSelectionModel([tableData[0].id]);
-        setValueID(`${tableData[0].id}`);
+        setValueID(tableData[0].id);
 
         setValueTitle(tableData[0].title);
         setValueNameRus(tableData[0].name_rus);
@@ -124,11 +124,11 @@ const DataTableDoseRatio = (props) => {
         setValueDescrRus(tableData[0].descr_rus);
         setValueDescrEng(tableData[0].descr_eng);
 
-        setValueRespRate(`${tableData[0].resp_rate}`);
-        setValueRespYear(`${tableData[0].resp_year}`);
-        setValueIndoor(`${tableData[0].indoor}`);
-        setValueExtCloud(`${tableData[0].extcloud}`);
-        setValueExtGround(`${tableData[0].extground}`);
+        setValueRespRate(tableData[0].resp_rate);
+        setValueRespYear(tableData[0].resp_year);
+        setValueIndoor(tableData[0].indoor);
+        setValueExtCloud(tableData[0].extcloud);
+        setValueExtGround(tableData[0].extground);
 
         setValueTitleInitial(tableData[0].title);       
         setValueNameRusInitial(tableData[0].name_rus);
@@ -136,18 +136,18 @@ const DataTableDoseRatio = (props) => {
         setValueDescrRusInitial(tableData[0].descr_rus);
         setValueDescrEngInitial(tableData[0].descr_eng);
 
-        setValueRespRateInitial(`${tableData[0].resp_rate}`);
-        setValueRespYearInitial(`${tableData[0].resp_year}`);
-        setValueIndoorInitial(`${tableData[0].indoor}`);
-        setValueExtCloudInitial(`${tableData[0].extcloud}`);
-        setValueExtGroundInitial(`${tableData[0].extground}`);
+        setValueRespRateInitial(tableData[0].resp_rate);
+        setValueRespYearInitial(tableData[0].resp_year);
+        setValueIndoorInitial(tableData[0].indoor);
+        setValueExtCloudInitial(tableData[0].extcloud);
+        setValueExtGroundInitial(tableData[0].extground);
 
-        setValuePhysParamId(`${tableData[0].physparam_id}`);
-        setValuePhysParamIdInitial(`${tableData[0].physparam_id}`);
-        setValueUsed(`${tableData[0].used}`);
-        setValueUsedInitial(`${tableData[0].used}`);
-        setValueParameters(`${tableData[0].parameters}`);
-        setValueParametersInitial(`${tableData[0].parameters}`);
+        setValuePhysParamId(tableData[0].physparam_id);
+        setValuePhysParamIdInitial(tableData[0].physparam_id);
+        setValueUsed(tableData[0].used);
+        setValueUsedInitial(tableData[0].used);
+        setValueParameters(tableData[0].parameters);
+        setValueParametersInitial(tableData[0].parameters);
       }
     }
     }, [ isLoading, tableData] );
@@ -167,29 +167,30 @@ const DataTableDoseRatio = (props) => {
       setValueDescrRus(params.row.descr_rus);
       setValueDescrEng(params.row.descr_eng);
 
-      setValueRespRate(`${params.row.resp_rate}` );
-      setValueRespYear(`${params.row.resp_year}` );
-      setValueIndoor(`${params.row.indoor}` );
-      setValueExtCloud(`${params.row.ext_cloud}` );
-      setValueExtGround(`${params.row.ext_ground}` );
+      setValueRespRate(params.row.resp_rate );
+      setValueRespYear(params.row.resp_year );
+      setValueIndoor(params.row.indoor );
+      setValueExtCloud(params.row.ext_cloud );
+      setValueExtGround(params.row.ext_ground );
       setValueTitleInitial(params.row.title);
       setValueNameRusInitial(params.row.name_rus);
       setValueNameEngInitial(params.row.name_eng);
       setValueDescrRusInitial(params.row.descr_rus);
       setValueDescrEngInitial(params.row.descr_eng);
 
-      setValueRespRateInitial(`${params.row.resp_rate}` );
-      setValueRespYearInitial(`${params.row.resp_year}` );
-      setValueIndoorInitial(`${params.row.indoor}` );
-      setValueExtCloudInitial(`${params.row.ext_cloud}` );
-      setValueExtGroundInitial(`${params.row.ext_ground}` );
-      setValuePhysParamId(`${params.row.physparam_id}`);
-      setValuePhysParamIdInitial(`${params.row.physparam_id}`);
+      setValueRespRateInitial(params.row.resp_rate );
+      setValueRespYearInitial(params.row.resp_year );
+      setValueIndoorInitial(params.row.indoor );
+      setValueExtCloudInitial(params.row.ext_cloud );
+      setValueExtGroundInitial(params.row.ext_ground );
+      setValuePhysParamId(params.row.physparam_id);
+      setValuePhysParamIdInitial(params.row.physparam_id);
+      console.log(params.row.physparam_id);
 
-      setValueUsed(`${params.row.used}`);
-      setValueUsedInitial(`${params.row.used}`);
-      setValueParameters(`${params.row.parameters}`);
-      setValueParametersInitial(`${params.row.parameters}`);
+      setValueUsed(params.row.used);
+      setValueUsedInitial(params.row.used);
+      setValueParameters(params.row.parameters);
+      setValueParametersInitial(params.row.parameters);
     }
   }; 
 
@@ -410,18 +411,18 @@ const DataTableDoseRatio = (props) => {
         setOpenAlert(true); 
         reloadData();
         setSelectionModel([tableData[0].id ]);  
-        setValueID(`${tableData[0].id}`);
+        setValueID(tableData[0].id);
         setValueTitle(tableData[0].title);
         setValueNameRus(tableData[0].name_rus);
         setValueNameEng(tableData[0].name_eng);
         setValueDescrRus(tableData[0].descr_rus);
         setValueDescrEng(tableData[0].descr_eng);
 
-        setValueRespRate(`${tableData[0].resp_rate}`);
-        setValueRespYear(`${tableData[0].resp_year}`);
-        setValueIndoor(`${tableData[0].indoor}`);
-        setValueExtCloud(`${tableData[0].ext_cloud}`);
-        setValueExtGround(`${tableData[0].ext_ground}`);
+        setValueRespRate(tableData[0].resp_rate);
+        setValueRespYear(tableData[0].resp_year);
+        setValueIndoor(tableData[0].indoor);
+        setValueExtCloud(tableData[0].ext_cloud);
+        setValueExtGround(tableData[0].ext_ground);
 
         setValueTitleInitial(tableData[0].title);
         setValueNameRusInitial(tableData[0].name_rus);
@@ -429,13 +430,13 @@ const DataTableDoseRatio = (props) => {
         setValueDescrRusInitial(tableData[0].descr_rus);
         setValueDescrEngInitial(tableData[0].descr_eng);
 
-        setValueRespRateInitial(`${tableData[0].resp_rate}`);
-        setValueRespYearInitial(`${tableData[0].resp_year}`);
-        setValueIndoorInitial(`${tableData[0].indoor}`);
-        setValueExtCloudInitial(`${tableData[0].ext_cloud}`);
-        setValueExtGroundInitial(`${tableData[0].ext_ground}`);
-        setValuePhysParamId(`${tableData[0].physparam_id}`);
-        setValuePhysParamIdInitial(`${tableData[0].physparam_id}`); 
+        setValueRespRateInitial(tableData[0].resp_rate);
+        setValueRespYearInitial(tableData[0].resp_year);
+        setValueIndoorInitial(tableData[0].indoor);
+        setValueExtCloudInitial(tableData[0].ext_cloud);
+        setValueExtGroundInitial(tableData[0].ext_ground);
+        setValuePhysParamId(tableData[0].physparam_id);
+        setValuePhysParamIdInitial(tableData[0].physparam_id); 
       }
     } catch (err) {
       alertText = err.message;
@@ -591,34 +592,34 @@ const DataTableDoseRatio = (props) => {
     const selectedRowData = tableData.filter((row) => selectedIDs.has(row.id));
     if (selectedRowData.length)
     {
-      setValueID(`${selectedRowData[0].id}`);
+      setValueID(selectedRowData[0].id);
       setValueTitle(selectedRowData[0].title);
       setValueNameRus(selectedRowData[0].name_rus);
       setValueNameEng(selectedRowData[0].name_eng );
       setValueDescrRus(selectedRowData[0].descr_rus);
       setValueDescrEng(selectedRowData[0].descr_eng);
-      setValueRespRate(`${selectedRowData[0].resp_rate}` );
-      setValueRespYear(`${selectedRowData[0].resp_year}` );
-      setValueIndoor(`${selectedRowData[0].indoor}` );
-      setValueExtCloud(`${selectedRowData[0].ext_cloud}` );
-      setValueExtGround(`${selectedRowData[0].ext_ground}` );
+      setValueRespRate(selectedRowData[0].resp_rate );
+      setValueRespYear(selectedRowData[0].resp_year );
+      setValueIndoor(selectedRowData[0].indoor );
+      setValueExtCloud(selectedRowData[0].ext_cloud );
+      setValueExtGround(selectedRowData[0].ext_ground );
       //console.log('handleCancelClick Refresh initial '+selectedRowData[0].title+' '+selectedRowData[0].name_rus);
       setValueTitleInitial(selectedRowData[0].title);
       setValueNameRusInitial(selectedRowData[0].name_rus);
       setValueNameEngInitial(selectedRowData[0].name_eng );
       setValueDescrRusInitial(selectedRowData[0].descr_rus);
       setValueDescrEngInitial(selectedRowData[0].descr_eng);
-      setValueRespRateInitial(`${selectedRowData[0].resp_rate}`);
-      setValueRespYearInitial(`${selectedRowData[0].resp_year}` );
-      setValueIndoorInitial(`${selectedRowData[0].indoor}` );
-      setValueExtCloudInitial(`${selectedRowData[0].ext_cloud}` );
-      setValueExtGroundInitial(`${selectedRowData[0].ext_ground}` );
-      setValuePhysParamId(`${selectedRowData[0].physparam_id}` );
-      setValuePhysParamIdInitial(`${selectedRowData[0].physparam_id}` );
-      setValueUsed(`${selectedRowData[0].used}`); 
-      setValueUsedInitial(`${selectedRowData[0].used}`); 
-      setValueParameters(`${selectedRowData[0].parameters}`);      
-      setValueParametersInitial(`${selectedRowData[0].parameters}`);      
+      setValueRespRateInitial(selectedRowData[0].resp_rate);
+      setValueRespYearInitial(selectedRowData[0].resp_year );
+      setValueIndoorInitial(selectedRowData[0].indoor );
+      setValueExtCloudInitial(selectedRowData[0].ext_cloud );
+      setValueExtGroundInitial(selectedRowData[0].ext_ground );
+      setValuePhysParamId(selectedRowData[0].physparam_id );
+      setValuePhysParamIdInitial(selectedRowData[0].physparam_id );
+      setValueUsed(selectedRowData[0].used); 
+      setValueUsedInitial(selectedRowData[0].used); 
+      setValueParameters(selectedRowData[0].parameters);      
+      setValueParametersInitial(selectedRowData[0].parameters);      
     }
   }
 
@@ -801,7 +802,7 @@ const DataTableDoseRatio = (props) => {
       />
         <p></p>  
 
-   {/*      <FormControl sx={{ width: '60ch' }} size="small">
+{/*         <FormControl sx={{ width: '60ch' }} size="small">
         <InputLabel id="fiz">Физический параметр (из общего списка)</InputLabel>
           <Select labelId="fiz" id="fiz1" label="Физический параметр (из общего списка)" defaultValue="" value={valuePhysParamID||"0"} onChange={e => setValuePhysParamId(e.target.value)}>
           {tablePhysParam?.map(option => {
