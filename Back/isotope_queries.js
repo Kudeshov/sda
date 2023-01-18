@@ -55,7 +55,12 @@ const getIsotopeTree = (request, response ) => {
 
 const getIsotopeNodes = (request, response ) => {
   console.log('getIsotopeNodes'); 
-  const isotope_id = parseInt(request.params.id||0);  
+  //const isotope_id = parseInt(request.params.id||0);  
+
+  var isotope_id = 0;
+  if (request.params.id) 
+    isotope_id = parseInt(request.params.id);
+  isotope_id = isotope_id || 0;  
 /*   console.log('getIsotopeTree');
   console.log(request.params); */
   pool.query(
@@ -82,7 +87,7 @@ const getIsotopeNodes = (request, response ) => {
 
 const getIsotopeEdges = (request, response ) => {
   console.log('getIsotopeEdges'); 
-  const isotope_id = 0;
+  var isotope_id = 0;
   if (request.params.id) 
     isotope_id = parseInt(request.params.id);
   isotope_id = isotope_id || 0;  

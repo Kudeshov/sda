@@ -53,8 +53,8 @@ const columns_decay = [
   { field: 'parent_id', headerName: 'Код родительского изотопа', width: 80 },
   { field: 'child_id', headerName: 'Код дочернего изотопа', width: 80 },
   { field: 'parent_title', headerName: 'Родительский изотоп', width: 170, hideable: false },
-  { field: 'decay_prob', headerName: 'Вероятность распада', width: 130 },
-  { field: 'child_title', headerName: 'Дочерний изотоп', width: 150 },
+  { field: 'child_title', headerName: 'Дочерний изотоп', width: 170 },
+  { field: 'decay_prob', headerName: 'Вероятность распада', width: 170 },
   { field: 'n_index', headerName: 'Индекс', width: 80 },
   { field: 'half_life_value', headerName: 'Период полураспада', width: 180 },
   { field: 'half_life_period', headerName: 'Единица измерения периода полураспада', width: 180 },
@@ -362,22 +362,26 @@ const [edges, setEdges] = useState([]);
 const [nodes, setNodes] = useState([]);
 
 useEffect(() => {
-  if (!openAlertDecay)
-    return;
-  fetch(`/isotope_nodes/`+props.rec_id)
+  //if (!openAlertDecay)
+  //  return;
+  var i_id = 0;
+  if (props.rec_id)
+    i_id = props.rec_id;
+  fetch(`/isotope_nodes/`+i_id)
     .then((data) => data.json())
     .then((data) => setNodes(data))
     .then((data) => {console.log('useEffect nodes');/*  console.log(data); */} ); 
-}, [props.rec_id, openAlertDecay]);  
+}, [props.rec_id, tableDecay]);  
 
 useEffect(() => {
-  if (!openAlertDecay)
-    return;
-  fetch(`/isotope_edges/`+props.rec_id)
+  var i_id = 0;
+  if (props.rec_id)
+    i_id = props.rec_id;
+  fetch(`/isotope_edges/`+i_id)
     .then((data) => data.json())
     .then((data) => setEdges(data))
     .then((data) => {console.log('useEffect edges'); /* console.log(data); */} ); 
-}, [props.rec_id, openAlertDecay]);  
+}, [props.rec_id, tableDecay]);  
  
  useEffect(() => {
   setGraph({nodes, edges});
@@ -392,12 +396,14 @@ const [graph, setGraph] = useState({
 
 return (
     <div style={{ height: {heightVal} , width: 886 }}> 
-    <table cellSpacing={0} cellPadding={0} style={{ height: 270, width: 886, verticalAlign: 'top' }} border="0"><tbody><tr>
-      <td style={{ height: 250, width: 800, verticalAlign: 'top' }}>
+    <table cellSpacing={0} cellPadding={0} style={{ height: 203, width: 886, verticalAlign: 'top' }} border="0"><tbody><tr>
+      <td style={{ height: 160, width: 800, verticalAlign: 'top' }}>
       <DataGrid
         hideFooterSelectedRowCount={true}
         localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
         rowHeight={25}
+        hideFooterPagination={true}
+        hideFooter={true}
         rows={tableDecay}
         label="Обозначение" 
         loading={isLoading}
@@ -410,14 +416,18 @@ return (
           columns: {
             columnVisibilityModel: {
               parent_id: false,
-              child_id: false
+              child_id: false,
+              n_index: false,
+              half_life_value: false,
+              half_life_period: false,
+              decayconst: false
             },
           },
         }}        
         onRowClick={handleRowClickDecay} {...tableDecay} 
       />            
     </td>
-    <td style={{ height: 210, width: 100, verticalAlign: 'top' }}>
+    <td style={{ height: 190, width: 100, verticalAlign: 'top' }}>
     &nbsp;<IconButton onClick={()=>handleClickAddDecay()} disabled={(!props.rec_id)} color="primary" size="small" title="Добавить связь с источником данных">
       <SvgIcon fontSize="small" component={PlusLightIcon} inheritViewBox /></IconButton><br/>
     &nbsp;<IconButton onClick={()=>handleClickEditDecay()} disabled={noRecordsDecay} color="primary" size="small" title="Редактировать связь с источником данных">

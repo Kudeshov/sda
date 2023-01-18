@@ -310,12 +310,13 @@ const DataTableIsotope = (props) => {
       setValueDecayConst(valueDecayConst);
       setValueHalfLifePeriod(valueHalfLifePeriod); 
       setValueNuclideId(valueNuclideId); 
+      
       setValueTitleInitial(valueTitle);
       setValueNIndexInitial(valueNIndex);
       setValueHalfLifeValueInitial(valueHalfLifeValue);
       setValueDecayConstInitial(valueDecayConst);
       setValueHalfLifePeriodInitial(valueHalfLifePeriod);  
-      setValueNuclideIdInitial(valueNuclideIdInitial);     
+      setValueNuclideIdInitial(valueNuclideId);     
     }
   };
 
