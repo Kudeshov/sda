@@ -24,6 +24,7 @@ import Organ from "./pages/organ";
 import ChemCompGr from "./pages/chem_comp_gr";
 import Isotope from "./pages/isotope";
 import Griterion from "./pages/criterion";
+import ValueIntDose from "./pages/value_int_dose";
 
 function App() {
   return (
@@ -53,7 +54,8 @@ function App() {
         <Route path="/organ" element={<Organ/>} />
         <Route path="/chem_comp_gr" element={<ChemCompGr/>} />
         <Route path="/isotope" element={<Isotope/>} />
-        <Route path="/criterion" element={<Griterion/>} />                   
+        <Route path="/criterion" element={<Griterion/>} />  
+        <Route path="/value_int_dose" element={<ValueIntDose/>} />                           
       </Routes>
     </Router>
   );
