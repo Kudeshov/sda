@@ -1,51 +1,55 @@
 // Big fucking table VALUE_INT_DOSE
+
 import React, { useState, useEffect } from 'react';
 import {
   DataGrid, 
   ruRU,
   GridToolbarContainer,
-  useGridApiContext,
-  gridFilteredSortedRowIdsSelector,
+//  useGridApiContext,
+//  gridFilteredSortedRowIdsSelector,
 } from '@mui/x-data-grid';
 import TextField from '@mui/material/TextField';
-import Button from '@mui/material/Button';
+/* import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle';
+import DialogTitle from '@mui/material/DialogTitle'; */
 import { Box, IconButton } from '@mui/material';
 import Alert from '@mui/material/Alert';
 import Collapse from '@mui/material/Collapse';
 import CloseIcon from '@mui/icons-material/Close';
 import SvgIcon from '@mui/material/SvgIcon';
-import { ReactComponent as SaveLightIcon } from "./../icons/save.svg";
+/* import { ReactComponent as SaveLightIcon } from "./../icons/save.svg";
 import { ReactComponent as PlusLightIcon } from "./../icons/plus.svg";
 import { ReactComponent as UndoLightIcon } from "./../icons/undo.svg";
 import { ReactComponent as DownloadLightIcon } from "./../icons/download.svg";
-import { ReactComponent as TrashLightIcon } from "./../icons/trash.svg";
+import { ReactComponent as TrashLightIcon } from "./../icons/trash.svg"; */
 import { ReactComponent as RepeatLightIcon } from "./../icons/repeat.svg";
-import { table_names } from './sda_types';
+/* import { table_names } from './sda_types';
 import { FormControl } from "@mui/material";
 import { InputLabel } from "@mui/material";
 import { Select } from "@mui/material";
-import { MenuItem } from "@mui/material";
+import { MenuItem } from "@mui/material"; */
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Backdrop from '@mui/material/Backdrop';
 import Autocomplete from '@mui/material/Autocomplete';
 import Checkbox from '@mui/material/Checkbox';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
+
+import ServerPaginationGrid from './sp_datagrid';
+
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
 var alertText = "Сообщение";
 var alertSeverity = "info";
-var lastId = 0;
+//var lastId = 0;
 
 const BigTableValueIntDose = (props) => {
-  const [valueId, setValueID] = React.useState();
-  const [valueTitle, setValueTitle] = React.useState();
+/*  const [valueId, setValueID] = React.useState();
+   const [valueTitle, setValueTitle] = React.useState();
   const [valueTitleInitial, setValueTitleInitial] = React.useState();
 
   const [valueShortName, setValueShortName] = React.useState();
@@ -56,20 +60,20 @@ const BigTableValueIntDose = (props) => {
   const [valueShortNameInitial, setValueShortNameInitial] = React.useState();
   const [valueFullNameInitial, setValueFullNameInitial] = React.useState();
   const [valueDescrInitial, setValueDescrInitial] = React.useState();
-  const [valueExternalDSInitial, setValueExternalDSInitial] = React.useState();
+  const [valueExternalDSInitial, setValueExternalDSInitial] = React.useState(); */
 
   const [isLoading, setIsLoading] = React.useState(false);
   const [tableDataSource, setTableDataSource] = useState([]); 
-  const [tableOrgan, setTableOrgan] = useState([]); 
+  const [tableOrgan, setTableOrgan] = useState([]);
+  const [tableIrradiation, setTableIrradiation] = useState([]);  
+  const [tableIsotope, setTableIsotope] = useState([]);
+  const [tableIntegralPeriod, setTableIntegralPeriod] = useState([]);
+
   const [tableValueIntDose, setTableValueIntDose] = useState([]); 
   const [selectionModel, setSelectionModel] = React.useState([]);
-  const [editStarted, setEditStarted] = useState([false]);
+/*  const [editStarted, setEditStarted] = useState([false]);
 
-  const valuesExtDS = [
-    { label: 'Целевая БД', value: 'false' },
-    { label: 'Внешний источник', value: 'true' } ];
-
-  useEffect(() => {
+   useEffect(() => {
     setEditStarted((valueTitleInitial!==valueTitle)||(valueShortNameInitial!==valueShortName)||(valueFullNameInitial!==valueFullName)
       ||(valueDescrInitial!==valueDescr)||(valueExternalDSInitial!==valueExternalDS));
     }, [valueTitleInitial, valueTitle, valueShortNameInitial, valueShortName, valueFullNameInitial, valueFullName, 
@@ -99,9 +103,9 @@ const BigTableValueIntDose = (props) => {
         
       }
     }
-    }, [ isLoading, tableDataSource] );
+    }, [ isLoading, tableDataSource] ); */
 
-  const handleRowClick = (params) => {
+  /* const handleRowClick = (params) => {
     setOpenAlert(false);
     console.log('handleRowClick params.row.external_ds'+ params.row.external_ds);
     if (editStarted)
@@ -144,37 +148,46 @@ const BigTableValueIntDose = (props) => {
       setValueDescr('');
     }
   }; 
-
+ */
   useEffect(() => {
     fetch(`/data_source`)
       .then((data) => data.json())
-      .then((data) => setTableDataSource(data))
-      .then((data) => { lastId = 0;} ); 
+      .then((data) => setTableDataSource(data)); 
   }, [props.table_name])
 
   useEffect(() => {
     fetch(`/organ`)
       .then((data) => data.json())
-      .then((data) => setTableOrgan(data))
-      .then((data) => { lastId = 0;} ); 
+      .then((data) => setTableOrgan(data)); 
   }, [props.table_name])
-
-
 
   useEffect(() => {
-    var ds_id = 0;
-    console.log(selDataSourceValues);
-    if (selDataSourceValues.length)
-      ds_id = selDataSourceValues[0].id;
-
-    fetch(`/value_int_dose/`)
+    fetch(`/irradiation`)
       .then((data) => data.json())
-      .then((data) => setTableValueIntDose(data))
-      .then((data) => { lastId = 0;} ); 
+      .then((data) => setTableIrradiation(data)); 
   }, [props.table_name])
 
+  useEffect(() => {
+    fetch(`/isotope_min`)
+      .then((data) => data.json())
+      .then((data) => setTableIsotope(data)); 
+  }, [props.table_name])
+
+  useEffect(() => {
+    fetch(`/value_int_dose/`)
+      .then((data) => data.json())
+      .then((data) => setTableValueIntDose(data)); 
+  }, [props.table_name])
+
+  useEffect(() => {
+    fetch(`/integral_period/`)
+      .then((data) => data.json())
+      .then((data) => setTableIntegralPeriod(data)); 
+  }, [props.table_name])
+
+
   ///////////////////////////////////////////////////////////////////  SAVE  /////////////////////
-  const saveRec = async ( fromToolbar ) => {
+  /* const saveRec = async ( fromToolbar ) => {
     const js = JSON.stringify({
       title: valueTitle,
       shortname: valueShortName,
@@ -193,7 +206,7 @@ const BigTableValueIntDose = (props) => {
        body: js,
        headers: {
          'Content-Type': 'Application/json',
-         Accept: '*/*',
+
        },
      });
      if (!response.ok) {
@@ -242,7 +255,6 @@ const BigTableValueIntDose = (props) => {
         body: js,
         headers: {
           'Content-Type': 'Application/json',
-          Accept: '*/*',
         },
       });
 
@@ -299,7 +311,6 @@ const BigTableValueIntDose = (props) => {
         body: js,
         headers: {
           'Content-Type': 'Application/json',
-          Accept: '*/*',
         },
       });
       if (!response.ok) {
@@ -336,7 +347,7 @@ const BigTableValueIntDose = (props) => {
       setIsLoading(false);
     }
   };  
-
+ */
   /////////////////////////////////////////////////////////////////// RELOAD /////////////////////
   const reloadDataAlert =  async () => {
     alertSeverity = "info";
@@ -362,13 +373,19 @@ const BigTableValueIntDose = (props) => {
         ds_id = selDataSourceValues[0].id;
       console.log(ds_id);  
 
-
       const  idsDS =  selDataSourceValues.map(item => item.id).join(',');
       console.log('idsDS = '+idsDS);  
       const  idsOrgan =  selOrganValues.map(item => item.id).join(',');
       console.log('idsOrgan = '+idsOrgan);  
-
-      const response = await fetch(`/value_int_dose?data_source_id=`+idsDS+`&organ_id=`+idsOrgan);
+      const  idsIrradiation =  selIrradiationValues.map(item => item.id).join(',');
+      console.log('idsIrradiation = '+idsIrradiation);        
+      const  idsIsotope =  selIsotopeValues.map(item => item.id).join(',');
+      console.log('idsIsotope = '+idsIsotope);  
+      const  idsIntegralPeriod =  selIntegralPeriodValues.map(item => item.id).join(',');
+      console.log('idsIntegralPeriod = '+idsIntegralPeriod);  
+      
+      const response = await fetch(`/value_int_dose?data_source_id=`+idsDS+`&organ_id=`+idsOrgan+
+                                   `&irradiation_id=`+idsIrradiation+`&isotope_id=`+idsIsotope+`&integral_period_id=`+idsIntegralPeriod);
 
        if (!response.ok) {
         alertText = `Ошибка при обновлении данных: ${response.status}`;
@@ -390,7 +407,7 @@ const BigTableValueIntDose = (props) => {
   };
 
   /////////////////////////////////////////
-  const [openDel, setOpenDel] = React.useState(false); 
+/*  const [openDel, setOpenDel] = React.useState(false); 
   const [openSave, setOpenSave] = React.useState(false); 
   const [openSaveWhenNew, setOpenSaveWhenNew] = React.useState(false); 
 
@@ -407,10 +424,10 @@ const BigTableValueIntDose = (props) => {
     delRec();
   };
 
-  const handleClickSave = () => {
+   const handleClickSave = () => {
     console.log('handleClickSave');
     setOpenSave(true);
-  };
+  }; 
 
   const handleCloseSaveNo = () => {
     console.log('handleCloseSaveNo');
@@ -453,7 +470,7 @@ const BigTableValueIntDose = (props) => {
     setValueExternalDS('');
     setValueDescr('');
   };
-
+*/
 
   //////////////////////////////////////////////////////// ACTIONS ///////////////////////////////
  
@@ -463,22 +480,44 @@ const BigTableValueIntDose = (props) => {
     { field: 'updatetime', headerName: 'Время последнего измерения', width: 280 },
     { field: 'data_source_title', headerName: 'Источник данных', width: 200 },
     { field: 'organ_name_rus', headerName: 'Орган', width: 200 },
+    { field: 'irradiation_name_rus', headerName: 'Тип облучения', width: 200 },
+    { field: 'isotope_title', headerName: 'Нуклид', width: 200 },
+    { field: 'integral_period_name_rus', headerName: 'Период интегрирования', width: 200 },
   ]
   const [openAlert, setOpenAlert] = React.useState(false, '');
   const [selDataSourceValues, setSelDataSourceValues] = useState([]);
   const [selOrganValues, setSelOrganValues] = useState([]);
+  const [selIrradiationValues, setSelIrradiationValues] = useState([]);
+  const [selIsotopeValues, setSelIsotopeValues] = useState([]);
+  const [selIntegralPeriodValues, setSelIntegralPeriodValues] = useState([]);
+
   const handleChangeDataSource = (event, value) => {
     setSelDataSourceValues(value);
-    setValueTitle(value);
+   // setValueTitle(value);
     console.log(value);
   };
 
   const handleChangeOrgan = (event, value) => {
     setSelOrganValues(value);
-    //setValueTitle(value);
     console.log(value);
   };
-  const handleCancelClick = () => 
+
+  const handleChangeIrradiation = (event, value) => {
+    setSelIrradiationValues(value);
+    console.log(value);
+  };
+
+  const handleChangeIsotope = (event, value) => {
+    setSelIsotopeValues(value);
+    console.log(value);
+  };
+
+  const handleChangeIntegralPeriod = (event, value) => {
+    setSelIntegralPeriodValues(value);
+    console.log(value);
+  };
+
+ /*  const handleCancelClick = () => 
   {
     console.log('handleCancelClick');
     //console.log('selectionModel');
@@ -505,15 +544,15 @@ const BigTableValueIntDose = (props) => {
       setValueDescrInitial( selectedRowData[0].descr  || "" );
     }
   }
-
+ */
   function CustomToolbar1() {
-    const apiRef = useGridApiContext();
-    const handleExport = (options/* : GridCsvExportOptions */) =>
-      apiRef.current.exportDataAsCsv(options);
+/*   const apiRef = useGridApiContext();
+     const handleExport = (options) =>
+      apiRef.current.exportDataAsCsv(options); */
 
     return (
       <GridToolbarContainer>
-        <IconButton onClick={()=>handleClearClick()}  color="primary" size="small" title="Создать запись">
+{/*         <IconButton onClick={()=>handleClearClick()}  color="primary" size="small" title="Создать запись">
           <SvgIcon fontSize="small" component={PlusLightIcon} inheritViewBox /></IconButton>
         <IconButton onClick={()=>saveRec(true)}  color="primary" size="small" title="Сохранить запись в БД">
           <SvgIcon fontSize="small" component={SaveLightIcon} inheritViewBox/></IconButton>
@@ -525,10 +564,110 @@ const BigTableValueIntDose = (props) => {
           <SvgIcon fontSize="small" component={RepeatLightIcon} inheritViewBox /></IconButton>
         <IconButton onClick={()=>handleExport({ delimiter: ';', utf8WithBom: true, getRowsToExport: () => gridFilteredSortedRowIdsSelector(apiRef) })} color="primary" 
             size="small" title="Сохранить в формате CSV">
-          <SvgIcon fontSize="small" component={DownloadLightIcon} inheritViewBox /></IconButton>
+          <SvgIcon fontSize="small" component={DownloadLightIcon} inheritViewBox /></IconButton> */}
       </GridToolbarContainer>
     );
   }
+
+  const [pageState, setPageState] = useState({
+    page: 0,
+    pageSize: 25,
+    rows: [],
+    rowCount: 0,
+    isLoading: false
+  });
+
+/*   const setPage = (page) => {
+    setPageState({ ...pageState, page: page });
+  };
+
+  const setPageSize = (pageSize) => {
+    setPageState({ ...pageState, pageSize: pageSize });
+  }; */
+
+  // const setRowCountState = (rowCount) => {
+  //   setPageState({ ...pageState, rowCount: rowCount });
+  // };
+
+  // useEffect(() => {
+  //   setRowCountState((prevRowCountState) =>
+  //     rowCount !== undefined ? rowCount : prevRowCountState
+  //   );
+  // }, [pageState.rowCount, setRowCountState]);
+
+  const columns = [
+    {
+      field: "id"
+    },
+    {
+      field: "albumId",
+      headerName: "AlbumId",
+      width: 110
+    },
+    {
+      field: "thumbnailUrl",
+      headerName: "ThumbnailUrl",
+      width: 180,
+      editable: false
+    },
+    {
+      field: "title",
+      headerName: "Title",
+      width: 120,
+      editable: false
+    },
+
+    {
+      field: "url",
+      headerName: "URL",
+      type: "string",
+      width: 140
+    }
+  ];
+
+/*   useEffect(() => {
+    console.log("---");
+    const fetchData = async () => {
+      setPageState((old) => ({ ...old, isLoading: true }));
+      // console.log("pageState:", pageState);
+      const response = await fetch(
+        `https://jsonplaceholder.typicode.com/photos?_page=${
+          pageState.page + 1
+        }&_limit=${pageState.pageSize}`
+      );
+      const json = await response.json();
+      setPageState((old) => ({
+        ...old,
+        isLoading: false,
+        rows: json,
+        rowCount: 1000
+      }));
+    };
+    fetchData();
+  }, [pageState.pageSize, pageState.page]); */
+
+  useEffect(() => {
+    console.log("---");
+    const fetchData = async () => {
+      setPageState((old) => ({ ...old, isLoading: true }));
+      // console.log("pageState:", pageState);
+      const response = await fetch(
+        `/value_int_dose?page=${
+          pageState.page + 1
+        }&pagesize=${pageState.pageSize}`
+      );
+      const json = await response.json();
+      setPageState((old) => ({
+        ...old,
+        isLoading: false,
+        rows: json,
+        rowCount: 1000
+      }));
+    };
+    fetchData();
+  }, [pageState.pageSize, pageState.page]);
+
+
 
   return (
     <div style={{ height: 640, width: 1500 }}>
@@ -577,8 +716,66 @@ const BigTableValueIntDose = (props) => {
           )}
         />
         <p></p>
-
-
+        <Autocomplete
+          size="small"
+          value={selIrradiationValues}
+          onChange={handleChangeIrradiation}
+          multiple
+          id="autocomplete-irradiation"
+          options={tableIrradiation}
+          getOptionLabel={(option) => option.name_rus}
+          disableCloseOnSelect
+          renderOption={(props, option, { selected }) => (
+            <li {...props}>
+              <Checkbox size="small" icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected}/>
+              {option.name_rus}
+            </li>
+          )}
+          renderInput={(params) => (
+            <TextField {...params} label="Типы облучения" placeholder="Типы облучения" />
+          )}
+        />
+        <p></p>
+        <Autocomplete
+          size="small"
+          value={selIsotopeValues}
+          onChange={handleChangeIsotope}
+          multiple
+          id="autocomplete-isotope"
+          options={tableIsotope}
+          getOptionLabel={(option) => option.title}
+          disableCloseOnSelect
+          renderOption={(props, option, { selected }) => (
+            <li {...props}>
+              <Checkbox size="small" icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected}/>
+              {option.title}
+            </li>
+          )}
+          renderInput={(params) => (
+            <TextField {...params} label="Нуклиды" placeholder="Нуклиды" />
+          )}
+        />
+        <p></p>
+        <Autocomplete
+          size="small"
+          value={selIntegralPeriodValues}
+          onChange={handleChangeIntegralPeriod}
+          multiple
+          id="autocomplete-isotope"
+          options={tableIntegralPeriod}
+          getOptionLabel={(option) => option.name_rus}
+          disableCloseOnSelect
+          renderOption={(props, option, { selected }) => (
+            <li {...props}>
+              <Checkbox size="small" icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected}/>
+              {option.name_rus}
+            </li>
+          )}
+          renderInput={(params) => (
+            <TextField {...params} label="Периоды интегрирования" placeholder="Периоды интегрирования" />
+          )}
+        />
+        <p></p>
         <IconButton onClick={()=>reloadDataAlert()} color="primary" size="small" title="Обновить данные">
           <SvgIcon fontSize="small" component={RepeatLightIcon} inheritViewBox /></IconButton>
 {/*         <Autocomplete
@@ -596,28 +793,7 @@ const BigTableValueIntDose = (props) => {
           renderInput={(params) => <TextField {...params} label="Радиоизотоп" />}
         /> */}
 
-{/*       <DataGrid
-        components={{ Toolbar: CustomToolbar1 }}
-        hideFooterSelectedRowCount={true}
-        localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
-        rowHeight={25}
-        rows={tableData}
-        columns={columns}
-        onSelectionModelChange={(newSelectionModel) => {
-          setSelectionModel(newSelectionModel);
-        }}
-        selectionModel={selectionModel}        
-        initialState={{
-          columns: {
-            columnVisibilityModel: {
-              fullname: false,
-              external_ds: false,
-              descr: false,
-            },
-          },
-        }}        
-        onRowClick={handleRowClick} {...tableData} 
-      /> */}
+
       </div>
       <Box sx={{ width: 585 }}>
       <Collapse in={openAlert}>
@@ -656,7 +832,7 @@ const BigTableValueIntDose = (props) => {
         initialState={{
           columns: {
             columnVisibilityModel: {
-              fullname: false,
+              updatetime: false,
               external_ds: false,
               descr: false,
             },
@@ -664,33 +840,26 @@ const BigTableValueIntDose = (props) => {
         }}        
         //onRowClick={handleRowClick} {...tableData} 
       /> 
+{/*       <p></p>  
+       <ServerPaginationGrid
+        page={pageState.page}
+        loading={pageState.isLoading}
+        pageSize={pageState.pageSize}
+        rows={pageState.rows}
+        rowCount={pageState.rowCount}
+        columns={columns}
+        onPageAlter={(newPage) => setPageState({ ...pageState, page: newPage })}
+      />  */}
       <p></p>  
-
-      <FormControl sx={{ width: '40ch' }} size="small">
-        <InputLabel id="demo-controlled-open-select-label">Тип источника</InputLabel>
-        <Select
-          labelId="demo-controlled-open-select-label"
-          id="demo-controlled-open-select"
-          value={valueExternalDS}
-          label="Тип источника"
-          defaultValue={true}
-          
-          onChange={e => setValueExternalDS(e.target.value)}
-        >
-        {valuesExtDS?.map(option => {
-            return (
-              <MenuItem key={option.value} value={option.value}>
-                {option.label ?? option.value}
-              </MenuItem>
-            );
-        })}
-        </Select>
-      </FormControl>  
-      <p></p> 
-
-      <TextField  id="ch_descr" sx={{ width: '100ch' }} size="small" label="Комментарий" multiline rows={7} variant="outlined"   value={valueDescr || ''} onChange={e => setValueDescr(e.target.value)}/>
-      <p></p> 
-
+       <ServerPaginationGrid
+        page={pageState.page}
+        loading={pageState.isLoading}
+        pageSize={pageState.pageSize}
+        rows={pageState.rows}
+        rowCount={pageState.rowCount}
+        columns={columnsValueIntDose}
+        onPageAlter={(newPage) => setPageState({ ...pageState, page: newPage })}
+      /> 
     </td>
   </tr>
   </tbody>
@@ -705,7 +874,7 @@ const BigTableValueIntDose = (props) => {
     <CircularProgress color="inherit" />
   </Backdrop> } 
 
-  <Dialog open={openDel} onClose={handleCloseDelNo} fullWidth={true}>
+ {/* <Dialog open={openDel} onClose={handleCloseDelNo} fullWidth={true}>
       <DialogTitle>
           Внимание
       </DialogTitle>
@@ -721,7 +890,7 @@ const BigTableValueIntDose = (props) => {
       </DialogActions>
   </Dialog>
  
-  <Dialog open={openSave} onClose={handleCloseSaveNo} fullWidth={true}>
+   <Dialog open={openSave} onClose={handleCloseSaveNo} fullWidth={true}>
     <DialogTitle>
         Внимание
     </DialogTitle>
@@ -753,7 +922,7 @@ const BigTableValueIntDose = (props) => {
         <Button variant="outlined" onClick={handleCloseSaveWhenNewNo} autoFocus>Нет</Button>
         <Button variant="outlined" onClick={handleCloseSaveWhenNewYes} >Да</Button>
     </DialogActions>
-  </Dialog>
+  </Dialog> */}
  </div>     
   )
 }
