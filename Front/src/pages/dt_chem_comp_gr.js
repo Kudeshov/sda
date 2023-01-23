@@ -544,8 +544,8 @@ const DataTableChemCompGr = (props) => {
         setValueNameEngInitial(tableData[0].name_eng);
         setValueDescrRusInitial(tableData[0].descr_rus);
         setValueDescrEngInitial(tableData[0].descr_eng);
-        setValueParentID(`${tableData[0].parent_id||-1}`);
-        setValueParentIDInitial(`${tableData[0].parent_id||-1}`);
+        setValueParentID(tableData[0].parent_id||-1);
+        setValueParentIDInitial(tableData[0].parent_id||-1);
         setValueFormula(tableData[0].formula);
         setValueFormulaInitial(tableData[0].formula);
       }

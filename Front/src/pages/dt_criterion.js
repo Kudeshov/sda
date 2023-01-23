@@ -88,8 +88,8 @@ const DataTableCriterion= (props) => {
         setValueDescrEngInitial(tableData[0].descr_eng);
         setValueParentID(tableData[0].parent_id||-1);
         setValueParentIDInitial(tableData[0].parent_id||-1);
-        setValueNormativ(`${tableData[0].normativ_id}`);
-        setValueNormativInitial(`${tableData[0].normativ_id}`);  
+        setValueNormativ(tableData[0].normativ_id);
+        setValueNormativInitial(tableData[0].normativ_id);  
       }
     }
     }, [ isLoading, tableData] );
@@ -586,10 +586,10 @@ const DataTableCriterion= (props) => {
         setValueNameEngInitial(tableData[0].name_eng);
         setValueDescrRusInitial(tableData[0].descr_rus);
         setValueDescrEngInitial(tableData[0].descr_eng);
-        setValueParentID(`${tableData[0].parent_id||-1}`);
-        setValueParentIDInitial(`${tableData[0].parent_id||-1}`);
-        setValueNormativ(`${tableData[0].normativ_id}`);
-        setValueNormativInitial(`${tableData[0].normativ_id}`);
+        setValueParentID(tableData[0].parent_id||-1);
+        setValueParentIDInitial(tableData[0].parent_id||-1);
+        setValueNormativ(tableData[0].normativ_id);
+        setValueNormativInitial(tableData[0].normativ_id);
       }
     } catch (err) {
       alertText = err.message;
@@ -743,8 +743,8 @@ const DataTableCriterion= (props) => {
       setValueDescrEngInitial(selectedRowData[0].descr_eng);
       setValueParentID(selectedRowData[0].parent_id||-1);
       setValueParentIDInitial(selectedRowData[0].parent_id||-1);
-      setValueNormativ(`${selectedRowData[0].normativ_id}`);
-      setValueNormativInitial(`${selectedRowData[0].normativ_id}`);
+      setValueNormativ(selectedRowData[0].normativ_id);
+      setValueNormativInitial(selectedRowData[0].normativ_id);
 
       var res2 = tableData.filter(function(item) {
         return item.id === selectedRowData[0].parent_id;

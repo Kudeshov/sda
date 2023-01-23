@@ -90,11 +90,11 @@ const DataTableChelement = (props) => {
       setValueTitle(params.row.title);
       setValueNameRus(params.row.name_rus);
       setValueNameEng(params.row.name_eng);
-      setValueAtomicNum(`${params.row.atomic_num}`);
+      setValueAtomicNum(params.row.atomic_num);
       setValueTitleInitial(params.row.title);
       setValueNameRusInitial(params.row.name_rus);
       setValueNameEngInitial(params.row.name_eng);
-      setValueAtomicNumInitial(`${params.row.atomic_num}`);
+      setValueAtomicNumInitial(params.row.atomic_num);
     }
   }; 
 
@@ -441,11 +441,11 @@ const DataTableChelement = (props) => {
       setValueTitle(selectedRowData[0].title);
       setValueNameRus(selectedRowData[0].name_rus);
       setValueNameEng(selectedRowData[0].name_eng);
-      setValueAtomicNum(`${selectedRowData[0].atomic_num}`);
+      setValueAtomicNum(selectedRowData[0].atomic_num);
       setValueTitleInitial(selectedRowData[0].title);
       setValueNameRusInitial(selectedRowData[0].name_rus);
       setValueNameEngInitial(selectedRowData[0].name_eng);
-      setValueAtomicNumInitial(`${selectedRowData[0].atomic_num}`);
+      setValueAtomicNumInitial(selectedRowData[0].atomic_num);
     }
   }
 
