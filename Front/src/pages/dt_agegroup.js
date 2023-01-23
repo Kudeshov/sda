@@ -90,10 +90,10 @@ const DataTableAgeGroup = (props) => {
         setValueDescrEng(tableData[0].descr_eng);
 
         setValueRespRate(tableData[0].resp_rate);
-        setValueRespYear(`${tableData[0].resp_year}`);
-        setValueIndoor(`${tableData[0].indoor}`);
-        setValueExtCloud(`${tableData[0].ext_cloud}`);
-        setValueExtGround(`${tableData[0].ext_ground}`);
+        setValueRespYear(tableData[0].resp_year);
+        setValueIndoor(tableData[0].indoor);
+        setValueExtCloud(tableData[0].ext_cloud);
+        setValueExtGround(tableData[0].ext_ground);
         //console.log('useEffect Refresh initial '+tableData[0].title+' '+tableData[0].name_rus);
         setValueTitleInitial(tableData[0].title);       
         setValueNameRusInitial(tableData[0].name_rus);
@@ -102,10 +102,10 @@ const DataTableAgeGroup = (props) => {
         setValueDescrEngInitial(tableData[0].descr_eng);
 
         setValueRespRateInitial(tableData[0].resp_rate);
-        setValueRespYearInitial(`${tableData[0].resp_year}`);
-        setValueIndoorInitial(`${tableData[0].indoor}`);
-        setValueExtCloudInitial(`${tableData[0].ext_cloud}`);
-        setValueExtGroundInitial(`${tableData[0].ext_ground}`);
+        setValueRespYearInitial(tableData[0].resp_year);
+        setValueIndoorInitial(tableData[0].indoor);
+        setValueExtCloudInitial(tableData[0].ext_cloud);
+        setValueExtGroundInitial(tableData[0].ext_ground);
       }
     }
     }, [ isLoading, tableData] );
@@ -125,11 +125,11 @@ const DataTableAgeGroup = (props) => {
       setValueDescrRus(params.row.descr_rus);
       setValueDescrEng(params.row.descr_eng);
 
-      setValueRespRate(`${params.row.resp_rate}` );
-      setValueRespYear(`${params.row.resp_year}` );
-      setValueIndoor(`${params.row.indoor}` );
-      setValueExtCloud(`${params.row.ext_cloud}` );
-      setValueExtGround(`${params.row.ext_ground}` );
+      setValueRespRate(params.row.resp_rate );
+      setValueRespYear(params.row.resp_year );
+      setValueIndoor(params.row.indoor );
+      setValueExtCloud(params.row.ext_cloud );
+      setValueExtGround(  params.row.ext_ground );
       //console.log('handleRowClick Refresh initial '+params.row.title+' '+params.row.name_rus);
       setValueTitleInitial(params.row.title);
       setValueNameRusInitial(params.row.name_rus);
@@ -137,11 +137,11 @@ const DataTableAgeGroup = (props) => {
       setValueDescrRusInitial(params.row.descr_rus);
       setValueDescrEngInitial(params.row.descr_eng);
 
-      setValueRespRateInitial(`${params.row.resp_rate}` );
-      setValueRespYearInitial(`${params.row.resp_year}` );
-      setValueIndoorInitial(`${params.row.indoor}` );
-      setValueExtCloudInitial(`${params.row.ext_cloud}` );
-      setValueExtGroundInitial(`${params.row.ext_ground}` );
+      setValueRespRateInitial(params.row.resp_rate );
+      setValueRespYearInitial(params.row.resp_year );
+      setValueIndoorInitial(params.row.indoor );
+      setValueExtCloudInitial(params.row.ext_cloud );
+      setValueExtGroundInitial(params.row.ext_ground );
     }
   }; 
 
@@ -351,10 +351,10 @@ const DataTableAgeGroup = (props) => {
         setValueDescrEng(tableData[0].descr_eng);
 
         setValueRespRate(tableData[0].resp_rate);
-        setValueRespYear(`${tableData[0].resp_year}`);
-        setValueIndoor(`${tableData[0].indoor}`);
-        setValueExtCloud(`${tableData[0].ext_cloud}`);
-        setValueExtGround(`${tableData[0].ext_ground}`);
+        setValueRespYear(tableData[0].resp_year);
+        setValueIndoor(tableData[0].indoor);
+        setValueExtCloud(tableData[0].ext_cloud);
+        setValueExtGround(tableData[0].ext_ground);
 
         setValueTitleInitial(tableData[0].title);
         setValueNameRusInitial(tableData[0].name_rus);
@@ -363,10 +363,10 @@ const DataTableAgeGroup = (props) => {
         setValueDescrEngInitial(tableData[0].descr_eng);
 
         setValueRespRateInitial(tableData[0].resp_rate);
-        setValueRespYearInitial(`${tableData[0].resp_year}`);
-        setValueIndoorInitial(`${tableData[0].indoor}`);
-        setValueExtCloudInitial(`${tableData[0].ext_cloud}`);
-        setValueExtGroundInitial(`${tableData[0].ext_ground}`);
+        setValueRespYearInitial(tableData[0].resp_year);
+        setValueIndoorInitial(tableData[0].indoor);
+        setValueExtCloudInitial(tableData[0].ext_cloud);
+        setValueExtGroundInitial(tableData[0].ext_ground);
       }
     } catch (err) {
       alertText = err.message;
@@ -512,22 +512,22 @@ const DataTableAgeGroup = (props) => {
       setValueNameEng(selectedRowData[0].name_eng );
       setValueDescrRus(selectedRowData[0].descr_rus);
       setValueDescrEng(selectedRowData[0].descr_eng);
-      setValueRespRate(`${selectedRowData[0].resp_rate}` );
-      setValueRespYear(`${selectedRowData[0].resp_year}` );
-      setValueIndoor(`${selectedRowData[0].indoor}` );
-      setValueExtCloud(`${selectedRowData[0].ext_cloud}` );
-      setValueExtGround(`${selectedRowData[0].ext_ground}` );
+      setValueRespRate(selectedRowData[0].resp_rate );
+      setValueRespYear(selectedRowData[0].resp_year );
+      setValueIndoor(selectedRowData[0].indoor );
+      setValueExtCloud(selectedRowData[0].ext_cloud );
+      setValueExtGround(selectedRowData[0].ext_ground );
       //console.log('handleCancelClick Refresh initial '+selectedRowData[0].title+' '+selectedRowData[0].name_rus);
       setValueTitleInitial(selectedRowData[0].title);
       setValueNameRusInitial(selectedRowData[0].name_rus);
       setValueNameEngInitial(selectedRowData[0].name_eng );
       setValueDescrRusInitial(selectedRowData[0].descr_rus);
       setValueDescrEngInitial(selectedRowData[0].descr_eng);
-      setValueRespRateInitial(`${selectedRowData[0].resp_rate}` );
-      setValueRespYearInitial(`${selectedRowData[0].resp_year}` );
-      setValueIndoorInitial(`${selectedRowData[0].indoor}` );
-      setValueExtCloudInitial(`${selectedRowData[0].ext_cloud}` );
-      setValueExtGroundInitial(`${selectedRowData[0].ext_ground}` );
+      setValueRespRateInitial(selectedRowData[0].resp_rate );
+      setValueRespYearInitial(selectedRowData[0].resp_year );
+      setValueIndoorInitial(selectedRowData[0].indoor );
+      setValueExtCloudInitial(selectedRowData[0].ext_cloud );
+      setValueExtGroundInitial(selectedRowData[0].ext_ground );
     }
   }
 
