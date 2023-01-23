@@ -68,6 +68,7 @@ const BigTableValueIntDose = (props) => {
   const [tableIrradiation, setTableIrradiation] = useState([]);  
   const [tableIsotope, setTableIsotope] = useState([]);
   const [tableIntegralPeriod, setTableIntegralPeriod] = useState([]);
+  const [tableDoseRatio, setTableDoseRatio] = useState([]);
 
   const [tableValueIntDose, setTableValueIntDose] = useState([]); 
   const [selectionModel, setSelectionModel] = React.useState([]);
@@ -185,6 +186,36 @@ const BigTableValueIntDose = (props) => {
       .then((data) => setTableIntegralPeriod(data)); 
   }, [props.table_name])
 
+  useEffect(() => {
+    fetch(`/dose_ratio/`)
+      .then((data) => data.json())
+      .then((data) => setTableDoseRatio(data)); 
+  }, [props.table_name])
+
+
+  //const idsDoseRatioAllowed = [1, 2, 8];
+
+  useEffect(() => {
+    var a = tableDoseRatio.filter((row) => [1, 2, 8].includes(row.id));
+    console.log('tableDoseRatio.filter');    
+    console.log(a);
+  }, [tableDoseRatio])
+
+  useEffect(() => {
+    console.log('tableDataSource[0]');   
+    console.log([tableDataSource[0]]);  
+
+    //if (tableDataSource.length===0)
+    //  setSelDataSourceValues([tableDataSource[0]]);
+/*     var a = tableDoseRatio.filter((row) => [1, 2, 8].includes(row.id));
+    console.log(tableDoseRatio.filter);    
+    console.log(a); */
+  }, [tableDataSource]);
+
+
+  
+
+//  options={ tableDoseRatio.filter((row) => idsDoseRatio.has(row.id)) }
 
   ///////////////////////////////////////////////////////////////////  SAVE  /////////////////////
   /* const saveRec = async ( fromToolbar ) => {
@@ -383,9 +414,15 @@ const BigTableValueIntDose = (props) => {
       console.log('idsIsotope = '+idsIsotope);  
       const  idsIntegralPeriod =  selIntegralPeriodValues.map(item => item.id).join(',');
       console.log('idsIntegralPeriod = '+idsIntegralPeriod);  
-      
-      const response = await fetch(`/value_int_dose?data_source_id=`+idsDS+`&organ_id=`+idsOrgan+
-                                   `&irradiation_id=`+idsIrradiation+`&isotope_id=`+idsIsotope+`&integral_period_id=`+idsIntegralPeriod);
+      const  idsDoseRatio =  selDoseRatioValues.map(item => item.id).join(',');
+      console.log('idsDoseRatio = '+idsDoseRatio);  
+
+      const response = await fetch(`/value_int_dose?data_source_id=`+idsDS+
+                                  `&organ_id=`+idsOrgan+
+                                  `&irradiation_id=`+idsIrradiation+
+                                  `&isotope_id=`+idsIsotope+
+                                  `&integral_period_id=`+idsIntegralPeriod+
+                                  `&dose_ratio_id=`+idsDoseRatio);
 
        if (!response.ok) {
         alertText = `Ошибка при обновлении данных: ${response.status}`;
@@ -490,9 +527,19 @@ const BigTableValueIntDose = (props) => {
   const [selIrradiationValues, setSelIrradiationValues] = useState([]);
   const [selIsotopeValues, setSelIsotopeValues] = useState([]);
   const [selIntegralPeriodValues, setSelIntegralPeriodValues] = useState([]);
+  const [selDoseRatioValues, setSelDoseRatioValues] = useState([]);
 
   const handleChangeDataSource = (event, value) => {
+    console.log('handleChangeDataSource');
+    console.log(value);
+
     setSelDataSourceValues(value);
+   // setValueTitle(value);
+    //console.log(value);
+  };
+
+  const handleChangeDoseRatio = (event, value) => {
+    setSelDoseRatioValues(value);
    // setValueTitle(value);
     console.log(value);
   };
@@ -651,21 +698,46 @@ const BigTableValueIntDose = (props) => {
     const fetchData = async () => {
       setPageState((old) => ({ ...old, isLoading: true }));
       // console.log("pageState:", pageState);
-      const response = await fetch(
+
+      var ds_id = 0;
+      if (selDataSourceValues.length)
+        ds_id = selDataSourceValues[0].id;
+      console.log(ds_id);  
+
+      const  idsDS =  selDataSourceValues.map(item => item.id).join(',');
+      console.log('idsDS = '+idsDS);  
+      const  idsOrgan =  selOrganValues.map(item => item.id).join(',');
+      console.log('idsOrgan = '+idsOrgan);  
+      const  idsIrradiation =  selIrradiationValues.map(item => item.id).join(',');
+      console.log('idsIrradiation = '+idsIrradiation);        
+      const  idsIsotope =  selIsotopeValues.map(item => item.id).join(',');
+      console.log('idsIsotope = '+idsIsotope);  
+      const  idsIntegralPeriod =  selIntegralPeriodValues.map(item => item.id).join(',');
+      console.log('idsIntegralPeriod = '+idsIntegralPeriod);  
+
+      const response = await fetch(`/value_int_dose?data_source_id=`+idsDS+`&organ_id=`+idsOrgan+
+      `&irradiation_id=`+idsIrradiation+`&isotope_id=`+idsIsotope+`&integral_period_id=`+idsIntegralPeriod);
+
+/*       const response = await fetch(
         `/value_int_dose?page=${
           pageState.page + 1
         }&pagesize=${pageState.pageSize}`
       );
-      const json = await response.json();
+ */      const json = await response.json();
+      //const cnt = await response.count();
+      console.log("X-Total-Count", response.headers.get('X-Total-Count'));
+      //console.log("Content-Range", response.headers.get('Content-Range'));
+      const cnt = parseInt( response.headers.get('X-Total-Count') );
+     // console.log('cnt = '+ cnt );
       setPageState((old) => ({
         ...old,
         isLoading: false,
         rows: json,
-        rowCount: 1000
+        rowCount: cnt
       }));
     };
     fetchData();
-  }, [pageState.pageSize, pageState.page]);
+  }, [pageState.pageSize, pageState.page, selDataSourceValues]);
 
 
 
@@ -680,8 +752,10 @@ const BigTableValueIntDose = (props) => {
           value={selDataSourceValues}
           onChange={handleChangeDataSource}
           multiple
-          id="tags-standard"
-          options={tableDataSource}
+          id="autocomplete-datasource"
+          options={tableDataSource}  
+        /*  options={ tableData.filter((row) => idsDoseRatio.has(row.id)) }
+           options={tableDataSource.filter((row) => idsDoseRatio.has(row.id)) } */
           getOptionLabel={(option) => option.title}
           disableCloseOnSelect
           renderOption={(props, option, { selected }) => (
@@ -695,13 +769,34 @@ const BigTableValueIntDose = (props) => {
           )}
         />
         <p></p>
+        <Autocomplete
+          size="small"
+          value={selDoseRatioValues}
+          onChange={handleChangeDoseRatio}
+          multiple
+          id="autocomplete-doseratio"
+          options={ tableDoseRatio.filter((row) => [1, 2, 8].includes(row.id)) }
+          /* options={tableDoseRatio} */
+          getOptionLabel={(option) => option.title}
+          disableCloseOnSelect
+          renderOption={(props, option, { selected }) => (
+            <li {...props}>
+              <Checkbox size="small" icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected}/>
+              {option.title}
+            </li>
+          )}
+          renderInput={(params) => (
+            <TextField {...params} label="Параметры" placeholder="Параметры" />
+          )}
+        />
+        <p></p>
 
         <Autocomplete
           size="small"
           value={selOrganValues}
           onChange={handleChangeOrgan}
           multiple
-          id="tags-standard"
+          id="autocomplete-organ"
           options={tableOrgan}
           getOptionLabel={(option) => option.name_rus}
           disableCloseOnSelect
@@ -722,7 +817,7 @@ const BigTableValueIntDose = (props) => {
           onChange={handleChangeIrradiation}
           multiple
           id="autocomplete-irradiation"
-          options={tableIrradiation}
+          options={tableIrradiation.filter((row) => [2,6, 30319, 30316].includes(row.id)) }
           getOptionLabel={(option) => option.name_rus}
           disableCloseOnSelect
           renderOption={(props, option, { selected }) => (
@@ -818,7 +913,7 @@ const BigTableValueIntDose = (props) => {
       </Box>
       </td>
       <td style={{ height: 550, width: 900, verticalAlign: 'top' }}>
-      <DataGrid
+{/*       <DataGrid
         components={{ Toolbar: CustomToolbar1 }}
         hideFooterSelectedRowCount={true}
         localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
@@ -839,18 +934,8 @@ const BigTableValueIntDose = (props) => {
           },
         }}        
         //onRowClick={handleRowClick} {...tableData} 
-      /> 
-{/*       <p></p>  
-       <ServerPaginationGrid
-        page={pageState.page}
-        loading={pageState.isLoading}
-        pageSize={pageState.pageSize}
-        rows={pageState.rows}
-        rowCount={pageState.rowCount}
-        columns={columns}
-        onPageAlter={(newPage) => setPageState({ ...pageState, page: newPage })}
-      />  */}
-      <p></p>  
+      />  
+      <p></p>   */}
        <ServerPaginationGrid
         page={pageState.page}
         loading={pageState.isLoading}

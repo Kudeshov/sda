@@ -44,9 +44,9 @@ const getValueIntDose = (request, response ) => {
    //console.log(data_source_id+ ' ' + organ_id);
   console.log( ' page = ' + page); 
 
-  var s_query =  
-  'select vid.*, ds.title as "data_source_title", o_nls.name as "organ_name_rus", in2.name as "irradiation_name_rus", '+
-  'i.title as "isotope_title", ip.name as "integral_period_name_rus" '+
+  var select_fields = 'select vid.*, ds.title as "data_source_title", o_nls.name as "organ_name_rus", in2.name as "irradiation_name_rus", i.title as "isotope_title", ip.name as "integral_period_name_rus" ';
+  //var select_count = 'select count (vid.id) ';
+  var s_query = select_fields +  
   'from nucl.value_int_dose vid '+
   'left join nucl.data_source ds on ds.id = vid.data_source_id '+
   'left join nucl.organ_nls o_nls on o_nls.organ_id = vid.organ_id and o_nls.lang_id = 1 '+
@@ -72,8 +72,10 @@ const getValueIntDose = (request, response ) => {
         return console.error('error running query', error);
     }
 /*     console.log(results.rows); */
-    response.set('Content-Range','items 1-100/23123');
-    response.status(200).json(results.rows)
+      //response.set('Content-Range','items 1-100/23123');
+      response.set('X-Total-Count','9999999');
+      
+      response.status(200).json(results.rows)
     });
 }
 

@@ -35,6 +35,8 @@ export default function ServerPaginationGrid({
         loading={loading}
         rowsPerPageOptions={[10, 25]}
         pagination
+        hideFooterRowCount
+        rowHeight={25}
         page={localPage}
         pageSize={pageSize ?? localPageSize}
         paginationMode="server"
@@ -54,7 +56,7 @@ export default function ServerPaginationGrid({
         }}
         columns={columns}
       />
-      <pre>{JSON.stringify(rows, null, 2)}</pre>
+     {/*  <pre>{JSON.stringify(rows, null, 2)}</pre> */}
     </div>
   );
 }
