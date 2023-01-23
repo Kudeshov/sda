@@ -35,6 +35,7 @@ const nuc_q = require('./nuclide_queries');
 const cg_q = require('./criterion_gr_queries');
 const id_q = require('./isotope_decay_queries');
 const i_q = require('./isotope_queries');
+const vid_q = require('./value_int_dose_queries');
 
 const { Pool } = require('pg');
 //var msg = 'a';
@@ -237,15 +238,17 @@ app.post('/isotope_decay', (req, res) => {id_q.createIsotopeDecay(req, res, 'iso
 app.put('/isotope_decay/:id', (req, res) => {id_q.updateIsotopeDecay(req, res, 'isotope_decay')}); //update
 app.delete('/isotope_decay/:id', (req, res) => {id_q.deleteIsotopeDecay(req, res, 'isotope_decay')});  //delete 
 
-app.get('/nuclide', (req, res) => {nuc_q.getNuclide(req, res, 'nuclide')});   
+app.get('/nuclide', (req, res) => {nuc_q.getNuclide(req, res, 'nuclide')});
 
-var allowCrossDomain = function(req, res, next) {
+app.get('/value_int_dose', (req, res) => {vid_q.getValueIntDose(req, res, 'value_int_dose')}); 
+
+/* var allowCrossDomain = function(req, res, next) {
     res.header('Access-Control-Allow-Origin', "*");
     res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
     res.header('Access-Control-Allow-Headers', 'Content-Type');
     next();
 }
- 
+  */
 app.listen(PORT, function(err){
     if (err) console.log(err);
     console.log("Server listening on PORT", PORT);

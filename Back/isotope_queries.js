@@ -127,7 +127,6 @@ const updateIsotope = (request, response) => {
   )
 }
 
-
 const createIsotope = (request, response) => {
   console.log( request.body );
   const { title, nuclide_id, n_index,  half_life_value, half_life_period,  decayconst } = request.body;
@@ -142,7 +141,6 @@ const createIsotope = (request, response) => {
     }
   })
 }
-
 
 const deleteIsotope = (request, response) => {
   const id = parseInt(request.params.id);
