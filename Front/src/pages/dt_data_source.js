@@ -44,7 +44,7 @@ const DataTableDataSource = (props) => {
   const [valueShortName, setValueShortName] = React.useState();
   const [valueFullName, setValueFullName] = React.useState();
   const [valueDescr, setValueDescr] = React.useState();
-  const [valueExternalDS, setValueExternalDS] = React.useState();
+  const [valueExternalDS, setValueExternalDS] = React.useState(true);
 
   const [valueShortNameInitial, setValueShortNameInitial] = React.useState();
   const [valueFullNameInitial, setValueFullNameInitial] = React.useState();
@@ -131,7 +131,7 @@ const DataTableDataSource = (props) => {
       setValueTitle('');
       setValueShortName('');
       setValueFullName('');
-      setValueExternalDS('');
+      setValueExternalDS(true);
       setValueDescr('');
     }
   }; 
@@ -396,7 +396,7 @@ const DataTableDataSource = (props) => {
     setValueTitle('');
     setValueShortName('');
     setValueFullName('');
-    setValueExternalDS('');
+    setValueExternalDS(true);
     setValueDescr('');
   };
 
@@ -408,7 +408,7 @@ const DataTableDataSource = (props) => {
     setValueTitle('');
     setValueShortName('');
     setValueFullName('');
-    setValueExternalDS('');
+    setValueExternalDS(true);
     setValueDescr('');
   };
 
