@@ -90,6 +90,7 @@ const DataTableChelement = (props) => {
       setValueTitle(params.row.title);
       setValueNameRus(params.row.name_rus);
       setValueNameEng(params.row.name_eng);
+      console.log('Atomic num = ' + params.row.atomic_num);
       setValueAtomicNum(params.row.atomic_num);
       setValueTitleInitial(params.row.title);
       setValueNameRusInitial(params.row.name_rus);
