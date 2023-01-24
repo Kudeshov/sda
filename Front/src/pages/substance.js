@@ -12,6 +12,6 @@ function Substance() {
   useDocumentTitle(table_names['chelement']);
   console.log(table_names);
 //  return <Typography>Вещество</Typography>;
-  return <Typography>{table_names['chelement']}</Typography>; 
+ /*  return <Typography>{table_names['chelement']}</Typography>;  */
 }
 export default Substance;

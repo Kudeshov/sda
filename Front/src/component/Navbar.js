@@ -101,16 +101,16 @@ function Navbar() {
             <Menu anchorEl={anchorEl} open={menuDecay} onClose={closeMenuDecay}>
               <MenuItem onClick={closeMenuDecay} component={Link} to="/isotope">Радионуклиды</MenuItem> 
               <Divider />
-              <MenuItem onClick={closeMenuDecay} component={Link} disabled={true} to="/">Параметры</MenuItem> 
-              <MenuItem onClick={closeMenuDecay} component={Link} disabled={true} to="/">Тип излучения</MenuItem> 
-              <MenuItem onClick={closeMenuDecay} component={Link} disabled={true} to="/">Форма распада</MenuItem> 
+              <MenuItem onClick={closeMenuDecay} component={Link} disabled={true} to="/value_int_dose">Параметры</MenuItem> 
+              <MenuItem onClick={closeMenuDecay} component={Link} disabled={true} to="/value_int_dose">Тип излучения</MenuItem> 
+              <MenuItem onClick={closeMenuDecay} component={Link} disabled={true} to="/value_int_dose">Форма распада</MenuItem> 
             </Menu>            
             <Link onClick={recordButtonPositionCoeff}  className={classes.link}>
               Дозовые коэффициенты
             </Link>            
             <Menu anchorEl={anchorE2} open={menuCoeff} onClose={closeMenuCoeff}>
               <MenuItem onClick={closeMenuCoeff} component={Link} disabled={true} to="/value_int_dose">Внутреннее облучение</MenuItem> 
-              <MenuItem onClick={closeMenuCoeff} component={Link} disabled={true} to="/">Внешнее облучение</MenuItem> 
+              <MenuItem onClick={closeMenuCoeff} component={Link} disabled={true} to="/value_int_dose">Внешнее облучение</MenuItem> 
               <Divider />
               <MenuItem onClick={closeMenuCoeff} component={Link} to="/dose_ratio">{table_names['dose_ratio']}</MenuItem> 
               <MenuItem onClick={closeMenuCoeff} component={Link} to="/irradiation">{table_names['irradiation']}</MenuItem> 

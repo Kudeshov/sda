@@ -31,7 +31,7 @@ function App() {
     <Router>
       <Navbar />
       <Routes>
-        <Route exact path="/" element={<Substance/>} />
+        <Route exact path="/" element={<Isotope/>} />
         <Route path="/substance" element={<Substance/>} />
         <Route path="/chelement" element={<Chelement/>} />
         <Route path="/data_source" element={<Sources/>} />
