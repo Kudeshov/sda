@@ -201,7 +201,7 @@ app.get('/isotope_min', function(req, resp){
     if(error) {
        return console.error('error running query', error);
     }
-   console.log(res.rows);
+   //console.log(res.rows);
    resp.json(res.rows);
    });
 });

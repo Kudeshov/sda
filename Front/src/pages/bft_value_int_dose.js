@@ -5,8 +5,8 @@ import {
   DataGrid, 
   ruRU,
   GridToolbarContainer,
-//  useGridApiContext,
-//  gridFilteredSortedRowIdsSelector,
+  useGridApiContext,
+  gridFilteredSortedRowIdsSelector,
 } from '@mui/x-data-grid';
 import TextField from '@mui/material/TextField';
 /* import Button from '@mui/material/Button';
@@ -45,9 +45,123 @@ const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
 var alertText = "Сообщение";
 var alertSeverity = "info";
+
+
 //var lastId = 0;
 
 const BigTableValueIntDose = (props) => {
+
+  const [pageState, setPageState] = useState({
+    page: 0,
+    pageSize: 100,
+    rows: [],
+    rowCount: 0,
+    isLoading: false
+  });
+
+  const columnsValueIntDose = [
+    { field: 'id', headerName: 'ID', width: 100 },
+    { field: 'dr_value', headerName: 'Значение', width: 180 },
+    { field: 'updatetime', headerName: 'Время последнего измерения', width: 280 },
+    { field: 'data_source_title', headerName: 'Источник данных', width: 200 },
+    { field: 'organ_name_rus', headerName: 'Орган', width: 200 },
+    { field: 'irradiation_name_rus', headerName: 'Тип облучения', width: 200 },
+    { field: 'isotope_title', headerName: 'Нуклид', width: 200 },
+    { field: 'integral_period_name_rus', headerName: 'Период интегрирования', width: 200 },
+    { field: 'dose_ratio_title', headerName: 'Параметр', width: 200 },
+    { field: 'let_level_name_rus', headerName: 'Уровень ЛПЭ', width: 200 },
+    { field: 'agegroup_name_rus', headerName: 'Возрастная группа населения', width: 200 },
+    { field: 'subst_form_name_rus', headerName: 'Форма вещества', width: 200 },    
+    { field: 'aerosol_sol_name_rus', headerName: 'Тип растворимости аэрозолей', width: 200 },
+    { field: 'aerosol_amad_name_rus', headerName: 'AMAD аэрозолей', width: 200 },
+    { field: 'people_class_name_rus', headerName: 'Типы облучаемых лиц', width: 200 },
+    { field: 'exp_scenario_name_rus', headerName: 'Сценарии поступления', width: 200 },
+   ]
+  const [openAlert, setOpenAlert] = React.useState(false, '');
+  const [selDataSourceValues, setSelDataSourceValues] = useState([]);
+  const [selOrganValues, setSelOrganValues] = useState([]);
+  const [selIrradiationValues, setSelIrradiationValues] = useState([]);
+  const [selIsotopeValues, setSelIsotopeValues] = useState([]);
+  const [selIntegralPeriodValues, setSelIntegralPeriodValues] = useState([]);
+  const [selDoseRatioValues, setSelDoseRatioValues] = useState([]);
+  const [selLetLevelValues, setSelLetLevelValues] = useState([]);
+  const [selAgeGroupValues, setSelAgeGroupValues] = useState([]);
+  const [selSubstFormValues, setSelSubstFormValues] = useState([]);
+  const [selAerosolSolValues, setSelAerosolSolValues] = useState([]);
+  const [selAerosolAMADValues, setSelAerosolAMADValues] = useState([]);
+  const [selExpScenarioValues, setSelExpScenarioValues] = useState([]);
+  const [selPeopleClassValues, setSelPeopleClassValues] = useState([]);
+
+  const handleChangeDataSource = (event, value) => {
+    console.log('handleChangeDataSource');
+    console.log(value);
+
+    setSelDataSourceValues(value);
+   // setValueTitle(value);
+    //console.log(value);
+  };
+
+  const handleChangeDoseRatio = (event, value) => {
+    setSelDoseRatioValues(value);
+   // setValueTitle(value);
+    console.log(value);
+  };
+
+  const handleChangeOrgan = (event, value) => {
+    setSelOrganValues(value);
+    console.log(value);
+  };
+
+  const handleChangeIrradiation = (event, value) => {
+    setSelIrradiationValues(value);
+    console.log(value);
+  };
+
+  const handleChangeIsotope = (event, value) => {
+    setSelIsotopeValues(value);
+    console.log(value);
+  };
+
+  const handleChangeIntegralPeriod = (event, value) => {
+    setSelIntegralPeriodValues(value);
+    console.log(value);
+  };
+
+  const handleChangeLetLevel = (event, value) => {
+    setSelLetLevelValues(value);
+    console.log(value);
+  };
+  
+  const handleChangeAgeGroup = (event, value) => {
+    setSelAgeGroupValues(value);
+    console.log(value);
+  }; 
+
+  const handleChangeSubstForm = (event, value) => {
+    setSelSubstFormValues(value);
+    console.log(value);
+  };   
+
+  const handleChangeAerosolSol = (event, value) => {
+    setSelAerosolSolValues(value);
+    console.log(value);
+  }; 
+
+  const handleChangeAerosolAMAD = (event, value) => {
+    setSelAerosolAMADValues(value);
+    console.log(value);
+  };
+  
+  const handleChangeExpScenario = (event, value) => {
+    setSelExpScenarioValues(value);
+    console.log(value);
+  };     
+  
+  const handleChangePeopleClass = (event, value) => {
+    setSelPeopleClassValues(value);
+    console.log(value);
+  };  
+
 /*  const [valueId, setValueID] = React.useState();
    const [valueTitle, setValueTitle] = React.useState();
   const [valueTitleInitial, setValueTitleInitial] = React.useState();
@@ -69,87 +183,17 @@ const BigTableValueIntDose = (props) => {
   const [tableIsotope, setTableIsotope] = useState([]);
   const [tableIntegralPeriod, setTableIntegralPeriod] = useState([]);
   const [tableDoseRatio, setTableDoseRatio] = useState([]);
+  const [tableLetLevel, setTableLetLevel] = useState([]); //уровни ЛПЭ
+  const [tableAgeGroup, setTableAgeGroup] = useState([]);   
+  const [tableSubstForm, setTableSubstForm] = useState([]); //формы вещества  
+  const [tableAerosolSol, setTableAerosolSol] = useState([]);   
+  const [tableAerosolAMAD, setTableAerosolAMAD] = useState([]); //АМАД аэрозолей
+  const [tableExpScenario, setTableExpScenario] = useState([]); //Сценарии поступления
+  const [tablePeopleClass, setTablePeopleClass] = useState([]); //Типы облучаемых лиц
 
   const [tableValueIntDose, setTableValueIntDose] = useState([]); 
   const [selectionModel, setSelectionModel] = React.useState([]);
-/*  const [editStarted, setEditStarted] = useState([false]);
 
-   useEffect(() => {
-    setEditStarted((valueTitleInitial!==valueTitle)||(valueShortNameInitial!==valueShortName)||(valueFullNameInitial!==valueFullName)
-      ||(valueDescrInitial!==valueDescr)||(valueExternalDSInitial!==valueExternalDS));
-    }, [valueTitleInitial, valueTitle, valueShortNameInitial, valueShortName, valueFullNameInitial, valueFullName, 
-      valueDescrInitial, valueDescr, valueExternalDSInitial, valueExternalDS]); 
-
-  useEffect(() => {
-    if ((!isLoading) && (tableDataSource) && (tableDataSource.length)) {
-      if (!lastId) 
-      {
-        console.log('isLoading, tableData[0].external_ds '+tableDataSource[0].external_ds);
-        lastId = tableDataSource[0].id;
-        setSelectionModel([tableDataSource[0].id]);
-        setValueID(tableDataSource[0].id);
-
-        setValueTitle(tableDataSource[0].title);
-        setValueShortName(tableDataSource[0].shortname);
-        setValueFullName(tableDataSource[0].fullname || "" );
-        setValueExternalDS(tableDataSource[0].external_ds);
-        setValueDescr(tableDataSource[0].descr || "" );
-
-        setValueTitleInitial(tableDataSource[0].title);
-        setValueShortNameInitial(tableDataSource[0].shortname);
-        setValueFullNameInitial(tableDataSource[0].fullname || "" );
-        setValueExternalDSInitial(tableDataSource[0].external_ds);
-        setValueDescrInitial(tableDataSource[0].descr || "" ); 
-        //autocompleteValues(tableData[0]); 
-        
-      }
-    }
-    }, [ isLoading, tableDataSource] ); */
-
-  /* const handleRowClick = (params) => {
-    setOpenAlert(false);
-    console.log('handleRowClick params.row.external_ds'+ params.row.external_ds);
-    if (editStarted)
-    {
-      handleClickSave(params);
-    } 
-    else 
-    {
-      setValueID(params.row.id);
-
-      setValueTitle(params.row.title);
-      setValueShortName(params.row.shortname);
-      setValueFullName( params.row.fullname || "" );
-      setValueExternalDS(params.row.external_ds);
-      setValueDescr( params.row.descr  || "" );
-
-      setValueTitleInitial(params.row.title);
-      setValueShortNameInitial(params.row.shortname);
-      setValueFullNameInitial( params.row.fullname || "" );
-      setValueExternalDSInitial(params.row.external_ds);
-      setValueDescrInitial( params.row.descr  || "" );
-    }
-  }; 
-
-  const handleClearClick = (params) => {
-    //console.log('handleClearClick');
-    if (editStarted)
-    {
-      //console.log('params');
-      //console.log(params);
-      handleClickSaveWhenNew(params);
-    } 
-    else 
-    {
-      setValueID('');
-      setValueTitle('');
-      setValueShortName('');
-      setValueFullName('');
-      setValueExternalDS('');
-      setValueDescr('');
-    }
-  }; 
- */
   useEffect(() => {
     fetch(`/data_source`)
       .then((data) => data.json())
@@ -192,193 +236,48 @@ const BigTableValueIntDose = (props) => {
       .then((data) => setTableDoseRatio(data)); 
   }, [props.table_name])
 
-
-  //const idsDoseRatioAllowed = [1, 2, 8];
+  useEffect(() => {
+    fetch(`/let_level/`)
+      .then((data) => data.json())
+      .then((data) => setTableLetLevel(data)); 
+  }, [props.table_name])
 
   useEffect(() => {
-    var a = tableDoseRatio.filter((row) => [1, 2, 8].includes(row.id));
-    console.log('tableDoseRatio.filter');    
-    console.log(a);
-  }, [tableDoseRatio])
+    fetch(`/agegroup/`)
+      .then((data) => data.json())
+      .then((data) => setTableAgeGroup(data)); 
+  }, [props.table_name])
 
   useEffect(() => {
-    console.log('tableDataSource[0]');   
-    console.log([tableDataSource[0]]);  
+    fetch(`/subst_form/`)
+      .then((data) => data.json())
+      .then((data) => setTableSubstForm(data)); 
+  }, [props.table_name])
 
-    //if (tableDataSource.length===0)
-    //  setSelDataSourceValues([tableDataSource[0]]);
-/*     var a = tableDoseRatio.filter((row) => [1, 2, 8].includes(row.id));
-    console.log(tableDoseRatio.filter);    
-    console.log(a); */
-  }, [tableDataSource]);
+  useEffect(() => {
+    fetch(`/aerosol_sol/`)
+      .then((data) => data.json())
+      .then((data) => setTableAerosolSol(data)); 
+  }, [props.table_name])
 
+  useEffect(() => {
+    fetch(`/aerosol_amad/`)
+      .then((data) => data.json())
+      .then((data) => setTableAerosolAMAD(data)); 
+  }, [props.table_name])
 
-  
-
-//  options={ tableDoseRatio.filter((row) => idsDoseRatio.has(row.id)) }
-
-  ///////////////////////////////////////////////////////////////////  SAVE  /////////////////////
-  /* const saveRec = async ( fromToolbar ) => {
-    const js = JSON.stringify({
-      title: valueTitle,
-      shortname: valueShortName,
-      fullname: valueFullName,
-      external_ds: valueExternalDS,
-      descr: valueDescr         
-   });
-    if (!valueId) {
-      addRec();
-      return;
-    }
-    setIsLoading(true);
-    try {
-      const response = await fetch(`/${props.table_name}/`+valueId, {
-       method: 'PUT',
-       body: js,
-       headers: {
-         'Content-Type': 'Application/json',
-
-       },
-     });
-     if (!response.ok) {
-        alertSeverity = 'error';
-        alertText = await response.text();
-        setOpenAlert(true);          
-      }
-      else
-      {
-        alertSeverity = "success";
-        alertText = await response.text();
-        setOpenAlert(true);  
-      }
-   } catch (err) {
-     alertText = err.message;
-     alertSeverity = 'error';
-     setOpenAlert(true);
-   } finally {
-     setIsLoading(false);
-     if (fromToolbar) 
-     {
-       setValueTitleInitial(valueTitle);       
-       setValueShortNameInitial(valueShortName);
-       setValueFullNameInitial(valueFullName);
-       setValueExternalDSInitial(valueExternalDS);
-       setValueDescrInitial(valueDescr);           
-     }
-    reloadData();     
-   }
- };
-/////////////////////////////////////////////////////////////////// ADDREC ///////////////////// 
-  const addRec = async ()  => {
-    const js = JSON.stringify({
-      id: valueId,
-      title: valueTitle,
-      shortname: valueShortName,
-      fullname: valueFullName,
-      external_ds: valueExternalDS,
-      descr: valueDescr         
-   });
-    setIsLoading(true);
-    console.log(js);
-    try {
-      const response = await fetch(`/${props.table_name}/`, {
-        method: 'POST',
-        body: js,
-        headers: {
-          'Content-Type': 'Application/json',
-        },
-      });
-
-      if (!response.ok) {
-        alertSeverity = 'error';
-        alertText = await response.text();
-        setOpenAlert(true);          
-      }
-      else
-      {
-        alertSeverity = "success";
-        const { id } = await response.json();
-        alertText = `Добавлена запись с кодом ${id}`;
-        lastId = id;  
-        //console.log('добавлено lastid = ' + lastId);
-        setValueID(lastId);
-        setOpenAlert(true);  
-      }
-    } catch (err) {
-      alertText = err.message;
-      alertSeverity = 'error';
-      setOpenAlert(true);
-    } finally {
-      setIsLoading(false);
-      reloadData();
-      setSelectionModel([lastId]);
-      //Refresh initial state
-      //console.log('addRec Refresh initial '+valueTitle+' '+valueShortName);      
-      setValueTitle(valueTitle);       
-      setValueShortName(valueShortName);
-      setValueFullName(valueFullName);
-      setValueExternalDS(valueExternalDS);
-      setValueDescr(valueDescr);       
-      setValueTitleInitial(valueTitle);       
-      setValueShortNameInitial(valueShortName);
-      setValueFullNameInitial(valueFullName);
-      setValueExternalDSInitial(valueExternalDS);
-      setValueDescrInitial(valueDescr);          
-    }
-  };
-
-/////////////////////////////////////////////////////////////////// DELETE /////////////////////
-  const delRec =  async () => {
-    //console.log('delrec clicked');
-    const js = JSON.stringify({
-        id: valueId,
-        title: valueTitle,
-    });
-    setIsLoading(true);
-    //console.log(js);
-    try {
-      const response = await fetch(`/${props.table_name}/`+valueId, {
-        method: 'DELETE',
-        body: js,
-        headers: {
-          'Content-Type': 'Application/json',
-        },
-      });
-      if (!response.ok) {
-        alertSeverity = 'error';
-        alertText = await response.text();
-        setOpenAlert(true);          
-      }
-      else
-      {
-        alertSeverity = "success";
-        alertText = await response.text();
-        setOpenAlert(true); 
-        reloadData();
-        setSelectionModel([tableDataSource[0].id ]);  
-        setValueID(tableDataSource[0].id);
-
-        setValueTitle(tableDataSource[0].title);
-        setValueShortName(tableDataSource[0].shortname);
-        setValueFullName( tableDataSource[0].fullname || "" );
-        setValueExternalDS(tableDataSource[0].external_ds);
-        setValueDescr( tableDataSource[0].descr || "" );
-
-        setValueTitleInitial(tableDataSource[0].title);
-        setValueShortNameInitial(tableDataSource[0].shortname);
-        setValueFullNameInitial( tableDataSource[0].fullname || "" );
-        setValueExternalDSInitial(tableDataSource[0].external_ds);
-        setValueDescrInitial( tableDataSource[0].descr || "" );  
-      }
-    } catch (err) {
-      alertText = err.message;
-      alertSeverity = 'error';
-      setOpenAlert(true);
-    } finally {
-      setIsLoading(false);
-    }
-  };  
- */
+  useEffect(() => {
+    fetch(`/exp_scenario/`)
+      .then((data) => data.json())
+      .then((data) => setTableExpScenario(data)); 
+  }, [props.table_name])
+ 
+  useEffect(() => {
+    fetch(`/people_class/`)
+      .then((data) => data.json())
+      .then((data) => setTablePeopleClass(data)); 
+  }, [props.table_name])
+   
   /////////////////////////////////////////////////////////////////// RELOAD /////////////////////
   const reloadDataAlert =  async () => {
     alertSeverity = "info";
@@ -397,6 +296,7 @@ const BigTableValueIntDose = (props) => {
   }
 
   const reloadData = async () => {
+    setIsLoading(true);
     try {
       console.log(selDataSourceValues);
       var ds_id = 0;
@@ -416,15 +316,30 @@ const BigTableValueIntDose = (props) => {
       console.log('idsIntegralPeriod = '+idsIntegralPeriod);  
       const  idsDoseRatio =  selDoseRatioValues.map(item => item.id).join(',');
       console.log('idsDoseRatio = '+idsDoseRatio);  
+      const  idsLetLevel =  selLetLevelValues.map(item => item.id).join(',');
+      console.log('idsLetLevel = '+idsLetLevel);  
+      const  idsAgeGroup =  selAgeGroupValues.map(item => item.id).join(',');
+      console.log('idsAgeGroup = '+idsAgeGroup);  
+      const  idsSubstForm =  selSubstFormValues.map(item => item.id).join(',');
+      console.log('idsSubstForm = '+idsSubstForm);  
+      const  idsAerosolSol =  selAerosolSolValues.map(item => item.id).join(',');
+      console.log('idsAerosolSol = '+idsAerosolSol);  
+      const  idsAerosolAMAD =  selAerosolAMADValues.map(item => item.id).join(',');
+      console.log('idsAerosolAMAD = '+idsAerosolAMAD);  
+      const  idsExpScenario =  selExpScenarioValues.map(item => item.id).join(',');
+      console.log('idsExpScenario = '+idsExpScenario); 
+      const  idsPeopleClass =  selPeopleClassValues.map(item => item.id).join(',');
+      console.log('idsPeopleClass = '+idsPeopleClass); 
 
-      const response = await fetch(`/value_int_dose?data_source_id=`+idsDS+
-                                  `&organ_id=`+idsOrgan+
-                                  `&irradiation_id=`+idsIrradiation+
-                                  `&isotope_id=`+idsIsotope+
-                                  `&integral_period_id=`+idsIntegralPeriod+
-                                  `&dose_ratio_id=`+idsDoseRatio);
-
-       if (!response.ok) {
+      const response = await fetch(`/value_int_dose?data_source_id=`+idsDS+`&organ_id=`+idsOrgan+
+      `&irradiation_id=`+idsIrradiation+`&isotope_id=`+idsIsotope+
+      `&integral_period_id=`+idsIntegralPeriod+`&dose_ratio_id=`+idsDoseRatio+
+      `&let_level_id=`+idsLetLevel+`&agegroup_id=`+idsAgeGroup+`&subst_form_id=`+idsSubstForm+
+      `&aerosol_sol_id=`+idsAerosolSol+`&aerosol_amad_id=`+idsAerosolAMAD+`&exp_scenario_id=`+idsExpScenario+
+      `&people_class_id=`+idsPeopleClass+
+      `&page=`+(pageState.page + 1)+`&pagesize=`+pageState.pageSize
+      );   
+      if (!response.ok) {
         alertText = `Ошибка при обновлении данных: ${response.status}`;
         alertSeverity = "false";
         const error = response.status + ' (' +response.statusText+')';  
@@ -443,6 +358,64 @@ const BigTableValueIntDose = (props) => {
     }
   };
 
+  /* useEffect(() => {
+    console.log("---");
+    const fetchData = async () => {
+      setPageState((old) => ({ ...old, isLoading: true }));
+      // console.log("pageState:", pageState);
+
+      var ds_id = 0;
+      if (selDataSourceValues.length)
+        ds_id = selDataSourceValues[0].id;
+      console.log(ds_id);  
+
+      const  idsDS =  selDataSourceValues.map(item => item.id).join(',');
+      console.log('idsDS = '+idsDS);  
+      const  idsOrgan =  selOrganValues.map(item => item.id).join(',');
+      console.log('idsOrgan = '+idsOrgan);  
+      const  idsIrradiation =  selIrradiationValues.map(item => item.id).join(',');
+      console.log('idsIrradiation = '+idsIrradiation);        
+      const  idsIsotope =  selIsotopeValues.map(item => item.id).join(',');
+      console.log('idsIsotope = '+idsIsotope);  
+      const  idsIntegralPeriod =  selIntegralPeriodValues.map(item => item.id).join(',');
+      console.log('idsIntegralPeriod = '+idsIntegralPeriod);  
+      const  idsDoseRatio =  selDoseRatioValues.map(item => item.id).join(',');
+      console.log('idsDoseRatio = '+idsDoseRatio);  
+      const  idsLetLevel =  selLetLevelValues.map(item => item.id).join(',');
+      console.log('idsLetLevel = '+idsLetLevel);  
+      const  idsAgeGroup =  selAgeGroupValues.map(item => item.id).join(',');
+      console.log('idsAgeGroup = '+idsAgeGroup);  
+      const  idsSubstForm =  selSubstFormValues.map(item => item.id).join(',');
+      console.log('idsSubstForm = '+idsSubstForm);  
+      const  idsAerosolSol =  selAerosolSolValues.map(item => item.id).join(',');
+      console.log('idsAerosolSol = '+idsAerosolSol);  
+      const  idsAerosolAMAD =  selAerosolAMADValues.map(item => item.id).join(',');
+      console.log('idsAerosolAMAD = '+idsAerosolAMAD);  
+
+      const response = await fetch(`/value_int_dose?data_source_id=`+idsDS+`&organ_id=`+idsOrgan+
+      `&irradiation_id=`+idsIrradiation+`&isotope_id=`+idsIsotope+
+      `&integral_period_id=`+idsIntegralPeriod+`&dose_ratio_id=`+idsDoseRatio+
+      `&let_level_id=`+idsLetLevel+`&agegroup_id=`+idsAgeGroup+`&subst_form_id=`+idsSubstForm+
+      `&aerosol_sol_id=`+idsAerosolSol+`&aerosol_amad_id=`+idsAerosolAMAD+
+      `&page=`+(pageState.page + 1)+`&pagesize=`+pageState.pageSize
+      );   
+
+      const json = await response.json();
+      console.log("X-Total-Count", response.headers.get('X-Total-Count'));
+      //console.log("Content-Range", response.headers.get('Content-Range'));
+      const cnt = parseInt( response.headers.get('X-Total-Count') );
+     // console.log('cnt = '+ cnt );
+      setPageState((old) => ({
+        ...old,
+        isLoading: false,
+        rows: json,
+        rowCount: cnt
+      }));
+    };
+    fetchData();
+  }, [pageState.pageSize, pageState.page, selDataSourceValues, selDoseRatioValues, selIntegralPeriodValues,
+      selIrradiationValues, selIsotopeValues, selOrganValues, selLetLevelValues, selAgeGroupValues]);
+ */
   /////////////////////////////////////////
 /*  const [openDel, setOpenDel] = React.useState(false); 
   const [openSave, setOpenSave] = React.useState(false); 
@@ -510,96 +483,15 @@ const BigTableValueIntDose = (props) => {
 */
 
   //////////////////////////////////////////////////////// ACTIONS ///////////////////////////////
- 
-  const columnsValueIntDose = [
-    { field: 'id', headerName: 'ID', width: 100 },
-    { field: 'dr_value', headerName: 'Значение', width: 180 },
-    { field: 'updatetime', headerName: 'Время последнего измерения', width: 280 },
-    { field: 'data_source_title', headerName: 'Источник данных', width: 200 },
-    { field: 'organ_name_rus', headerName: 'Орган', width: 200 },
-    { field: 'irradiation_name_rus', headerName: 'Тип облучения', width: 200 },
-    { field: 'isotope_title', headerName: 'Нуклид', width: 200 },
-    { field: 'integral_period_name_rus', headerName: 'Период интегрирования', width: 200 },
-  ]
-  const [openAlert, setOpenAlert] = React.useState(false, '');
-  const [selDataSourceValues, setSelDataSourceValues] = useState([]);
-  const [selOrganValues, setSelOrganValues] = useState([]);
-  const [selIrradiationValues, setSelIrradiationValues] = useState([]);
-  const [selIsotopeValues, setSelIsotopeValues] = useState([]);
-  const [selIntegralPeriodValues, setSelIntegralPeriodValues] = useState([]);
-  const [selDoseRatioValues, setSelDoseRatioValues] = useState([]);
 
-  const handleChangeDataSource = (event, value) => {
-    console.log('handleChangeDataSource');
-    console.log(value);
-
-    setSelDataSourceValues(value);
-   // setValueTitle(value);
-    //console.log(value);
-  };
-
-  const handleChangeDoseRatio = (event, value) => {
-    setSelDoseRatioValues(value);
-   // setValueTitle(value);
-    console.log(value);
-  };
-
-  const handleChangeOrgan = (event, value) => {
-    setSelOrganValues(value);
-    console.log(value);
-  };
-
-  const handleChangeIrradiation = (event, value) => {
-    setSelIrradiationValues(value);
-    console.log(value);
-  };
-
-  const handleChangeIsotope = (event, value) => {
-    setSelIsotopeValues(value);
-    console.log(value);
-  };
-
-  const handleChangeIntegralPeriod = (event, value) => {
-    setSelIntegralPeriodValues(value);
-    console.log(value);
-  };
-
- /*  const handleCancelClick = () => 
-  {
-    console.log('handleCancelClick');
-    //console.log('selectionModel');
-    //console.log(selectionModel);
-    //console.log('selectionModel='+selectionModel.row.id);
-    const selectedIDs = new Set(selectionModel);
-    //console.log(selectedIDs);
-    const selectedRowData = tableDataSource.filter((row) => selectedIDs.has(row.id));
-    //console.log(selectedRowData);
-    if (selectedRowData.length)
-    {
-      setValueID(selectedRowData[0].id);
-
-      setValueTitle(selectedRowData[0].title);
-      setValueShortName(selectedRowData[0].shortname);
-      setValueFullName( selectedRowData[0].fullname || "" );
-      setValueExternalDS(selectedRowData[0].external_ds);
-      setValueDescr( selectedRowData[0].descr  || "" );
-
-      setValueTitleInitial(selectedRowData[0].title);
-      setValueShortNameInitial(selectedRowData[0].shortname);
-      setValueFullNameInitial( selectedRowData[0].fullname || "" );
-      setValueExternalDSInitial(selectedRowData[0].external_ds);
-      setValueDescrInitial( selectedRowData[0].descr  || "" );
-    }
-  }
- */
-  function CustomToolbar1() {
-/*   const apiRef = useGridApiContext();
+ /*  function CustomToolbar1() {
+  const apiRef = useGridApiContext();
      const handleExport = (options) =>
-      apiRef.current.exportDataAsCsv(options); */
+      apiRef.current.exportDataAsCsv(options);
 
     return (
       <GridToolbarContainer>
-{/*         <IconButton onClick={()=>handleClearClick()}  color="primary" size="small" title="Создать запись">
+        <IconButton onClick={()=>handleClearClick()}  color="primary" size="small" title="Создать запись">
           <SvgIcon fontSize="small" component={PlusLightIcon} inheritViewBox /></IconButton>
         <IconButton onClick={()=>saveRec(true)}  color="primary" size="small" title="Сохранить запись в БД">
           <SvgIcon fontSize="small" component={SaveLightIcon} inheritViewBox/></IconButton>
@@ -611,20 +503,15 @@ const BigTableValueIntDose = (props) => {
           <SvgIcon fontSize="small" component={RepeatLightIcon} inheritViewBox /></IconButton>
         <IconButton onClick={()=>handleExport({ delimiter: ';', utf8WithBom: true, getRowsToExport: () => gridFilteredSortedRowIdsSelector(apiRef) })} color="primary" 
             size="small" title="Сохранить в формате CSV">
-          <SvgIcon fontSize="small" component={DownloadLightIcon} inheritViewBox /></IconButton> */}
+          <SvgIcon fontSize="small" component={DownloadLightIcon} inheritViewBox /></IconButton> 
       </GridToolbarContainer>
     );
-  }
+  }}
+*/
 
-  const [pageState, setPageState] = useState({
-    page: 0,
-    pageSize: 25,
-    rows: [],
-    rowCount: 0,
-    isLoading: false
-  });
 
-/*   const setPage = (page) => {
+ /* 
+   const setPage = (page) => {
     setPageState({ ...pageState, page: page });
   };
 
@@ -642,35 +529,6 @@ const BigTableValueIntDose = (props) => {
   //   );
   // }, [pageState.rowCount, setRowCountState]);
 
-  const columns = [
-    {
-      field: "id"
-    },
-    {
-      field: "albumId",
-      headerName: "AlbumId",
-      width: 110
-    },
-    {
-      field: "thumbnailUrl",
-      headerName: "ThumbnailUrl",
-      width: 180,
-      editable: false
-    },
-    {
-      field: "title",
-      headerName: "Title",
-      width: 120,
-      editable: false
-    },
-
-    {
-      field: "url",
-      headerName: "URL",
-      type: "string",
-      width: 140
-    }
-  ];
 
 /*   useEffect(() => {
     console.log("---");
@@ -693,60 +551,14 @@ const BigTableValueIntDose = (props) => {
     fetchData();
   }, [pageState.pageSize, pageState.page]); */
 
-  useEffect(() => {
-    console.log("---");
-    const fetchData = async () => {
-      setPageState((old) => ({ ...old, isLoading: true }));
-      // console.log("pageState:", pageState);
-
-      var ds_id = 0;
-      if (selDataSourceValues.length)
-        ds_id = selDataSourceValues[0].id;
-      console.log(ds_id);  
-
-      const  idsDS =  selDataSourceValues.map(item => item.id).join(',');
-      console.log('idsDS = '+idsDS);  
-      const  idsOrgan =  selOrganValues.map(item => item.id).join(',');
-      console.log('idsOrgan = '+idsOrgan);  
-      const  idsIrradiation =  selIrradiationValues.map(item => item.id).join(',');
-      console.log('idsIrradiation = '+idsIrradiation);        
-      const  idsIsotope =  selIsotopeValues.map(item => item.id).join(',');
-      console.log('idsIsotope = '+idsIsotope);  
-      const  idsIntegralPeriod =  selIntegralPeriodValues.map(item => item.id).join(',');
-      console.log('idsIntegralPeriod = '+idsIntegralPeriod);  
-
-      const response = await fetch(`/value_int_dose?data_source_id=`+idsDS+`&organ_id=`+idsOrgan+
-      `&irradiation_id=`+idsIrradiation+`&isotope_id=`+idsIsotope+`&integral_period_id=`+idsIntegralPeriod);
-
-/*       const response = await fetch(
-        `/value_int_dose?page=${
-          pageState.page + 1
-        }&pagesize=${pageState.pageSize}`
-      );
- */      const json = await response.json();
-      //const cnt = await response.count();
-      console.log("X-Total-Count", response.headers.get('X-Total-Count'));
-      //console.log("Content-Range", response.headers.get('Content-Range'));
-      const cnt = parseInt( response.headers.get('X-Total-Count') );
-     // console.log('cnt = '+ cnt );
-      setPageState((old) => ({
-        ...old,
-        isLoading: false,
-        rows: json,
-        rowCount: cnt
-      }));
-    };
-    fetchData();
-  }, [pageState.pageSize, pageState.page, selDataSourceValues]);
-
 
 
   return (
     <div style={{ height: 640, width: 1500 }}>
     <table border = "0" style={{ height: 550, width: 1500 }} ><tbody>
     <tr>
-      <td style={{ height: 640, width: 600, verticalAlign: 'top' }}>
-      <div style={{ height: 486, width: 585 }}>
+      <td style={{ height: 840, width: 600, verticalAlign: 'top' }}>
+      <div style={{ height: 786, width: 585 }}>
         <Autocomplete
           size="small"
           value={selDataSourceValues}
@@ -768,13 +580,15 @@ const BigTableValueIntDose = (props) => {
             <TextField {...params} label="Источники данных" placeholder="Источники данных" />
           )}
         />
-        <p></p>
+        <p></p>  
         <Autocomplete
+          /* sx={(!disabled)?{width: '60ch', background: '#FFFFFF'}:{width: '60ch', background: '#EEEEEE'}} */  
           size="small"
+          disabled={ (!selDataSourceValues.length) }
           value={selDoseRatioValues}
           onChange={handleChangeDoseRatio}
           multiple
-          id="autocomplete-doseratio"
+          id="autocomplete-dose_ratio"
           options={ tableDoseRatio.filter((row) => [1, 2, 8].includes(row.id)) }
           /* options={tableDoseRatio} */
           getOptionLabel={(option) => option.title}
@@ -792,10 +606,14 @@ const BigTableValueIntDose = (props) => {
         <p></p>
 
         <Autocomplete
+          /* sx={(selDataSourceValues.length)?{width: '60ch', background: '#FFFFFF'}:{width: '60ch', background: '#EEEEEE'}} */
           size="small"
           value={selOrganValues}
           onChange={handleChangeOrgan}
           multiple
+          disabled={ (!selDataSourceValues.length) || 
+            (!(selDoseRatioValues.filter((row) => [2, 8].includes(row.id))).length)
+          }
           id="autocomplete-organ"
           options={tableOrgan}
           getOptionLabel={(option) => option.name_rus}
@@ -808,6 +626,29 @@ const BigTableValueIntDose = (props) => {
           )}
           renderInput={(params) => (
             <TextField {...params} label="Органы и ткани" placeholder="Органы и ткани" />
+          )}
+        />
+        <p></p>        
+        <Autocomplete
+          size="small"
+          value={selLetLevelValues}
+          onChange={handleChangeLetLevel}
+          multiple
+          disabled={ (!selDataSourceValues.length) || 
+            (!(selDoseRatioValues.filter((row) => [8].includes(row.id))).length)
+          }
+          id="autocomplete-let_level"
+          options={tableLetLevel}
+          getOptionLabel={(option) => option.name_rus}
+          disableCloseOnSelect
+          renderOption={(props, option, { selected }) => (
+            <li {...props}>
+              <Checkbox size="small" icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected}/>
+              {option.name_rus}
+            </li>
+          )}
+          renderInput={(params) => (
+            <TextField {...params} label="Уровни ЛПЭ" placeholder="Уровни ЛПЭ" />
           )}
         />
         <p></p>
@@ -833,6 +674,145 @@ const BigTableValueIntDose = (props) => {
         <p></p>
         <Autocomplete
           size="small"
+          value={selSubstFormValues}
+          onChange={handleChangeSubstForm}
+          multiple
+          id="autocomplete-subst_form"
+          options={tableSubstForm}
+          disabled={  (!selDataSourceValues.length) ||  
+              ((selIrradiationValues.filter((row) => [2].includes(row.id))).length===0) 
+          }          
+          getOptionLabel={(option) => option.name_rus}
+          disableCloseOnSelect
+          renderOption={(props, option, { selected }) => (
+            <li {...props}>
+              <Checkbox size="small" icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected}/>
+              {option.name_rus}
+            </li>
+          )}
+          renderInput={(params) => (
+            <TextField {...params} label="Формы вещества" placeholder="Формы вещества" />
+          )}
+        />
+        <p></p>
+        <Autocomplete
+          size="small"
+          value={selAerosolSolValues}
+          onChange={handleChangeAerosolSol}
+          multiple
+          id="autocomplete-aerosol_sol"
+          options={tableAerosolSol}
+          disabled={  (!selDataSourceValues.length) ||  
+              ((selSubstFormValues.filter((row) => [162].includes(row.id))).length===0) 
+          }          
+          getOptionLabel={(option) => option.name_rus}
+          disableCloseOnSelect
+          renderOption={(props, option, { selected }) => (
+            <li {...props}>
+              <Checkbox size="small" icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected}/>
+              {option.name_rus}
+            </li>
+          )}
+          renderInput={(params) => (
+            <TextField {...params} label="Типы растворимости аэрозолей" placeholder="Типы растворимости аэрозолей" />
+          )}
+        />
+        <p></p>
+        <Autocomplete
+          size="small"
+          value={selAerosolAMADValues}
+          onChange={handleChangeAerosolAMAD}
+          multiple
+          id="autocomplete-aerosol_amad"
+          options={tableAerosolAMAD}
+          disabled={  (!selDataSourceValues.length) ||  
+              ((selSubstFormValues.filter((row) => [162].includes(row.id))).length===0) 
+          }          
+          getOptionLabel={(option) => option.name_rus}
+          disableCloseOnSelect
+          renderOption={(props, option, { selected }) => (
+            <li {...props}>
+              <Checkbox size="small" icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected}/>
+              {option.name_rus}
+            </li>
+          )}
+          renderInput={(params) => (
+            <TextField {...params} label="AMAD аэрозолей" placeholder="AMAD аэрозолей" />
+          )}
+        />
+        <p></p>
+
+
+        <Autocomplete
+          size="small"
+          value={selPeopleClassValues}
+          onChange={handleChangePeopleClass}
+          multiple
+          id="autocomplete-people_class"
+          options={tablePeopleClass}
+          getOptionLabel={(option) => option.name_rus}
+          disableCloseOnSelect
+          renderOption={(props, option, { selected }) => (
+            <li {...props}>
+              <Checkbox size="small" icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected}/>
+              {option.name_rus}
+            </li>
+          )}
+          renderInput={(params) => (
+            <TextField {...params} label="Типы облучаемых лиц" placeholder="Типы облучаемых лиц" />
+          )}
+        />
+        <p></p>                           
+        <Autocomplete
+          size="small"
+          value={selAgeGroupValues}
+          onChange={handleChangeAgeGroup}
+          multiple
+          id="autocomplete-age_group"
+          disabled={  (!selDataSourceValues.length) ||  
+            ((selPeopleClassValues.filter((row) => [1].includes(row.id))).length===0) 
+          }              
+          options={tableAgeGroup}
+          getOptionLabel={(option) => option.name_rus}
+          disableCloseOnSelect
+          renderOption={(props, option, { selected }) => (
+            <li {...props}>
+              <Checkbox size="small" icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected}/>
+              {option.name_rus}
+            </li>
+          )}
+          renderInput={(params) => (
+            <TextField {...params} label="Возрастные группы населения" placeholder="Возрастные группы населения" />
+          )}
+        />
+        <p></p>
+
+        <Autocomplete
+          size="small"
+          value={selExpScenarioValues}
+          onChange={handleChangeExpScenario}
+          multiple
+          id="autocomplete-aerosol_amad"
+          options={tableExpScenario}
+          disabled={ (!selDataSourceValues.length) ||  
+            ((selPeopleClassValues.filter((row) => [3,4].includes(row.id))).length===0) 
+          }              
+          getOptionLabel={(option) => option.name_rus}
+          disableCloseOnSelect
+          renderOption={(props, option, { selected }) => (
+            <li {...props}>
+              <Checkbox size="small" icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected}/>
+              {option.name_rus}
+            </li>
+          )}
+          renderInput={(params) => (
+            <TextField {...params} label="Сценарии поступления" placeholder="Сценарии поступления" />
+          )}
+        />
+        <p></p>
+
+        <Autocomplete
+          size="small"
           value={selIsotopeValues}
           onChange={handleChangeIsotope}
           multiple
@@ -851,12 +831,13 @@ const BigTableValueIntDose = (props) => {
           )}
         />
         <p></p>
+
         <Autocomplete
           size="small"
           value={selIntegralPeriodValues}
           onChange={handleChangeIntegralPeriod}
           multiple
-          id="autocomplete-isotope"
+          id="autocomplete-integral"
           options={tableIntegralPeriod}
           getOptionLabel={(option) => option.name_rus}
           disableCloseOnSelect
@@ -871,6 +852,7 @@ const BigTableValueIntDose = (props) => {
           )}
         />
         <p></p>
+
         <IconButton onClick={()=>reloadDataAlert()} color="primary" size="small" title="Обновить данные">
           <SvgIcon fontSize="small" component={RepeatLightIcon} inheritViewBox /></IconButton>
 {/*         <Autocomplete
@@ -913,11 +895,12 @@ const BigTableValueIntDose = (props) => {
       </Box>
       </td>
       <td style={{ height: 550, width: 900, verticalAlign: 'top' }}>
-{/*       <DataGrid
-        components={{ Toolbar: CustomToolbar1 }}
+      <DataGrid
+        //components={{ Toolbar: CustomToolbar1 }}
         hideFooterSelectedRowCount={true}
         localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
         rowHeight={25}
+        loading={isLoading}
         rows={tableValueIntDose}
         columns={columnsValueIntDose}
         onSelectionModelChange={(newSelectionModel) => {
@@ -935,7 +918,7 @@ const BigTableValueIntDose = (props) => {
         }}        
         //onRowClick={handleRowClick} {...tableData} 
       />  
-      <p></p>   */}
+{/*       <p></p>  
        <ServerPaginationGrid
         page={pageState.page}
         loading={pageState.isLoading}
@@ -944,7 +927,7 @@ const BigTableValueIntDose = (props) => {
         rowCount={pageState.rowCount}
         columns={columnsValueIntDose}
         onPageAlter={(newPage) => setPageState({ ...pageState, page: newPage })}
-      /> 
+      />  */}
     </td>
   </tr>
   </tbody>

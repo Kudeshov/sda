@@ -109,7 +109,7 @@ function Navbar() {
               Дозовые коэффициенты
             </Link>            
             <Menu anchorEl={anchorE2} open={menuCoeff} onClose={closeMenuCoeff}>
-              <MenuItem onClick={closeMenuCoeff} component={Link} disabled={true} to="/value_int_dose">Внутреннее облучение</MenuItem> 
+              <MenuItem onClick={closeMenuCoeff} component={Link} to="/value_int_dose">Внутреннее облучение</MenuItem> 
               <MenuItem onClick={closeMenuCoeff} component={Link} disabled={true} to="/value_int_dose">Внешнее облучение</MenuItem> 
               <Divider />
               <MenuItem onClick={closeMenuCoeff} component={Link} to="/dose_ratio">{table_names['dose_ratio']}</MenuItem> 
@@ -129,7 +129,7 @@ function Navbar() {
               Нормы и критерии
             </Link>
             <Menu anchorEl={anchorE3} open={menuNorm} onClose={closeMenuNorm}>
-              <MenuItem onClick={closeMenuNorm} component={Link} disabled={true} to="/criterion">Критерии</MenuItem>
+              <MenuItem onClick={closeMenuNorm} component={Link} to="/criterion">Критерии</MenuItem>
               <Divider /> 
               <MenuItem onClick={closeMenuNorm} component={Link} to="/calcfunction">Функции</MenuItem> 
               <MenuItem onClick={closeMenuNorm} component={Link} to="/criterion_gr">Группы критериев</MenuItem> 

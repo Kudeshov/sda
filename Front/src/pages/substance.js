@@ -1,4 +1,4 @@
-import { Typography } from "@material-ui/core";
+//import { Typography } from "@material-ui/core";
 import { useEffect } from 'react';
 import { table_names } from './sda_types';
 

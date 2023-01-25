@@ -21,7 +21,7 @@ pool.on(`error`, function (err, client) {
 
 const getIsotopeDecayByIsotope = (request, response ) => {
   const isotope_id = parseInt(request.params.id||0);  
-  console.log(request.params);
+  //console.log(request.params);
   pool.query(
     "select id.*, i_p.title as parent_title, i_c.title as child_title, i_c.n_index, i_c.half_life_value, i_c.half_life_period, i_c.decayconst "+
     "from nucl.isotope_decay id join nucl.isotope i_p on i_p.id = id.parent_id  join nucl.isotope i_c on i_c.id = id.child_id "+
@@ -54,7 +54,7 @@ const updateIsotopeDecay = (request, response) => {
 }
 
 const createIsotopeDecay = (request, response) => {
-  console.log( request.body );
+  //console.log( request.body );
   const { parent_id, child_id, decay_prob } = request.body;
   pool.query('INSERT INTO nucl.isotope_decay (parent_id, child_id, decay_prob) VALUES ($1, $2, $3) RETURNING id', [parent_id, child_id, decay_prob], (error, results) => {
     if (error) {
