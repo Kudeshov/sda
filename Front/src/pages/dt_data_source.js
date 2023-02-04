@@ -145,6 +145,10 @@ const DataTableDataSource = (props) => {
 
   ///////////////////////////////////////////////////////////////////  SAVE  /////////////////////
   const saveRec = async ( fromToolbar ) => {
+
+    if (formRef.current.reportValidity() )
+    {
+
     const js = JSON.stringify({
       title: valueTitle,
       shortname: valueShortName,
@@ -193,6 +197,7 @@ const DataTableDataSource = (props) => {
      }
     reloadData();     
    }
+  }
  };
 /////////////////////////////////////////////////////////////////// ADDREC ///////////////////// 
   const addRec = async ()  => {
@@ -476,8 +481,12 @@ const DataTableDataSource = (props) => {
     );
   }
 
+  const formRef = React.useRef();
+
   return (
     <div style={{ height: 640, width: 1500 }}>
+
+    <form ref={formRef}>  
     <table border = "0" style={{ height: 550, width: 1500 }} ><tbody>
     <tr>
       <td style={{ height: 640, width: 600, verticalAlign: 'top' }}>
@@ -532,17 +541,18 @@ const DataTableDataSource = (props) => {
       <td style={{ height: 550, width: 900, verticalAlign: 'top' }}>
       <TextField  id="ch_id"  disabled={true} label="Код" sx={{ width: '12ch' }} variant="outlined" value={valueId || ''} size="small" onChange={e => setValueID(e.target.value)}/>
       &nbsp;&nbsp;&nbsp;&nbsp;
-      <TextField  id="ch_name" sx={{ width: '40ch' }} label="Обозначение" size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
+      <TextField  id="ch_name" sx={{ width: '40ch' }} label="Обозначение" required size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
       <p></p>
-      <TextField  id="ch_shortname" sx={{ width: '100ch' }} label="Краткое название" size="small" variant="outlined" value={valueShortName || ''} onChange={e => setValueShortName(e.target.value)}/>
+      <TextField  id="ch_shortname" sx={{ width: '100ch' }} label="Краткое название" required size="small" variant="outlined" value={valueShortName || ''} onChange={e => setValueShortName(e.target.value)}/>
       <p></p>
       <TextField  id="ch_fullname" sx={{ width: '100ch' }} label="Полное название" size="small" variant="outlined" value={valueFullName || ''} onChange={e => setValueFullName(e.target.value)}/>
       <p></p>
       <FormControl sx={{ width: '40ch' }} size="small">
-        <InputLabel id="demo-controlled-open-select-label">Тип источника</InputLabel>
+        <InputLabel required id="demo-controlled-open-select-label">Тип источника</InputLabel>
         <Select
           labelId="demo-controlled-open-select-label"
           id="demo-controlled-open-select"
+          required
           value={valueExternalDS}
           label="Тип источника"
           defaultValue={true}
@@ -626,6 +636,7 @@ const DataTableDataSource = (props) => {
         <Button variant="outlined" onClick={handleCloseSaveWhenNewYes} >Да</Button>
     </DialogActions>
   </Dialog>
+  </form>
  </div>     
   )
 }

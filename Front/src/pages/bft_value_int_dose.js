@@ -20,12 +20,14 @@ import Alert from '@mui/material/Alert';
 import Collapse from '@mui/material/Collapse';
 import CloseIcon from '@mui/icons-material/Close';
 import SvgIcon from '@mui/material/SvgIcon';
-/* import { ReactComponent as SaveLightIcon } from "./../icons/save.svg";
+import { ReactComponent as SaveLightIcon } from "./../icons/save.svg";
 import { ReactComponent as PlusLightIcon } from "./../icons/plus.svg";
 import { ReactComponent as UndoLightIcon } from "./../icons/undo.svg";
 import { ReactComponent as DownloadLightIcon } from "./../icons/download.svg";
-import { ReactComponent as TrashLightIcon } from "./../icons/trash.svg"; */
+import { ReactComponent as TrashLightIcon } from "./../icons/trash.svg";
 import { ReactComponent as RepeatLightIcon } from "./../icons/repeat.svg";
+import { ReactComponent as CheckDoubleIcon } from "./../icons/check-double.svg";
+import { ReactComponent as ArrowAltDownIcon } from "./../icons/arrow-alt-down.svg";
 /* import { table_names } from './sda_types';
 import { FormControl } from "@mui/material";
 import { InputLabel } from "@mui/material";
@@ -38,7 +40,7 @@ import Checkbox from '@mui/material/Checkbox';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
 
-import ServerPaginationGrid from './sp_datagrid';
+//import ServerPaginationGrid from './sp_datagrid';
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
@@ -51,7 +53,7 @@ var alertSeverity = "info";
 
 const BigTableValueIntDose = (props) => {
 
-  const [pageState, setPageState] = useState({
+  const [pageState/* , setPageState */] = useState({
     page: 0,
     pageSize: 100,
     rows: [],
@@ -190,15 +192,33 @@ const BigTableValueIntDose = (props) => {
   const [tableAerosolAMAD, setTableAerosolAMAD] = useState([]); //АМАД аэрозолей
   const [tableExpScenario, setTableExpScenario] = useState([]); //Сценарии поступления
   const [tablePeopleClass, setTablePeopleClass] = useState([]); //Типы облучаемых лиц
-
   const [tableValueIntDose, setTableValueIntDose] = useState([]); 
   const [selectionModel, setSelectionModel] = React.useState([]);
 
-  useEffect(() => {
-    fetch(`/data_source`)
+  useEffect(  () => {
+/*     const setFirst =  async (data) => { 
+      if ((tableDataSource.length>0)&&(selDataSourceValues.length===0)) {
+        setSelDataSourceValues([tableDataSource[0]]);
+      } 
+    }  */
+    async function fetchData() {
+      await fetch(`/data_source`)
       .then((data) => data.json())
-      .then((data) => setTableDataSource(data)); 
-  }, [props.table_name])
+      .then((data) => setTableDataSource(data));
+    }
+
+    fetchData();
+    //setFirst();
+  },[ ]); //, [props.table_name]
+
+  useEffect(() => {
+    const setFirst =  async () => { 
+      if ((tableDataSource.length>0)) {
+        setSelDataSourceValues([tableDataSource[0]]);
+      } 
+    }   
+    setFirst();  
+  }, [tableDataSource])    
 
   useEffect(() => {
     fetch(`/organ`)
@@ -277,8 +297,7 @@ const BigTableValueIntDose = (props) => {
       .then((data) => data.json())
       .then((data) => setTablePeopleClass(data)); 
   }, [props.table_name])
-   
-  /////////////////////////////////////////////////////////////////// RELOAD /////////////////////
+
   const reloadDataAlert =  async () => {
     alertSeverity = "info";
     alertText =  'Данные успешно обновлены';
@@ -484,30 +503,104 @@ const BigTableValueIntDose = (props) => {
 
   //////////////////////////////////////////////////////// ACTIONS ///////////////////////////////
 
- /*  function CustomToolbar1() {
+  function CustomToolbar1() {
   const apiRef = useGridApiContext();
      const handleExport = (options) =>
       apiRef.current.exportDataAsCsv(options);
 
     return (
       <GridToolbarContainer>
-        <IconButton onClick={()=>handleClearClick()}  color="primary" size="small" title="Создать запись">
+        <table border = "1" cellspacing="0" cellpadding="0" style={{ height: 300, width: 500, verticalAlign: 'top' }}><tbody>
+          <tr>
+          <td>
+          <Autocomplete
+              /* sx={(!disabled)?{width: '60ch', background: '#FFFFFF'}:{width: '60ch', background: '#EEEEEE'}} */  
+              size="small"
+              limitTags={10}
+              disabled={ (!selDataSourceValues.length) }
+              value={selDoseRatioValues}
+              onChange={handleChangeDoseRatio}
+              multiple
+              id="autocomplete-dose_ratio"
+              options={ tableDoseRatio.filter((row) => [1, 2, 8].includes(row.id)) }
+              getOptionLabel={(option) => option.title}
+              disableCloseOnSelect
+              renderOption={(props, option, { selected }) => (
+                <li {...props}>
+                  <Checkbox size="small" icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected}/>
+                  {option.title}
+                </li>
+              )}
+              renderInput={(params) => (
+                <TextField {...params} label="Параметры" placeholder="Параметры" />
+              )}
+            />
+            <Autocomplete
+              /* sx={(!disabled)?{width: '60ch', background: '#FFFFFF'}:{width: '60ch', background: '#EEEEEE'}} */  
+              size="small"
+              limitTags={10}
+              disabled={ (!selDataSourceValues.length) }
+              value={selDoseRatioValues}
+              onChange={handleChangeDoseRatio}
+              multiple
+              id="autocomplete-dose_ratio"
+              options={ tableDoseRatio.filter((row) => [1, 2, 8].includes(row.id)) }
+              getOptionLabel={(option) => option.title}
+              disableCloseOnSelect
+              renderOption={(props, option, { selected }) => (
+                <li {...props}>
+                  <Checkbox size="small" icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected}/>
+                  {option.title}
+                </li>
+              )}
+              renderInput={(params) => (
+                <TextField {...params} label="Параметры" placeholder="Параметры" />
+              )}
+            />
+            <Autocomplete
+              /* sx={(!disabled)?{width: '60ch', background: '#FFFFFF'}:{width: '60ch', background: '#EEEEEE'}} */  
+              size="small"
+              limitTags={10}
+              disabled={ (!selDataSourceValues.length) }
+              value={selDoseRatioValues}
+              onChange={handleChangeDoseRatio}
+              multiple
+              id="autocomplete-dose_ratio"
+              options={ tableDoseRatio.filter((row) => [1, 2, 8].includes(row.id)) }
+              getOptionLabel={(option) => option.title}
+              disableCloseOnSelect
+              renderOption={(props, option, { selected }) => (
+                <li {...props}>
+                  <Checkbox size="small" icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected}/>
+                  {option.title}
+                </li>
+              )}
+              renderInput={(params) => (
+                <TextField {...params} label="Параметры" placeholder="Параметры" />
+              )}
+            />
+          </td>
+          </tr>
+          </tbody>
+        </table>     
+
+        <IconButton /* onClick={()=>handleClearClick()}  */ color="primary" size="small" title="Создать запись">
           <SvgIcon fontSize="small" component={PlusLightIcon} inheritViewBox /></IconButton>
-        <IconButton onClick={()=>saveRec(true)}  color="primary" size="small" title="Сохранить запись в БД">
+        <IconButton /* onClick={()=>saveRec(true)}  */ color="primary" size="small" title="Сохранить запись в БД">
           <SvgIcon fontSize="small" component={SaveLightIcon} inheritViewBox/></IconButton>
-        <IconButton onClick={()=>handleClickDelete()}  color="primary" size="small" title="Удалить запись">
+        <IconButton /* onClick={()=>handleClickDelete()} */  color="primary" size="small" title="Удалить запись">
           <SvgIcon fontSize="small" component={TrashLightIcon} inheritViewBox /></IconButton>
-        <IconButton onClick={()=>handleCancelClick()} disabled={!editStarted} color="primary" size="small" title="Отменить редактирование">
+        <IconButton /* onClick={()=>handleCancelClick()}  disabled={!editStarted}*/ color="primary" size="small" title="Отменить редактирование">
           <SvgIcon fontSize="small" component={UndoLightIcon} inheritViewBox /></IconButton>
-        <IconButton onClick={()=>reloadDataAlert()} color="primary" size="small" title="Обновить данные">
+        <IconButton /* onClick={()=>reloadDataAlert()} */ color="primary" size="small" title="Обновить данные">
           <SvgIcon fontSize="small" component={RepeatLightIcon} inheritViewBox /></IconButton>
-        <IconButton onClick={()=>handleExport({ delimiter: ';', utf8WithBom: true, getRowsToExport: () => gridFilteredSortedRowIdsSelector(apiRef) })} color="primary" 
+{/*         <IconButton onClick={()=>handleExport({ delimiter: ';', utf8WithBom: true, getRowsToExport: () => gridFilteredSortedRowIdsSelector(apiRef) })} color="primary" 
             size="small" title="Сохранить в формате CSV">
-          <SvgIcon fontSize="small" component={DownloadLightIcon} inheritViewBox /></IconButton> 
+          <SvgIcon fontSize="small" component={DownloadLightIcon} inheritViewBox /></IconButton>  */}
       </GridToolbarContainer>
     );
-  }}
-*/
+  }
+
 
 
  /* 
@@ -551,63 +644,89 @@ const BigTableValueIntDose = (props) => {
     fetchData();
   }, [pageState.pageSize, pageState.page]); */
 
-
-
   return (
-    <div style={{ height: 640, width: 1500 }}>
-    <table border = "0" style={{ height: 550, width: 1500 }} ><tbody>
+    <div /* style={{ height: 640, width: 1500 }} */>
+    <table border = "0" style={{ /* height: 550,  */width: 1500 }} ><tbody>
     <tr>
-      <td style={{ height: 840, width: 600, verticalAlign: 'top' }}>
-      <div style={{ height: 786, width: 585 }}>
-        <Autocomplete
-          size="small"
-          value={selDataSourceValues}
-          onChange={handleChangeDataSource}
-          multiple
-          id="autocomplete-datasource"
-          options={tableDataSource}  
-        /*  options={ tableData.filter((row) => idsDoseRatio.has(row.id)) }
-           options={tableDataSource.filter((row) => idsDoseRatio.has(row.id)) } */
-          getOptionLabel={(option) => option.title}
-          disableCloseOnSelect
-          renderOption={(props, option, { selected }) => (
-            <li {...props}>
-              <Checkbox size="small" icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected}/>
-              {option.title}
-            </li>
-          )}
-          renderInput={(params) => (
-            <TextField {...params} label="Источники данных" placeholder="Источники данных" />
-          )}
-        />
-        <p></p>  
-        <Autocomplete
-          /* sx={(!disabled)?{width: '60ch', background: '#FFFFFF'}:{width: '60ch', background: '#EEEEEE'}} */  
-          size="small"
-          disabled={ (!selDataSourceValues.length) }
-          value={selDoseRatioValues}
-          onChange={handleChangeDoseRatio}
-          multiple
-          id="autocomplete-dose_ratio"
-          options={ tableDoseRatio.filter((row) => [1, 2, 8].includes(row.id)) }
-          /* options={tableDoseRatio} */
-          getOptionLabel={(option) => option.title}
-          disableCloseOnSelect
-          renderOption={(props, option, { selected }) => (
-            <li {...props}>
-              <Checkbox size="small" icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected}/>
-              {option.title}
-            </li>
-          )}
-          renderInput={(params) => (
-            <TextField {...params} label="Параметры" placeholder="Параметры" />
-          )}
-        />
-        <p></p>
+      <td style={{ /* height: 840, */ width: 1500, verticalAlign: 'top' }}>
+      <div /* style={{ height: 786, width: 585 }} */>
 
-        <Autocomplete
+        <table border = "0" cellspacing="0" cellpadding="0"><tbody>
+          <tr>      
+          <td width={548}>
+            <Autocomplete
+            size="small"
+            limitTags={10}
+            value={selDataSourceValues}
+            onChange={handleChangeDataSource}
+            multiple
+            id="autocomplete-datasource"
+            options={tableDataSource}
+            getOptionLabel={(option) => option.title}
+            disableCloseOnSelect
+            renderOption={(props, option, { selected }) => (
+              <li {...props}>
+                <Checkbox size="small" icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected}/>
+                {option.title}
+              </li>
+            )}
+            renderInput={(params) => (
+              <TextField {...params} label="Источники данных" placeholder="Источники данных" />
+            )}
+            />
+          </td>
+          <td>
+            &nbsp;&nbsp;
+          </td>
+          <td>        
+            <IconButton onClick={()=>setSelDataSourceValues(tableDataSource)/* setAll() */} color="primary" size="small" title="Выбрать все">
+            <SvgIcon fontSize="small" component={CheckDoubleIcon} inheritViewBox /></IconButton>
+          </td>
+          </tr>
+        </tbody></table>  
+        <p></p>
+        
+        <table border = "0" cellspacing="0" cellpadding="0"><tbody>
+          <tr>      
+          <td width={348}>      
+          <Autocomplete
+            /* sx={(!disabled)?{width: '60ch', background: '#FFFFFF'}:{width: '60ch', background: '#EEEEEE'}} */  
+            size="small"
+            limitTags={10}
+            disabled={ (!selDataSourceValues.length) }
+            value={selDoseRatioValues}
+            onChange={handleChangeDoseRatio}
+            multiple
+            id="autocomplete-dose_ratio"
+            options={ tableDoseRatio.filter((row) => [1, 2, 8].includes(row.id)) }
+            getOptionLabel={(option) => option.title}
+            disableCloseOnSelect
+            renderOption={(props, option, { selected }) => (
+              <li {...props}>
+                <Checkbox size="small" icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected}/>
+                {option.title}
+              </li>
+            )}
+            renderInput={(params) => (
+              <TextField {...params} label="Параметры" placeholder="Параметры" />
+            )}
+          />
+          </td>
+          <td>
+            &nbsp;&nbsp;
+          </td>
+          <td>        
+            <IconButton onClick={()=>setSelDoseRatioValues(tableDoseRatio.filter((row) => [1, 2, 8].includes(row.id)))} color="primary" size="small" title="Выбрать все">
+            <SvgIcon fontSize="small" component={CheckDoubleIcon} inheritViewBox /></IconButton>
+          </td>
+          <td>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          </td>
+          <td width={548}>      
+          <Autocomplete
           /* sx={(selDataSourceValues.length)?{width: '60ch', background: '#FFFFFF'}:{width: '60ch', background: '#EEEEEE'}} */
           size="small"
+          limitTags={7}
           value={selOrganValues}
           onChange={handleChangeOrgan}
           multiple
@@ -627,10 +746,23 @@ const BigTableValueIntDose = (props) => {
           renderInput={(params) => (
             <TextField {...params} label="Органы и ткани" placeholder="Органы и ткани" />
           )}
-        />
-        <p></p>        
-        <Autocomplete
+          /> 
+          </td>
+          <td>
+            &nbsp;&nbsp;
+          </td>
+          <td>        
+            <IconButton onClick={()=>setSelOrganValues(tableOrgan)} color="primary" size="small" title="Выбрать все">
+            <SvgIcon fontSize="small" component={CheckDoubleIcon} inheritViewBox /></IconButton>
+          </td>
+
+          <td>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          </td>
+          <td width={348}>      
+          <Autocomplete
           size="small"
+          limitTags={7}
           value={selLetLevelValues}
           onChange={handleChangeLetLevel}
           multiple
@@ -650,253 +782,336 @@ const BigTableValueIntDose = (props) => {
           renderInput={(params) => (
             <TextField {...params} label="Уровни ЛПЭ" placeholder="Уровни ЛПЭ" />
           )}
-        />
-        <p></p>
-        <Autocomplete
-          size="small"
-          value={selIrradiationValues}
-          onChange={handleChangeIrradiation}
-          multiple
-          id="autocomplete-irradiation"
-          options={tableIrradiation.filter((row) => [2,6, 30319, 30316].includes(row.id)) }
-          getOptionLabel={(option) => option.name_rus}
-          disableCloseOnSelect
-          renderOption={(props, option, { selected }) => (
-            <li {...props}>
-              <Checkbox size="small" icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected}/>
-              {option.name_rus}
-            </li>
-          )}
-          renderInput={(params) => (
-            <TextField {...params} label="Типы облучения" placeholder="Типы облучения" />
-          )}
-        />
-        <p></p>
-        <Autocomplete
-          size="small"
-          value={selSubstFormValues}
-          onChange={handleChangeSubstForm}
-          multiple
-          id="autocomplete-subst_form"
-          options={tableSubstForm}
-          disabled={  (!selDataSourceValues.length) ||  
-              ((selIrradiationValues.filter((row) => [2].includes(row.id))).length===0) 
-          }          
-          getOptionLabel={(option) => option.name_rus}
-          disableCloseOnSelect
-          renderOption={(props, option, { selected }) => (
-            <li {...props}>
-              <Checkbox size="small" icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected}/>
-              {option.name_rus}
-            </li>
-          )}
-          renderInput={(params) => (
-            <TextField {...params} label="Формы вещества" placeholder="Формы вещества" />
-          )}
-        />
-        <p></p>
-        <Autocomplete
-          size="small"
-          value={selAerosolSolValues}
-          onChange={handleChangeAerosolSol}
-          multiple
-          id="autocomplete-aerosol_sol"
-          options={tableAerosolSol}
-          disabled={  (!selDataSourceValues.length) ||  
-              ((selSubstFormValues.filter((row) => [162].includes(row.id))).length===0) 
-          }          
-          getOptionLabel={(option) => option.name_rus}
-          disableCloseOnSelect
-          renderOption={(props, option, { selected }) => (
-            <li {...props}>
-              <Checkbox size="small" icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected}/>
-              {option.name_rus}
-            </li>
-          )}
-          renderInput={(params) => (
-            <TextField {...params} label="Типы растворимости аэрозолей" placeholder="Типы растворимости аэрозолей" />
-          )}
-        />
-        <p></p>
-        <Autocomplete
-          size="small"
-          value={selAerosolAMADValues}
-          onChange={handleChangeAerosolAMAD}
-          multiple
-          id="autocomplete-aerosol_amad"
-          options={tableAerosolAMAD}
-          disabled={  (!selDataSourceValues.length) ||  
-              ((selSubstFormValues.filter((row) => [162].includes(row.id))).length===0) 
-          }          
-          getOptionLabel={(option) => option.name_rus}
-          disableCloseOnSelect
-          renderOption={(props, option, { selected }) => (
-            <li {...props}>
-              <Checkbox size="small" icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected}/>
-              {option.name_rus}
-            </li>
-          )}
-          renderInput={(params) => (
-            <TextField {...params} label="AMAD аэрозолей" placeholder="AMAD аэрозолей" />
-          )}
-        />
+          />
+          </td>
+          <td>
+            &nbsp;&nbsp;
+          </td>
+          <td>        
+            <IconButton onClick={()=>setSelLetLevelValues(tableLetLevel)} color="primary" size="small" title="Выбрать все">
+            <SvgIcon fontSize="small" component={CheckDoubleIcon} inheritViewBox /></IconButton>
+          </td>
+          </tr>
+        </tbody></table>  
+        <p></p>        
+
+        <table border = "0" cellspacing="0" cellpadding="0"><tbody>
+          <tr>      
+          <td width={348}>
+          <Autocomplete
+            size="small"
+            value={selIrradiationValues}
+            onChange={handleChangeIrradiation}
+            multiple
+            id="autocomplete-irradiation"
+            options={tableIrradiation.filter((row) => [2,6, 30319, 30316].includes(row.id)) }
+            getOptionLabel={(option) => option.name_rus}
+            disableCloseOnSelect
+            renderOption={(props, option, { selected }) => (
+              <li {...props}>
+                <Checkbox size="small" icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected}/>
+                {option.name_rus}
+              </li>
+            )}
+            renderInput={(params) => (
+              <TextField {...params} label="Типы облучения" placeholder="Типы облучения" />
+            )}
+          />          
+          </td>
+          <td>
+            &nbsp;&nbsp;
+          </td>
+          <td>        
+            <IconButton onClick={()=>setSelIrradiationValues(tableIrradiation.filter((row) => [2,6, 30319, 30316].includes(row.id)))} color="primary" size="small" title="Выбрать все">
+            <SvgIcon fontSize="small" component={CheckDoubleIcon} inheritViewBox /></IconButton>
+          </td>
+          <td>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          </td>
+          <td width={300}>      
+            <Autocomplete
+            size="small"
+            value={selSubstFormValues}
+            onChange={handleChangeSubstForm}
+            multiple
+            id="autocomplete-subst_form"
+            options={tableSubstForm}
+            disabled={  (!selDataSourceValues.length) ||  
+                ((selIrradiationValues.filter((row) => [2].includes(row.id))).length===0) 
+            }          
+            getOptionLabel={(option) => option.name_rus}
+            disableCloseOnSelect
+            renderOption={(props, option, { selected }) => (
+              <li {...props}>
+                <Checkbox size="small" icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected}/>
+                {option.name_rus}
+              </li>
+            )}
+            renderInput={(params) => (
+              <TextField {...params} label="Формы вещества" placeholder="Формы вещества" />
+            )}
+            />
+          </td>
+          <td>
+            &nbsp;&nbsp;
+          </td>
+          <td>        
+            <IconButton onClick={()=>setSelSubstFormValues(tableSubstForm)} color="primary" size="small" title="Выбрать все">
+            <SvgIcon fontSize="small" component={CheckDoubleIcon} inheritViewBox /></IconButton>
+          </td>
+          <td>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          </td>
+          <td width={300}>      
+            <Autocomplete
+            size="small"
+            value={selAerosolSolValues}
+            onChange={handleChangeAerosolSol}
+            multiple
+            id="autocomplete-aerosol_sol"
+            options={tableAerosolSol}
+            disabled={  (!selDataSourceValues.length) ||  
+                ((selSubstFormValues.filter((row) => [162].includes(row.id))).length===0) 
+            }          
+            getOptionLabel={(option) => option.name_rus}
+            disableCloseOnSelect
+            renderOption={(props, option, { selected }) => (
+              <li {...props}>
+                <Checkbox size="small" icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected}/>
+                {option.name_rus}
+              </li>
+            )}
+            renderInput={(params) => (
+              <TextField {...params} label="Типы растворимости аэрозолей" placeholder="Типы растворимости аэрозолей" />
+            )}
+            />
+          </td>
+          <td>
+            &nbsp;&nbsp;
+          </td>
+          <td>        
+            <IconButton onClick={()=>setSelAerosolSolValues(tableAerosolSol)} color="primary" size="small" title="Выбрать все">
+            <SvgIcon fontSize="small" component={CheckDoubleIcon} inheritViewBox /></IconButton>
+          </td>
+          <td>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          </td>
+          <td width={300}>      
+            <Autocomplete
+            size="small"
+            value={selAerosolAMADValues}
+            limitTags={7}
+            onChange={handleChangeAerosolAMAD}
+            multiple
+            id="autocomplete-aerosol_amad"
+            options={tableAerosolAMAD}
+            disabled={  (!selDataSourceValues.length) ||  
+                ((selSubstFormValues.filter((row) => [162].includes(row.id))).length===0) 
+            }          
+            getOptionLabel={(option) => option.name_rus}
+            disableCloseOnSelect
+            renderOption={(props, option, { selected }) => (
+              <li {...props}>
+                <Checkbox size="small" icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected}/>
+                {option.name_rus}
+              </li>
+            )}
+            renderInput={(params) => (
+              <TextField {...params} label="AMAD аэрозолей" placeholder="AMAD аэрозолей" />
+            )}
+            />
+          </td>
+          <td>
+            &nbsp;&nbsp;
+          </td>
+          <td>        
+            <IconButton onClick={()=>setSelAerosolAMADValues(tableAerosolAMAD)} color="primary" size="small" title="Выбрать все">
+            <SvgIcon fontSize="small" component={CheckDoubleIcon} inheritViewBox /></IconButton>
+          </td>
+          </tr>
+        </tbody></table>  
         <p></p>
 
 
-        <Autocomplete
-          size="small"
-          value={selPeopleClassValues}
-          onChange={handleChangePeopleClass}
-          multiple
-          id="autocomplete-people_class"
-          options={tablePeopleClass}
-          getOptionLabel={(option) => option.name_rus}
-          disableCloseOnSelect
-          renderOption={(props, option, { selected }) => (
-            <li {...props}>
-              <Checkbox size="small" icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected}/>
-              {option.name_rus}
-            </li>
-          )}
-          renderInput={(params) => (
-            <TextField {...params} label="Типы облучаемых лиц" placeholder="Типы облучаемых лиц" />
-          )}
-        />
+        <table border = "0" cellspacing="0" cellpadding="0"><tbody>
+          <tr>      
+          <td width={348}>
+            <Autocomplete
+            size="small"
+            value={selPeopleClassValues}
+            onChange={handleChangePeopleClass}
+            multiple
+            id="autocomplete-people_class"
+            options={tablePeopleClass}
+            getOptionLabel={(option) => option.name_rus}
+            disableCloseOnSelect
+            renderOption={(props, option, { selected }) => (
+              <li {...props}>
+                <Checkbox size="small" icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected}/>
+                {option.name_rus}
+              </li>
+            )}
+            renderInput={(params) => (
+              <TextField {...params} label="Типы облучаемых лиц" placeholder="Типы облучаемых лиц" />
+            )}
+            />          
+            </td>
+            <td>
+              &nbsp;&nbsp;
+            </td>
+            <td>        
+              <IconButton onClick={()=>setSelPeopleClassValues(tablePeopleClass)} color="primary" size="small" title="Выбрать все">
+              <SvgIcon fontSize="small" component={CheckDoubleIcon} inheritViewBox /></IconButton>
+            </td>
+            <td>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </td>
+          <td width={348}>      
+            <Autocomplete
+            size="small"
+            value={selAgeGroupValues}
+            onChange={handleChangeAgeGroup}
+            multiple
+            id="autocomplete-age_group"
+            disabled={  (!selDataSourceValues.length) ||  
+              ((selPeopleClassValues.filter((row) => [1].includes(row.id))).length===0) 
+            }              
+            options={tableAgeGroup}
+            getOptionLabel={(option) => option.name_rus}
+            disableCloseOnSelect
+            renderOption={(props, option, { selected }) => (
+              <li {...props}>
+                <Checkbox size="small" icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected}/>
+                {option.name_rus}
+              </li>
+            )}
+            renderInput={(params) => (
+              <TextField {...params} label="Возрастные группы населения" placeholder="Возрастные группы населения" />
+            )}
+            />
+          </td>
+          <td>
+            &nbsp;&nbsp;
+          </td>
+          <td>        
+            <IconButton onClick={()=>setSelAgeGroupValues(tableAgeGroup)} color="primary" size="small" title="Выбрать все">
+            <SvgIcon fontSize="small" component={CheckDoubleIcon} inheritViewBox /></IconButton>
+          </td>
+          <td width={348}>      
+            <Autocomplete
+            size="small"
+            value={selExpScenarioValues}
+            onChange={handleChangeExpScenario}
+            multiple
+            id="autocomplete-aerosol_amad"
+            options={tableExpScenario}
+            disabled={ (!selDataSourceValues.length) ||  
+              ((selPeopleClassValues.filter((row) => [3,4].includes(row.id))).length===0) 
+            }              
+            getOptionLabel={(option) => option.name_rus}
+            disableCloseOnSelect
+            renderOption={(props, option, { selected }) => (
+              <li {...props}>
+                <Checkbox size="small" icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected}/>
+                {option.name_rus}
+              </li>
+            )}
+            renderInput={(params) => (
+              <TextField {...params} label="Сценарии поступления" placeholder="Сценарии поступления" />
+            )}
+            />
+          </td>
+          <td>
+            &nbsp;&nbsp;
+          </td>
+          <td>        
+            <IconButton onClick={()=>setSelExpScenarioValues(tableExpScenario)} color="primary" size="small" title="Выбрать все">
+            <SvgIcon fontSize="small" component={CheckDoubleIcon} inheritViewBox /></IconButton>
+          </td>
+          </tr>
+          </tbody>
+        </table>  
         <p></p>                           
-        <Autocomplete
-          size="small"
-          value={selAgeGroupValues}
-          onChange={handleChangeAgeGroup}
-          multiple
-          id="autocomplete-age_group"
-          disabled={  (!selDataSourceValues.length) ||  
-            ((selPeopleClassValues.filter((row) => [1].includes(row.id))).length===0) 
-          }              
-          options={tableAgeGroup}
-          getOptionLabel={(option) => option.name_rus}
-          disableCloseOnSelect
-          renderOption={(props, option, { selected }) => (
-            <li {...props}>
-              <Checkbox size="small" icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected}/>
-              {option.name_rus}
-            </li>
-          )}
-          renderInput={(params) => (
-            <TextField {...params} label="Возрастные группы населения" placeholder="Возрастные группы населения" />
-          )}
-        />
-        <p></p>
 
-        <Autocomplete
-          size="small"
-          value={selExpScenarioValues}
-          onChange={handleChangeExpScenario}
-          multiple
-          id="autocomplete-aerosol_amad"
-          options={tableExpScenario}
-          disabled={ (!selDataSourceValues.length) ||  
-            ((selPeopleClassValues.filter((row) => [3,4].includes(row.id))).length===0) 
-          }              
-          getOptionLabel={(option) => option.name_rus}
-          disableCloseOnSelect
-          renderOption={(props, option, { selected }) => (
-            <li {...props}>
-              <Checkbox size="small" icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected}/>
-              {option.name_rus}
-            </li>
-          )}
-          renderInput={(params) => (
-            <TextField {...params} label="Сценарии поступления" placeholder="Сценарии поступления" />
-          )}
-        />
-        <p></p>
 
-        <Autocomplete
-          size="small"
-          value={selIsotopeValues}
-          onChange={handleChangeIsotope}
-          multiple
-          id="autocomplete-isotope"
-          options={tableIsotope}
-          getOptionLabel={(option) => option.title}
-          disableCloseOnSelect
-          renderOption={(props, option, { selected }) => (
-            <li {...props}>
-              <Checkbox size="small" icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected}/>
-              {option.title}
-            </li>
-          )}
-          renderInput={(params) => (
-            <TextField {...params} label="Нуклиды" placeholder="Нуклиды" />
-          )}
-        />
-        <p></p>
-
-        <Autocomplete
-          size="small"
-          value={selIntegralPeriodValues}
-          onChange={handleChangeIntegralPeriod}
-          multiple
-          id="autocomplete-integral"
-          options={tableIntegralPeriod}
-          getOptionLabel={(option) => option.name_rus}
-          disableCloseOnSelect
-          renderOption={(props, option, { selected }) => (
-            <li {...props}>
-              <Checkbox size="small" icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected}/>
-              {option.name_rus}
-            </li>
-          )}
-          renderInput={(params) => (
-            <TextField {...params} label="Периоды интегрирования" placeholder="Периоды интегрирования" />
-          )}
-        />
-        <p></p>
+        <table border = "0" cellspacing="0" cellpadding="0"><tbody>
+          <tr>      
+          <td width={348}>
+            <Autocomplete
+              size="small"
+              value={selIsotopeValues}
+              onChange={handleChangeIsotope}
+              multiple
+              limitTags={7}
+              id="autocomplete-isotope"
+              options={tableIsotope}
+              getOptionLabel={(option) => option.title}
+              disableCloseOnSelect
+              renderOption={(props, option, { selected }) => (
+                <li {...props}>
+                  <Checkbox size="small" icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected}/>
+                  {option.title}
+                </li>
+              )}
+              renderInput={(params) => (
+                <TextField {...params} label="Нуклиды" placeholder="Нуклиды" />
+              )}
+            />
+          </td>
+          <td>
+            &nbsp;&nbsp;
+          </td>
+          <td>        
+            <IconButton onClick={()=>setSelIsotopeValues(tableIsotope)} color="primary" size="small" title="Выбрать все">
+            <SvgIcon fontSize="small" component={CheckDoubleIcon} inheritViewBox /></IconButton>
+          </td>
+          <td>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          </td>
+           <td width={348}>      
+            <Autocomplete
+            size="small"
+            value={selIntegralPeriodValues}
+            onChange={handleChangeIntegralPeriod}
+            multiple
+            limitTags={7}
+            id="autocomplete-integral"
+            options={tableIntegralPeriod}
+            getOptionLabel={(option) => option.name_rus}
+            disableCloseOnSelect
+            renderOption={(props, option, { selected }) => (
+              <li {...props}>
+                <Checkbox size="small" icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected}/>
+                {option.name_rus}
+              </li>
+            )}
+            renderInput={(params) => (
+              <TextField {...params} label="Периоды интегрирования" placeholder="Периоды интегрирования" />
+            )}
+          />
+          </td>
+          <td>
+            &nbsp;&nbsp;
+          </td>
+          <td>        
+            <IconButton onClick={()=>setSelIntegralPeriodValues(tableIntegralPeriod)} color="primary" size="small" title="Выбрать все">
+            <SvgIcon fontSize="small" component={CheckDoubleIcon} inheritViewBox /></IconButton>
+          </td>
+          </tr>
+          </tbody>
+        </table>  
+        <p></p>  
+ 
 
         <IconButton onClick={()=>reloadDataAlert()} color="primary" size="small" title="Обновить данные">
-          <SvgIcon fontSize="small" component={RepeatLightIcon} inheritViewBox /></IconButton>
-{/*         <Autocomplete
-          multiple
-          //size="small"
-          sx={{ width: '60ch' }}
-          //disablePortal
-          id="combo-box-nuclide"
-          value={tableData.find((option) => option.id === valueId)||'' }
-          //disableClearable
-          isOptionEqualToValue={(option, value) => option.id === value.id }  
-          onChange={(event, newValueAC) => {   setValueID(newValueAC?newValueAC.id:-1) } }
-          options={tableData}
-          getOptionLabel={option => option?option.title:""}
-          renderInput={(params) => <TextField {...params} label="Радиоизотоп" />}
-        /> */}
-
-
+          <SvgIcon fontSize="small" component={ArrowAltDownIcon} inheritViewBox /></IconButton>
       </div>
-      <Box sx={{ width: 585 }}>
-      <Collapse in={openAlert}>
-        <Alert
-          severity={alertSeverity}
-          action={
-            <IconButton
-              aria-label="close"
-              color="inherit"
-              size="small"
-              onClick={() => {
-                setOpenAlert(false);
-              }}
-            >
-              <CloseIcon fontSize="inherit" />
-            </IconButton>
-          }
-        >
-          {alertText}
-        </Alert>
-      </Collapse>
-      </Box>
       </td>
-      <td style={{ height: 550, width: 900, verticalAlign: 'top' }}>
+  </tr>
+  <tr>
+  <td style={{ height: 550, width: 1200, verticalAlign: 'top' }}>
       <DataGrid
-        //components={{ Toolbar: CustomToolbar1 }}
+        components={{ Toolbar: CustomToolbar1 }}
         hideFooterSelectedRowCount={true}
         localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
         rowHeight={25}
@@ -928,8 +1143,33 @@ const BigTableValueIntDose = (props) => {
         columns={columnsValueIntDose}
         onPageAlter={(newPage) => setPageState({ ...pageState, page: newPage })}
       />  */}
+
+      <Box /* sx={{ width: 585 }} */>
+      <Collapse in={openAlert}>
+        <Alert
+          severity={alertSeverity}
+          action={
+            <IconButton
+              aria-label="close"
+              color="inherit"
+              size="small"
+              onClick={() => {
+                setOpenAlert(false);
+              }}
+            >
+              <CloseIcon fontSize="inherit" />
+            </IconButton>
+          }
+        >
+          {alertText}
+        </Alert>
+      </Collapse>
+      </Box>      
     </td>
-  </tr>
+
+
+
+</tr>
   </tbody>
   </table>
 
