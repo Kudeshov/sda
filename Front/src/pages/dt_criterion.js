@@ -421,6 +421,10 @@ const DataTableCriterion= (props) => {
 
   ///////////////////////////////////////////////////////////////////  SAVE  /////////////////////
   const saveRec = async ( fromToolbar ) => {
+
+    if (formRef.current.reportValidity() )
+    {
+
     let myParentID;
     myParentID = valueParentID === -1 ? null : valueParentID;  
     const js = JSON.stringify({
@@ -478,6 +482,7 @@ const DataTableCriterion= (props) => {
      }
     reloadData();     
    }
+  }
  };
 /////////////////////////////////////////////////////////////////// ADDREC ///////////////////// 
   const addRec = async ()  => {
@@ -793,7 +798,10 @@ const DataTableCriterion= (props) => {
 
   const [valueAC, setValueAC] = React.useState(tableData[0]);/* tableData[0]) */
 
+  const formRef = React.useRef();
+
   return (
+    <form ref={formRef}>  
     <div style={{ height: 650, width: 1500 }}>
     <table border = "0" style={{ height: 650, width: 1500 }} ><tbody>
     <tr>
@@ -1002,7 +1010,8 @@ const DataTableCriterion= (props) => {
         <Button variant="outlined" onClick={handleCloseSaveWhenNewYes} >Да</Button>
     </DialogActions>
   </Dialog>
- </div>     
+ </div>  
+ </form>   
   )
 }
 

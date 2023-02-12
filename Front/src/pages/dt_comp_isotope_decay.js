@@ -239,6 +239,10 @@ const delRecDecay =  async () => {
 };  
 ///////////////////////////////////////////////////////////////////  SAVE  /////////////////////
 const saveRecDecay = async () => {
+  
+  if (formRef.current.reportValidity() )
+    {
+
   const js = JSON.stringify({
     child_id: valueChildIsotopeId,
     decay_prob: valueDecayProb,     
@@ -277,6 +281,7 @@ const saveRecDecay = async () => {
    setIsLoading(false);
    reloadDataDecay();      
  }
+}
 };
 
 /////////////////////////////////////////////////////////////////// ADDREC ///////////////////// 
@@ -393,9 +398,10 @@ const [graph, setGraph] = useState({
   edges: edges
 });
 
-
+const formRef = React.useRef();
 return (
     <div style={{ height: {heightVal} , width: 886 }}> 
+    <form ref={formRef}>  
     <table cellSpacing={0} cellPadding={0} style={{ height: 203, width: 886, verticalAlign: 'top' }} border="0"><tbody><tr>
       <td style={{ height: 160, width: 800, verticalAlign: 'top' }}>
       <DataGrid
@@ -589,6 +595,7 @@ return (
           <Button variant="outlined" onClick={handleCloseGraph} autoFocus>Закрыть</Button>
       </DialogActions>
       </Dialog>
+      </form>
   </div>
   )
 }

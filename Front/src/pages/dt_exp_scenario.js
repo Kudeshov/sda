@@ -349,6 +349,11 @@ const DataTableExpScenario = (props) => {
 
   ///////////////////////////////////////////////////////////////////  SAVE  /////////////////////
   const saveRec = async ( fromToolbar ) => {
+
+    if (formRef.current.reportValidity() )
+    {
+
+
     let myParentID;
     myParentID = valueParentID === -1 ? null : valueParentID;  
     const js = JSON.stringify({
@@ -406,6 +411,7 @@ const DataTableExpScenario = (props) => {
      }
     reloadData();     
    }
+  }
  };
 /////////////////////////////////////////////////////////////////// ADDREC ///////////////////// 
   const addRec = async ()  => {
@@ -710,9 +716,12 @@ const DataTableExpScenario = (props) => {
       expandedNew=[]; 
     setExpanded(expandedNew);
   };
-
+  const formRef = React.useRef();
   return (
+
     <div style={{ height: 650, width: 1500 }}>
+    <form ref={formRef}>  
+
     <table border = "0" style={{ height: 650, width: 1500 }} ><tbody>
     <tr>
       <td style={{ height: 550, width: 600, verticalAlign: 'top' }}>
@@ -771,7 +780,7 @@ const DataTableExpScenario = (props) => {
       <td style={{ height: 550, width: 900, verticalAlign: 'top' }}>
       <TextField  id="ch_id" disabled={true} label="Код" sx={{ width: '12ch' }} variant="outlined" value={ valueId ||''} size="small" /* onChange={e => setValueID(e.target.value)} *//>
       &nbsp;&nbsp;&nbsp;&nbsp;
-      <TextField  id="ch_name" sx={{ width: '40ch' }} label="Обозначение" size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
+      <TextField  id="ch_name" sx={{ width: '40ch' }} label="Обозначение" required size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
       &nbsp;&nbsp;&nbsp;&nbsp;
       <FormControl sx={{ width: '30ch' }} size="small">
         <InputLabel id="ch_parent_id">Родительский класс</InputLabel>
@@ -796,8 +805,8 @@ const DataTableExpScenario = (props) => {
           return (
             <div>
               <FormControl sx={{ width: '30ch' }} size="small">
-                <InputLabel id="ch_normativ_id">Нормативная база</InputLabel>
-                  <Select labelId="ch_normativ_id" id="ch_normativ_id1" label="Нормативная база" value={valueNormativ  || "" } onChange={e => setValueNormativ(e.target.value)} >
+                <InputLabel id="ch_normativ_id"required>Нормативная база</InputLabel>
+                  <Select labelId="ch_normativ_id" id="ch_normativ_id1" label="Нормативная база" required value={valueNormativ  || "" } onChange={e => setValueNormativ(e.target.value)} >
                           {tableNormativ?.map(option => {
                           return (
                           <MenuItem key={option.id} value={option.id}>
@@ -893,6 +902,7 @@ const DataTableExpScenario = (props) => {
         <Button variant="outlined" onClick={handleCloseSaveWhenNewYes} >Да</Button>
     </DialogActions>
   </Dialog>
+  </form>
  </div>     
   )
 }

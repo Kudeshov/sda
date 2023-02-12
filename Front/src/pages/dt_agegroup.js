@@ -179,6 +179,10 @@ const DataTableAgeGroup = (props) => {
 
   ///////////////////////////////////////////////////////////////////  SAVE  /////////////////////
   const saveRec = async ( fromToolbar ) => {
+
+    if (formRef.current.reportValidity() )
+    {
+
     const js = JSON.stringify({
       id: valueId,
       title: valueTitle,
@@ -238,6 +242,7 @@ const DataTableAgeGroup = (props) => {
      }
     reloadData();     
    }
+  }
  };
 /////////////////////////////////////////////////////////////////// ADDREC ///////////////////// 
   const addRec = async ()  => {
@@ -554,9 +559,10 @@ const DataTableAgeGroup = (props) => {
       </GridToolbarContainer>
     );
   }
-
+  const formRef = React.useRef();
   return (
     <div style={{ height: 640, width: 1500 }}>
+      <form ref={formRef}>
     <table border = "0" style={{ height: 550, width: 1500 }} ><tbody>
     <tr>
       <td style={{ height: 640, width: 600, verticalAlign: 'top' }}>
@@ -618,7 +624,7 @@ const DataTableAgeGroup = (props) => {
       &nbsp;&nbsp;&nbsp;&nbsp;
       <TextField  id="ch_name_eng" sx={{ width: '49ch' }} size="small" label="Название (англ.яз)"  variant="outlined" value={valueNameEng || ''} onChange={e => setValueNameEng(e.target.value)}/>
       <p></p>
-      <TextField  id="ch_resp_rate" sx={{ width: '100ch' }} label="Скорость дыхания, куб.м/сек"  size="small" multiline maxRows={4} variant="outlined" value={valueRespRate || ''} onChange={e => setValueRespRate(e.target.value)}/>
+      <TextField  id="ch_resp_rate" sx={{ width: '100ch' }} label="Скорость дыхания, куб.м/сек" required  size="small" multiline maxRows={4} variant="outlined" value={valueRespRate || ''} onChange={e => setValueRespRate(e.target.value)}/>
       <p></p> 
       <TextField  id="ch_resp_year" sx={{ width: '100ch' }} label="Годовой объем вдыхаемого воздуха, куб.м"  size="small" multiline maxRows={4} variant="outlined" value={valueRespYear || ''} onChange={e => setValueRespYear(e.target.value)}/>
       <p></p> 
@@ -707,6 +713,7 @@ const DataTableAgeGroup = (props) => {
         <Button variant="outlined" onClick={handleCloseSaveWhenNewYes} >Да</Button>
     </DialogActions>
   </Dialog>
+  </form>
  </div>     
   )
 }

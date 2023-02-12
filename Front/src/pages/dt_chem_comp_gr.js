@@ -358,6 +358,10 @@ const DataTableChemCompGr = (props) => {
 
   ///////////////////////////////////////////////////////////////////  SAVE  /////////////////////
   const saveRec = async ( fromToolbar ) => {
+
+    if (formRef.current.reportValidity() )
+    {
+
     let myId, myParentID;
     //myParentID = valueParentID ? valueParentID-1000000 : null;
     if (valueId)
@@ -433,6 +437,7 @@ const DataTableChemCompGr = (props) => {
     //reloadData();   
     //handleItemClick(valueId);
    }
+  }
  };
 /////////////////////////////////////////////////////////////////// ADDREC ///////////////////// 
   const addRec = async ()  => {
@@ -738,9 +743,10 @@ const DataTableChemCompGr = (props) => {
       expandedNew=[]; 
     setExpanded(expandedNew);
   };
-
+  const formRef = React.useRef();
   return (
     <div style={{ height: 650, width: 1500 }}>
+   <form ref={formRef}>  
     <table border = "0" style={{ height: 650, width: 1500 }} ><tbody>
     <tr>
       <td style={{ height: 550, width: 600, verticalAlign: 'top' }}>
@@ -804,7 +810,7 @@ const DataTableChemCompGr = (props) => {
       <div id="right part">
       <TextField  id="ch_id" disabled={true} label="Код" sx={{ width: '12ch' }} variant="outlined" value={ ((valueId||0)<=999999)?valueId:valueId-1000000 ||''} size="small" /* onChange={e => setValueID(e.target.value)} *//>
       &nbsp;&nbsp;&nbsp;
-      <TextField  id="ch_name" sx={{ width: '40ch' }} label="Обозначение" size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
+      <TextField  id="ch_name" sx={{ width: '40ch' }} label="Обозначение" required size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
       &nbsp;&nbsp;&nbsp;
 
 
@@ -820,7 +826,7 @@ const DataTableChemCompGr = (props) => {
         onChange={(event, newValueAC) => { /*  console.log(newValueAC?newValueAC.id:-1);  */ setValueParentID(newValueAC?newValueAC.id:-1) } }
         options={tableChelement}
         getOptionLabel={option => option?option.title:""} 
-        renderInput={(params) => <TextField {...params} label="Химический элемент" />}
+        renderInput={(params) => <TextField {...params} label="Химический элемент" required />}
       />
         <p></p>  
 
@@ -954,6 +960,7 @@ const DataTableChemCompGr = (props) => {
         <Button variant="outlined" onClick={handleCloseSaveWhenNewYes} >Да</Button>
     </DialogActions>
   </Dialog>
+  </form>
  </div>     
   )
 }

@@ -231,6 +231,10 @@ const delRec =  async () => {
 };  
 ///////////////////////////////////////////////////////////////////  SAVE  /////////////////////
 const saveRec = async () => {
+
+  if (formRef.current.reportValidity() )
+    {
+
   const js = JSON.stringify({
     id: valueId,
     data_source_id: valueDataSourceId,
@@ -272,6 +276,7 @@ const saveRec = async () => {
    setIsLoading(false);
    reloadDataSrcClass();      
  }
+}
 };
 /////////////////////////////////////////////////////////////////// ADDREC ///////////////////// 
 const addRec = async ()  => {
@@ -336,9 +341,11 @@ const handleRowClick = (params) => {
 const [noRecords, setNoRecords] = useState(true);
 
 
-
+const formRef = React.useRef();
   return (
+    
     <div style={{ height: 270, width: 886 }}>
+      <form ref={formRef}>  
       <table cellSpacing={0} cellPadding={0} style={{ height: 270, width: 886, verticalAlign: 'top' }} border="0"><tbody><tr>
         <td style={{ height: 270, width: 800, verticalAlign: 'top' }}>
       <DataGrid
@@ -497,7 +504,7 @@ const [noRecords, setNoRecords] = useState(true);
           <Button variant="outlined" onClick={handleCloseDSInfo} autoFocus>Закрыть</Button>
       </DialogActions>
       </Dialog>
-
+      </form>
     </div>
     )
 }

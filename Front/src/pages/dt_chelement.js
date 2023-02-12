@@ -151,6 +151,10 @@ const DataTableChelement = (props) => {
 
   ///////////////////////////////////////////////////////////////////  SAVE  /////////////////////
   const saveRec = async ( fromToolbar ) => {
+
+    if (formRef.current.reportValidity() )
+    {
+
     const js = JSON.stringify({
       id: valueId,
       title: valueTitle,
@@ -198,6 +202,7 @@ const DataTableChelement = (props) => {
      }
     reloadData();     
    }
+  }
  };
 /////////////////////////////////////////////////////////////////// ADDREC ///////////////////// 
   const addRec = async ()  => {
@@ -698,8 +703,11 @@ const DataTableChelement = (props) => {
   }
 }, [isLoading, tableNuclide]); 
 
+   const formRef = React.useRef();
   return (
     <div style={{ height: 640, width: 1500 }}>
+
+    <form ref={formRef}>  
     <table border = "0" style={{ height: 550, width: 1500 }} ><tbody>
     <tr>
       <td style={{ height: 640, width: 600, verticalAlign: 'top' }}>
@@ -755,7 +763,7 @@ const DataTableChelement = (props) => {
       <td style={{ height: 550, width: 900, verticalAlign: 'top' }}>
       <TextField  id="ch_id"  disabled={true} label="Код" sx={{ width: '12ch' }} variant="outlined" value={valueId || ''} size="small"  onChange={e => setValueID(e.target.value)}/>
       &nbsp;&nbsp;&nbsp;&nbsp;
-      <TextField  id="ch_name" sx={{ width: '40ch' }} label="Обозначение" size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
+      <TextField  id="ch_name" sx={{ width: '40ch' }} label="Обозначение" required size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
       &nbsp;&nbsp;&nbsp;&nbsp;
       <TextField  id="ch_atomic_num" sx={{ width: '20ch' }} label="Атомный номер" size="small" type="number" variant="outlined" value={valueAtomicNum || ''} onChange={e => setValueAtomicNum(e.target.value)}/>
       <p></p>
@@ -961,8 +969,10 @@ const DataTableChelement = (props) => {
           <Button variant="outlined" onClick={handleCloseDelNuclideNo} autoFocus>Нет</Button>
           <Button variant="outlined" onClick={handleCloseDelNuclideYes} >Да</Button>
       </DialogActions>
-  </Dialog>      
+  </Dialog>  
+  </form>    
  </div>     
+
   )
 }
 

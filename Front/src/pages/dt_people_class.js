@@ -122,6 +122,10 @@ const DataTablePeopleClass = (props) => {
 
   ///////////////////////////////////////////////////////////////////  SAVE  /////////////////////
   const saveRec = async ( fromToolbar ) => {
+
+    if (formRef.current.reportValidity() )
+    {
+
     const js = JSON.stringify({
       id: valueId,
       title: valueTitle,
@@ -171,6 +175,7 @@ const DataTablePeopleClass = (props) => {
      }
     reloadData();     
    }
+  }
  };
 /////////////////////////////////////////////////////////////////// ADDREC ///////////////////// 
   const addRec = async ()  => {
@@ -432,9 +437,11 @@ const DataTablePeopleClass = (props) => {
       </GridToolbarContainer>
     );
   }
-
+  const formRef = React.useRef();
   return (
     <div style={{ height: 640, width: 1500 }}>
+    <form ref={formRef}>  
+ 
     <table border = "0" style={{ height: 550, width: 1500 }} ><tbody>
     <tr>
       <td style={{ height: 640, width: 600, verticalAlign: 'top' }}>
@@ -490,7 +497,7 @@ const DataTablePeopleClass = (props) => {
       <td style={{ height: 550, width: 900, verticalAlign: 'top' }}>
       <TextField  id="ch_id"  disabled={true} label="Код" sx={{ width: '12ch' }} variant="outlined" value={valueId || ''} size="small"  onChange={e => setValueID(e.target.value)}/>
       &nbsp;&nbsp;&nbsp;&nbsp;
-      <TextField  id="ch_name" sx={{ width: '40ch' }} label="Обозначение" size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
+      <TextField  id="ch_name" sx={{ width: '40ch' }} label="Обозначение" required size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
       <p></p>
       <TextField  id="ch_name_rus" sx={{ width: '49ch' }}  size="small" label="Название (рус.яз)"  variant="outlined"  value={valueNameRus || ''} onChange={e => setValueNameRus(e.target.value)} />
       &nbsp;&nbsp;&nbsp;&nbsp;
@@ -565,6 +572,7 @@ const DataTablePeopleClass = (props) => {
         <Button variant="outlined" onClick={handleCloseSaveWhenNewYes} >Да</Button>
     </DialogActions>
   </Dialog>
+  </form>
  </div>     
   )
 }

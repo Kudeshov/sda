@@ -206,6 +206,10 @@ const DataTableIsotope = (props) => {
 
   ///////////////////////////////////////////////////////////////////  SAVE  /////////////////////
   const saveRec = async ( fromToolbar ) => {
+
+    if (formRef.current.reportValidity() )
+    {
+
     const js = JSON.stringify({
       id: valueId,
       title: valueTitle,
@@ -257,6 +261,7 @@ const DataTableIsotope = (props) => {
      }
     reloadData();     
    }
+  }
  };
 /////////////////////////////////////////////////////////////////// ADDREC ///////////////////// 
   const addRec = async ()  => {
@@ -688,9 +693,10 @@ const DataTableIsotope = (props) => {
 */
 
 //  const classes = useStyles(); 
-
+  const formRef = React.useRef();
   return (
     <div style={{ /* height: 640, */ width: 1500 }}>
+    <form ref={formRef}>    
     <table border = "0" style={{ height: 550, width: 1500 }} ><tbody>
     <tr>
       <td style={{   height: 940,  width: 600, verticalAlign: 'top' }}>
@@ -756,7 +762,7 @@ const DataTableIsotope = (props) => {
         &nbsp;&nbsp;&nbsp;&nbsp;
       </td>
       <td>
-        <TextField  id="ch_name" sx={{ width: '40ch' }} label="Обозначение" size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
+        <TextField  id="ch_name" sx={{ width: '40ch' }} label="Обозначение" required size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
       </td>
       <td>
         &nbsp;&nbsp;&nbsp;&nbsp;
@@ -788,7 +794,7 @@ const DataTableIsotope = (props) => {
         onChange={(event, newValueAC) => { /*  console.log(newValueAC?newValueAC.id:-1);  */ setValueNuclideId(newValueAC?newValueAC.id:-1) } }
         options={tableNuclide}
         getOptionLabel={option => option?option.title:""}
-        renderInput={(params) => <TextField {...params} label="Радиоизотоп" />}
+        renderInput={(params) => <TextField {...params} label="Радиоизотоп" required/>}
       />
       </td>      
       <td>
@@ -818,7 +824,7 @@ const DataTableIsotope = (props) => {
               </Select>
             </FormControl>    
             <p></p>
-      <TextField  id="ch_decayconst" sx={{ width: '100ch' }} label="Постоянная распада, 1/сек"  type="number" size="small" maxRows={4} variant="outlined" value={valueDecayConst || ''} onChange={e => setValueDecayConst(e.target.value)}/>
+      <TextField  id="ch_decayconst" sx={{ width: '100ch' }} label="Постоянная распада, 1/сек" required  type="number" size="small" maxRows={4} variant="outlined" value={valueDecayConst || ''} onChange={e => setValueDecayConst(e.target.value)}/>
       
 
 {/*       <Box sx={{ height: 415, flexGrow: 1, overflowY: 'auto' }} >     
@@ -915,6 +921,7 @@ const DataTableIsotope = (props) => {
         <Button variant="outlined" onClick={handleCloseSaveWhenNewYes} >Да</Button>
     </DialogActions>
   </Dialog>
+  </form>
  </div>     
   )
 }
