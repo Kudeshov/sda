@@ -158,7 +158,7 @@ const deleteAgeGroup = (request, response, table_name ) => {
                   else {
                     console.log(`Запись с кодом ${id} удалена`); 
                     if (res.rowCount == 1)
-                      response.status(200).send(`Запись с кодом ${id} удалена; cтрок удалено: ${res.rowCount} `);
+                      response.status(200).send(`Запись с кодом ${id} удалена; cтрок удалено: ${res.rowCount}`);
                     if (res.rowCount == 0)
                       response.status(400).send(`Запись с кодом ${id} не найдена `)
                   }
