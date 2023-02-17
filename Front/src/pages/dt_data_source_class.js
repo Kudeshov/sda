@@ -79,6 +79,10 @@ function DataTableDataSourceClass(props)  {
   const [tableDataSrc, setTableDataSrc] = useState([]);
   useEffect(() => {
     lastRecID = props.rec_id||0;
+    if (props.rec_id==='') {
+      lastRecID = -1;
+    }
+    
     setlastSrcClassID(0);
     setIsLoading(true);
     //console.log(`/data_source_class?table_name=${props.table_name}&rec_id=${props.rec_id}`);
@@ -376,7 +380,7 @@ const formRef = React.useRef();
         }}             
       /></td>
       <td style={{ height: 270, width: 100, verticalAlign: 'top' }}>
-      &nbsp;<IconButton onClick={()=>handleClickAdd()} disabled={(!props.rec_id)||(props.rec_id==='-1000000')} color="primary" size="small" title="Добавить связь с источником данных">
+      &nbsp;<IconButton onClick={()=>handleClickAdd()} disabled={(lastRecID===-1)||(props.rec_id==='-1000000')} color="primary" size="small" title="Добавить связь с источником данных">
         <SvgIcon fontSize="small" component={PlusLightIcon} inheritViewBox /></IconButton><br/>
       &nbsp;<IconButton onClick={()=>handleClickEdit()} disabled={noRecords} color="primary" size="small" title="Редактировать связь с источником данных">
         <SvgIcon fontSize="small" component={EditLightIcon} inheritViewBox /></IconButton><br/>
@@ -425,7 +429,7 @@ const formRef = React.useRef();
           </DialogContentText>
         <p></p>        
         <FormControl fullWidth>
-            <InputLabel id="demo-controlled-open-select-label">Тип источника</InputLabel>
+            <InputLabel id="demo-controlled-open-select-label" required >Источник данных</InputLabel>
             <Select
               labelId="demo-controlled-open-select-label"
               id="demo-controlled-open-select"
@@ -449,7 +453,7 @@ const formRef = React.useRef();
             variant="outlined"
             margin="dense"
             id="title"
-            label="Обозначение"
+            label="Обозначение" required
             value={valueTitleSrc || ''}
             fullWidth
             onChange={e => setValueTitleSrc(e.target.value)}
@@ -496,7 +500,7 @@ const formRef = React.useRef();
               Обозначение: <b>{valueTitle}</b><p></p>
               Краткое название: <b>{valueShortName}</b><p></p> 
               Полное название: <b>{valueFullName}</b><p></p> 
-              Тип источника: <b>{valueExternalDS === 'false' ? 'Целевая БД' : 'Внешний источник' }</b><p></p> 
+              Источник данных: <b>{valueExternalDS === 'false' ? 'Целевая БД' : 'Внешний источник' }</b><p></p> 
               Комментарий: <b>{valueDescr}</b><p></p> 
           </DialogContentText>
       </DialogContent>

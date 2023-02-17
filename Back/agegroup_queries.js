@@ -198,7 +198,10 @@ const updateAgeGroup = (request, response, table_name ) => {
     }
     //id
     const id = parseInt(request.params.id);
-    const { title, name_rus, name_eng, descr_rus, descr_eng, resp_rate, resp_year, indoor, ext_cloud, ext_ground } = request.body;
+    var { title, name_rus, name_eng, descr_rus, descr_eng, resp_rate, resp_year, indoor, ext_cloud, ext_ground } = request.body;
+    console.log(request.body) 
+    if (indoor==="") indoor=null
+    if (resp_year==="") resp_year=null
     client.query(`BEGIN`, err => {
       if (shouldAbort(err, response)) return;
       client.query(`UPDATE nucl.${table_name} SET title = $1, resp_rate=$3, resp_year=$4, indoor=$5, ext_cloud=$6, ext_ground=$7 WHERE id = $2`, [title, id, resp_rate, resp_year, indoor, ext_cloud, ext_ground], (err, res) => {
