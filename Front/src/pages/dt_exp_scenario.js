@@ -678,22 +678,86 @@ const DataTableExpScenario = (props) => {
     }
   }
 
+
+
+
+
+  function getHeaders(atable)
+  {
+    if (atable==='criterion_gr') 
+      return ['Обозначение','Название(рус.яз)','Название(англ.яз)','Нормативная база','Родительский класс','Комментарий(рус.яз)','Комментарий(англ.яз)'];
+    if (atable==='organ') 
+      return ['Обозначение','Название(рус.яз)','Название(англ.яз)','Родительский класс','Комментарий(рус.яз)','Комментарий(англ.яз)'];
+    if (atable==='exp_scenario') 
+      return ['Обозначение','Название(рус.яз)','Название(англ.яз)','Родительский класс','Комментарий(рус.яз)','Комментарий(англ.яз)'];
+  }
+
+
+
+
+/* 
+  let arr = [props.table_name];
+
+delete arr.length; // удалить "go"
+
+alert( arr.length ); // undefined
+
+// теперь arr = ["I",  , "home"];
+alert( arr.length ); // 3
+ */
+
+
+
+
+
+
+// Assume this was parsed from actual JSON data 
+/* const data = [ 
+  {foo: 1, bar: 'a', bas: true}, 
+  {foo: 5, bar: 'c', bas: false} 
+]; 
+ 
+const mapped = data.map(({foo, bas}) => ({foo, bas})); 
+  */
+// Results in 
+// [ 
+//   {foo: 1, bas: true}, 
+//   {foo: 5, bas: false} 
+// ];
+
+
+
   const optionsCSV = {
     filename: table_names[props.table_name],
-    fieldSeparator: ';',
+    fieldSeparator: ',',
     quoteStrings: '"',
     decimalSeparator: '.',
     showLabels: true, 
     useTextFile: false,
     useBom: true,
-    useKeysAsHeaders: true,
+    useKeysAsHeaders: false,
+    headers: getHeaders(props.table_name)
     // headers: ['Column 1', 'Column 2', etc...] <-- Won't work with useKeysAsHeaders present!
   };
+
+  function getTableDataForExcel( t ) 
+  {
+    var arr_excel = [];
+    
+    if (props.table_name==='criterion_gr')  
+      arr_excel= t.map(({title, name_rus, name_eng, descr_rus, descr_eng, parent_name, normativ_title}) => ({title, name_rus, name_eng, normativ_title, parent_name, descr_rus, descr_eng}))
+    else
+      arr_excel= t.map(({title, name_rus, name_eng, descr_rus, descr_eng, parent_name}) => ({title, name_rus, name_eng, parent_name, descr_rus, descr_eng}));
+
+    arr_excel = JSON.parse(JSON.stringify(arr_excel).replace(/\:null/gi, "\:\"\"")); 
+
+    return(arr_excel);
+  }
 
   const exportdDataCSV = async () => {
     //console.log('export csv');
     const csvExporter = new ExportToCsv(optionsCSV);
-    csvExporter.generateCsv(tableData);   
+    csvExporter.generateCsv(getTableDataForExcel(tableData));   
   } 
 
   const onFilterKeyUp = (e) => { 

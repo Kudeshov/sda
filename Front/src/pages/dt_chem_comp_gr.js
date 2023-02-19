@@ -713,7 +713,8 @@ const DataTableChemCompGr = (props) => {
     showLabels: true, 
     useTextFile: false,
     useBom: true,
-    useKeysAsHeaders: true,
+    useKeysAsHeaders: false,
+    headers: [],
     // headers: ['Column 1', 'Column 2', etc...] <-- Won't work with useKeysAsHeaders present!
   };
 

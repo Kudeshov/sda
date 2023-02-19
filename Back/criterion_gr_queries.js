@@ -21,9 +21,11 @@ pool.on(`error`, function (err, client) {
 });
 
 const getCriterionGr = (request, response, table_name ) => {
-  pool.query(`SELECT pc.*, pcn1.name name_rus, pcn2.name name_eng, pcn1.descr descr_rus, pcn2.descr descr_eng, null children FROM nucl.${table_name} pc `+
+  pool.query(`SELECT pc.*, pcn1.name name_rus, pcn2.name name_eng, esc.title as parent_name, pcn1.descr descr_rus, pcn2.descr descr_eng, n.title as normativ_title, null children FROM nucl.${table_name} pc `+
   `left join nucl.${table_name}_nls pcn1 on pc.id=pcn1.${table_name}_id and pcn1.lang_id=1 `+
   `left join nucl.${table_name}_nls pcn2 on pc.id=pcn2.${table_name}_id and pcn2.lang_id=2 `+
+  `left join nucl.${table_name} esc on pc.parent_id = esc.id ` +
+  `left join public.normativ n on pc.normativ_id = n.id ` +
   `ORDER BY pc.id ASC`, (error, results) => {
     if (error) {
       throw error
