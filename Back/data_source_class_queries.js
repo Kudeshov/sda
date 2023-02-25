@@ -169,7 +169,24 @@ const updateDataSourceClass = (request, response) => {
     (error, results) => {
       if (error) 
       {
-        response.status(400).send(`Связь с источником данных с кодом ${id} не сохранена: ${error.message} `)
+        const s=error.message;
+        if (s.includes("data_source_class_uk")) 
+        {
+          response.status(400).send(`Связь с источником данных не добавлена: Для одной записи в таблице ${table_name} может существовать только одна запись в таблице "Связь с источником данных" для одного источника`);
+        }
+        else
+        { 
+          if (s.includes("data_source_class_tuk")) 
+            response.status(400).send(`Связь с источником данных не добавлена: Для записи классификатора может существовать только одна связь с выбранным источником данных. Такая связь уже существует.`);
+          else
+            response.status(400).send(`Связь с источником данных с кодом ${id} не сохранена: ${error.message} `)
+        }
+        //'data_source_class_tuk'
+/*         if (s.includes("data_source_class_tuk")) 
+          response.status(400).send(`Связь с источником данных не добавлена: Сочетание ${title_src} + ${table_name} является уникальным для одного источника`);
+        else
+          response.status(400).send(`Связь с источником данных с кодом ${id} не сохранена: ${error.message} `)
+ */      
       }
       else
       { 

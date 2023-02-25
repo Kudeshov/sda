@@ -48,6 +48,7 @@ const DataTableAgeGroup = (props) => {
   const [tableData, setTableData] = useState([]); 
   const [selectionModel, setSelectionModel] = React.useState([]);
   const [editStarted, setEditStarted] = useState([false]);
+  const [isEmpty, setIsEmpty] = useState([false]);
 
   const [valueRespRate, setValueRespRate] = React.useState();
   const [valueRespRateInitial, setValueRespRateInitial] = React.useState();
@@ -61,12 +62,6 @@ const DataTableAgeGroup = (props) => {
   const [valueExtGroundInitial, setValueExtGroundInitial] = React.useState();
 
   useEffect(() => {
-    //console.log([valueTitleInitial, valueTitle, valueNameRusInitial, valueNameRus, valueNameEngInitial, valueNameEng, 
-    //  valueDescrEngInitial, valueDescrEng, valueDescrRusInitial, valueDescrRus]); 
-
-    //console.log('valueRespRateInitial'+valueRespRateInitial);
-    //console.log('valueRespRate'+valueRespRate);
-
     setEditStarted((valueTitleInitial!==valueTitle)||(valueNameRusInitial!==valueNameRus)||(valueNameEngInitial!==valueNameEng)
       ||(valueDescrEngInitial!==valueDescrEng)||(valueDescrRusInitial!==valueDescrRus)   
       ||(valueRespRateInitial!==valueRespRate)||(valueRespYearInitial!==valueRespYear)||(valueIndoorInitial!==valueIndoor)
@@ -74,6 +69,13 @@ const DataTableAgeGroup = (props) => {
     }, [valueTitleInitial, valueTitle, valueNameRusInitial, valueNameRus, valueNameEngInitial, valueNameEng, 
         valueDescrEngInitial, valueDescrEng, valueDescrRusInitial, valueDescrRus, 
         valueRespRateInitial, valueRespRate, valueRespYearInitial, valueRespYear, valueIndoorInitial, valueIndoor, valueExtCloudInitial, valueExtCloud, valueExtGroundInitial, valueExtGround]); 
+
+  useEffect(() => {
+    setIsEmpty((''==valueTitle)&&(''==valueNameRus)&&(''==valueNameEng)&&(''==valueDescrEng)&&(''==valueDescrRus)   
+      &&(''==valueRespRate)&&(''==valueRespYear)&&(''==valueIndoor)&&(''==valueExtCloud)&&(''==valueExtGround));
+    }, [ valueTitle, valueNameRus, valueNameEng, valueDescrEng, valueDescrRus, 
+        valueRespRate, valueRespYear,  valueIndoor, valueExtCloud, valueExtGround]); 
+      
 
   useEffect(() => {
     if ((!isLoading) && (tableData) && (tableData.length)) {
@@ -112,7 +114,8 @@ const DataTableAgeGroup = (props) => {
 
   const handleRowClick = (params) => {
     setOpenAlert(false);
-    if (editStarted)
+    console.log( 'isEmpty = '+isEmpty);
+    if (editStarted&&(!isEmpty))
     {
       handleClickSave(params);
     } 
@@ -146,7 +149,7 @@ const DataTableAgeGroup = (props) => {
   }; 
 
   const handleClearClick = (params) => {
-    if (editStarted)
+    if (editStarted&&(!isEmpty))
     {
       handleClickSaveWhenNew(params);
     } 

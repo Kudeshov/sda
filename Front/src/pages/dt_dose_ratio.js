@@ -823,11 +823,11 @@ const DataTableDoseRatio = (props) => {
           </Select>
           </FormControl>   
           <p></p> */}
-          <TextField sx={{width: '100ch', input: {background: '#EEEEEE'}}} id="physparam_code" label="Код"  size="small" variant="outlined" value={valuePhysParamCode || ''} />
+          &nbsp;&nbsp;&nbsp;&nbsp;<TextField sx={{width: '98ch', input: {background: '#EEEEEE'}}} id="physparam_code" label="Код"  size="small" variant="outlined" value={valuePhysParamCode || ''} />
           <p></p>
-          <TextField sx={{width: '100ch', input: {background: '#EEEEEE'}}} id="physparam_name_rus" label="Название (рус.яз)"  size="small" variant="outlined" value={valuePhysParamNameRus || ''} />
+          &nbsp;&nbsp;&nbsp;&nbsp;<TextField sx={{width: '98ch', input: {background: '#EEEEEE'}}} id="physparam_name_rus" label="Название (рус.яз)"  size="small" variant="outlined" value={valuePhysParamNameRus || ''} />
           <p></p>
-          <TextField sx={{width: '100ch', input: {background: '#EEEEEE'}}} id="dimension" label="Eд.измерения (базовая)"  size="small" variant="outlined" value={valuePhysParamDimension || ''} />
+          &nbsp;&nbsp;&nbsp;&nbsp;<TextField sx={{width: '98ch', input: {background: '#EEEEEE'}}} id="dimension" label="Eд.измерения (базовая)"  size="small" variant="outlined" value={valuePhysParamDimension || ''} />
           <p></p>
 
       <div style={{ height: 300, width: 800 }}>
