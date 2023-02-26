@@ -47,6 +47,14 @@ const DataTablePeopleClass = (props) => {
   const [tableData, setTableData] = useState([]); 
   const [selectionModel, setSelectionModel] = React.useState([]);
   const [editStarted, setEditStarted] = useState([false]);
+  const [isEmpty, setIsEmpty] = useState([false]);
+
+
+  useEffect(() => {
+    setIsEmpty((''==valueTitle)&&(''==valueNameRus)&&(''==valueNameEng)&&(''==valueDescrEng)&&(''==valueDescrRus));
+    }, [ valueTitle, valueNameRus, valueNameEng, valueDescrEng, valueDescrRus, ]); 
+      
+
 
   useEffect(() => {
     setEditStarted((valueTitleInitial!==valueTitle)||(valueNameRusInitial!==valueNameRus)||(valueNameEngInitial!==valueNameEng)
@@ -77,7 +85,8 @@ const DataTablePeopleClass = (props) => {
 
   const handleRowClick = (params) => {
     setOpenAlert(false);
-    if (editStarted)
+    console.log( 'isEmpty = '+isEmpty);
+    if (editStarted&&(!isEmpty))
     {
       handleClickSave(params);
     } 
@@ -98,7 +107,7 @@ const DataTablePeopleClass = (props) => {
   }; 
 
   const handleClearClick = (params) => {
-    if (editStarted)
+    if (editStarted&&(!isEmpty))
     {
       handleClickSaveWhenNew(params);
     } 

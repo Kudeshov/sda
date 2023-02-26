@@ -76,6 +76,8 @@ const [tableDecay, setTableDecay] = useState([]);
 const [openAlertDecay, setOpenAlertDecay] = React.useState(false, '');
 const [isLoading, setIsLoading] = React.useState(false);
 const [openGraph, setOpenGraph] = useState(false); 
+const [isEmpty, setIsEmpty] = useState([false]);
+
 
 useEffect(() => {
   fetch(`/isotope_min`)

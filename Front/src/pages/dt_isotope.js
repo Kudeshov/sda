@@ -97,7 +97,16 @@ const DataTableIsotope = (props) => {
   const [valueNuclideIdInitial, setValueNuclideIdInitial] = React.useState();
   const [selectionModel, setSelectionModel] = React.useState([]);
   const [editStarted, setEditStarted] = useState([false]);
+  const [isEmpty, setIsEmpty] = useState([false]);
   //const [valueAC, setValueAC] = useState([]);
+
+
+  useEffect(() => {
+    setIsEmpty((''==valueTitle)&&(''==valueNIndex)&&(''==valueHalfLifeValue)&&(''==valueHalfLifePeriod)&&(''==valueDecayConst)   
+      &&(''==valueNuclideId));
+    }, [ valueTitle, valueNIndex, valueHalfLifeValue, valueHalfLifePeriod, valueDecayConst, 
+      valueNuclideId]); 
+      
 
   useEffect(() => {
     setEditStarted((valueTitleInitial!==valueTitle)||(valueNIndexInitial!==valueNIndex)||(valueHalfLifeValueInitial!==valueHalfLifeValue)
@@ -134,7 +143,8 @@ const DataTableIsotope = (props) => {
   const handleRowClick = (params) => {
     console.log('handleRowClick');
     setOpenAlert(false);
-    if (editStarted)
+    console.log( 'isEmpty = '+isEmpty);
+    if (editStarted&&(!isEmpty))
     {
       handleClickSave(params);
     } 
@@ -162,7 +172,7 @@ const DataTableIsotope = (props) => {
   }; 
 
   const handleClearClick = (params) => {
-    if (editStarted)
+    if (editStarted&&(!isEmpty))
     {
       handleClickSaveWhenNew(params);
     } 

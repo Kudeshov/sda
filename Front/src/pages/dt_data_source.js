@@ -56,9 +56,22 @@ const DataTableDataSource = (props) => {
   const [selectionModel, setSelectionModel] = React.useState([]);
   const [editStarted, setEditStarted] = useState([false]);
 
+  const [isEmpty, setIsEmpty] = useState([false]);
+
   const valuesExtDS = [
     { label: 'Целевая БД', value: 'false' },
     { label: 'Внешний источник', value: 'true' } ];
+
+
+
+
+
+    
+    useEffect(() => {
+      setIsEmpty((''==valueTitle)&&(''==valueShortName)&&(''==valueFullName)&&(''==valueDescr)&&(''==valueExternalDS)   );
+      }, [ valueTitle, valueShortName, valueFullName, valueDescr, valueExternalDS]); 
+        
+  
 
   useEffect(() => {
     setEditStarted((valueTitleInitial!==valueTitle)||(valueShortNameInitial!==valueShortName)||(valueFullNameInitial!==valueFullName)
@@ -94,8 +107,9 @@ const DataTableDataSource = (props) => {
 
   const handleRowClick = (params) => {
     setOpenAlert(false);
+    console.log( 'isEmpty = '+isEmpty);
     console.log('handleRowClick params.row.external_ds'+ params.row.external_ds);
-    if (editStarted)
+    if (editStarted&&(!isEmpty))
     {
       handleClickSave(params);
     } 
@@ -119,7 +133,7 @@ const DataTableDataSource = (props) => {
 
   const handleClearClick = (params) => {
     //console.log('handleClearClick');
-    if (editStarted)
+    if (editStarted&&(!isEmpty))
     {
       //console.log('params');
       //console.log(params);

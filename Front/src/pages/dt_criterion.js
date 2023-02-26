@@ -62,6 +62,17 @@ const DataTableCriterion= (props) => {
   const [tableNormativ, setNormativ] = useState([]); 
   const [treeData, setTreeData] = useState([]); 
   const [editStarted, setEditStarted] = useState([false]);
+  const [isEmpty, setIsEmpty] = useState([false]);
+
+
+
+
+  useEffect(() => {
+    setIsEmpty((''==valueTitle)&&(''==valueNameRus)&&(''==valueNameEng)&&(''==valueDescrEng)&&(''==valueDescrRus)   
+      &&(''==valueParentID)&&(''==valueNormativ));
+    }, [ valueTitle, valueNameRus, valueNameEng, valueDescrEng, valueDescrRus, 
+      valueParentID, valueNormativ]); 
+      
 
   useEffect(() => {
     //console.log('setEditStarted valueTitleInitial='+valueTitleInitial+' valueTitle = '+ valueTitle);    
@@ -207,8 +218,9 @@ const DataTableCriterion= (props) => {
 
   const handleItemClick = (id) => {
     setOpenAlert(false);  
+    console.log( 'isEmpty = '+isEmpty);
     clickedId = id;
-    if (editStarted)
+    if (editStarted&&(!isEmpty))
     {
       handleClickSave(id);
     } 
@@ -255,7 +267,7 @@ const DataTableCriterion= (props) => {
   }; 
 
   const handleClearClick = (params) => {
-    if (editStarted)
+    if (editStarted&&(!isEmpty))
     {
       handleClickSaveWhenNew(params);
     } 

@@ -51,9 +51,13 @@ const DataTableChelement = (props) => {
   const [editStarted, setEditStarted] = useState([false]);
   const [tableNuclide, setTableNuclide] = useState([]); 
   const [valueMassNumber, setValueMassNumber] = React.useState();
-
+  const [isEmpty, setIsEmpty] = useState([false]);
   const [valueNuclideId, setValueNuclideID] = React.useState();
 
+  useEffect(() => {
+    setIsEmpty((''==valueTitle)&&(''==valueNameRus)&&(''==valueNameEng)&&(''==valueAtomicNum)&&(''==valueMassNumber));
+    }, [ valueTitle, valueNameRus, valueNameEng, valueAtomicNum, valueMassNumber]); 
+      
   useEffect(() => {
     setEditStarted((valueTitleInitial!==valueTitle)||(valueNameRusInitial!==valueNameRus)||(valueNameEngInitial!==valueNameEng)
       ||(valueAtomicNumInitial!==valueAtomicNum));
@@ -80,6 +84,8 @@ const DataTableChelement = (props) => {
     }, [ isLoading, tableData] );
 
   const handleRowClick = (params) => {
+        console.log( 'isEmpty = '+isEmpty);
+    if (editStarted&&(!isEmpty))
     if (editStarted)
     {
       handleClickSave(params);
@@ -105,7 +111,7 @@ const DataTableChelement = (props) => {
   }; 
 
   const handleClearClick = (params) => {
-    if (editStarted)
+    if (editStarted&&(!isEmpty))
     {
       handleClickSaveWhenNew(params);
     } 

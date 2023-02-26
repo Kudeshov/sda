@@ -62,7 +62,15 @@ const DataTableChemCompGr = (props) => {
   const [tableChelement, setChelement] = useState([]); 
   const [treeData, setTreeData] = useState([]); 
   const [editStarted, setEditStarted] = useState([false]);
+  const [isEmpty, setIsEmpty] = useState([false]);
 
+
+  useEffect(() => {
+    setIsEmpty((''==valueTitle)&&(''==valueNameRus)&&(''==valueNameEng)&&(''==valueDescrEng)&&(''==valueDescrRus)   
+      &&(''==valueParentID)&&(''==valueFormula));
+    }, [ valueTitle, valueNameRus, valueNameEng, valueDescrEng, valueDescrRus, 
+      valueParentID, valueFormula]); 
+      
   useEffect(() => {
     setEditStarted(       
        (valueTitleInitial!==valueTitle)||(valueNameRusInitial!==valueNameRus)||(valueNameEngInitial!==valueNameEng)

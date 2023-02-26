@@ -81,6 +81,9 @@ const DataTableDoseRatio = (props) => {
   const [valueParametersInitial, setValueParametersInitial] = useState([]);
   const [valueParametersDialog, setValueParametersDialog] = useState([]);
   
+  const [isEmpty, setIsEmpty] = useState([false]);
+
+
   useEffect(() => {
     setValuePhysParamCode(valuePhysParamID);
     let myLine = tablePhysParam.filter(item => ( Number(item.id) === Number(valuePhysParamID) ));
@@ -95,6 +98,18 @@ const DataTableDoseRatio = (props) => {
       setValuePhysParamDimension( '' );    
     }
   }, [valuePhysParamID, tablePhysParam]);
+
+
+  useEffect(() => {
+    setIsEmpty((''==valueTitle)&&(''==valueNameRus)&&(''==valueNameEng)&&(''==valueDescrEng)&&(''==valueDescrRus)   
+      &&(''==valueRespRate)&&(''==valueRespYear)&&(''==valueIndoor)&&(''==valueExtCloud)&&(''==valueExtGround)
+      &&(''==valuePhysParamID)&&(''==valueUsed)&&(''==valueParameters)&&(''==valueParametersDialog));
+
+    }, [ valueTitle, valueNameRus, valueNameEng, valueDescrEng, valueDescrRus, 
+        valueRespRate, valueRespYear,  valueIndoor, valueExtCloud, valueExtGround,
+        valuePhysParamID, valueUsed,valueParameters, valueParametersDialog]); 
+      
+
 
   useEffect(() => {
     setEditStarted((valueTitleInitial!==valueTitle)||(valueNameRusInitial!==valueNameRus)||(valueNameEngInitial!==valueNameEng)
@@ -154,7 +169,8 @@ const DataTableDoseRatio = (props) => {
 
   const handleRowClick = (params) => {
     setOpenAlert(false);
-    if (editStarted)
+    console.log( 'isEmpty = '+isEmpty);
+    if (editStarted&&(!isEmpty))
     {
       handleClickSave(params);
     } 
@@ -195,7 +211,7 @@ const DataTableDoseRatio = (props) => {
   }; 
 
   const handleClearClick = (params) => {
-    if (editStarted)
+    if (editStarted&&(!isEmpty))
     {
       handleClickSaveWhenNew(params);
     } 
