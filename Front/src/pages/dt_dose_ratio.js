@@ -35,6 +35,7 @@ import { ReactComponent as EraserLightIcon } from "./../icons/eraser.svg";
 import { ReactComponent as EditLightIcon } from "./../icons/edit.svg";
 import { table_names } from './sda_types';
 import Autocomplete from '@mui/material/Autocomplete';
+import { ReactComponent as InfoLightIcon } from "./../icons/info.svg";
 
 var alertText = "Сообщение";
 var alertSeverity = "info";
@@ -403,6 +404,19 @@ const DataTableDoseRatio = (props) => {
       setValueParametersInitial(valueParameters);
     }
   };
+
+  const [openConfirmDelete, setOpenConfirmDelete] = React.useState(false); 
+const [openDSInfo, setOpenDSInfo] = React.useState(false); 
+const handleOpenDSInfo = () => {
+  setOpenDSInfo(true);
+};
+
+const handleCloseDSInfo = () => {
+  setOpenDSInfo(false);
+};
+
+const [noRecords, setNoRecords] = useState(true);
+
 
 /////////////////////////////////////////////////////////////////// DELETE /////////////////////
   const delRec =  async () => {
@@ -809,7 +823,9 @@ const DataTableDoseRatio = (props) => {
       })()}
       </div>
 
-
+      <table border = "0" cellSpacing={0} cellPadding={0}><tbody>
+      <tr>
+      <td>
       <Autocomplete
         //sx={{ width: '50ch' }}
         fullWidth
@@ -823,8 +839,36 @@ const DataTableDoseRatio = (props) => {
         options={tablePhysParam}
         getOptionLabel={option => option?option.title:""} 
         renderInput={(params) => <TextField {...params} label="Физический параметр (из общего списка)" required />}
-      />
+        
+        />
+        </td><td>
+        &nbsp;<IconButton onClick={()=>handleOpenDSInfo()} color="primary" size="small" title="Информация по источнику данных">
+        <SvgIcon fontSize="small" component={InfoLightIcon} inheritViewBox /></IconButton>
+        </td>
+        </tr>
+        </tbody>
+        </table>  
+      
+
+      <Dialog open={openDSInfo} onClose={handleCloseDSInfo} fullWidth={true}>
+      <DialogTitle>
+        Физический параметр 
+      </DialogTitle>
+      <DialogContent>
+          <DialogContentText>
+              Код: <b>{valuePhysParamCode}</b><p></p>
+              Название (рус.яз): <b>{valuePhysParamNameRus}</b><p></p>
+              Eд.измерения (базовая): <b>{valuePhysParamDimension}</b><p></p> 
+          </DialogContentText>
+      </DialogContent>
+      <DialogActions>
+          <Button variant="outlined" onClick={handleCloseDSInfo} autoFocus>Закрыть</Button>
+      </DialogActions>
+      </Dialog>
+
         <p></p>  
+
+        
 
 {/*         <FormControl sx={{ width: '60ch' }} size="small">
         <InputLabel id="fiz">Физический параметр (из общего списка)</InputLabel>
@@ -839,13 +883,13 @@ const DataTableDoseRatio = (props) => {
           </Select>
           </FormControl>   
           <p></p> */}
-          &nbsp;&nbsp;&nbsp;&nbsp;<TextField sx={{width: '98ch', input: {background: '#EEEEEE'}}} id="physparam_code" label="Код"  size="small" variant="outlined" value={valuePhysParamCode || ''} />
+         {/*  &nbsp;&nbsp;&nbsp;&nbsp;<TextField sx={{width: '98ch', input: {background: '#EEEEEE'}}} id="physparam_code" label="Код"  size="small" variant="outlined" value={valuePhysParamCode || ''} />
           <p></p>
           &nbsp;&nbsp;&nbsp;&nbsp;<TextField sx={{width: '98ch', input: {background: '#EEEEEE'}}} id="physparam_name_rus" label="Название (рус.яз)"  size="small" variant="outlined" value={valuePhysParamNameRus || ''} />
           <p></p>
           &nbsp;&nbsp;&nbsp;&nbsp;<TextField sx={{width: '98ch', input: {background: '#EEEEEE'}}} id="dimension" label="Eд.измерения (базовая)"  size="small" variant="outlined" value={valuePhysParamDimension || ''} />
           <p></p>
-
+ */}
       <div style={{ height: 300, width: 800 }}>
         <DataTableDataSourceClass table_name={props.table_name} rec_id={valueId} />
       </div>
