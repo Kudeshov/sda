@@ -386,7 +386,7 @@ const formRef = React.useRef();
         <SvgIcon fontSize="small" component={EditLightIcon} inheritViewBox /></IconButton><br/>
       &nbsp;<IconButton onClick={()=>handleClickDelete()} disabled={noRecords} color="primary" size="small" title="Удалить связь с источником данных">
         <SvgIcon fontSize="small" component={TrashLightIcon} inheritViewBox /></IconButton><br/>
-      &nbsp;<IconButton onClick={()=>handleOpenDSInfo()} disabled={noRecords} color="primary" size="small" title="Информация по источнику данныъ">
+      &nbsp;<IconButton onClick={()=>handleOpenDSInfo()} disabled={noRecords} color="primary" size="small" title="Информация по источнику данных">
         <SvgIcon fontSize="small" component={InfoLightIcon} inheritViewBox /></IconButton>
       </td></tr>
       <tr>
