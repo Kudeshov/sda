@@ -842,7 +842,7 @@ const [noRecords, setNoRecords] = useState(true);
         
         />
         </td><td>
-        &nbsp;<IconButton onClick={()=>handleOpenDSInfo()} color="primary" size="small" title="Информация по источнику данных">
+        &nbsp;<IconButton onClick={()=>handleOpenDSInfo()} color="primary" size="small" title="Физический параметр">
         <SvgIcon fontSize="small" component={InfoLightIcon} inheritViewBox /></IconButton>
         </td>
         </tr>
@@ -852,7 +852,7 @@ const [noRecords, setNoRecords] = useState(true);
 
       <Dialog open={openDSInfo} onClose={handleCloseDSInfo} fullWidth={true}>
       <DialogTitle>
-        Физический параметр 
+        Физический параметр <b>{(tablePhysParam.find((option) => option.id === valuePhysParamID)||'').title }</b> 
       </DialogTitle>
       <DialogContent>
           <DialogContentText>

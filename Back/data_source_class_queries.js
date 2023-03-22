@@ -60,11 +60,12 @@ const createDataSourceClass = (request, response) => {
       const s=error.message;
       if (s.includes("data_source_class_uk")) 
       {
-        response.status(400).send(`Связь с источником данных не добавлена: Для одной записи в таблице ${table_name} может существовать только одна запись в таблице "Связь с источником данных" для одного источника`);
+        response.status(400).send(`Связь с источником данных не добавлена: Для записи классификатора может существовать только одна связь с выбранным источником данных. Такая связь уже существует.`);
+        //Связь с источником данных не добавлена: Для одной записи в таблице ${table_name} может существовать только одна запись в таблице "Связь с источником данных" для одного источника`);
       }
       else
       { if (s.includes("data_source_class_tuk")) 
-        response.status(400).send(`Связь с источником данных не добавлена: Сочетание ${title_src} + ${table_name}  является уникальным для одного источника`);
+        response.status(400).send(`Связь с источником данных не добавлена: Сочетание ${title_src} + ${table_name} является уникальным для одного источника.`);
       }
 
     } else {
@@ -110,9 +111,14 @@ const deleteDataSourceClass = (request, response) => {
         else
         if (res.rowCount>0)
         {
-          pool.query('SELECT (SELECT COUNT(id) FROM nucl.value_int_dose WHERE data_source_id = $1 and '+table_name+'_id = $2) AS int_dose_count, '+
+/*           pool.query('SELECT (SELECT COUNT(id) FROM nucl.value_int_dose WHERE data_source_id = $1 and '+table_name+'_id = $2) AS int_dose_count, '+
           '(SELECT COUNT(id) FROM nucl.value_ratio_git WHERE data_source_id = $1 and '+table_name+'_id = $2) AS ratio_git_count, '+
           '(SELECT COUNT(id) FROM nucl.value_ext_dose WHERE data_source_id = $1 and '+table_name+'_id = $2) AS ext_dose_count '+
+          'FROM nucl.value_int_dose LIMIT 1', [data_source_id, rec_id], (err, res) => 
+ */
+          pool.query('select coalesce( (SELECT id FROM nucl.value_int_dose WHERE data_source_id = $1 and '+table_name+'_id = $2 limit 1), 0) AS int_dose_id, '+
+          'coalesce( (select id FROM nucl.value_ratio_git WHERE data_source_id = $1 and '+table_name+'_id = $2 limit 1), 0) AS ratio_git_id, '+
+          'coalesce( (SELECT id FROM nucl.value_ext_dose WHERE data_source_id = $1 and '+table_name+'_id = $2 limit 1), 0) AS ext_dose_id  '+
           'FROM nucl.value_int_dose LIMIT 1', [data_source_id, rec_id], (err, res) => 
           {
             if (err) 
@@ -122,20 +128,22 @@ const deleteDataSourceClass = (request, response) => {
             else
             if (res.rowCount>0)
             {
-              const { int_dose_count, ratio_git_count, ext_dose_count } = res.rows[0];
-              console.log( 'int_dose_count, ratio_git_count, ext_dose_count=', int_dose_count, ratio_git_count, ext_dose_count );
-              if  (int_dose_count==0 && ratio_git_count==0 && ext_dose_count==0) 
+              const { int_dose_id, ratio_git_id, ext_dose_id } = res.rows[0];
+              console.log( 'int_dose_count, ratio_git_count, ext_dose_count=', int_dose_id, ratio_git_id, ext_dose_id );
+              if  (int_dose_id==0 && ratio_git_id==0 && ext_dose_id==0) 
               {
                 delRec( id ); 
               }
               else
               {
-                if (int_dose_count!=0) {
-                  response.status(400).send(`Запись с кодом ${id} не удалена: имеются ${int_dose_count} связанные записи в таблице "Значения дозовых коэффициентов для внутреннего облучения" `);
-                } else if (ratio_git_count!=0) {
-                  response.status(400).send(`Запись с кодом ${id} не удалена: имеются ${ratio_git_count} связанные записи в таблице "Значения коэффициента поглощения в желудочно-кишечном тракте (ЖКТ)" `);
-                } else if (ext_dose_count!=0) {
-                  response.status(400).send(`Запись с кодом ${id} не удалена: имеются ${ext_dose_count} связанные записи в таблице "Значения дозовых коэффициентов для внешнего облучения" `);
+                if (int_dose_id!=0) {
+
+                  //Запись с кодом…… не удалена, так как для нее существуют связанные записи в таблице «Значения дозовых коэффициентов для внутреннего облучения»
+                  response.status(400).send(`Запись с кодом ${id} не удалена, так как для нее существуют связанные записи в таблице "Значения дозовых коэффициентов для внутреннего облучения" `);
+                } else if (ratio_git_id!=0) {
+                  response.status(400).send(`Запись с кодом ${id} не удалена, так как для нее существуют связанные записи в таблице "Значения коэффициента поглощения в желудочно-кишечном тракте (ЖКТ)" `);
+                } else if (ext_dose_id!=0) {
+                  response.status(400).send(`Запись с кодом ${id} не удалена, так как для нее существуют связанные записи в таблице "Значения дозовых коэффициентов для внешнего облучения" `);
                 }
               } 
             }
@@ -172,14 +180,17 @@ const updateDataSourceClass = (request, response) => {
         const s=error.message;
         if (s.includes("data_source_class_uk")) 
         {
-          response.status(400).send(`Связь с источником данных не добавлена: Для одной записи в таблице ${table_name} может существовать только одна запись в таблице "Связь с источником данных" для одного источника`);
+          response.status(400).send(`Связь с источником данных не изменена: Для записи классификатора может существовать только одна связь с выбранным источником данных. Такая связь уже существует`);
+          //Связь с источником данных не добавлена: Для одной записи в таблице ${table_name} может существовать только одна запись в таблице "Связь с источником данных" для одного источника`);
         }
         else
         { 
           if (s.includes("data_source_class_tuk")) 
-            response.status(400).send(`Связь с источником данных не добавлена: Для записи классификатора может существовать только одна связь с выбранным источником данных. Такая связь уже существует.`);
+            response.status(400).send(`Связь с источником данных не изменена: Для записи классификатора может существовать только одна связь с выбранным источником данных. Такая связь уже существует.`);
           else
-            response.status(400).send(`Связь с источником данных с кодом ${id} не сохранена: ${error.message} `)
+            //response.status(400).send(`Связь с источником данных с кодом ${id} не сохранена: ${error.message} `)
+            response.status(400).send(`Невозможно сохранить запись. Нарушено требование уникальности. Для выбранного источника данных установленное значение в поле "Обозначение" уже существует.`)
+            /* Невозможно сохранить запись. Нарушено требование уникальности. Для выбранного источника данных установленное значение в поле "Обозначение" уже существует.*/ 
         }
         //'data_source_class_tuk'
 /*         if (s.includes("data_source_class_tuk")) 
