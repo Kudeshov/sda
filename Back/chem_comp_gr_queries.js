@@ -56,7 +56,21 @@ const updateChemCompGr = (request, response, table_name ) => {
             console.error(`Транзакция отменена`)
           }
         })
-        response.status(400).send(`Ошибка: ` + err.message);
+
+        //chem_comp_gr_check
+
+        const s=err.message;
+        if (s.includes("chem_comp_gr_check")) 
+        {
+          response.status(400).send(`Для данной записи Химический элемент не указывается`);
+          //Связь с источником данных не добавлена: Для одной записи в таблице ${table_name} может существовать только одна запись в таблице "Связь с источником данных" для одного источника`);
+        }
+        else 
+        {
+          response.status(400).send(`Ошибка: ` + err.message);
+        }
+
+        
         // release the client back to the pool
         done()
       }
