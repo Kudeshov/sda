@@ -480,7 +480,7 @@ const formRef = React.useRef();
       </DialogTitle>
       <DialogContent>
           <DialogContentText>
-              В таблице "{table_names[props.table_name]}" предложена к удалению следующая запись:<p></p><b>{valueTitleSrc}</b>; Код в БД = <b>{valueId}</b><p></p>
+              В таблице "{table_names['data_source_class']}" предложена к удалению следующая запись:<p></p><b>{valueTitleSrc}</b>; Код в БД = <b>{valueId}</b><p></p>
               Вы желаете удалить указанную запись?        
           </DialogContentText>
       </DialogContent>

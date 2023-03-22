@@ -20,7 +20,8 @@ export const table_names = {
     'isotope': 'Радионуклиды',
     'isotope_decay': 'Радиоактивные ряды',
     'criterion': 'Критерии',
-    'value_int_dose': 'Внутреннее облучение'
+    'value_int_dose': 'Внутреннее облучение',
+    'data_source_class': 'Источники данных'
 }; 
   
   export default table_names;
