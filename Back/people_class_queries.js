@@ -1,8 +1,8 @@
-var express = require('express');
+var express = require(`express`);
 var app = express();
 var PORT = 3001;
 
-const bodyParser = require('body-parser')
+const bodyParser = require(`body-parser`)
 app.use(bodyParser.json())
 app.use(
   bodyParser.urlencoded({
@@ -10,10 +10,11 @@ app.use(
   })
 )
 
-const { Pool } = require('pg');
-const e = require('express');
+const { Pool } = require(`pg`);
+const e = require(`express`);
 
-var config = require('./config.json');
+var config = require(`./config.json`);
+const c_c = require('./common_queries');
 
 const pool = new Pool(config);
 pool.on('error', function (err, client) {
@@ -49,18 +50,18 @@ const createPeopleClass = (request, response) => {
   pool.connect((err, client, done) => {
     const shouldAbort = (err, response) => {
       if (err) {
-        console.error('Ошибка создания записи', err.message)
+        console.error(`Ошибка создания записи`, err.message)
         const { errormsg } = err.message;
-        console.error('Rollback')
-        client.query('ROLLBACK', err => {
-          console.error('Rollback прошел')
+        console.error(`Rollback`)
+        client.query(`ROLLBACK`, err => {
+          console.error(`Rollback прошел`)
           if (err) {
-            console.error('Ошибка при откате транзакции')
-            response.status(400).send('Ошибка при откате транзакции');
+            console.error(`Ошибка при откате транзакции`)
+            response.status(400).send(`Ошибка при откате транзакции`);
             return;
           }
           else {
-            console.error('Транзакция отменена')
+            console.error(`Транзакция отменена`)
           }
         })
         response.status(400).send(`Ошибка: ` + err.message);
@@ -76,26 +77,19 @@ const createPeopleClass = (request, response) => {
       client.query('INSERT INTO nucl.people_class( title ) VALUES ($1) RETURNING id', [title], (err, res) => {
         if (shouldAbort(err, response)) return;      
         const { id } = res.rows[0];
-        console.log('Id = '+id);
-        client.query('INSERT INTO nucl.people_class_nls( name, descr, people_class_id, lang_id ) '+
-                  'VALUES ($1, $2, $3, 1)', [name_rus, descr_rus, id], (err, res) => {
-          //console.log('rus добавляется');         
+        console.log(`Id = `+id);
+        client.query( c_c.getNLSQuery(name_rus||'', descr_rus||'', id, 1, table_name), (err, res) => {
           if (shouldAbort(err, response)) return;
-          //console.log('rus добавлен');
-          client.query('INSERT INTO nucl.people_class_nls( name, descr, people_class_id, lang_id ) '+
-          'VALUES ($1, $2, $3, 2)', [name_eng, descr_eng, id], (err, res) => {
-            //console.log('eng добавляется');  
+          client.query( c_c.getNLSQuery(name_eng||'', descr_eng||'', id, 2, table_name), (err, res) => {
             if (shouldAbort(err, response)) return;
-            //console.log('eng добавлен');
-            console.log('начинаем Commit');     
-            client.query('COMMIT', err => {
+            console.log(`начинаем Commit`);     
+            client.query(`COMMIT`, err => {
               if (err) {
-                console.error('Ошибка при подтверждении транзакции', err.stack);
-                response.status(400).send('Ошибка при подтверждении транзакции', err.stack);
+                console.error(`Ошибка при подтверждении транзакции`, err.stack);
+                response.status(400).send(`Ошибка при подтверждении транзакции`, err.stack);
               }
               else {
-                console.log(`Запись с кодом ${id} добавлена`); 
-                //response.status(201).send(`Запись с кодом ${id} добавлена`);
+                console.log(`Запись добавлена, код: ${id}`); 
                 response.status(201).json({id: `${id}`}); 
               }
               done()
@@ -111,18 +105,18 @@ const deletePeopleClass = (request, response) => {
   pool.connect((err, client, done) => {
     const shouldAbort = (err, response) => {
       if (err) {
-        console.error('Ошибка удаления записи', err.message)
+        console.error(`Ошибка удаления записи`, err.message)
         const { errormsg } = err.message;
-        console.error('Rollback')
-        client.query('ROLLBACK', err => {
-          console.error('Rollback прошел')
+        console.error(`Rollback`)
+        client.query(`ROLLBACK`, err => {
+          console.error(`Rollback прошел`)
           if (err) {
-            console.error('Ошибка при откате транзакции')
-            response.status(400).send('Ошибка при откате транзакции');
+            console.error(`Ошибка при откате транзакции`)
+            response.status(400).send(`Ошибка при откате транзакции`);
             return;
           }
           else {
-            console.error('Транзакция отменена')
+            console.error(`Транзакция отменена`)
           }
         })
         response.status(400).send(`Ошибка: ` + err.message);
@@ -136,28 +130,28 @@ const deletePeopleClass = (request, response) => {
 
     client.query('select count(id) as cnt from nucl.data_source_class where table_name = $1 and rec_id = $2 ', ['people_class',id], (err, res) => {
       const { cnt } = res.rows[0];
-      console.log('Cnt = ' + cnt );   
+      console.log(`Cnt = ` + cnt );   
       if (cnt > 1) {
-        response.status(400).send(`Запись классификатора с кодом ${id} существуют связанные записи в таблице "Связь с источником данных"`);
+        response.status(400).send(`Запись классификатора с кодом ${id} не может быть удалена, так как для нее существуют связи с источниками данных`);
         return;
       } else if (cnt > 0) {
-        response.status(400).send(`Запись классификатора с кодом ${id} существует связанные записи в таблице "Связь с источником данных"`);
+        response.status(400).send(`Запись классификатора с кодом ${id} не может быть удалена, так как для нее существуют связь с источником данных`);
         return;
       } else 
       {
-        client.query('BEGIN', err => {
+        client.query(`BEGIN`, err => {
           if (shouldAbort(err, response)) return;
-          client.query('DELETE FROM nucl.people_class_nls WHERE people_class_id = $1', [id], (err, res) => {
+          client.query(`DELETE FROM nucl.${table_name}_nls WHERE ${table_name}_id = $1`, [id], (err, res) => {
             if (shouldAbort(err, response)) return;      
-            console.log('Id = '+id);
-            client.query('DELETE FROM nucl.people_class WHERE id = $1', [id], (err, res) => {
-              console.log('DELETE FROM nucl.people_class');         
+            console.log(`Id = `+id);
+            client.query(`DELETE FROM nucl.${table_name} WHERE id = $1`, [id], (err, res) => {
+              console.log(`DELETE FROM nucl.${table_name}`);         
               if (shouldAbort(err, response)) return;
-              console.log('DELETE FROM nucl.people_class готово');
-                client.query('COMMIT', err => {
+              console.log(`DELETE FROM nucl.${table_name} готово`);
+                client.query(`COMMIT`, err => {
                   if (err) {
-                    console.error('Ошибка при подтверждении транзакции', err.stack);
-                    response.status(400).send('Ошибка при подтверждении транзакции', err.stack);
+                    console.error(`Ошибка при подтверждении транзакции`, err.stack);
+                    response.status(400).send(`Ошибка при подтверждении транзакции`, err.stack);
                   }
                   else {
                     console.log(`Запись с кодом ${id} удалена`); 
@@ -182,18 +176,18 @@ const updatePeopleClass = (request, response) => {
   pool.connect((err, client, done) => {
     const shouldAbort = (err, response) => {
       if (err) {
-        console.error('Ошибка изменения записи', err.message)
+        console.error(`Ошибка сохранения записи`, err.message)
         const { errormsg } = err.message;
-        console.error('Rollback')
-        client.query('ROLLBACK', err => {
-          console.error('Rollback прошел')
+        console.error(`Rollback`)
+        client.query(`ROLLBACK`, err => {
+          console.error(`Rollback прошел`)
           if (err) {
-            console.error('Ошибка при откате транзакции')
-            response.status(400).send('Ошибка при откате транзакции');
+            console.error(`Ошибка при откате транзакции`)
+            response.status(400).send(`Ошибка при откате транзакции`);
             return;
           }
           else {
-            console.error('Транзакция отменена')
+            console.error(`Транзакция отменена`)
           }
         })
         response.status(400).send(`Ошибка: ` + err.message);
@@ -209,23 +203,25 @@ const updatePeopleClass = (request, response) => {
       if (shouldAbort(err, response)) return;
       client.query('UPDATE nucl.people_class SET title = $1 WHERE id = $2', [title, id], (err, res) => {
         if (shouldAbort(err, response)) return;      
-        // const { id } = res.rows[0];
-        //console.log('Id = '+id);
-        client.query('UPDATE nucl.people_class_nls SET name = $1, descr=$2 WHERE people_class_id = $3 and lang_id=$4', 
-                     [name_rus, descr_rus, id, 1], (err, res) => {
-          console.log('rus изменяется');         
+        var s_q = c_c.getNLSQuery(name_rus||'', descr_rus||'', id, 1, table_name);
+        console.log(s_q);  
+        client.query( c_c.getNLSQuery(name_rus||'', descr_rus||'', id, 1, table_name), (err, res) => {
+          console.log(`rus изменяется`); 
+
           if (shouldAbort(err, response)) return;
-          console.log('rus изменен');
-          client.query('UPDATE nucl.people_class_nls SET name = $1, descr=$2 WHERE people_class_id = $3 and lang_id=$4', 
-                     [name_eng, descr_eng, id, 2], (err, res) => {
-            console.log('eng изменяется');  
+          console.log(`rus изменен`);
+
+          var s_q = c_c.getNLSQuery(name_eng||'', descr_eng||'', id, 2, table_name);
+          console.log(s_q);          
+          client.query( c_c.getNLSQuery(name_eng||'', descr_eng||'', id, 2, table_name), (err, res) => {
+            console.log(`eng изменяется`);  
             if (shouldAbort(err, response)) return;
-            console.log('eng изменен');
-            console.log('начинаем Commit');     
-            client.query('COMMIT', err => {
+            console.log(`eng изменен`);
+            console.log(`начинаем Commit`);     
+            client.query(`COMMIT`, err => {
               if (err) {
-                console.error('Ошибка при подтверждении транзакции', err.stack);
-                response.status(400).send('Ошибка при подтверждении транзакции', err.stack);
+                console.error(`Ошибка при подтверждении транзакции`, err.stack);
+                response.status(400).send(`Ошибка при подтверждении транзакции`, err.stack);
               }
               else {
                 console.log(`Запись с кодом ${id} сохранена`); 

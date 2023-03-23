@@ -14,6 +14,7 @@ const { Pool } = require(`pg`);
 const e = require(`express`);
 
 var config = require(`./config.json`);
+const c_c = require('./common_queries');
 
 const pool = new Pool(config);
 pool.on(`error`, function (err, client) {
@@ -46,27 +47,6 @@ const getAgeGroupById = (request, response, table_name ) => {
 }
 
 
-const getNLSQuery = (name, descr, agegroup_id, lang_id) => 
-{
-  const sql_nls = `DO $$ `+
-  `declare aname VARCHAR(50) := '${name}'; `+
-  `declare adesc text := '${descr}'; `+
-  `declare aagegroup_id INT4 := ${agegroup_id}; `+
-  `declare alang_id INT4 := ${lang_id}; `+
-  `BEGIN `+
-  `IF (( aname = '' ) and (adesc = '') ) THEN `+ //если пустое, удаляем
-  `    begin DELETE FROM nucl.agegroup_nls WHERE agegroup_id = aagegroup_id and lang_id = alang_id; end; `+
-  `ELSE `+
-  `     begin `+ //если не пустое, добавляем или апдейтим
-  `       INSERT INTO nucl.agegroup_nls (name, descr, agegroup_id, lang_id) VALUES (aname, adesc, aagegroup_id, alang_id) `+ 
-  `       ON CONFLICT (agegroup_id, lang_id) do UPDATE SET name = aname, descr=aname; `+ 
-  `     end; `+
-  `END IF; `+
-  `END; `+
-  `$$ `;
-  return sql_nls;
-}
-
 const createAgeGroup = (request, response, table_name )=> {
   pool.connect((err, client, done) => {
     const shouldAbort = (err, response) => {
@@ -92,16 +72,19 @@ const createAgeGroup = (request, response, table_name )=> {
       return !!err
     }
 
-    const { title, name_rus, name_eng, descr_rus, descr_eng, resp_rate, resp_year, indoor/* , ext_cloud, ext_ground */ } = request.body;
+    var { title, name_rus, name_eng, descr_rus, descr_eng, resp_rate, resp_year, indoor/* , ext_cloud, ext_ground */ } = request.body;
+    if (indoor==="") indoor=1
+    if (resp_year==="") resp_year=null
+    if (resp_rate==="") resp_rate=null    
     client.query(`BEGIN`, err => {
       if (shouldAbort(err, response)) return;
       client.query(`INSERT INTO nucl.${table_name}( title, resp_rate, resp_year, indoor  ) VALUES ($1,$2,$3,$4) RETURNING id`, [title, resp_rate, resp_year, indoor ], (err, res) => {
         if (shouldAbort(err, response)) return;      
         const { id } = res.rows[0];
         console.log(`Id = `+id);
-        client.query( getNLSQuery(name_rus, descr_rus, id, 1), (err, res) => {
+        client.query( c_c.getNLSQuery(name_rus||'', descr_rus||'', id, 1, table_name), (err, res) => {
           if (shouldAbort(err, response)) return;
-          client.query( getNLSQuery(name_eng, descr_eng, id, 2), (err, res) => {
+          client.query( c_c.getNLSQuery(name_eng||'', descr_eng||'', id, 2, table_name), (err, res) => {
             if (shouldAbort(err, response)) return;
             console.log(`начинаем Commit`);     
             client.query(`COMMIT`, err => {
@@ -221,19 +204,25 @@ const updateAgeGroup = (request, response, table_name ) => {
  
     var { title, name_rus, name_eng, descr_rus, descr_eng, resp_rate, resp_year, indoor } = request.body; //, ext_cloud, ext_ground
     console.log(request.body) 
-    if (indoor==="") indoor=null
+    if (indoor==="") indoor=1
     if (resp_year==="") resp_year=null
+    if (resp_rate==="") resp_rate=null
     client.query(`BEGIN`, err => {
       if (shouldAbort(err, response)) return;
-      client.query
-      
-      (`UPDATE nucl.${table_name} SET title = $1, resp_rate=$3, resp_year=$4, indoor=$5 WHERE id = $2`, [title, id, resp_rate, resp_year, indoor], (err, res) => {
-        if (shouldAbort(err, response)) return;      
-        client.query( getNLSQuery(name_rus, descr_rus, id, 1), (err, res) => {
-          console.log(`rus изменяется`);         
+      client.query(`UPDATE nucl.${table_name} SET title = $1, resp_rate=$3, resp_year=$4, indoor=$5 WHERE id = $2`, [title, id, resp_rate, resp_year, indoor], (err, res) => {
+        if (shouldAbort(err, response)) return;   
+        
+        var s_q = c_c.getNLSQuery(name_rus||'', descr_rus||'', id, 1, table_name);
+        console.log(s_q);  
+        client.query( c_c.getNLSQuery(name_rus||'', descr_rus||'', id, 1, table_name), (err, res) => {
+          console.log(`rus изменяется`); 
+
           if (shouldAbort(err, response)) return;
           console.log(`rus изменен`);
-          client.query( getNLSQuery(name_eng, descr_eng, id, 2), (err, res) => {
+
+          var s_q = c_c.getNLSQuery(name_eng||'', descr_eng||'', id, 2, table_name);
+          console.log(s_q);          
+          client.query( c_c.getNLSQuery(name_eng||'', descr_eng||'', id, 2, table_name), (err, res) => {
             console.log(`eng изменяется`);  
             if (shouldAbort(err, response)) return;
             console.log(`eng изменен`);

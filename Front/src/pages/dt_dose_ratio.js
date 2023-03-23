@@ -805,8 +805,8 @@ const [noRecords, setNoRecords] = useState(true);
             </tbody></table>
             <p></p>
             <FormControl sx={{ width: '40ch' }} size="small">
-            <InputLabel id="type" required >Используется расчетным модулем</InputLabel>
-              <Select labelId="type" id="type1"  label="Используется расчетным модулем"  defaultValue={true} required value={valueUsed  || "" } onChange={e => setValueUsed(e.target.value)}>
+            <InputLabel id="type"  >Используется расчетным модулем</InputLabel>
+              <Select labelId="type" id="type1"  label="Используется расчетным модулем"  defaultValue={true}  value={valueUsed  } onChange={e => setValueUsed(e.target.value)}>
                 {valuesYesNo?.map(option => {
                     return (
                       <MenuItem key={option.id} value={option.id}>

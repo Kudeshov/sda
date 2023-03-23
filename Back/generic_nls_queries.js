@@ -14,6 +14,7 @@ const { Pool } = require(`pg`);
 const e = require(`express`);
 
 var config = require(`./config.json`);
+const c_c = require('./common_queries');
 
 const pool = new Pool(config);
 pool.on(`error`, function (err, client) {
@@ -77,11 +78,9 @@ const createGenericNLS = (request, response, table_name )=> {
         if (shouldAbort(err, response)) return;      
         const { id } = res.rows[0];
         console.log(`Id = `+id);
-        client.query(`INSERT INTO nucl.${table_name}_nls( name, descr, ${table_name}_id, lang_id ) `+
-                  `VALUES ($1, $2, $3, 1)`, [name_rus, descr_rus, id], (err, res) => {
+        client.query( c_c.getNLSQuery(name_rus||'', descr_rus||'', id, 1, table_name), (err, res) => {
           if (shouldAbort(err, response)) return;
-          client.query(`INSERT INTO nucl.${table_name}_nls( name, descr, ${table_name}_id, lang_id ) `+
-          `VALUES ($1, $2, $3, 2)`, [name_eng, descr_eng, id], (err, res) => {
+          client.query( c_c.getNLSQuery(name_eng||'', descr_eng||'', id, 2, table_name), (err, res) => {
             if (shouldAbort(err, response)) return;
             console.log(`начинаем Commit`);     
             client.query(`COMMIT`, err => {
@@ -90,8 +89,7 @@ const createGenericNLS = (request, response, table_name )=> {
                 response.status(400).send(`Ошибка при подтверждении транзакции`, err.stack);
               }
               else {
-                console.log(`Запись с кодом ${id} добавлена`); 
-                //response.status(201).send(`Запись с кодом ${id} добавлена`);
+                console.log(`Запись добавлена, код: ${id}`); 
                 response.status(201).json({id: `${id}`}); 
               }
               done()
@@ -203,15 +201,17 @@ const updateGenericNLS = (request, response, table_name ) => {
       if (shouldAbort(err, response)) return;
       client.query(`UPDATE nucl.${table_name} SET title = $1 WHERE id = $2`, [title, id], (err, res) => {
         if (shouldAbort(err, response)) return;      
-        // const { id } = res.rows[0];
-        //console.log(`Id = `+id);
-        client.query(`UPDATE nucl.${table_name}_nls SET name = $1, descr=$2 WHERE ${table_name}_id = $3 and lang_id=$4`, 
-                     [name_rus, descr_rus, id, 1], (err, res) => {
-          console.log(`rus изменяется`);         
+        var s_q = c_c.getNLSQuery(name_rus||'', descr_rus||'', id, 1, table_name);
+        console.log(s_q);  
+        client.query( c_c.getNLSQuery(name_rus||'', descr_rus||'', id, 1, table_name), (err, res) => {
+          console.log(`rus изменяется`); 
+
           if (shouldAbort(err, response)) return;
           console.log(`rus изменен`);
-          client.query(`UPDATE nucl.${table_name}_nls SET name = $1, descr=$2 WHERE ${table_name}_id = $3 and lang_id=$4`, 
-                     [name_eng, descr_eng, id, 2], (err, res) => {
+
+          var s_q = c_c.getNLSQuery(name_eng||'', descr_eng||'', id, 2, table_name);
+          console.log(s_q);          
+          client.query( c_c.getNLSQuery(name_eng||'', descr_eng||'', id, 2, table_name), (err, res) => {
             console.log(`eng изменяется`);  
             if (shouldAbort(err, response)) return;
             console.log(`eng изменен`);

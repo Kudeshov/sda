@@ -32,7 +32,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import { ExportToCsv } from 'export-to-csv-fix-source-map';
 import { table_names } from './sda_types';
 import Backdrop from '@mui/material/Backdrop';
-import Autocomplete from '@mui/material/Autocomplete';
+//import Autocomplete from '@mui/material/Autocomplete';
 
 var alertText = "Сообщение";
 var alertSeverity = "info";
@@ -66,8 +66,8 @@ const DataTableChemCompGr = (props) => {
 
 
   useEffect(() => {
-    setIsEmpty((''==valueTitle)&&(''==valueNameRus)&&(''==valueNameEng)&&(''==valueDescrEng)&&(''==valueDescrRus)   
-      &&(''==valueParentID)&&(''==valueFormula));
+    setIsEmpty((''===valueTitle)&&(''===valueNameRus)&&(''===valueNameEng)&&(''===valueDescrEng)&&(''===valueDescrRus)   
+      &&(''===valueParentID)&&(''===valueFormula));
     }, [ valueTitle, valueNameRus, valueNameEng, valueDescrEng, valueDescrRus, 
       valueParentID, valueFormula]); 
       
@@ -824,7 +824,7 @@ const DataTableChemCompGr = (props) => {
 
 
       <p></p> 
-      <Autocomplete
+{/*       <Autocomplete
         fullWidth
         sx={{ width: '30ch' }} size="small" 
         disablePortal
@@ -832,16 +832,16 @@ const DataTableChemCompGr = (props) => {
         value={tableChelement.find((option) => option.id === valueParentID)||'' }
         disableClearable
         isOptionEqualToValue={(option, value) => option.id === value.id }  
-        onChange={(event, newValueAC) => { /*  console.log(newValueAC?newValueAC.id:-1);  */ setValueParentID(newValueAC?newValueAC.id:-1) } }
+        onChange={(event, newValueAC) => { setValueParentID(newValueAC?newValueAC.id:-1) } }
         options={tableChelement}
         getOptionLabel={option => option?option.title:""} 
         renderInput={(params) => <TextField {...params} label="Химический элемент" required />}
       />
         <p></p>  
+ */}
 
 
-
-     {/*  <FormControl  sx={{ width: '30ch' }} size="small">
+      <FormControl  sx={{ width: '30ch' }} size="small">
         <InputLabel id="ch_parent_id">Химический элемент</InputLabel>
           <Select labelId="ch_parent_id" id="ch_parent_id1" label="Родительский класс" value={valueParentID || "" } onChange={e => setValueParentID(e.target.value)} >
           <MenuItem key={1000000} value={1000000}>
@@ -856,7 +856,7 @@ const DataTableChemCompGr = (props) => {
                 })}
         </Select>
       </FormControl>  
- */}
+
  
       <p></p> 
       <div>

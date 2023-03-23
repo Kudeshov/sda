@@ -21,7 +21,7 @@ export const table_names = {
     'isotope_decay': 'Радиоактивные ряды',
     'criterion': 'Критерии',
     'value_int_dose': 'Внутреннее облучение',
-    'data_source_class': 'Источники данных'
+    'data_source_class': 'Связь с источником данных'
 }; 
   
   export default table_names;

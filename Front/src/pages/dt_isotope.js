@@ -32,47 +32,7 @@ import { MenuItem } from "@mui/material";
 import { FormControl } from "@mui/material";
 import { InputLabel } from "@mui/material";
 import Autocomplete from '@mui/material/Autocomplete';
-//import styled from "@emotion/styled";
-//import { Tree, TreeNode } from "react-organizational-chart";
-/* import { makeStyles } from "@material-ui/core/styles";
 
-const useStyles = makeStyles({
-  input: {
-    '& input[type=number]': {
-        '-moz-appearance': 'textfield'
-    },
-    '& input[type=number]::-webkit-outer-spin-button': {
-        '-webkit-appearance': 'none',
-        margin: 0
-    },
-    '& input[type=number]::-webkit-inner-spin-button': {
-        '-webkit-appearance': 'none',
-        margin: 0
-    }
-  },
-}); */
-/*
-const useStyles = makeStyles((theme) => ({
-  root: {
-    "& > .MuiAutocomplete-root .MuiFormControl-root .MuiInputBase-root": {
-      flexWrap: "nowrap",
-      overflowX: "scroll"  // or "hidden"
-    }
-  }
-})); */
-
-/* import TreeView from "@material-ui/lab/TreeView";
-import TreeItem from "@material-ui/lab/TreeItem";
-import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
-import ChevronRightIcon from "@material-ui/icons/ChevronRight"; */
-
-/* const StyledNode = styled.div`
-  padding: 5px;
-  border-radius: 4px;
-  display: inline-block;
-  border: 1px solid gray;
-`; 
- */
 var alertText = "Сообщение";
 var alertSeverity = "info";
 var lastId = 0;
@@ -92,18 +52,15 @@ const DataTableIsotope = (props) => {
   const [valueDecayConstInitial, setValueDecayConstInitial] = React.useState();
   const [isLoading, setIsLoading] = React.useState(false);
   const [tableData, setTableData] = useState([]); 
-  //const [tableData1, setTableData1] = useState([]); 
   const [valueNuclideId, setValueNuclideId] = React.useState();
   const [valueNuclideIdInitial, setValueNuclideIdInitial] = React.useState();
   const [selectionModel, setSelectionModel] = React.useState([]);
   const [editStarted, setEditStarted] = useState([false]);
   const [isEmpty, setIsEmpty] = useState([false]);
-  //const [valueAC, setValueAC] = useState([]);
-
 
   useEffect(() => {
-    setIsEmpty((''==valueTitle)&&(''==valueNIndex)&&(''==valueHalfLifeValue)&&(''==valueHalfLifePeriod)&&(''==valueDecayConst)   
-      &&(''==valueNuclideId));
+    setIsEmpty((''===valueTitle)&&(''===valueNIndex)&&(''===valueHalfLifeValue)&&(''===valueHalfLifePeriod)&&(''===valueDecayConst)   
+      &&(''===valueNuclideId));
     }, [ valueTitle, valueNIndex, valueHalfLifeValue, valueHalfLifePeriod, valueDecayConst, 
       valueNuclideId]); 
       
@@ -818,7 +775,7 @@ const DataTableIsotope = (props) => {
 {/*       </div>   */}    
 
       <p></p>
-      <TextField id="ch_half_life_value" sx={{ width: '40ch' }} size="small" type="number"/*    className={classes.input}*/label="Период полураспада"  variant="outlined" value={valueHalfLifeValue || ''} onChange={e => setValueHalfLifeValue(e.target.value)}/>
+      <TextField id="ch_half_life_value" sx={{ width: '40ch' }} size="small" /* type="number"   className={classes.input}*/label="Период полураспада"  variant="outlined" value={valueHalfLifeValue || ''} onChange={e => setValueHalfLifeValue(e.target.value)}/>
       &nbsp;&nbsp;&nbsp;&nbsp;
 
       <FormControl sx={{ width: '20ch' }} size="small">
@@ -834,7 +791,7 @@ const DataTableIsotope = (props) => {
               </Select>
             </FormControl>    
             <p></p>
-      <TextField  id="ch_decayconst" sx={{ width: '100ch' }} label="Постоянная распада, 1/сек" required  type="number" size="small" maxRows={4} variant="outlined" value={valueDecayConst || ''} onChange={e => setValueDecayConst(e.target.value)}/>
+      <TextField  id="ch_decayconst" sx={{ width: '100ch' }} label="Постоянная распада, 1/сек" required /*  type="number"  */size="small" maxRows={4} variant="outlined" value={valueDecayConst || ''} onChange={e => setValueDecayConst(e.target.value)}/>
       
 
 {/*       <Box sx={{ height: 415, flexGrow: 1, overflowY: 'auto' }} >     

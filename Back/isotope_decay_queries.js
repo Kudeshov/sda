@@ -43,7 +43,7 @@ const updateIsotopeDecay = (request, response) => {
     (error, results) => {
       if (error) 
       {
-        response.status(400).send(`Запись с кодом ${id} не изменена: ${error.message} `)
+        response.status(400).send(`Запись с кодом ${id} не сохранена: ${error.message} `)
       }
       else
       { 

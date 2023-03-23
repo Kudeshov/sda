@@ -55,7 +55,7 @@ const DataTableChelement = (props) => {
   const [valueNuclideId, setValueNuclideID] = React.useState();
 
   useEffect(() => {
-    setIsEmpty((''==valueTitle)&&(''==valueNameRus)&&(''==valueNameEng)&&(''==valueAtomicNum)&&(''==valueMassNumber));
+    setIsEmpty((''===valueTitle)&&(''===valueNameRus)&&(''===valueNameEng)&&(''===valueAtomicNum)&&(''===valueMassNumber));
     }, [ valueTitle, valueNameRus, valueNameEng, valueAtomicNum, valueMassNumber]); 
       
   useEffect(() => {
@@ -85,13 +85,17 @@ const DataTableChelement = (props) => {
 
   const handleRowClick = (params) => {
         console.log( 'isEmpty = '+isEmpty);
+        console.log( 'editStarted = '+editStarted);
+
+
     if (editStarted&&(!isEmpty))
-    if (editStarted)
+    //if (editStarted)
     {
       handleClickSave(params);
     } 
     else 
     {
+      console.log( 'params.row.id = '+params.row.id); 
       setValueID(params.row.id);
       setValueTitle(params.row.title);
       setValueNameRus(params.row.name_rus);
@@ -771,7 +775,7 @@ const DataTableChelement = (props) => {
       &nbsp;&nbsp;&nbsp;&nbsp;
       <TextField  id="ch_name" sx={{ width: '40ch' }} label="Обозначение" required size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
       &nbsp;&nbsp;&nbsp;&nbsp;
-      <TextField  id="ch_atomic_num" sx={{ width: '20ch' }} label="Атомный номер" required size="small" type="number" variant="outlined" value={valueAtomicNum || ''} onChange={e => setValueAtomicNum(e.target.value)}/>
+      <TextField  id="ch_atomic_num" sx={{ width: '20ch' }} label="Атомный номер" required size="small" /* type="number" */ variant="outlined" value={valueAtomicNum || ''} onChange={e => setValueAtomicNum(e.target.value)}/>
       <p></p>
       <TextField  id="ch_name_rus" sx={{ width: '49ch' }}  size="small" label="Название (рус.яз)"  variant="outlined"  value={valueNameRus || ''} onChange={e => setValueNameRus(e.target.value)} />
       &nbsp;&nbsp;&nbsp;&nbsp;
@@ -948,7 +952,7 @@ const DataTableChelement = (props) => {
             variant="outlined"
             margin="dense"
             id="title"
-            type="number"
+            //type="number"
             label="Массовое число"
             value={valueMassNumber}
             fullWidth

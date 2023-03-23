@@ -62,11 +62,17 @@ app.put('/data_source/:id', ds_q.updateDataSource);    //update
 app.delete('/data_source/:id', ds_q.deleteDataSource); //delete
 
 //PEOPLE_CLASS interface
-app.get('/people_class', pc_q.getPeopleClass);           //list all
+app.get('/people_class', (req, res) => {gn_q.getGenericNLS(req, res, 'people_class')});           //list all
+app.get('/people_class/:id', (req, res) => {gn_q.getGenericNLSById(req, res, 'people_class')});   //list 1
+app.post('/people_class', (req, res) => {gn_q.createGenericNLS(req, res, 'people_class')});       //create
+app.put('/people_class/:id', (req, res) => {gn_q.updateGenericNLS(req, res, 'people_class')});    //update
+app.delete('/people_class/:id', (req, res) => {gn_q.deleteGenericNLS(req, res, 'people_class')}); //delete
+
+/* app.get('/people_class', pc_q.getPeopleClass);           //list all
 app.get('/people_class/:id', pc_q.getPeopleClassById);   //list 1
 app.post('/people_class', pc_q.createPeopleClass);       //create
 app.put('/people_class/:id', pc_q.updatePeopleClass);    //update
-app.delete('/people_class/:id', pc_q.deletePeopleClass); //delete
+app.delete('/people_class/:id', pc_q.deletePeopleClass); //delete */
 
 //GENERIC QUERIES on PEOPLE_CLASS 
 app.get('/subst_form', (req, res) => {gn_q.getGenericNLS(req, res, 'subst_form')});           //list all

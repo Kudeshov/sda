@@ -71,8 +71,8 @@ const DataTableAgeGroup = (props) => {
         valueRespRateInitial, valueRespRate, valueRespYearInitial, valueRespYear, valueIndoorInitial, valueIndoor, valueExtCloudInitial, valueExtCloud, valueExtGroundInitial, valueExtGround]); 
 
   useEffect(() => {
-    setIsEmpty((''==valueTitle)&&(''==valueNameRus)&&(''==valueNameEng)&&(''==valueDescrEng)&&(''==valueDescrRus)   
-      &&(''==valueRespRate)&&(''==valueRespYear)&&(''==valueIndoor)&&(''==valueExtCloud)&&(''==valueExtGround));
+    setIsEmpty((''===valueTitle)&&(''===valueNameRus)&&(''===valueNameEng)&&(''===valueDescrEng)&&(''===valueDescrRus)   
+      &&(''===valueRespRate)&&(''===valueRespYear)&&(''===valueIndoor)&&(''===valueExtCloud)&&(''===valueExtGround));
     }, [ valueTitle, valueNameRus, valueNameEng, valueDescrEng, valueDescrRus, 
         valueRespRate, valueRespYear,  valueIndoor, valueExtCloud, valueExtGround]); 
       
@@ -627,11 +627,11 @@ const DataTableAgeGroup = (props) => {
       &nbsp;&nbsp;&nbsp;&nbsp;
       <TextField  id="ch_name_eng" sx={{ width: '49ch' }} size="small" label="Название (англ.яз)"  variant="outlined" value={valueNameEng || ''} onChange={e => setValueNameEng(e.target.value)}/>
       <p></p>
-      <TextField  id="ch_resp_rate" sx={{ width: '100ch' }} label="Скорость дыхания, куб.м/сек" required  size="small" multiline maxRows={4} variant="outlined" value={valueRespRate || ''} onChange={e => setValueRespRate(e.target.value)}/>
+      <TextField  id="ch_resp_rate" sx={{ width: '100ch' }} label="Скорость дыхания, куб.м/сек" required  size="small" variant="outlined" value={valueRespRate || ''} onChange={e => setValueRespRate(e.target.value)}/>
       <p></p> 
-      <TextField  id="ch_resp_year" sx={{ width: '100ch' }} label="Годовой объем вдыхаемого воздуха, куб.м"  size="small" multiline maxRows={4} variant="outlined" value={valueRespYear || ''} onChange={e => setValueRespYear(e.target.value)}/>
+      <TextField  id="ch_resp_year" sx={{ width: '100ch' }} label="Годовой объем вдыхаемого воздуха, куб.м"  size="small" variant="outlined" value={valueRespYear || ''} onChange={e => setValueRespYear(e.target.value)}/>
       <p></p> 
-      <TextField  id="ch_indoor" sx={{ width: '100ch' }} label="Доля времени, проводимая индивидуумом в помещении"  size="small" multiline maxRows={4} variant="outlined" value={valueIndoor || ''} onChange={e => setValueIndoor(e.target.value)}/>
+      <TextField  id="ch_indoor" sx={{ width: '100ch' }} label="Доля времени, проводимая индивидуумом в помещении" size="small" variant="outlined" value={valueIndoor || ''} onChange={e => setValueIndoor(e.target.value)}/>
       <p></p> 
       {/* <TextField  id="ch_ext_cloud" sx={{ width: '100ch' }} label="Коэффициент для дозы внешнего облучения от облака"  size="small" multiline maxRows={4} variant="outlined" value={valueExtCloud || ''} onChange={e => setValueExtCloud(e.target.value)}/>
       <p></p> 

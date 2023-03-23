@@ -72,11 +72,11 @@ const updateNuclide = (request, response) => {
     (error, results) => {
       if (error) 
       {
-        response.status(400).send(`Связь с источником данных с кодом ${id} не изменена: ${error.message} `)
+        response.status(400).send(`Связь с источником данных с кодом ${id} не сохранена: ${error.message} `)
       }
       else
       { 
-        response.status(200).send(`Связь с источником данных ${id} изменена. Строк изменено: ${results.rowCount} `);
+        response.status(200).send(`Связь с источником данных ${id} сохранена. Строк изменено: ${results.rowCount} `);
       }
     }
   )
@@ -91,10 +91,6 @@ const getNuclide = (request, response ) => {
     response.status(200).json(results.rows)
   })
 }
-
-
-
-
 
 module.exports = {
   getNuclideByChelement,

@@ -65,8 +65,8 @@ const DataTableExpScenario = (props) => {
 
 
   useEffect(() => {
-    setIsEmpty((''==valueTitle)&&(''==valueNameRus)&&(''==valueNameEng)&&(''==valueDescrEng)&&(''==valueDescrRus)   
-      &&(''==valueParentID)&&(''==valueNormativ));
+    setIsEmpty((''===valueTitle)&&(''===valueNameRus)&&(''===valueNameEng)&&(''===valueDescrEng)&&(''===valueDescrRus)   
+      &&(''===valueParentID)&&(''===valueNormativ));
     }, [ valueTitle, valueNameRus, valueNameEng, valueDescrEng, valueDescrRus, 
       valueParentID, valueNormativ]); 
       
@@ -690,10 +690,6 @@ const DataTableExpScenario = (props) => {
     }
   }
 
-
-
-
-
   function getHeaders(atable)
   {
     if (atable==='criterion_gr') 
@@ -704,44 +700,9 @@ const DataTableExpScenario = (props) => {
       return ['Обозначение','Название(рус.яз)','Название(англ.яз)','Родительский класс','Комментарий(рус.яз)','Комментарий(англ.яз)'];
   }
 
-
-
-
-/* 
-  let arr = [props.table_name];
-
-delete arr.length; // удалить "go"
-
-alert( arr.length ); // undefined
-
-// теперь arr = ["I",  , "home"];
-alert( arr.length ); // 3
- */
-
-
-
-
-
-
-// Assume this was parsed from actual JSON data 
-/* const data = [ 
-  {foo: 1, bar: 'a', bas: true}, 
-  {foo: 5, bar: 'c', bas: false} 
-]; 
- 
-const mapped = data.map(({foo, bas}) => ({foo, bas})); 
-  */
-// Results in 
-// [ 
-//   {foo: 1, bas: true}, 
-//   {foo: 5, bas: false} 
-// ];
-
-
-
   const optionsCSV = {
     filename: table_names[props.table_name],
-    fieldSeparator: ',',
+    fieldSeparator: ';',
     quoteStrings: '"',
     decimalSeparator: '.',
     showLabels: true, 
