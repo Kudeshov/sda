@@ -109,7 +109,7 @@ function Navbar() {
               Дозовые коэффициенты
             </Link>            
             <Menu anchorEl={anchorE2} open={menuCoeff} onClose={closeMenuCoeff}>
-              <MenuItem onClick={closeMenuCoeff} component={Link} disabled={true} to="/value_int_dose">Внутреннее облучение</MenuItem> 
+              <MenuItem onClick={closeMenuCoeff} component={Link} to="/value_int_dose">Внутреннее облучение</MenuItem> 
               <MenuItem onClick={closeMenuCoeff} component={Link} disabled={true} to="/value_int_dose">Внешнее облучение</MenuItem> 
               <Divider />
               <MenuItem onClick={closeMenuCoeff} component={Link} to="/dose_ratio">{table_names['dose_ratio']}</MenuItem> 

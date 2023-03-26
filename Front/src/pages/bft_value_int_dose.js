@@ -9,12 +9,15 @@ import {
   gridFilteredSortedRowIdsSelector,
 } from '@mui/x-data-grid';
 import TextField from '@mui/material/TextField';
-/* import Button from '@mui/material/Button';
+import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
-import DialogTitle from '@mui/material/DialogTitle'; */
+import DialogTitle from '@mui/material/DialogTitle';
+import { FormControl } from "@mui/material";
+import { InputLabel } from "@mui/material";
+import { Select } from "@mui/material";
 import { Box, IconButton } from '@mui/material';
 import Alert from '@mui/material/Alert';
 import Collapse from '@mui/material/Collapse';
@@ -22,7 +25,7 @@ import CloseIcon from '@mui/icons-material/Close';
 import SvgIcon from '@mui/material/SvgIcon';
 import { ReactComponent as SaveLightIcon } from "./../icons/save.svg";
 import { ReactComponent as PlusLightIcon } from "./../icons/plus.svg";
-import { ReactComponent as UndoLightIcon } from "./../icons/undo.svg";
+import { ReactComponent as EditLightIcon } from "./../icons/edit.svg";
 import { ReactComponent as DownloadLightIcon } from "./../icons/download.svg";
 import { ReactComponent as TrashLightIcon } from "./../icons/trash.svg";
 import { ReactComponent as RepeatLightIcon } from "./../icons/repeat.svg";
@@ -39,7 +42,11 @@ import Autocomplete from '@mui/material/Autocomplete';
 import Checkbox from '@mui/material/Checkbox';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
-
+import Accordion from '@mui/material/Accordion';
+import AccordionDetails from '@mui/material/AccordionDetails';
+import AccordionSummary from '@mui/material/AccordionSummary';
+import Typography from '@mui/material/Typography';
+import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 //import ServerPaginationGrid from './sp_datagrid';
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
@@ -164,8 +171,59 @@ const BigTableValueIntDose = (props) => {
     console.log(value);
   };  
 
-/*  const [valueId, setValueID] = React.useState();
-   const [valueTitle, setValueTitle] = React.useState();
+  const [openEdit, setOpenEdit] = React.useState(false);
+  const handleClickEdit = () => {
+    setOpenEdit(true);
+  };
+  const handleCloseEditYes = () => {
+    setOpenEdit(false);
+    //saveRec();
+  };
+  const handleCloseEditNo = () => {
+    setOpenEdit(false);
+  };
+
+  const [valueID, setValueID] = React.useState();
+  const [valueDoseRatioID, setValueDoseRatioID] = React.useState();
+  const handleRowClick = (params) => {
+    //setOpenAlert(false);
+    //console.log( 'isEmpty = '+isEmpty);
+    //if (editStarted&&(!isEmpty))
+      setValueID(params.row.id);
+      setValueDoseRatioID(params.row.dose_ratio_id);
+/*      setValueTitle(params.row.title);
+       setValueNameRus(params.row.name_rus);
+      setValueNameEng(params.row.name_eng);
+      setValueDescrRus(params.row.descr_rus);
+      setValueDescrEng(params.row.descr_eng);
+
+      setValueRespRate(params.row.resp_rate );
+      setValueRespYear(params.row.resp_year );
+      setValueIndoor(params.row.indoor );
+      setValueExtCloud(params.row.ext_cloud );
+      setValueExtGround(params.row.ext_ground );
+      setValueTitleInitial(params.row.title);
+      setValueNameRusInitial(params.row.name_rus);
+      setValueNameEngInitial(params.row.name_eng);
+      setValueDescrRusInitial(params.row.descr_rus);
+      setValueDescrEngInitial(params.row.descr_eng);
+
+      setValueRespRateInitial(params.row.resp_rate );
+      setValueRespYearInitial(params.row.resp_year );
+      setValueIndoorInitial(params.row.indoor );
+      setValueExtCloudInitial(params.row.ext_cloud );
+      setValueExtGroundInitial(params.row.ext_ground );
+      setValuePhysParamId(params.row.physparam_id);
+      setValuePhysParamIdInitial(params.row.physparam_id);
+
+      setValueUsed(params.row.used);
+      setValueUsedInitial(params.row.used);
+      setValueParameters(params.row.parameters);
+      setValueParametersInitial(params.row.parameters);
+ */  };   
+
+ 
+ /*  const [valueTitle, setValueTitle] = React.useState();
   const [valueTitleInitial, setValueTitleInitial] = React.useState();
 
   const [valueShortName, setValueShortName] = React.useState();
@@ -510,11 +568,11 @@ const BigTableValueIntDose = (props) => {
 
     return (
       <GridToolbarContainer>
-        <table border = "1" cellspacing="0" cellpadding="0" style={{ height: 300, width: 500, verticalAlign: 'top' }}><tbody>
+{/*         <table border = "1" cellspacing="0" cellpadding="0" style={{ height: 300, width: 500, verticalAlign: 'top' }}><tbody>
           <tr>
           <td>
           <Autocomplete
-              /* sx={(!disabled)?{width: '60ch', background: '#FFFFFF'}:{width: '60ch', background: '#EEEEEE'}} */  
+              
               size="small"
               limitTags={10}
               disabled={ (!selDataSourceValues.length) }
@@ -536,7 +594,6 @@ const BigTableValueIntDose = (props) => {
               )}
             />
             <Autocomplete
-              /* sx={(!disabled)?{width: '60ch', background: '#FFFFFF'}:{width: '60ch', background: '#EEEEEE'}} */  
               size="small"
               limitTags={10}
               disabled={ (!selDataSourceValues.length) }
@@ -558,7 +615,6 @@ const BigTableValueIntDose = (props) => {
               )}
             />
             <Autocomplete
-              /* sx={(!disabled)?{width: '60ch', background: '#FFFFFF'}:{width: '60ch', background: '#EEEEEE'}} */  
               size="small"
               limitTags={10}
               disabled={ (!selDataSourceValues.length) }
@@ -582,16 +638,19 @@ const BigTableValueIntDose = (props) => {
           </td>
           </tr>
           </tbody>
-        </table>     
+        </table>   */}   
 
         <IconButton /* onClick={()=>handleClearClick()}  */ color="primary" size="small" title="Создать запись">
           <SvgIcon fontSize="small" component={PlusLightIcon} inheritViewBox /></IconButton>
-        <IconButton /* onClick={()=>saveRec(true)}  */ color="primary" size="small" title="Сохранить запись в БД">
-          <SvgIcon fontSize="small" component={SaveLightIcon} inheritViewBox/></IconButton>
+
+        <IconButton onClick={()=>handleClickEdit()} color="primary" size="small" title="Редактировать запись">
+          <SvgIcon fontSize="small" component={EditLightIcon} inheritViewBox /></IconButton>          
+{/*         <IconButton  color="primary" size="small" title="Сохранить запись в БД">
+          <SvgIcon fontSize="small" component={SaveLightIcon} inheritViewBox/></IconButton> */}
         <IconButton /* onClick={()=>handleClickDelete()} */  color="primary" size="small" title="Удалить запись">
           <SvgIcon fontSize="small" component={TrashLightIcon} inheritViewBox /></IconButton>
-        <IconButton /* onClick={()=>handleCancelClick()}  disabled={!editStarted}*/ color="primary" size="small" title="Отменить редактирование">
-          <SvgIcon fontSize="small" component={UndoLightIcon} inheritViewBox /></IconButton>
+{/*         <IconButton   color="primary" size="small" title="Отменить редактирование">
+          <SvgIcon fontSize="small" component={UndoLightIcon} inheritViewBox /></IconButton> */}
         <IconButton /* onClick={()=>reloadDataAlert()} */ color="primary" size="small" title="Обновить данные">
           <SvgIcon fontSize="small" component={RepeatLightIcon} inheritViewBox /></IconButton>
 {/*         <IconButton onClick={()=>handleExport({ delimiter: ';', utf8WithBom: true, getRowsToExport: () => gridFilteredSortedRowIdsSelector(apiRef) })} color="primary" 
@@ -646,11 +705,16 @@ const BigTableValueIntDose = (props) => {
 
   return (
     <div /* style={{ height: 640, width: 1500 }} */>
-    <table border = "0" style={{ /* height: 550,  */width: 1500 }} ><tbody>
-    <tr>
-      <td style={{ /* height: 840, */ width: 1500, verticalAlign: 'top' }}>
-      <div /* style={{ height: 786, width: 585 }} */>
 
+      <Accordion>
+        <AccordionSummary
+          expandIcon={<ExpandMoreIcon />}
+          aria-controls="panel1a-content"
+          id="panel1a-header"
+        >
+          <Typography>Фильтр</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
         <table border = "0" cellspacing="0" cellpadding="0"><tbody>
           <tr>      
           <td width={548}>
@@ -1100,87 +1164,146 @@ const BigTableValueIntDose = (props) => {
           </tr>
           </tbody>
         </table>  
-        <p></p>  
- 
+
 
         <IconButton onClick={()=>reloadDataAlert()} color="primary" size="small" title="Обновить данные">
           <SvgIcon fontSize="small" component={ArrowAltDownIcon} inheritViewBox /></IconButton>
-      </div>
-      </td>
-  </tr>
-  <tr>
-  <td style={{ height: 550, width: 1200, verticalAlign: 'top' }}>
-      <DataGrid
-        components={{ Toolbar: CustomToolbar1 }}
-        hideFooterSelectedRowCount={true}
-        localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
-        rowHeight={25}
-        loading={isLoading}
-        rows={tableValueIntDose}
-        columns={columnsValueIntDose}
-        onSelectionModelChange={(newSelectionModel) => {
-          setSelectionModel(newSelectionModel);
-        }}
-        selectionModel={selectionModel}        
-        initialState={{
-          columns: {
-            columnVisibilityModel: {
-              updatetime: false,
-              external_ds: false,
-              descr: false,
-            },
-          },
-        }}        
-        //onRowClick={handleRowClick} {...tableData} 
-      />  
-{/*       <p></p>  
-       <ServerPaginationGrid
-        page={pageState.page}
-        loading={pageState.isLoading}
-        pageSize={pageState.pageSize}
-        rows={pageState.rows}
-        rowCount={pageState.rowCount}
-        columns={columnsValueIntDose}
-        onPageAlter={(newPage) => setPageState({ ...pageState, page: newPage })}
-      />  */}
 
-      <Box /* sx={{ width: 585 }} */>
-      <Collapse in={openAlert}>
-        <Alert
-          severity={alertSeverity}
-          action={
-            <IconButton
-              aria-label="close"
-              color="inherit"
-              size="small"
-              onClick={() => {
-                setOpenAlert(false);
-              }}
-            >
-              <CloseIcon fontSize="inherit" />
-            </IconButton>
-          }
+        </AccordionDetails>
+      </Accordion>
+      <Accordion>
+        <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel2a-content" id="panel2a-header">
+          <Typography>Таблица значений</Typography>
+        </AccordionSummary>
+        <AccordionDetails>
+          <table border = "0" style={{  height: 410,  width: 1500 }} >
+          <tbody>
+            <tr>
+              <td style={{ /* height: 840, */ verticalAlign: 'top' }}>
+              <div style={{ height: 390 }} > 
+              <DataGrid
+                  components={{ Toolbar: CustomToolbar1 }}
+                  hideFooterSelectedRowCount={true}
+                  localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
+                  rowHeight={25}
+                  loading={isLoading}
+                  rows={tableValueIntDose}
+                  columns={columnsValueIntDose}
+                  onSelectionModelChange={(newSelectionModel) => {
+                    setSelectionModel(newSelectionModel);
+                  }}
+                  selectionModel={selectionModel}        
+                  initialState={{
+                    columns: {
+                      columnVisibilityModel: {
+                        updatetime: false,
+                        external_ds: false,
+                        descr: false,
+                      },
+                    },
+                  }}        
+                  onRowClick={handleRowClick} {...tableValueIntDose} 
+                  />
+                </div>    
+              </td>
+            </tr>
+            <tr>
+              <td style={{ height: 50, verticalAlign: 'top' }}>
+
+              {/*       <p></p>  
+              <ServerPaginationGrid
+                page={pageState.page}
+                loading={pageState.isLoading}
+                pageSize={pageState.pageSize}
+                rows={pageState.rows}
+                rowCount={pageState.rowCount}
+                columns={columnsValueIntDose}
+                onPageAlter={(newPage) => setPageState({ ...pageState, page: newPage })}
+              />  */}
+
+              <Box /* sx={{ width: 585 }} */>
+              <Collapse in={openAlert}>
+                <Alert
+                  severity={alertSeverity}
+                  action={
+                    <IconButton
+                      aria-label="close"
+                      color="inherit"
+                      size="small"
+                      onClick={() => {
+                        setOpenAlert(false);
+                      }}
+                    >
+                      <CloseIcon fontSize="inherit" />
+                    </IconButton>
+                  }
+                >
+                  {alertText}
+                </Alert>
+              </Collapse>
+              </Box>      
+            </td>
+          </tr>
+        </tbody>
+        </table>
+        {(isLoading) && 
+        <Backdrop
+          sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
+          open={isLoading}
         >
-          {alertText}
-        </Alert>
-      </Collapse>
-      </Box>      
-    </td>
+          <CircularProgress color="inherit" />
+        </Backdrop> } 
+
+        </AccordionDetails>
+      </Accordion>
+
+      <Dialog open={openEdit} onClose={handleCloseEditNo} fullWidth={false} maxWidth="800px">
+      <DialogTitle>Редактировать запись {valueID}</DialogTitle>  
+        <DialogContent style={{height:'480px', width: '700px'}}>
+          <p></p>
+          <Autocomplete
+
+            size="small"
+            //limitTags={10}
+            disabled={ (!selDataSourceValues.length) }
+            //value={  tableDoseRatio.filter((row) => [1, 2, 8].includes(row.id)) valueDoseRatioID}
+
+            value={tableDoseRatio.find((option) => option.id === valueDoseRatioID)  }
+            //onChange={handleChangeDoseRatio}
+            //multiple
+            id="autocomplete-dose_ratio_edit"
+            options={ tableDoseRatio.filter((row) => [1, 2, 8].includes(row.id)) }
+            getOptionLabel={(option) => option.title}
+            disableCloseOnSelect
+/*             renderOption={(props, option, { selected }) => (
+              <li {...props}>
+                <Checkbox size="small" icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected}/>
+                {option.title}
+              </li>
+            )} */
+            renderInput={(params) => (
+              <TextField {...params} label="Параметр" placeholder="Параметр" />
+            )}
+          />
+
+          <p></p>
+          <TextField
+            size="small"
+            variant="outlined"
+            id="name_src"
+            label="Название"
+            //value={valueNameSrc || ''}
+            fullWidth
+            //onChange={e => setValueNameSrc(e.target.value)}
+          />        
+          </DialogContent>
+        <DialogActions>
+          <Button variant="outlined" onClick={handleCloseEditNo}>Отмена</Button>
+          <Button variant="outlined" /* disabled={!valueTitleSrc||!valueDataSourceId} */ onClick={handleCloseEditYes}>Сохранить</Button>
+        </DialogActions>
+      </Dialog>
 
 
-
-</tr>
-  </tbody>
-  </table>
-
-  {(isLoading) && 
-
-  <Backdrop
-    sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
-    open={isLoading}
-  >
-    <CircularProgress color="inherit" />
-  </Backdrop> } 
 
  {/* <Dialog open={openDel} onClose={handleCloseDelNo} fullWidth={true}>
       <DialogTitle>
