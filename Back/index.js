@@ -247,6 +247,7 @@ app.delete('/isotope_decay/:id', (req, res) => {id_q.deleteIsotopeDecay(req, res
 app.get('/nuclide', (req, res) => {nuc_q.getNuclide(req, res, 'nuclide')});
 
 app.get('/value_int_dose', (req, res) => {vid_q.getValueIntDose(req, res, 'value_int_dose')}); 
+app.put('/value_int_dose/:id', (req, res) => {vid_q.updateValueIntDose(req, res, 'value_int_dose')}); //update
 
 /* var allowCrossDomain = function(req, res, next) {
     res.header('Access-Control-Allow-Origin', "*");

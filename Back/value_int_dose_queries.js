@@ -129,6 +129,72 @@ const getValueIntDose = (request, response ) => {
     });
 }
 
+const updateValueIntDose = (request, response, table_name ) => {
+  pool.connect((err, client, done) => {
+/*     const shouldAbort = (err, response) => {
+      if (err) {
+        console.error(`Ошибка изменения записи`, err.message)
+        const { errormsg } = err.message;
+        console.error(`Rollback`)
+        client.query(`ROLLBACK`, err => {
+          console.error(`Rollback прошел`)
+          if (err) {
+            console.error(`Ошибка при откате транзакции`)
+            response.status(400).send(`Ошибка при откате транзакции`);
+            return;
+          }
+          else {
+            console.error(`Транзакция отменена`)
+          }
+        })
+        response.status(400).send(`Ошибка: ` + err.message);
+        // release the client back to the pool
+        done()
+      }
+      return !!err
+    } */
+    //id
+    const id = parseInt(request.params.id);
+    const { dose_ratio_id, dr_value } = request.body;
+    console.log('dr_value='+dr_value);
+    console.log('dose_ratio_id='+dose_ratio_id);
+    client.query(`BEGIN`, err => {
+      //if (shouldAbort(err, response)) return;
+      client.query(`UPDATE nucl.value_int_dose SET dose_ratio_id = $1, dr_value=$2 WHERE id = $3`, [dose_ratio_id, dr_value, id], (err, res) => {
+        //if (shouldAbort(err, response)) return;      
+        // const { id } = res.rows[0];
+        //console.log(`Id = `+id);
+     /*    client.query(`UPDATE public.${table_name}_nls SET name = $1, fullname=$2 WHERE ${table_name}_id = $3 and lang_id=$4`, 
+                     [name_rus, id, 1], (err, res) => {
+          console.log(`rus изменяется`);         
+          if (shouldAbort(err, response)) return;
+          console.log(`rus изменен`);
+          client.query(`UPDATE public.${table_name}_nls SET name = $1, fullname=$2 WHERE ${table_name}_id = $3 and lang_id=$4`, 
+                     [name_eng, id, 2], (err, res) => {
+            console.log(`eng изменяется`);  
+            if (shouldAbort(err, response)) return;
+            console.log(`eng изменен`);
+            console.log(`начинаем Commit`);  */    
+            client.query(`COMMIT`, err => {
+              if (err) {
+                console.error(`Ошибка при подтверждении транзакции`, err.stack);
+                response.status(400).send(`Ошибка при подтверждении транзакции`, err.stack);
+              }
+              else {
+                console.log(`Запись с кодом ${id} сохранена`); 
+                response.status(200).send(`Запись с кодом ${id} сохранена`);
+              }
+              done()
+/*             })
+          }); */
+        }); 
+      })
+    })
+  })
+}
+
+
 module.exports = {
-  getValueIntDose
+  getValueIntDose,
+  updateValueIntDose
 }

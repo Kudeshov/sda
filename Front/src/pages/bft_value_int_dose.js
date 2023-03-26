@@ -70,20 +70,20 @@ const BigTableValueIntDose = (props) => {
 
   const columnsValueIntDose = [
     { field: 'id', headerName: 'ID', width: 100 },
+    { field: 'people_class_name_rus', headerName: 'Тип облучаемых лиц', width: 180 },
+    { field: 'isotope_title', headerName: 'Нуклид', width: 100 },
+    { field: 'integral_period_name_rus', headerName: 'Период интегрирования', width: 200 },
+    { field: 'organ_name_rus', headerName: 'Орган', width: 200 },
+    { field: 'agegroup_name_rus', headerName: 'Возрастная группа населения', width: 200 },
     { field: 'dr_value', headerName: 'Значение', width: 180 },
     { field: 'updatetime', headerName: 'Время последнего измерения', width: 280 },
     { field: 'data_source_title', headerName: 'Источник данных', width: 200 },
-    { field: 'organ_name_rus', headerName: 'Орган', width: 200 },
     { field: 'irradiation_name_rus', headerName: 'Тип облучения', width: 200 },
-    { field: 'isotope_title', headerName: 'Нуклид', width: 200 },
-    { field: 'integral_period_name_rus', headerName: 'Период интегрирования', width: 200 },
     { field: 'dose_ratio_title', headerName: 'Параметр', width: 200 },
     { field: 'let_level_name_rus', headerName: 'Уровень ЛПЭ', width: 200 },
-    { field: 'agegroup_name_rus', headerName: 'Возрастная группа населения', width: 200 },
     { field: 'subst_form_name_rus', headerName: 'Форма вещества', width: 200 },    
     { field: 'aerosol_sol_name_rus', headerName: 'Тип растворимости аэрозолей', width: 200 },
     { field: 'aerosol_amad_name_rus', headerName: 'AMAD аэрозолей', width: 200 },
-    { field: 'people_class_name_rus', headerName: 'Типы облучаемых лиц', width: 200 },
     { field: 'exp_scenario_name_rus', headerName: 'Сценарии поступления', width: 200 },
    ]
   const [openAlert, setOpenAlert] = React.useState(false, '');
@@ -177,7 +177,7 @@ const BigTableValueIntDose = (props) => {
   };
   const handleCloseEditYes = () => {
     setOpenEdit(false);
-    //saveRec();
+    saveRec();
   };
   const handleCloseEditNo = () => {
     setOpenEdit(false);
@@ -185,42 +185,69 @@ const BigTableValueIntDose = (props) => {
 
   const [valueID, setValueID] = React.useState();
   const [valueDoseRatioID, setValueDoseRatioID] = React.useState();
+  const [valueDrValue, setValueDrValue] = React.useState();
+  
   const handleRowClick = (params) => {
     //setOpenAlert(false);
-    //console.log( 'isEmpty = '+isEmpty);
+    console.log( 'handleRowClick dose_ratio_id = '+params.row.dose_ratio_id);
     //if (editStarted&&(!isEmpty))
       setValueID(params.row.id);
       setValueDoseRatioID(params.row.dose_ratio_id);
-/*      setValueTitle(params.row.title);
-       setValueNameRus(params.row.name_rus);
-      setValueNameEng(params.row.name_eng);
-      setValueDescrRus(params.row.descr_rus);
-      setValueDescrEng(params.row.descr_eng);
+      setValueDrValue(params.row.dr_value);
+  }; 
+  
+  ///////////////////////////////////////////////////////////////////  SAVE  /////////////////////
+  const saveRec = async ( fromToolbar ) => {
 
-      setValueRespRate(params.row.resp_rate );
-      setValueRespYear(params.row.resp_year );
-      setValueIndoor(params.row.indoor );
-      setValueExtCloud(params.row.ext_cloud );
-      setValueExtGround(params.row.ext_ground );
-      setValueTitleInitial(params.row.title);
-      setValueNameRusInitial(params.row.name_rus);
-      setValueNameEngInitial(params.row.name_eng);
-      setValueDescrRusInitial(params.row.descr_rus);
-      setValueDescrEngInitial(params.row.descr_eng);
-
-      setValueRespRateInitial(params.row.resp_rate );
-      setValueRespYearInitial(params.row.resp_year );
-      setValueIndoorInitial(params.row.indoor );
-      setValueExtCloudInitial(params.row.ext_cloud );
-      setValueExtGroundInitial(params.row.ext_ground );
-      setValuePhysParamId(params.row.physparam_id);
-      setValuePhysParamIdInitial(params.row.physparam_id);
-
-      setValueUsed(params.row.used);
-      setValueUsedInitial(params.row.used);
-      setValueParameters(params.row.parameters);
-      setValueParametersInitial(params.row.parameters);
- */  };   
+    if (formRef.current.reportValidity() )
+    {
+    const js = JSON.stringify({
+      dose_ratio_id: valueDoseRatioID,
+      dr_value: valueDrValue    
+    });
+/*     if (!valueId) {
+      addRec();
+      return;
+    } */
+    setIsLoading(true);
+    try {
+      const response = await fetch(`/${props.table_name}/`+valueID, {
+       method: 'PUT',
+       body: js,
+       headers: {
+         'Content-Type': 'Application/json',
+         Accept: '*/*',
+       },
+     });
+     if (!response.ok) {
+        alertSeverity = 'error';
+        alertText = await response.text();
+        setOpenAlert(true);          
+      }
+      else
+      {
+        alertSeverity = "success";
+        alertText = await response.text();
+        setOpenAlert(true);  
+      }
+   } catch (err) {
+     alertText = err.message;
+     alertSeverity = 'error';
+     setOpenAlert(true);
+   } finally {
+     setIsLoading(false);
+/*      if (fromToolbar) 
+     {
+       setValueTitleInitial(valueTitle);       
+       setValueShortNameInitial(valueShortName);
+       setValueFullNameInitial(valueFullName);
+       setValueExternalDSInitial(valueExternalDS);
+       setValueDescrInitial(valueDescr);           
+     } */
+    reloadData();     
+   }
+  }
+ };  
 
  
  /*  const [valueTitle, setValueTitle] = React.useState();
@@ -566,7 +593,7 @@ const BigTableValueIntDose = (props) => {
      const handleExport = (options) =>
       apiRef.current.exportDataAsCsv(options);
 
-    return (
+    return(
       <GridToolbarContainer>
 {/*         <table border = "1" cellspacing="0" cellpadding="0" style={{ height: 300, width: 500, verticalAlign: 'top' }}><tbody>
           <tr>
@@ -703,9 +730,11 @@ const BigTableValueIntDose = (props) => {
     fetchData();
   }, [pageState.pageSize, pageState.page]); */
 
+
+  const formRef = React.useRef();
   return (
     <div /* style={{ height: 640, width: 1500 }} */>
-
+    <form ref={formRef}>  
       <Accordion>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
@@ -759,6 +788,8 @@ const BigTableValueIntDose = (props) => {
             limitTags={10}
             disabled={ (!selDataSourceValues.length) }
             value={selDoseRatioValues}
+            //onChange={(event, newValueAC) => {  console.log('aaa '+newValueAC?newValueAC.id:-1); setValueDoseRatioID(newValueAC?newValueAC.id:-1) } }
+
             onChange={handleChangeDoseRatio}
             multiple
             id="autocomplete-dose_ratio"
@@ -1163,10 +1194,11 @@ const BigTableValueIntDose = (props) => {
           </td>
           </tr>
           </tbody>
-        </table>  
+        </table>
+        <p></p>  
 
 
-        <IconButton onClick={()=>reloadDataAlert()} color="primary" size="small" title="Обновить данные">
+        <IconButton onClick={()=>reloadDataAlert()} color="primary" size="small" title="Получить данные">
           <SvgIcon fontSize="small" component={ArrowAltDownIcon} inheritViewBox /></IconButton>
 
         </AccordionDetails>
@@ -1269,12 +1301,15 @@ const BigTableValueIntDose = (props) => {
             //value={  tableDoseRatio.filter((row) => [1, 2, 8].includes(row.id)) valueDoseRatioID}
 
             value={tableDoseRatio.find((option) => option.id === valueDoseRatioID)  }
+
+            onChange={(event, newValueAC) => {  console.log('aaa '+newValueAC?newValueAC.id:-1); setValueDoseRatioID(newValueAC?newValueAC.id:-1) } }
+
             //onChange={handleChangeDoseRatio}
             //multiple
             id="autocomplete-dose_ratio_edit"
             options={ tableDoseRatio.filter((row) => [1, 2, 8].includes(row.id)) }
             getOptionLabel={(option) => option.title}
-            disableCloseOnSelect
+            //disableCloseOnSelect
 /*             renderOption={(props, option, { selected }) => (
               <li {...props}>
                 <Checkbox size="small" icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected}/>
@@ -1285,16 +1320,15 @@ const BigTableValueIntDose = (props) => {
               <TextField {...params} label="Параметр" placeholder="Параметр" />
             )}
           />
-
           <p></p>
           <TextField
             size="small"
             variant="outlined"
             id="name_src"
-            label="Название"
-            //value={valueNameSrc || ''}
+            label="Значение"
+            value={valueDrValue || ''}
             fullWidth
-            //onChange={e => setValueNameSrc(e.target.value)}
+            onChange={e => setValueDrValue(e.target.value)}
           />        
           </DialogContent>
         <DialogActions>
@@ -1354,7 +1388,9 @@ const BigTableValueIntDose = (props) => {
         <Button variant="outlined" onClick={handleCloseSaveWhenNewYes} >Да</Button>
     </DialogActions>
   </Dialog> */}
- </div>     
+
+  </form>
+  </div>     
   )
 }
 
