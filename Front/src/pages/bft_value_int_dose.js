@@ -185,6 +185,12 @@ const BigTableValueIntDose = (props) => {
 
   const [valueID, setValueID] = React.useState();
   const [valueDoseRatioID, setValueDoseRatioID] = React.useState();
+  const [valuePeopleClassID, setValuePeopleClassID] = React.useState();
+  const [valueIsotopeID, setValueIsotopeID] = React.useState();
+  const [valueIntegralPeriodID, setValueIntegralPeriodID] = React.useState();
+  const [valueOrganID, setValueOrganID] = React.useState();
+  const [valueAgeGroupID, setValueAgeGroupID] = React.useState();
+  
   const [valueDrValue, setValueDrValue] = React.useState();
   
   const handleRowClick = (params) => {
@@ -193,6 +199,11 @@ const BigTableValueIntDose = (props) => {
     //if (editStarted&&(!isEmpty))
       setValueID(params.row.id);
       setValueDoseRatioID(params.row.dose_ratio_id);
+      setValuePeopleClassID(params.row.people_class_id);
+      setValueIsotopeID(params.row.isotope_id);
+      setValueIntegralPeriodID(params.row.integral_period_id);
+      setValueOrganID(params.row.organ_id);
+      setValueAgeGroupID(params.row.agegroup_id);
       setValueDrValue(params.row.dr_value);
   }; 
   
@@ -462,132 +473,7 @@ const BigTableValueIntDose = (props) => {
     }
   };
 
-  /* useEffect(() => {
-    console.log("---");
-    const fetchData = async () => {
-      setPageState((old) => ({ ...old, isLoading: true }));
-      // console.log("pageState:", pageState);
-
-      var ds_id = 0;
-      if (selDataSourceValues.length)
-        ds_id = selDataSourceValues[0].id;
-      console.log(ds_id);  
-
-      const  idsDS =  selDataSourceValues.map(item => item.id).join(',');
-      console.log('idsDS = '+idsDS);  
-      const  idsOrgan =  selOrganValues.map(item => item.id).join(',');
-      console.log('idsOrgan = '+idsOrgan);  
-      const  idsIrradiation =  selIrradiationValues.map(item => item.id).join(',');
-      console.log('idsIrradiation = '+idsIrradiation);        
-      const  idsIsotope =  selIsotopeValues.map(item => item.id).join(',');
-      console.log('idsIsotope = '+idsIsotope);  
-      const  idsIntegralPeriod =  selIntegralPeriodValues.map(item => item.id).join(',');
-      console.log('idsIntegralPeriod = '+idsIntegralPeriod);  
-      const  idsDoseRatio =  selDoseRatioValues.map(item => item.id).join(',');
-      console.log('idsDoseRatio = '+idsDoseRatio);  
-      const  idsLetLevel =  selLetLevelValues.map(item => item.id).join(',');
-      console.log('idsLetLevel = '+idsLetLevel);  
-      const  idsAgeGroup =  selAgeGroupValues.map(item => item.id).join(',');
-      console.log('idsAgeGroup = '+idsAgeGroup);  
-      const  idsSubstForm =  selSubstFormValues.map(item => item.id).join(',');
-      console.log('idsSubstForm = '+idsSubstForm);  
-      const  idsAerosolSol =  selAerosolSolValues.map(item => item.id).join(',');
-      console.log('idsAerosolSol = '+idsAerosolSol);  
-      const  idsAerosolAMAD =  selAerosolAMADValues.map(item => item.id).join(',');
-      console.log('idsAerosolAMAD = '+idsAerosolAMAD);  
-
-      const response = await fetch(`/value_int_dose?data_source_id=`+idsDS+`&organ_id=`+idsOrgan+
-      `&irradiation_id=`+idsIrradiation+`&isotope_id=`+idsIsotope+
-      `&integral_period_id=`+idsIntegralPeriod+`&dose_ratio_id=`+idsDoseRatio+
-      `&let_level_id=`+idsLetLevel+`&agegroup_id=`+idsAgeGroup+`&subst_form_id=`+idsSubstForm+
-      `&aerosol_sol_id=`+idsAerosolSol+`&aerosol_amad_id=`+idsAerosolAMAD+
-      `&page=`+(pageState.page + 1)+`&pagesize=`+pageState.pageSize
-      );   
-
-      const json = await response.json();
-      console.log("X-Total-Count", response.headers.get('X-Total-Count'));
-      //console.log("Content-Range", response.headers.get('Content-Range'));
-      const cnt = parseInt( response.headers.get('X-Total-Count') );
-     // console.log('cnt = '+ cnt );
-      setPageState((old) => ({
-        ...old,
-        isLoading: false,
-        rows: json,
-        rowCount: cnt
-      }));
-    };
-    fetchData();
-  }, [pageState.pageSize, pageState.page, selDataSourceValues, selDoseRatioValues, selIntegralPeriodValues,
-      selIrradiationValues, selIsotopeValues, selOrganValues, selLetLevelValues, selAgeGroupValues]);
- */
-  /////////////////////////////////////////
-/*  const [openDel, setOpenDel] = React.useState(false); 
-  const [openSave, setOpenSave] = React.useState(false); 
-  const [openSaveWhenNew, setOpenSaveWhenNew] = React.useState(false); 
-
-  const handleClickDelete = () => {
-    setOpenDel(true);
-  };
-
-  const handleCloseDelNo = () => {
-    setOpenDel(false);
-  };
-
-  const handleCloseDelYes = () => {
-    setOpenDel(false);
-    delRec();
-  };
-
-   const handleClickSave = () => {
-    console.log('handleClickSave');
-    setOpenSave(true);
-  }; 
-
-  const handleCloseSaveNo = () => {
-    console.log('handleCloseSaveNo');
-    setOpenSave(false);
-    handleCancelClick();
-  };
-
-  const handleCloseSaveYes = () => {
-    console.log('handleCloseSaveYes');
-    setOpenSave(false);
-    saveRec(false);
-    handleCancelClick();
-  };
-
-  const handleClickSaveWhenNew = () => {
-    console.log('handleClickSaveWhenNew');
-    setOpenSaveWhenNew(true);
-  };
-
-  const handleCloseSaveWhenNewNo = () => {
-    console.log('handleCloseSaveNo');
-    setOpenSaveWhenNew(false);
-
-    setValueID('');
-    setValueTitle('');
-    setValueShortName('');
-    setValueFullName('');
-    setValueExternalDS('');
-    setValueDescr('');
-  };
-
-  const handleCloseSaveWhenNewYes = () => {
-    console.log('handleCloseSaveYes');
-    setOpenSaveWhenNew(false);
-    saveRec(true);
-    setValueID('');
-    setValueTitle('');
-    setValueShortName('');
-    setValueFullName('');
-    setValueExternalDS('');
-    setValueDescr('');
-  };
-*/
-
   //////////////////////////////////////////////////////// ACTIONS ///////////////////////////////
-
   function CustomToolbar1() {
   const apiRef = useGridApiContext();
      const handleExport = (options) =>
@@ -1294,30 +1180,80 @@ const BigTableValueIntDose = (props) => {
         <DialogContent style={{height:'480px', width: '700px'}}>
           <p></p>
           <Autocomplete
-
             size="small"
-            //limitTags={10}
             disabled={ (!selDataSourceValues.length) }
-            //value={  tableDoseRatio.filter((row) => [1, 2, 8].includes(row.id)) valueDoseRatioID}
-
             value={tableDoseRatio.find((option) => option.id === valueDoseRatioID)  }
-
             onChange={(event, newValueAC) => {  console.log('aaa '+newValueAC?newValueAC.id:-1); setValueDoseRatioID(newValueAC?newValueAC.id:-1) } }
-
-            //onChange={handleChangeDoseRatio}
-            //multiple
             id="autocomplete-dose_ratio_edit"
             options={ tableDoseRatio.filter((row) => [1, 2, 8].includes(row.id)) }
             getOptionLabel={(option) => option.title}
-            //disableCloseOnSelect
-/*             renderOption={(props, option, { selected }) => (
-              <li {...props}>
-                <Checkbox size="small" icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected}/>
-                {option.title}
-              </li>
-            )} */
             renderInput={(params) => (
               <TextField {...params} label="Параметр" placeholder="Параметр" />
+            )}
+          />
+          <p></p>
+          <Autocomplete
+            size="small"
+            disabled={ (!selDataSourceValues.length) }
+            value={tablePeopleClass.find((option) => option.id === valuePeopleClassID)  }
+            onChange={(event, newValueAC) => { console.log('aaa '+newValueAC?newValueAC.id:-1); setValuePeopleClassID(newValueAC?newValueAC.id:-1) } }
+            id="autocomplete-people_class_edit"
+            options={ tablePeopleClass }
+            getOptionLabel={(option) => option.name_rus}
+            renderInput={(params) => (
+              <TextField {...params} label="Тип облучаемых лиц" placeholder="Тип облучаемых лиц" />
+            )}
+          />
+          <p></p>
+          <Autocomplete
+            size="small"
+            disabled={ (!selDataSourceValues.length) }
+            value={tableIsotope.find((option) => option.id === valueIsotopeID)  }
+            onChange={(event, newValueAC) => { console.log('aaa '+newValueAC?newValueAC.id:-1); setValueIsotopeID(newValueAC?newValueAC.id:-1) } }
+            id="autocomplete-nuclide_edit"
+            options={ tableIsotope }
+            getOptionLabel={(option) => option.title}
+            renderInput={(params) => (
+              <TextField {...params} label="Нуклид" placeholder="Нуклид" />
+            )}
+          />
+          <p></p>
+          <Autocomplete
+            size="small"
+            disabled={ (!selDataSourceValues.length) }
+            value={tableIntegralPeriod.find((option) => option.id === valueIntegralPeriodID)  }
+            onChange={(event, newValueAC) => { console.log('aaa '+newValueAC?newValueAC.id:-1); setValueIntegralPeriodID(newValueAC?newValueAC.id:-1) } }
+            id="autocomplete-integral_period_edit"
+            options={ tableIntegralPeriod }
+            getOptionLabel={(option) => option.name_rus}
+            renderInput={(params) => (
+              <TextField {...params} label="Период интегрирования" placeholder="Период интегрирования" />
+            )}
+          />
+          <p></p>
+          <Autocomplete
+            size="small"
+            disabled={ (!selDataSourceValues.length) }
+            value={tableOrgan.find((option) => option.id === valueOrganID)  }
+            onChange={(event, newValueAC) => { console.log('aaa '+newValueAC?newValueAC.id:-1); setValueIsotopeID(newValueAC?newValueAC.id:-1) } }
+            id="autocomplete-nuclide_edit"
+            options={ tableOrgan }
+            getOptionLabel={(option) => option.name_rus}
+            renderInput={(params) => (
+              <TextField {...params} label="Орган / ткань" placeholder="Орган / ткань" />
+            )}
+          />
+          <p></p>
+          <Autocomplete
+            size="small"
+            disabled={ (!selDataSourceValues.length) }
+            value={tableAgeGroup.find((option) => option.id === valueAgeGroupID)  }
+            onChange={(event, newValueAC) => { console.log('aaa '+newValueAC?newValueAC.id:-1); setValueAgeGroupID(newValueAC?newValueAC.id:-1) } }
+            id="autocomplete-agegroup_edit"
+            options={ tableAgeGroup }
+            getOptionLabel={(option) => option.name_rus}
+            renderInput={(params) => (
+              <TextField {...params} label="Возрастная группа населения" placeholder="Возрастная группа населения" />
             )}
           />
           <p></p>
