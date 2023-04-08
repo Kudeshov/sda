@@ -47,7 +47,7 @@ import AccordionDetails from '@mui/material/AccordionDetails';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-//import ServerPaginationGrid from './sp_datagrid';
+import ServerPaginationGrid from './sp_datagrid';
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
@@ -60,9 +60,9 @@ var alertSeverity = "info";
 
 const BigTableValueIntDose = (props) => {
 
-  const [pageState/* , setPageState */] = useState({
+  const [pageState, setPageState] = useState({
     page: 0,
-    pageSize: 100,
+    pageSize: 10,
     rows: [],
     rowCount: 0,
     isLoading: false
@@ -100,6 +100,7 @@ const BigTableValueIntDose = (props) => {
   const [selAerosolAMADValues, setSelAerosolAMADValues] = useState([]);
   const [selExpScenarioValues, setSelExpScenarioValues] = useState([]);
   const [selPeopleClassValues, setSelPeopleClassValues] = useState([]);
+  const [selDoseRatioID, setSelDoseRatioID] = useState([]);
 
   const handleChangeDataSource = (event, value) => {
     console.log('handleChangeDataSource');
@@ -110,10 +111,21 @@ const BigTableValueIntDose = (props) => {
     //console.log(value);
   };
 
+
+  
   const handleChangeDoseRatio = (event, value) => {
+  //  console.log(value||[]);
+
+    //var arr = [];
+    //if (value) 
+    //  arr.push(value);
+    //console.log(arr);
+
+    //if (value)
+    //setSelDoseRatioID(value.id);
     setSelDoseRatioValues(value);
+
    // setValueTitle(value);
-    console.log(value);
   };
 
   const handleChangeOrgan = (event, value) => {
@@ -190,6 +202,7 @@ const BigTableValueIntDose = (props) => {
   const [valueIntegralPeriodID, setValueIntegralPeriodID] = React.useState();
   const [valueOrganID, setValueOrganID] = React.useState();
   const [valueAgeGroupID, setValueAgeGroupID] = React.useState();
+  const [valueDataSourceID, setValueDataSourceID] = React.useState();
   
   const [valueDrValue, setValueDrValue] = React.useState();
   
@@ -204,6 +217,7 @@ const BigTableValueIntDose = (props) => {
       setValueIntegralPeriodID(params.row.integral_period_id);
       setValueOrganID(params.row.organ_id);
       setValueAgeGroupID(params.row.agegroup_id);
+      setValueDataSourceID(params.row.data_source_id);
       setValueDrValue(params.row.dr_value);
   }; 
   
@@ -473,6 +487,27 @@ const BigTableValueIntDose = (props) => {
     }
   };
 
+  useEffect(() => {
+    console.log("---");
+    const fetchData = async () => {
+      setPageState((old) => ({ ...old, isLoading: true }));
+      // console.log("pageState:", pageState);
+      const response = await fetch(
+        `/value_int_dose?page=${
+          pageState.page + 1
+        }&pagesize=${pageState.pageSize}`
+      );
+      const json = await response.json();
+      setPageState((old) => ({
+        ...old,
+        isLoading: false,
+        rows: json,
+        rowCount: 99999999
+      }));
+    };
+    fetchData();
+  }, [pageState.pageSize, pageState.page]);
+
   //////////////////////////////////////////////////////// ACTIONS ///////////////////////////////
   function CustomToolbar1() {
   const apiRef = useGridApiContext();
@@ -481,78 +516,6 @@ const BigTableValueIntDose = (props) => {
 
     return(
       <GridToolbarContainer>
-{/*         <table border = "1" cellspacing="0" cellpadding="0" style={{ height: 300, width: 500, verticalAlign: 'top' }}><tbody>
-          <tr>
-          <td>
-          <Autocomplete
-              
-              size="small"
-              limitTags={10}
-              disabled={ (!selDataSourceValues.length) }
-              value={selDoseRatioValues}
-              onChange={handleChangeDoseRatio}
-              multiple
-              id="autocomplete-dose_ratio"
-              options={ tableDoseRatio.filter((row) => [1, 2, 8].includes(row.id)) }
-              getOptionLabel={(option) => option.title}
-              disableCloseOnSelect
-              renderOption={(props, option, { selected }) => (
-                <li {...props}>
-                  <Checkbox size="small" icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected}/>
-                  {option.title}
-                </li>
-              )}
-              renderInput={(params) => (
-                <TextField {...params} label="Параметры" placeholder="Параметры" />
-              )}
-            />
-            <Autocomplete
-              size="small"
-              limitTags={10}
-              disabled={ (!selDataSourceValues.length) }
-              value={selDoseRatioValues}
-              onChange={handleChangeDoseRatio}
-              multiple
-              id="autocomplete-dose_ratio"
-              options={ tableDoseRatio.filter((row) => [1, 2, 8].includes(row.id)) }
-              getOptionLabel={(option) => option.title}
-              disableCloseOnSelect
-              renderOption={(props, option, { selected }) => (
-                <li {...props}>
-                  <Checkbox size="small" icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected}/>
-                  {option.title}
-                </li>
-              )}
-              renderInput={(params) => (
-                <TextField {...params} label="Параметры" placeholder="Параметры" />
-              )}
-            />
-            <Autocomplete
-              size="small"
-              limitTags={10}
-              disabled={ (!selDataSourceValues.length) }
-              value={selDoseRatioValues}
-              onChange={handleChangeDoseRatio}
-              multiple
-              id="autocomplete-dose_ratio"
-              options={ tableDoseRatio.filter((row) => [1, 2, 8].includes(row.id)) }
-              getOptionLabel={(option) => option.title}
-              disableCloseOnSelect
-              renderOption={(props, option, { selected }) => (
-                <li {...props}>
-                  <Checkbox size="small" icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected}/>
-                  {option.title}
-                </li>
-              )}
-              renderInput={(params) => (
-                <TextField {...params} label="Параметры" placeholder="Параметры" />
-              )}
-            />
-          </td>
-          </tr>
-          </tbody>
-        </table>   */}   
-
         <IconButton /* onClick={()=>handleClearClick()}  */ color="primary" size="small" title="Создать запись">
           <SvgIcon fontSize="small" component={PlusLightIcon} inheritViewBox /></IconButton>
 
@@ -575,14 +538,14 @@ const BigTableValueIntDose = (props) => {
 
 
 
- /* 
-   const setPage = (page) => {
+ 
+    const setPage = (page) => {
     setPageState({ ...pageState, page: page });
   };
 
   const setPageSize = (pageSize) => {
     setPageState({ ...pageState, pageSize: pageSize });
-  }; */
+  }; 
 
   // const setRowCountState = (rowCount) => {
   //   setPageState({ ...pageState, rowCount: rowCount });
@@ -630,7 +593,7 @@ const BigTableValueIntDose = (props) => {
           <Typography>Фильтр</Typography>
         </AccordionSummary>
         <AccordionDetails>
-        <table border = "0" cellspacing="0" cellpadding="0"><tbody>
+        <table border = "0" cellSpacing="0" cellPadding="0"><tbody>
           <tr>      
           <td width={548}>
             <Autocomplete
@@ -665,29 +628,16 @@ const BigTableValueIntDose = (props) => {
         </tbody></table>  
         <p></p>
         
-        <table border = "0" cellspacing="0" cellpadding="0"><tbody>
+        <table border = "0" cellSpacing="0" cellPadding="0"><tbody>
           <tr>      
           <td width={348}>      
           <Autocomplete
-            /* sx={(!disabled)?{width: '60ch', background: '#FFFFFF'}:{width: '60ch', background: '#EEEEEE'}} */  
-            size="small"
-            limitTags={10}
-            disabled={ (!selDataSourceValues.length) }
-            value={selDoseRatioValues}
-            //onChange={(event, newValueAC) => {  console.log('aaa '+newValueAC?newValueAC.id:-1); setValueDoseRatioID(newValueAC?newValueAC.id:-1) } }
-
+            size="small"  
+            value={selDoseRatioValues||[]}
             onChange={handleChangeDoseRatio}
-            multiple
             id="autocomplete-dose_ratio"
             options={ tableDoseRatio.filter((row) => [1, 2, 8].includes(row.id)) }
-            getOptionLabel={(option) => option.title}
-            disableCloseOnSelect
-            renderOption={(props, option, { selected }) => (
-              <li {...props}>
-                <Checkbox size="small" icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected}/>
-                {option.title}
-              </li>
-            )}
+            getOptionLabel={(option) => option.title?option.title:'Выбор отсутствует'} 
             renderInput={(params) => (
               <TextField {...params} label="Параметры" placeholder="Параметры" />
             )}
@@ -711,8 +661,11 @@ const BigTableValueIntDose = (props) => {
           value={selOrganValues}
           onChange={handleChangeOrgan}
           multiple
-          disabled={ (!selDataSourceValues.length) || 
-            (!(selDoseRatioValues.filter((row) => [2, 8].includes(row.id))).length)
+          disabled={ (!selDataSourceValues.length) 
+            ||
+            (!selDoseRatioValues) ||
+            (![2, 8].includes(selDoseRatioValues.id)) 
+            //(!(selDoseRatioValues.filter((row) => [2, 8].includes(row.id))).length)
           }
           id="autocomplete-organ"
           options={tableOrgan}
@@ -747,8 +700,9 @@ const BigTableValueIntDose = (props) => {
           value={selLetLevelValues}
           onChange={handleChangeLetLevel}
           multiple
-          disabled={ (!selDataSourceValues.length) || 
-            (!(selDoseRatioValues.filter((row) => [8].includes(row.id))).length)
+          disabled={ (!selDataSourceValues.length) || (selIrradiationValues) || (selIrradiationValues.id!==8)
+            //|| 
+            //(!(selDoseRatioValues.filter((row) => [8].includes(row.id))).length)
           }
           id="autocomplete-let_level"
           options={tableLetLevel}
@@ -776,26 +730,27 @@ const BigTableValueIntDose = (props) => {
         </tbody></table>  
         <p></p>        
 
-        <table border = "0" cellspacing="0" cellpadding="0"><tbody>
+        <table border = "0" cellSpacing="0" cellPadding="0"><tbody>
           <tr>      
           <td width={348}>
           <Autocomplete
             size="small"
-            value={selIrradiationValues}
+            value={selIrradiationValues||[]}
             onChange={handleChangeIrradiation}
-            multiple
+            //multiple
             id="autocomplete-irradiation"
             options={tableIrradiation.filter((row) => [2,6, 30319, 30316].includes(row.id)) }
-            getOptionLabel={(option) => option.name_rus}
+            getOptionLabel={(option) => option.name_rus?option.name_rus:'Выбор отсутствует'}
+            /*getOptionLabel={(option) => option.title?option.title:'Выбор отсутствует'} 
             disableCloseOnSelect
-            renderOption={(props, option, { selected }) => (
+             renderOption={(props, option, { selected }) => (
               <li {...props}>
                 <Checkbox size="small" icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected}/>
                 {option.name_rus}
               </li>
-            )}
+            )} */
             renderInput={(params) => (
-              <TextField {...params} label="Типы облучения" placeholder="Типы облучения" />
+              <TextField {...params} label="Тип облучения" placeholder="Тип облучения" />
             )}
           />          
           </td>
@@ -818,7 +773,8 @@ const BigTableValueIntDose = (props) => {
             id="autocomplete-subst_form"
             options={tableSubstForm}
             disabled={  (!selDataSourceValues.length) ||  
-                ((selIrradiationValues.filter((row) => [2].includes(row.id))).length===0) 
+              (!selIrradiationValues) || (selIrradiationValues.id!==2)
+                //((selIrradiationValues.filter((row) => [2].includes(row.id))).length===0) 
             }          
             getOptionLabel={(option) => option.name_rus}
             disableCloseOnSelect
@@ -914,7 +870,7 @@ const BigTableValueIntDose = (props) => {
         <p></p>
 
 
-        <table border = "0" cellspacing="0" cellpadding="0"><tbody>
+        <table border = "0" cellSpacing="0" cellPadding="0"><tbody>
           <tr>      
           <td width={348}>
             <Autocomplete
@@ -924,7 +880,7 @@ const BigTableValueIntDose = (props) => {
             multiple
             id="autocomplete-people_class"
             options={tablePeopleClass}
-            getOptionLabel={(option) => option.name_rus}
+            Запись классификатора с кодом ={(option) => option.name_rus}
             disableCloseOnSelect
             renderOption={(props, option, { selected }) => (
               <li {...props}>
@@ -1015,7 +971,7 @@ const BigTableValueIntDose = (props) => {
         <p></p>                           
 
 
-        <table border = "0" cellspacing="0" cellpadding="0"><tbody>
+        <table border = "0" cellSpacing="0" cellPadding="0"><tbody>
           <tr>      
           <td width={348}>
             <Autocomplete
@@ -1128,7 +1084,7 @@ const BigTableValueIntDose = (props) => {
             <tr>
               <td style={{ height: 50, verticalAlign: 'top' }}>
 
-              {/*       <p></p>  
+{/*                <p></p>   
               <ServerPaginationGrid
                 page={pageState.page}
                 loading={pageState.isLoading}
@@ -1137,7 +1093,7 @@ const BigTableValueIntDose = (props) => {
                 rowCount={pageState.rowCount}
                 columns={columnsValueIntDose}
                 onPageAlter={(newPage) => setPageState({ ...pageState, page: newPage })}
-              />  */}
+              />   */}
 
               <Box /* sx={{ width: 585 }} */>
               <Collapse in={openAlert}>
@@ -1179,7 +1135,9 @@ const BigTableValueIntDose = (props) => {
       <DialogTitle>Редактировать запись {valueID}</DialogTitle>  
         <DialogContent style={{height:'480px', width: '700px'}}>
           <p></p>
-          <Autocomplete
+          <table border = "0" cellSpacing="0" cellPadding="0"><tbody><tr>
+          <td>
+          <div style={{width: '320px'}}><Autocomplete
             size="small"
             disabled={ (!selDataSourceValues.length) }
             value={tableDoseRatio.find((option) => option.id === valueDoseRatioID)  }
@@ -1190,9 +1148,10 @@ const BigTableValueIntDose = (props) => {
             renderInput={(params) => (
               <TextField {...params} label="Параметр" placeholder="Параметр" />
             )}
-          />
-          <p></p>
-          <Autocomplete
+          /></div>
+          </td><td>&nbsp;&nbsp;&nbsp;
+          </td><td>
+          <div style={{width: '320px'}}><Autocomplete
             size="small"
             disabled={ (!selDataSourceValues.length) }
             value={tablePeopleClass.find((option) => option.id === valuePeopleClassID)  }
@@ -1203,7 +1162,9 @@ const BigTableValueIntDose = (props) => {
             renderInput={(params) => (
               <TextField {...params} label="Тип облучаемых лиц" placeholder="Тип облучаемых лиц" />
             )}
-          />
+          /></div>
+          </td>
+          </tr></tbody></table>
           <p></p>
           <Autocomplete
             size="small"
@@ -1254,6 +1215,19 @@ const BigTableValueIntDose = (props) => {
             getOptionLabel={(option) => option.name_rus}
             renderInput={(params) => (
               <TextField {...params} label="Возрастная группа населения" placeholder="Возрастная группа населения" />
+            )}
+          />
+          <p></p>
+          <Autocomplete
+            size="small"
+            disabled={ (!selDataSourceValues.length) }
+            value={tableDataSource.find((option) => option.id === valueDataSourceID) }
+            onChange={(event, newValueAC) => { console.log('data_source_edit '+newValueAC?newValueAC.id:-1); setValueDataSourceID(newValueAC?newValueAC.id:-1) } }
+            id="autocomplete-data_source_edit"
+            options={ tableDataSource }
+            getOptionLabel={(option) => option.title}
+            renderInput={(params) => (
+              <TextField {...params} label="Источник данных" placeholder="Источник данных" />
             )}
           />
           <p></p>

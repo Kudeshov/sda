@@ -33,13 +33,13 @@ export default function ServerPaginationGrid({
         rows={rows}
         rowCount={rowCountState}
         loading={loading}
-        rowsPerPageOptions={[10, 25]}
+        rowsPerPageOptions={[10, 25, 100]}
         pagination
         hideFooterRowCount
         rowHeight={25}
         page={localPage}
         pageSize={pageSize ?? localPageSize}
-        //paginationMode="server"
+        paginationMode="server"
         onPageChange={(page, details) => {
           console.log("page inside onPage:", page, "localpage:", localPage);
           onPageAlter(page);
