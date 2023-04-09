@@ -1,4 +1,4 @@
-// Big fucking table VALUE_INT_DOSE
+// Big f....g table VALUE_INT_DOSE
 
 import React, { useState, useEffect } from 'react';
 import {
@@ -47,7 +47,7 @@ import AccordionDetails from '@mui/material/AccordionDetails';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
-import ServerPaginationGrid from './sp_datagrid';
+//import ServerPaginationGrid from './sp_datagrid';
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
@@ -55,11 +55,7 @@ const checkedIcon = <CheckBoxIcon fontSize="small" />;
 var alertText = "Сообщение";
 var alertSeverity = "info";
 
-
-//var lastId = 0;
-
 const BigTableValueIntDose = (props) => {
-
   const [pageState, setPageState] = useState({
     page: 0,
     pageSize: 10,
@@ -86,6 +82,14 @@ const BigTableValueIntDose = (props) => {
     { field: 'aerosol_amad_name_rus', headerName: 'AMAD аэрозолей', width: 200 },
     { field: 'exp_scenario_name_rus', headerName: 'Сценарии поступления', width: 200 },
    ]
+
+/*    const columnsDataSourceClass = [
+    { field: 'id', headerName: 'Код', width: 60 },
+    { field: 'data_source_id', headerName: 'Код источника данных', width: 100 },
+    { field: 'table_name', headerName: 'Имя таблицы БД', width: 180 },
+    { field: 'rec_id', headerName: `Идентификатор записи в таблице `, width: 100 },
+  ]
+ */
   const [openAlert, setOpenAlert] = React.useState(false, '');
   const [selDataSourceValues, setSelDataSourceValues] = useState([]);
   const [selOrganValues, setSelOrganValues] = useState([]);
@@ -100,32 +104,60 @@ const BigTableValueIntDose = (props) => {
   const [selAerosolAMADValues, setSelAerosolAMADValues] = useState([]);
   const [selExpScenarioValues, setSelExpScenarioValues] = useState([]);
   const [selPeopleClassValues, setSelPeopleClassValues] = useState([]);
-  const [selDoseRatioID, setSelDoseRatioID] = useState([]);
+  //const [selDoseRatioID, setSelDoseRatioID] = useState([]);
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [tableDataSource, setTableDataSource] = useState([]); 
+  const [tableOrgan, setTableOrgan] = useState([]);
+  const [tableIrradiation, setTableIrradiation] = useState([]);  
+  const [tableIsotope, setTableIsotope] = useState([]);
+  const [tableIntegralPeriod, setTableIntegralPeriod] = useState([]);
+  const [tableDoseRatio, setTableDoseRatio] = useState([]);
+  const [tableDoseRatioFiltered, setTableDoseRatioFiltered] = useState([]);
+  const [tableLetLevel, setTableLetLevel] = useState([]); //уровни ЛПЭ
+  const [tableAgeGroup, setTableAgeGroup] = useState([]);   
+  const [tableSubstForm, setTableSubstForm] = useState([]); //формы вещества  
+  const [tableAerosolSol, setTableAerosolSol] = useState([]);   
+  const [tableAerosolAMAD, setTableAerosolAMAD] = useState([]); //АМАД аэрозолей
+  const [tableExpScenario, setTableExpScenario] = useState([]); //Сценарии поступления
+  const [tablePeopleClass, setTablePeopleClass] = useState([]); //Типы облучаемых лиц
+  const [tableValueIntDose, setTableValueIntDose] = useState([]); 
+  const [selectionModel, setSelectionModel] = React.useState([]);
+  const [tableDataSourceClass, setTableDataSourceClass] = useState([]);
+  //const [tableDataSourceClassFiltered, setTableDataSourceClassFiltered] = useState([]);
 
   const handleChangeDataSource = (event, value) => {
     console.log('handleChangeDataSource');
     console.log(value);
-
     setSelDataSourceValues(value);
-   // setValueTitle(value);
-    //console.log(value);
   };
+  
+  useEffect(() => {
 
+    //function uniqueFilter(value, index, self) {
+    //  return self.indexOf(value) === index;
+    //}
+    console.log("-гавно-");
+    var ids = selDataSourceValues.map(item => item.id);
+    console.log('Выбранные источники данных '+ids);
+
+    var ids_dose_ratio = tableDataSourceClass.filter(item => ((item.table_name === 'dose_ratio' )&&(ids.includes(item.data_source_id))) ).map(item => item.rec_id);
+    console.log('Соответствующие параметры ');
+    console.log(ids_dose_ratio);
+
+    console.log('Фильтрованная таблица параметров ');
+    console.log(tableDoseRatio.filter(item => ((ids_dose_ratio.includes(item.id))) ) );    
+    setTableDoseRatioFiltered( tableDoseRatio.filter(item => ((ids_dose_ratio.includes(item.id))) ) ); 
+    //console.log( tableDataSourceClass.filter(item => ((item.table_name === 'dose_ratio' )&&(ids.includes(item.data_source_id))) ));
+
+    //console.log( tableDataSourceClass.filter(item => (item.table_name === 'dose_ratio' )).map(item => item.rec_id).filter(uniqueFilter) );
+    //setTableDataSourceClassFiltered(tableDataSourceClass.filter);
+  }, [selDataSourceValues]);
 
   
+
+
   const handleChangeDoseRatio = (event, value) => {
-  //  console.log(value||[]);
-
-    //var arr = [];
-    //if (value) 
-    //  arr.push(value);
-    //console.log(arr);
-
-    //if (value)
-    //setSelDoseRatioID(value.id);
     setSelDoseRatioValues(value);
-
-   // setValueTitle(value);
   };
 
   const handleChangeOrgan = (event, value) => {
@@ -274,37 +306,6 @@ const BigTableValueIntDose = (props) => {
   }
  };  
 
- 
- /*  const [valueTitle, setValueTitle] = React.useState();
-  const [valueTitleInitial, setValueTitleInitial] = React.useState();
-
-  const [valueShortName, setValueShortName] = React.useState();
-  const [valueFullName, setValueFullName] = React.useState();
-  const [valueDescr, setValueDescr] = React.useState();
-  const [valueExternalDS, setValueExternalDS] = React.useState();
-
-  const [valueShortNameInitial, setValueShortNameInitial] = React.useState();
-  const [valueFullNameInitial, setValueFullNameInitial] = React.useState();
-  const [valueDescrInitial, setValueDescrInitial] = React.useState();
-  const [valueExternalDSInitial, setValueExternalDSInitial] = React.useState(); */
-
-  const [isLoading, setIsLoading] = React.useState(false);
-  const [tableDataSource, setTableDataSource] = useState([]); 
-  const [tableOrgan, setTableOrgan] = useState([]);
-  const [tableIrradiation, setTableIrradiation] = useState([]);  
-  const [tableIsotope, setTableIsotope] = useState([]);
-  const [tableIntegralPeriod, setTableIntegralPeriod] = useState([]);
-  const [tableDoseRatio, setTableDoseRatio] = useState([]);
-  const [tableLetLevel, setTableLetLevel] = useState([]); //уровни ЛПЭ
-  const [tableAgeGroup, setTableAgeGroup] = useState([]);   
-  const [tableSubstForm, setTableSubstForm] = useState([]); //формы вещества  
-  const [tableAerosolSol, setTableAerosolSol] = useState([]);   
-  const [tableAerosolAMAD, setTableAerosolAMAD] = useState([]); //АМАД аэрозолей
-  const [tableExpScenario, setTableExpScenario] = useState([]); //Сценарии поступления
-  const [tablePeopleClass, setTablePeopleClass] = useState([]); //Типы облучаемых лиц
-  const [tableValueIntDose, setTableValueIntDose] = useState([]); 
-  const [selectionModel, setSelectionModel] = React.useState([]);
-
   useEffect(  () => {
 /*     const setFirst =  async (data) => { 
       if ((tableDataSource.length>0)&&(selDataSourceValues.length===0)) {
@@ -329,6 +330,12 @@ const BigTableValueIntDose = (props) => {
     }   
     setFirst();  
   }, [tableDataSource])    
+
+  useEffect(() => {
+    fetch(`/data_source_class_min`)
+      .then((data) => data.json())
+      .then((data) => setTableDataSourceClass(data)); 
+  }, [props.table_name])
 
   useEffect(() => {
     fetch(`/organ`)
@@ -636,7 +643,7 @@ const BigTableValueIntDose = (props) => {
             value={selDoseRatioValues||[]}
             onChange={handleChangeDoseRatio}
             id="autocomplete-dose_ratio"
-            options={ tableDoseRatio.filter((row) => [1, 2, 8].includes(row.id)) }
+            options={ tableDoseRatioFiltered.filter((row) => [1, 2, 8].includes(row.id)) }
             getOptionLabel={(option) => option.title?option.title:'Выбор отсутствует'} 
             renderInput={(params) => (
               <TextField {...params} label="Параметры" placeholder="Параметры" />
@@ -647,85 +654,101 @@ const BigTableValueIntDose = (props) => {
             &nbsp;&nbsp;
           </td>
           <td>        
-            <IconButton onClick={()=>setSelDoseRatioValues(tableDoseRatio.filter((row) => [1, 2, 8].includes(row.id)))} color="primary" size="small" title="Выбрать все">
+            <IconButton onClick={()=>setSelDoseRatioValues(tableDoseRatioFiltered.filter((row) => [1, 2, 8].includes(row.id)))} color="primary" size="small" title="Выбрать все">
             <SvgIcon fontSize="small" component={CheckDoubleIcon} inheritViewBox /></IconButton>
           </td>
           <td>
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-          </td>
-          <td width={548}>      
-          <Autocomplete
-          /* sx={(selDataSourceValues.length)?{width: '60ch', background: '#FFFFFF'}:{width: '60ch', background: '#EEEEEE'}} */
-          size="small"
-          limitTags={7}
-          value={selOrganValues}
-          onChange={handleChangeOrgan}
-          multiple
-          disabled={ (!selDataSourceValues.length) 
-            ||
-            (!selDoseRatioValues) ||
-            (![2, 8].includes(selDoseRatioValues.id)) 
-            //(!(selDoseRatioValues.filter((row) => [2, 8].includes(row.id))).length)
-          }
-          id="autocomplete-organ"
-          options={tableOrgan}
-          getOptionLabel={(option) => option.name_rus}
-          disableCloseOnSelect
-          renderOption={(props, option, { selected }) => (
-            <li {...props}>
-              <Checkbox size="small" icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected}/>
-              {option.name_rus}
-            </li>
-          )}
-          renderInput={(params) => (
-            <TextField {...params} label="Органы и ткани" placeholder="Органы и ткани" />
-          )}
-          /> 
-          </td>
-          <td>
-            &nbsp;&nbsp;
-          </td>
-          <td>        
-            <IconButton onClick={()=>setSelOrganValues(tableOrgan)} color="primary" size="small" title="Выбрать все">
-            <SvgIcon fontSize="small" component={CheckDoubleIcon} inheritViewBox /></IconButton>
           </td>
 
-          <td>
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-          </td>
-          <td width={348}>      
-          <Autocomplete
-          size="small"
-          limitTags={7}
-          value={selLetLevelValues}
-          onChange={handleChangeLetLevel}
-          multiple
-          disabled={ (!selDataSourceValues.length) || (selIrradiationValues) || (selIrradiationValues.id!==8)
-            //|| 
-            //(!(selDoseRatioValues.filter((row) => [8].includes(row.id))).length)
-          }
-          id="autocomplete-let_level"
-          options={tableLetLevel}
-          getOptionLabel={(option) => option.name_rus}
-          disableCloseOnSelect
-          renderOption={(props, option, { selected }) => (
-            <li {...props}>
-              <Checkbox size="small" icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected}/>
-              {option.name_rus}
-            </li>
+
+          {!((!selDataSourceValues.length)||(!selDoseRatioValues)||(![2, 8].includes(selDoseRatioValues.id)))&&(    
+            <td width={548}>      
+            <Autocomplete
+            size="small"
+            limitTags={7}
+            value={selOrganValues}
+            onChange={handleChangeOrgan}
+            multiple
+  /*           disabled={ (!selDataSourceValues.length) 
+              ||
+              (!selDoseRatioValues) ||
+              (![2, 8].includes(selDoseRatioValues.id)) 
+            } */
+            id="autocomplete-organ"
+            options={tableOrgan}
+            getOptionLabel={(option) => option.name_rus}
+            disableCloseOnSelect
+            renderOption={(props, option, { selected }) => (
+              <li {...props}>
+                <Checkbox size="small" icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected}/>
+                {option.name_rus}
+              </li>
+            )}
+            renderInput={(params) => (
+              <TextField {...params} label="Органы и ткани" placeholder="Органы и ткани" />
+            )}
+            /> 
+            </td>
           )}
-          renderInput={(params) => (
-            <TextField {...params} label="Уровни ЛПЭ" placeholder="Уровни ЛПЭ" />
+          {!((!selDataSourceValues.length)||(!selDoseRatioValues)||(![2, 8].includes(selDoseRatioValues.id)))&&(    
+            <td>
+              &nbsp;&nbsp;
+            </td>
           )}
-          />
-          </td>
-          <td>
-            &nbsp;&nbsp;
-          </td>
-          <td>        
-            <IconButton onClick={()=>setSelLetLevelValues(tableLetLevel)} color="primary" size="small" title="Выбрать все">
-            <SvgIcon fontSize="small" component={CheckDoubleIcon} inheritViewBox /></IconButton>
-          </td>
+          {!((!selDataSourceValues.length)||(!selDoseRatioValues)||(![2, 8].includes(selDoseRatioValues.id)))&&(    
+            <td>        
+              <IconButton onClick={()=>setSelOrganValues(tableOrgan)} color="primary" size="small" title="Выбрать все">
+              <SvgIcon fontSize="small" component={CheckDoubleIcon} inheritViewBox /></IconButton>
+            </td>
+          )}
+          {!((!selDataSourceValues.length)||(!selDoseRatioValues)||(![2, 8].includes(selDoseRatioValues.id)))&&(    
+            <td>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </td>
+          )}
+          
+{/* --------------------------------------------------------------------------------------------------------------- */}
+          {!((!selDataSourceValues.length)||(!selDoseRatioValues)||(![8].includes(selDoseRatioValues.id)) ) && (
+            <td width={348}> 
+            <Autocomplete
+            size="small"
+            limitTags={7}
+            value={selLetLevelValues}
+            onChange={handleChangeLetLevel}
+            multiple
+  /*           disabled={ (!selDataSourceValues.length) 
+              ||
+              (!selDoseRatioValues) ||
+              (![8].includes(selDoseRatioValues.id)) 
+            } */
+            id="autocomplete-let_level"
+            options={tableLetLevel}
+            getOptionLabel={(option) => option.name_rus}
+            disableCloseOnSelect
+            renderOption={(props, option, { selected }) => (
+              <li {...props}>
+                <Checkbox size="small" icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected}/>
+                {option.name_rus}
+              </li>
+            )}
+            renderInput={(params) => (
+              <TextField {...params} label="Уровни ЛПЭ" placeholder="Уровни ЛПЭ" />
+            )}
+            />
+            </td>
+          )}
+          {!((!selDataSourceValues.length)||(!selDoseRatioValues)||(![8].includes(selDoseRatioValues.id)) ) && (
+            <td>
+              &nbsp;&nbsp;
+            </td>
+          )}
+          {!((!selDataSourceValues.length)||(!selDoseRatioValues)||(![8].includes(selDoseRatioValues.id)) ) && (
+            <td>        
+              <IconButton onClick={()=>setSelLetLevelValues(tableLetLevel)} color="primary" size="small" title="Выбрать все">
+              <SvgIcon fontSize="small" component={CheckDoubleIcon} inheritViewBox /></IconButton>
+            </td>
+          )}
           </tr>
         </tbody></table>  
         <p></p>        
@@ -1038,7 +1061,6 @@ const BigTableValueIntDose = (props) => {
           </tbody>
         </table>
         <p></p>  
-
 
         <IconButton onClick={()=>reloadDataAlert()} color="primary" size="small" title="Получить данные">
           <SvgIcon fontSize="small" component={ArrowAltDownIcon} inheritViewBox /></IconButton>

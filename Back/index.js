@@ -160,6 +160,7 @@ app.delete('/physparam/:id', (req, res) => {pp_q.deletePhysParam(req, res, 'phys
  
 //data_source_class_queries
 app.get('/data_source_class', dsc_q.getDataSourceClass);           //list all
+app.get('/data_source_class_min', dsc_q.getDataSourceClassMin);    //list all withoud additional fields
 app.post('/data_source_class', dsc_q.createDataSourceClass);       //create
 app.put('/data_source_class/:id', dsc_q.updateDataSourceClass);    //update
 app.delete('/data_source_class/:id', dsc_q.deleteDataSourceClass); //delete 

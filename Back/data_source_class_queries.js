@@ -39,9 +39,20 @@ const getDataSourceClass = (request, response) => {
   })
 }
 
+const getDataSourceClassMin = (request, response) => {
+  console.log( request.query );  
+  pool.query(
+    'SELECT id, data_source_id, table_name, rec_id FROM nucl.data_source_class' , (error, results) => {
+    if (error) {
+      throw error
+    }
+    response.status(200).json(results.rows)
+  })
+}
+
 const getDataSourceClassById = (request, response) => {
   const id = parseInt(request.params.id)
-  pool.query('SELECT * FROM nucl.data_source_class WHERE id = $1', [id], (error, results) => {
+  pool.query('SELECT id, data_source_id, table_name, rec_id FROM nucl.data_source_class WHERE id = $1', [id], (error, results) => {
     if (error) {
       throw error
     }
@@ -50,9 +61,6 @@ const getDataSourceClassById = (request, response) => {
 }
 
 const createDataSourceClass = (request, response) => {
-
-
-
   console.log( request.body );
   const { data_source_id, table_name, rec_id, title_src, name_src } = request.body;
   pool.query('INSERT INTO nucl.data_source_class (data_source_id, table_name, rec_id, title_src, name_src) VALUES ($1, $2, $3, $4, $5) RETURNING id', [data_source_id, table_name, rec_id, title_src, name_src], (error, results) => {
@@ -212,6 +220,7 @@ const updateDataSourceClass = (request, response) => {
 
 module.exports = {
   getDataSourceClass,
+  getDataSourceClassMin,
   getDataSourceClassById,
   createDataSourceClass,
   deleteDataSourceClass,
