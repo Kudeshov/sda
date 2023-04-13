@@ -102,9 +102,9 @@ const DataTableDoseRatio = (props) => {
 
 
   useEffect(() => {
-    setIsEmpty((''==valueTitle)&&(''==valueNameRus)&&(''==valueNameEng)&&(''==valueDescrEng)&&(''==valueDescrRus)   
-      &&(''==valueRespRate)&&(''==valueRespYear)&&(''==valueIndoor)&&(''==valueExtCloud)&&(''==valueExtGround)
-      &&(''==valuePhysParamID)&&(''==valueUsed)&&(''==valueParameters)&&(''==valueParametersDialog));
+    setIsEmpty((''===valueTitle)&&(''===valueNameRus)&&(''===valueNameEng)&&(''===valueDescrEng)&&(''===valueDescrRus)   
+      &&(''===valueRespRate)&&(''===valueRespYear)&&(''===valueIndoor)&&(''===valueExtCloud)&&(''===valueExtGround)
+      &&(''===valuePhysParamID)&&(''===valueUsed)&&(''===valueParameters)&&(''===valueParametersDialog));
 
     }, [ valueTitle, valueNameRus, valueNameEng, valueDescrEng, valueDescrRus, 
         valueRespRate, valueRespYear,  valueIndoor, valueExtCloud, valueExtGround,
@@ -405,7 +405,7 @@ const DataTableDoseRatio = (props) => {
     }
   };
 
-  const [openConfirmDelete, setOpenConfirmDelete] = React.useState(false); 
+//  const [openConfirmDelete, setOpenConfirmDelete] = React.useState(false); 
 const [openDSInfo, setOpenDSInfo] = React.useState(false); 
 const handleOpenDSInfo = () => {
   setOpenDSInfo(true);
@@ -415,7 +415,7 @@ const handleCloseDSInfo = () => {
   setOpenDSInfo(false);
 };
 
-const [noRecords, setNoRecords] = useState(true);
+//const [noRecords, setNoRecords] = useState(true);
 
 
 /////////////////////////////////////////////////////////////////// DELETE /////////////////////

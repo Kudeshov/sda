@@ -5,28 +5,28 @@ import {
   DataGrid, 
   ruRU,
   GridToolbarContainer,
-  useGridApiContext,
-  gridFilteredSortedRowIdsSelector,
+//  useGridApiContext,
+  //gridFilteredSortedRowIdsSelector,
 } from '@mui/x-data-grid';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
-import DialogContentText from '@mui/material/DialogContentText';
+//import DialogContentText from '@mui/material/DialogContentTecxt';
 import DialogTitle from '@mui/material/DialogTitle';
-import { FormControl } from "@mui/material";
-import { InputLabel } from "@mui/material";
-import { Select } from "@mui/material";
+//import { FormControl } from "@mui/material";
+//import { InputLabel } from "@mui/material";
+//import { Select } from "@mui/material";
 import { Box, IconButton } from '@mui/material';
 import Alert from '@mui/material/Alert';
 import Collapse from '@mui/material/Collapse';
 import CloseIcon from '@mui/icons-material/Close';
 import SvgIcon from '@mui/material/SvgIcon';
-import { ReactComponent as SaveLightIcon } from "./../icons/save.svg";
+//import { ReactComponent as SaveLightIcon } from "./../icons/save.svg";
 import { ReactComponent as PlusLightIcon } from "./../icons/plus.svg";
 import { ReactComponent as EditLightIcon } from "./../icons/edit.svg";
-import { ReactComponent as DownloadLightIcon } from "./../icons/download.svg";
+//import { ReactComponent as DownloadLightIcon } from "./../icons/download.svg";
 import { ReactComponent as TrashLightIcon } from "./../icons/trash.svg";
 import { ReactComponent as RepeatLightIcon } from "./../icons/repeat.svg";
 import { ReactComponent as CheckDoubleIcon } from "./../icons/check-double.svg";
@@ -151,7 +151,7 @@ const BigTableValueIntDose = (props) => {
 
     //console.log( tableDataSourceClass.filter(item => (item.table_name === 'dose_ratio' )).map(item => item.rec_id).filter(uniqueFilter) );
     //setTableDataSourceClassFiltered(tableDataSourceClass.filter);
-  }, [selDataSourceValues]);
+  }, [selDataSourceValues, tableDataSourceClass, tableDoseRatio]);
 
   
 
@@ -237,7 +237,10 @@ const BigTableValueIntDose = (props) => {
   const [valueDataSourceID, setValueDataSourceID] = React.useState();
   
   const [valueDrValue, setValueDrValue] = React.useState();
+  const [isTableExpanded, setIsTableExpanded] = useState(false);
+  const [isFilterExpanded, setIsFilterExpanded] = useState(true);
   
+
   const handleRowClick = (params) => {
     //setOpenAlert(false);
     console.log( 'handleRowClick dose_ratio_id = '+params.row.dose_ratio_id);
@@ -428,7 +431,9 @@ const BigTableValueIntDose = (props) => {
       setOpenAlert(true);
       return;
     }
-    setOpenAlert(true);        
+    setOpenAlert(true);
+    setIsTableExpanded(true);
+    setIsFilterExpanded(false);
   }
 
   const reloadData = async () => {
@@ -517,9 +522,9 @@ const BigTableValueIntDose = (props) => {
 
   //////////////////////////////////////////////////////// ACTIONS ///////////////////////////////
   function CustomToolbar1() {
-  const apiRef = useGridApiContext();
+/*   const apiRef = useGridApiContext();
      const handleExport = (options) =>
-      apiRef.current.exportDataAsCsv(options);
+      apiRef.current.exportDataAsCsv(options); */
 
     return(
       <GridToolbarContainer>
@@ -545,14 +550,14 @@ const BigTableValueIntDose = (props) => {
 
 
 
- 
+/*  
     const setPage = (page) => {
     setPageState({ ...pageState, page: page });
   };
 
   const setPageSize = (pageSize) => {
     setPageState({ ...pageState, pageSize: pageSize });
-  }; 
+  };  */
 
   // const setRowCountState = (rowCount) => {
   //   setPageState({ ...pageState, rowCount: rowCount });
@@ -591,7 +596,7 @@ const BigTableValueIntDose = (props) => {
   return (
     <div /* style={{ height: 640, width: 1500 }} */>
     <form ref={formRef}>  
-      <Accordion>
+      <Accordion expanded={isFilterExpanded} onChange={() => setIsFilterExpanded(!isFilterExpanded)}>
         <AccordionSummary
           expandIcon={<ExpandMoreIcon />}
           aria-controls="panel1a-content"
@@ -644,7 +649,7 @@ const BigTableValueIntDose = (props) => {
             onChange={handleChangeDoseRatio}
             id="autocomplete-dose_ratio"
             options={ tableDoseRatioFiltered.filter((row) => [1, 2, 8].includes(row.id)) }
-            getOptionLabel={(option) => option.title?option.title:'Выбор отсутствует'} 
+            getOptionLabel={(option) => option.title?option.title:''} //?option.title:'Выбор отсутствует'
             renderInput={(params) => (
               <TextField {...params} label="Параметры" placeholder="Параметры" />
             )}
@@ -763,7 +768,7 @@ const BigTableValueIntDose = (props) => {
             //multiple
             id="autocomplete-irradiation"
             options={tableIrradiation.filter((row) => [2,6, 30319, 30316].includes(row.id)) }
-            getOptionLabel={(option) => option.name_rus?option.name_rus:'Выбор отсутствует'}
+            getOptionLabel={(option) => option.name_rus?option.name_rus:''} //?option.name_rus:'Выбор отсутствует'
             /*getOptionLabel={(option) => option.title?option.title:'Выбор отсутствует'} 
             disableCloseOnSelect
              renderOption={(props, option, { selected }) => (
@@ -1067,7 +1072,8 @@ const BigTableValueIntDose = (props) => {
 
         </AccordionDetails>
       </Accordion>
-      <Accordion>
+
+      <Accordion expanded={isTableExpanded}  onChange={() => {setIsTableExpanded(!isTableExpanded); }}>
         <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel2a-content" id="panel2a-header">
           <Typography>Таблица значений</Typography>
         </AccordionSummary>

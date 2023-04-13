@@ -713,8 +713,19 @@ const DataTableExpScenario = (props) => {
     // headers: ['Column 1', 'Column 2', etc...] <-- Won't work with useKeysAsHeaders present!
   };
 
+
+
   function getTableDataForExcel( t ) 
   {
+    function replacer(i, val) {
+      if ( val === null ) 
+      { 
+         return ""; // change null to empty string
+      } else {
+         return val; // return unchanged
+      }
+     }
+
     var arr_excel = [];
     
     if (props.table_name==='criterion_gr')  
@@ -722,7 +733,8 @@ const DataTableExpScenario = (props) => {
     else
       arr_excel= t.map(({title, name_rus, name_eng, descr_rus, descr_eng, parent_name}) => ({title, name_rus, name_eng, parent_name, descr_rus, descr_eng}));
 
-    arr_excel = JSON.parse(JSON.stringify(arr_excel).replace(/\:null/gi, "\:\"\"")); 
+    //arr_excel = JSON.parse(JSON.stringify(arr_excel).replace(/\:null/gi, "\:\"\"")); 
+    arr_excel = JSON.parse( JSON.stringify(arr_excel, replacer) );
 
     return(arr_excel);
   }
