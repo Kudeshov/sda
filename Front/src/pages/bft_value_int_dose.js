@@ -758,7 +758,53 @@ const BigTableValueIntDose = (props) => {
         </tbody></table>  
         <p></p>        
 
-        <table border = "0" cellSpacing="0" cellPadding="0"><tbody>
+
+
+        {!((!selDataSourceValues.length)||(!selDoseRatioValues)||(![8].includes(selDoseRatioValues.id)) ) && (
+            <td width={348}> 
+            <Autocomplete
+            size="small"
+            limitTags={7}
+            value={selLetLevelValues}
+            onChange={handleChangeLetLevel}
+            multiple
+  /*           disabled={ (!selDataSourceValues.length) 
+              ||
+              (!selDoseRatioValues) ||
+              (![8].includes(selDoseRatioValues.id)) 
+            } */
+            id="autocomplete-let_level"
+            options={tableLetLevel}
+            getOptionLabel={(option) => option.name_rus}
+            disableCloseOnSelect
+            renderOption={(props, option, { selected }) => (
+              <li {...props}>
+                <Checkbox size="small" icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected}/>
+                {option.name_rus}
+              </li>
+            )}
+            renderInput={(params) => (
+              <TextField {...params} label="Уровни ЛПЭ" placeholder="Уровни ЛПЭ" />
+            )}
+            />
+            </td>
+          )}
+          {!((!selDataSourceValues.length)||(!selDoseRatioValues)||(![8].includes(selDoseRatioValues.id)) ) && (
+            <td>
+              &nbsp;&nbsp;
+            </td>
+          )}
+          {!((!selDataSourceValues.length)||(!selDoseRatioValues)||(![8].includes(selDoseRatioValues.id)) ) && (
+            <td>        
+              <IconButton onClick={()=>setSelLetLevelValues(tableLetLevel)} color="primary" size="small" title="Выбрать все">
+              <SvgIcon fontSize="small" component={CheckDoubleIcon} inheritViewBox /></IconButton>
+            </td>
+          )}
+
+
+
+
+        <table border = "1" cellSpacing="0" cellPadding="0"><tbody>
           <tr>      
           <td width={348}>
           <Autocomplete
@@ -769,14 +815,7 @@ const BigTableValueIntDose = (props) => {
             id="autocomplete-irradiation"
             options={tableIrradiation.filter((row) => [2,6, 30319, 30316].includes(row.id)) }
             getOptionLabel={(option) => option.name_rus?option.name_rus:''} //?option.name_rus:'Выбор отсутствует'
-            /*getOptionLabel={(option) => option.title?option.title:'Выбор отсутствует'} 
-            disableCloseOnSelect
-             renderOption={(props, option, { selected }) => (
-              <li {...props}>
-                <Checkbox size="small" icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected}/>
-                {option.name_rus}
-              </li>
-            )} */
+
             renderInput={(params) => (
               <TextField {...params} label="Тип облучения" placeholder="Тип облучения" />
             )}
@@ -792,41 +831,49 @@ const BigTableValueIntDose = (props) => {
           <td>
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
           </td>
-          <td width={300}>      
-            <Autocomplete
-            size="small"
-            value={selSubstFormValues}
-            onChange={handleChangeSubstForm}
-            multiple
-            id="autocomplete-subst_form"
-            options={tableSubstForm}
-            disabled={  (!selDataSourceValues.length) ||  
-              (!selIrradiationValues) || (selIrradiationValues.id!==2)
-                //((selIrradiationValues.filter((row) => [2].includes(row.id))).length===0) 
-            }          
-            getOptionLabel={(option) => option.name_rus}
-            disableCloseOnSelect
-            renderOption={(props, option, { selected }) => (
-              <li {...props}>
-                <Checkbox size="small" icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected}/>
-                {option.name_rus}
-              </li>
-            )}
-            renderInput={(params) => (
-              <TextField {...params} label="Формы вещества" placeholder="Формы вещества" />
-            )}
-            />
-          </td>
+          {!( (!selDataSourceValues.length) || (!selIrradiationValues) || (selIrradiationValues.id!==2) ) && (
+            <td width={300}>      
+              <Autocomplete
+              size="small"
+              value={selSubstFormValues}
+              onChange={handleChangeSubstForm}
+              multiple
+              id="autocomplete-subst_form"
+              options={tableSubstForm}
+              disabled={  (!selDataSourceValues.length) ||  
+                (!selIrradiationValues) || (selIrradiationValues.id!==2)
+                  
+              }          
+              getOptionLabel={(option) => option.name_rus}
+              disableCloseOnSelect
+              renderOption={(props, option, { selected }) => (
+                <li {...props}>
+                  <Checkbox size="small" icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected}/>
+                  {option.name_rus}
+                </li>
+              )}
+              renderInput={(params) => (
+                <TextField {...params} label="Формы вещества" placeholder="Формы вещества" />
+              )}
+              />
+            </td>          
+          )}
+          {!( (!selDataSourceValues.length) || (!selIrradiationValues) || (selIrradiationValues.id!==2) ) && (
+          <>  
+          {!( (!selDataSourceValues.length) || (!selIrradiationValues) || (selIrradiationValues.id!==2) ) && (
           <td>
             &nbsp;&nbsp;
           </td>
+          )}
           <td>        
             <IconButton onClick={()=>setSelSubstFormValues(tableSubstForm)} color="primary" size="small" title="Выбрать все">
             <SvgIcon fontSize="small" component={CheckDoubleIcon} inheritViewBox /></IconButton>
           </td>
           <td>
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-          </td>
+          </td></>
+          )}
+          {!(   (!selDataSourceValues.length) ||  ((selSubstFormValues.filter((row) => [162].includes(row.id))).length===0) ) && (
           <td width={300}>      
             <Autocomplete
             size="small"
@@ -851,16 +898,25 @@ const BigTableValueIntDose = (props) => {
             )}
             />
           </td>
+          )}
+          
           <td>
+
             &nbsp;&nbsp;
           </td>
+          {!(   (!selDataSourceValues.length) ||  ((selSubstFormValues.filter((row) => [162].includes(row.id))).length===0) ) && (
+            
           <td>        
             <IconButton onClick={()=>setSelAerosolSolValues(tableAerosolSol)} color="primary" size="small" title="Выбрать все">
             <SvgIcon fontSize="small" component={CheckDoubleIcon} inheritViewBox /></IconButton>
           </td>
+          )}
+          {!(   (!selDataSourceValues.length) ||  ((selSubstFormValues.filter((row) => [162].includes(row.id))).length===0) ) && (
           <td>
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
           </td>
+          )}
+          {!(   (!selDataSourceValues.length) ||  ((selSubstFormValues.filter((row) => [162].includes(row.id))).length===0)  ) && (
           <td width={300}>      
             <Autocomplete
             size="small"
@@ -886,18 +942,21 @@ const BigTableValueIntDose = (props) => {
             )}
             />
           </td>
+          )}
+           {!(   (!selDataSourceValues.length) ||  ((selSubstFormValues.filter((row) => [162].includes(row.id))).length===0)  ) && (
           <td>
             &nbsp;&nbsp;
           </td>
-          <td>        
+           )}
+          {!(   (!selDataSourceValues.length) ||  ((selSubstFormValues.filter((row) => [162].includes(row.id))).length===0)  ) && (
+          <td> 
             <IconButton onClick={()=>setSelAerosolAMADValues(tableAerosolAMAD)} color="primary" size="small" title="Выбрать все">
             <SvgIcon fontSize="small" component={CheckDoubleIcon} inheritViewBox /></IconButton>
           </td>
+          )}
           </tr>
         </tbody></table>  
         <p></p>
-
-
         <table border = "0" cellSpacing="0" cellPadding="0"><tbody>
           <tr>      
           <td width={348}>
@@ -908,7 +967,8 @@ const BigTableValueIntDose = (props) => {
             multiple
             id="autocomplete-people_class"
             options={tablePeopleClass}
-            Запись классификатора с кодом ={(option) => option.name_rus}
+            Запись классификатора с кодом
+             getOptionLabel ={(option) => option.name_rus}
             disableCloseOnSelect
             renderOption={(props, option, { selected }) => (
               <li {...props}>
@@ -931,6 +991,7 @@ const BigTableValueIntDose = (props) => {
             <td>
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             </td>
+            {!(  (!selDataSourceValues.length) ||  ((selPeopleClassValues.filter((row) => [1].includes(row.id))).length===0) ) && (
           <td width={348}>      
             <Autocomplete
             size="small"
@@ -942,7 +1003,7 @@ const BigTableValueIntDose = (props) => {
               ((selPeopleClassValues.filter((row) => [1].includes(row.id))).length===0) 
             }              
             options={tableAgeGroup}
-            getOptionLabel={(option) => option.name_rus}
+            getOptionLabel ={(option) => option.name_rus}
             disableCloseOnSelect
             renderOption={(props, option, { selected }) => (
               <li {...props}>
@@ -955,13 +1016,21 @@ const BigTableValueIntDose = (props) => {
             )}
             />
           </td>
+            )}
+             {!(  (!selDataSourceValues.length) ||  
+              ((selPeopleClassValues.filter((row) => [1].includes(row.id))).length===0) ) && (
           <td>
             &nbsp;&nbsp;
           </td>
+              )}
+          {!(  (!selDataSourceValues.length) ||  
+              ((selPeopleClassValues.filter((row) => [1].includes(row.id))).length===0) ) && (
           <td>        
             <IconButton onClick={()=>setSelAgeGroupValues(tableAgeGroup)} color="primary" size="small" title="Выбрать все">
             <SvgIcon fontSize="small" component={CheckDoubleIcon} inheritViewBox /></IconButton>
           </td>
+              )}
+              {!((!selDataSourceValues.length) ||  ((selPeopleClassValues.filter((row) => [3,4].includes(row.id))).length===0)  ) && (
           <td width={348}>      
             <Autocomplete
             size="small"
@@ -973,7 +1042,7 @@ const BigTableValueIntDose = (props) => {
             disabled={ (!selDataSourceValues.length) ||  
               ((selPeopleClassValues.filter((row) => [3,4].includes(row.id))).length===0) 
             }              
-            getOptionLabel={(option) => option.name_rus}
+            getOptionLabel ={(option) => option.name_rus}
             disableCloseOnSelect
             renderOption={(props, option, { selected }) => (
               <li {...props}>
@@ -986,13 +1055,20 @@ const BigTableValueIntDose = (props) => {
             )}
             />
           </td>
+              )}
+                {!((!selDataSourceValues.length) ||  ((selPeopleClassValues.filter((row) => [3,4].includes(row.id))).length===0)  ) && (   
           <td>
             &nbsp;&nbsp;
           </td>
-          <td>        
+          )}
+          
+          
+              {!((!selDataSourceValues.length) ||  ((selPeopleClassValues.filter((row) => [3,4].includes(row.id))).length===0)  ) && (   
+          <td>     
             <IconButton onClick={()=>setSelExpScenarioValues(tableExpScenario)} color="primary" size="small" title="Выбрать все">
             <SvgIcon fontSize="small" component={CheckDoubleIcon} inheritViewBox /></IconButton>
           </td>
+              )}
           </tr>
           </tbody>
         </table>  
