@@ -93,10 +93,10 @@ const BigTableValueIntDose = (props) => {
   const [openAlert, setOpenAlert] = React.useState(false, '');
   const [selDataSourceValues, setSelDataSourceValues] = useState([]);
   const [selOrganValues, setSelOrganValues] = useState([]);
-  const [selIrradiationValues, setSelIrradiationValues] = useState([]);
+  const [selIrradiationValue, setSelIrradiationValues] = useState();
   const [selIsotopeValues, setSelIsotopeValues] = useState([]);
   const [selIntegralPeriodValues, setSelIntegralPeriodValues] = useState([]);
-  const [selDoseRatioValues, setSelDoseRatioValues] = useState([]);
+  const [selDoseRatioValue, setSelDoseRatioValues] = useState();
   const [selLetLevelValues, setSelLetLevelValues] = useState([]);
   const [selAgeGroupValues, setSelAgeGroupValues] = useState([]);
   const [selSubstFormValues, setSelSubstFormValues] = useState([]);
@@ -109,6 +109,7 @@ const BigTableValueIntDose = (props) => {
   const [tableDataSource, setTableDataSource] = useState([]); 
   const [tableOrgan, setTableOrgan] = useState([]);
   const [tableIrradiation, setTableIrradiation] = useState([]);  
+  const [tableIrradiationFiltered, setTableIrradiationFiltered] = useState([]);  
   const [tableIsotope, setTableIsotope] = useState([]);
   const [tableIntegralPeriod, setTableIntegralPeriod] = useState([]);
   const [tableDoseRatio, setTableDoseRatio] = useState([]);
@@ -120,6 +121,7 @@ const BigTableValueIntDose = (props) => {
   const [tableAerosolAMAD, setTableAerosolAMAD] = useState([]); //АМАД аэрозолей
   const [tableExpScenario, setTableExpScenario] = useState([]); //Сценарии поступления
   const [tablePeopleClass, setTablePeopleClass] = useState([]); //Типы облучаемых лиц
+  const [tablePeopleClassFiltered, setTablePeopleClassFiltered] = useState([]); //Типы облучаемых лиц - фильтр по
   const [tableValueIntDose, setTableValueIntDose] = useState([]); 
   const [selectionModel, setSelectionModel] = React.useState([]);
   const [tableDataSourceClass, setTableDataSourceClass] = useState([]);
@@ -132,31 +134,43 @@ const BigTableValueIntDose = (props) => {
   };
   
   useEffect(() => {
-
-    //function uniqueFilter(value, index, self) {
-    //  return self.indexOf(value) === index;
-    //}
-    console.log("-гавно-");
+    //взяли айди выбранных источников данных
     var ids = selDataSourceValues.map(item => item.id);
-    console.log('Выбранные источники данных '+ids);
-
     var ids_dose_ratio = tableDataSourceClass.filter(item => ((item.table_name === 'dose_ratio' )&&(ids.includes(item.data_source_id))) ).map(item => item.rec_id);
-    console.log('Соответствующие параметры ');
-    console.log(ids_dose_ratio);
+    let filteredDoseRatio = tableDoseRatio.filter(item => ((ids_dose_ratio.includes(item.id))) );
+    setTableDoseRatioFiltered( filteredDoseRatio ); 
+    // если отфильтрованная таблица DoseRatio содержит значение, выбранное в выпадающем списке
+    if ((filteredDoseRatio&&selDoseRatioValue)&&(!filteredDoseRatio.some(item => item.id === selDoseRatioValue.id) )) setSelDoseRatioValues(null);
 
-    console.log('Фильтрованная таблица параметров ');
-    console.log(tableDoseRatio.filter(item => ((ids_dose_ratio.includes(item.id))) ) );    
-    setTableDoseRatioFiltered( tableDoseRatio.filter(item => ((ids_dose_ratio.includes(item.id))) ) ); 
-    //console.log( tableDataSourceClass.filter(item => ((item.table_name === 'dose_ratio' )&&(ids.includes(item.data_source_id))) ));
+    var ids_irradiation = tableDataSourceClass.filter(item => ((item.table_name === 'irradiation' )&&(ids.includes(item.data_source_id))) ).map(item => item.rec_id);
+    let filteredIrradiation = tableIrradiation.filter(item => ((ids_irradiation.includes(item.id))) );
+    setTableIrradiationFiltered( filteredIrradiation ); 
+    if ((filteredIrradiation&&selIrradiationValue)&&(!filteredIrradiation.some(item => item.id === selIrradiationValue.id) )) setSelIrradiationValues(null);
 
-    //console.log( tableDataSourceClass.filter(item => (item.table_name === 'dose_ratio' )).map(item => item.rec_id).filter(uniqueFilter) );
-    //setTableDataSourceClassFiltered(tableDataSourceClass.filter);
-  }, [selDataSourceValues, tableDataSourceClass, tableDoseRatio]);
+    var ids_people_class = tableDataSourceClass.filter(item => ((item.table_name === 'people_class' )&&(ids.includes(item.data_source_id))) ).map(item => item.rec_id);
+    let filteredPeopleClass = tablePeopleClass.filter(item => ((ids_people_class.includes(item.id))) );
+    setTablePeopleClassFiltered( filteredPeopleClass ); 
 
-  
+  }, [selDataSourceValues, tableDataSourceClass, 
+      tableDoseRatio, selDoseRatioValue, 
+      tableIrradiation, selIrradiationValue,
+      tablePeopleClass 
+    ]);
+
+  useEffect(() => {
+    setSelPeopleClassValues((prevValues) => {
+      // Фильтруем значения в prevValues, чтобы оставить только те,
+      // которые есть в tablePeopleClassFiltered
+      return prevValues.filter((val) =>
+        tablePeopleClassFiltered.find((opt) => opt.id === val.id)
+      );
+    });
+  }, [tablePeopleClassFiltered]);      
 
 
   const handleChangeDoseRatio = (event, value) => {
+    console.log('handleChangeDoseRatio');
+    console.log(value);
     setSelDoseRatioValues(value);
   };
 
@@ -212,7 +226,7 @@ const BigTableValueIntDose = (props) => {
   
   const handleChangePeopleClass = (event, value) => {
     setSelPeopleClassValues(value);
-    console.log(value);
+    //console.log(value);
   };  
 
   const [openEdit, setOpenEdit] = React.useState(false);
@@ -418,7 +432,7 @@ const BigTableValueIntDose = (props) => {
       .then((data) => setTablePeopleClass(data)); 
   }, [props.table_name])
 
-  const reloadDataAlert =  async () => {
+  const reloadDataHandler =  async () => {
     alertSeverity = "info";
     alertText =  'Данные успешно обновлены';
     try 
@@ -449,13 +463,13 @@ const BigTableValueIntDose = (props) => {
       console.log('idsDS = '+idsDS);  
       const  idsOrgan =  selOrganValues.map(item => item.id).join(',');
       console.log('idsOrgan = '+idsOrgan);  
-      const  idsIrradiation =  selIrradiationValues.map(item => item.id).join(',');
+      const  idsIrradiation = selIrradiationValue?[selIrradiationValue.id]:[]; //selIrradiationValue.map(item => item.id).join(',');
       console.log('idsIrradiation = '+idsIrradiation);        
       const  idsIsotope =  selIsotopeValues.map(item => item.id).join(',');
       console.log('idsIsotope = '+idsIsotope);  
       const  idsIntegralPeriod =  selIntegralPeriodValues.map(item => item.id).join(',');
       console.log('idsIntegralPeriod = '+idsIntegralPeriod);  
-      const  idsDoseRatio =  selDoseRatioValues.map(item => item.id).join(',');
+      const  idsDoseRatio =  selDoseRatioValue?[selDoseRatioValue.id]:[]; //map(item => item.id).join(',');
       console.log('idsDoseRatio = '+idsDoseRatio);  
       const  idsLetLevel =  selLetLevelValues.map(item => item.id).join(',');
       console.log('idsLetLevel = '+idsLetLevel);  
@@ -592,6 +606,26 @@ const BigTableValueIntDose = (props) => {
   }, [pageState.pageSize, pageState.page]); */
 
 
+  function GetFilterCaption() {
+    //console.log('MyFilterCaption');
+
+    console.log(selDataSourceValues);
+    return (
+      <>
+        {selDataSourceValues.length > 0 ? 
+          (<Typography>Источники данных: {selDataSourceValues.map(value => value.title).join(', ')}</Typography>) : ''}
+        {selDoseRatioValue&&selDoseRatioValue.title? (
+          <Typography>Параметр: {selDoseRatioValue.title}</Typography>) : '' }
+        {!((!selDataSourceValues.length)||(!selDoseRatioValue)||(![2, 8].includes(selDoseRatioValue.id)))&&(selOrganValues.length > 0) ? 
+          (<Typography>Органы и ткани: {selOrganValues.map(value => value.name_rus).join(', ')}</Typography>) : ''}
+        {!((!selDataSourceValues.length)||(!selDoseRatioValue)||(![8].includes(selDoseRatioValue.id)))&&(selLetLevelValues.length > 0) ? 
+          (<Typography>Уровни ЛПЭ: {selLetLevelValues.map(value => value.name_rus).join(', ')}</Typography>) : ''}
+        {selIrradiationValue&&selIrradiationValue.name_rus? (
+          <Typography>Тип облучения: {selIrradiationValue.name_rus}</Typography>) : '' }
+      </>
+    );
+  }
+
   const formRef = React.useRef();
   return (
     <div /* style={{ height: 640, width: 1500 }} */>
@@ -602,7 +636,8 @@ const BigTableValueIntDose = (props) => {
           aria-controls="panel1a-content"
           id="panel1a-header"
         >
-          <Typography>Фильтр</Typography>
+          <Typography>Фильтры {GetFilterCaption()}</Typography>
+
         </AccordionSummary>
         <AccordionDetails>
         <table border = "0" cellSpacing="0" cellPadding="0"><tbody>
@@ -645,13 +680,13 @@ const BigTableValueIntDose = (props) => {
           <td width={348}>      
           <Autocomplete
             size="small"  
-            value={selDoseRatioValues||[]}
+            value={selDoseRatioValue||[]}
             onChange={handleChangeDoseRatio}
             id="autocomplete-dose_ratio"
             options={ tableDoseRatioFiltered.filter((row) => [1, 2, 8].includes(row.id)) }
             getOptionLabel={(option) => option.title?option.title:''} //?option.title:'Выбор отсутствует'
             renderInput={(params) => (
-              <TextField {...params} label="Параметры" placeholder="Параметры" />
+              <TextField {...params} label="Параметр" placeholder="Параметр" />
             )}
           />
           </td>
@@ -667,7 +702,7 @@ const BigTableValueIntDose = (props) => {
           </td>
 
 
-          {!((!selDataSourceValues.length)||(!selDoseRatioValues)||(![2, 8].includes(selDoseRatioValues.id)))&&(    
+          {!((!selDataSourceValues.length)||(!selDoseRatioValue)||(![2, 8].includes(selDoseRatioValue.id)))&&(    
             <td width={548}>      
             <Autocomplete
             size="small"
@@ -696,25 +731,25 @@ const BigTableValueIntDose = (props) => {
             /> 
             </td>
           )}
-          {!((!selDataSourceValues.length)||(!selDoseRatioValues)||(![2, 8].includes(selDoseRatioValues.id)))&&(    
+          {!((!selDataSourceValues.length)||(!selDoseRatioValue)||(![2, 8].includes(selDoseRatioValue.id)))&&(    
             <td>
               &nbsp;&nbsp;
             </td>
           )}
-          {!((!selDataSourceValues.length)||(!selDoseRatioValues)||(![2, 8].includes(selDoseRatioValues.id)))&&(    
+          {!((!selDataSourceValues.length)||(!selDoseRatioValue)||(![2, 8].includes(selDoseRatioValue.id)))&&(    
             <td>        
               <IconButton onClick={()=>setSelOrganValues(tableOrgan)} color="primary" size="small" title="Выбрать все">
               <SvgIcon fontSize="small" component={CheckDoubleIcon} inheritViewBox /></IconButton>
             </td>
           )}
-          {!((!selDataSourceValues.length)||(!selDoseRatioValues)||(![2, 8].includes(selDoseRatioValues.id)))&&(    
+          {!((!selDataSourceValues.length)||(!selDoseRatioValue)||(![2, 8].includes(selDoseRatioValue.id)))&&(    
             <td>
               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             </td>
           )}
           
 {/* --------------------------------------------------------------------------------------------------------------- */}
-          {!((!selDataSourceValues.length)||(!selDoseRatioValues)||(![8].includes(selDoseRatioValues.id)) ) && (
+          {!((!selDataSourceValues.length)||(!selDoseRatioValue)||(![8].includes(selDoseRatioValue.id)) ) && (
             <td width={348}> 
             <Autocomplete
             size="small"
@@ -722,11 +757,6 @@ const BigTableValueIntDose = (props) => {
             value={selLetLevelValues}
             onChange={handleChangeLetLevel}
             multiple
-  /*           disabled={ (!selDataSourceValues.length) 
-              ||
-              (!selDoseRatioValues) ||
-              (![8].includes(selDoseRatioValues.id)) 
-            } */
             id="autocomplete-let_level"
             options={tableLetLevel}
             getOptionLabel={(option) => option.name_rus}
@@ -743,12 +773,12 @@ const BigTableValueIntDose = (props) => {
             />
             </td>
           )}
-          {!((!selDataSourceValues.length)||(!selDoseRatioValues)||(![8].includes(selDoseRatioValues.id)) ) && (
+          {!((!selDataSourceValues.length)||(!selDoseRatioValue)||(![8].includes(selDoseRatioValue.id)) ) && (
             <td>
               &nbsp;&nbsp;
             </td>
           )}
-          {!((!selDataSourceValues.length)||(!selDoseRatioValues)||(![8].includes(selDoseRatioValues.id)) ) && (
+          {!((!selDataSourceValues.length)||(!selDoseRatioValue)||(![8].includes(selDoseRatioValue.id)) ) && (
             <td>        
               <IconButton onClick={()=>setSelLetLevelValues(tableLetLevel)} color="primary" size="small" title="Выбрать все">
               <SvgIcon fontSize="small" component={CheckDoubleIcon} inheritViewBox /></IconButton>
@@ -763,20 +793,12 @@ const BigTableValueIntDose = (props) => {
           <td width={348}>
           <Autocomplete
             size="small"
-            value={selIrradiationValues||[]}
+            value={selIrradiationValue||[]}
             onChange={handleChangeIrradiation}
             //multiple
             id="autocomplete-irradiation"
-            options={tableIrradiation.filter((row) => [2,6, 30319, 30316].includes(row.id)) }
-            getOptionLabel={(option) => option.name_rus?option.name_rus:''} //?option.name_rus:'Выбор отсутствует'
-            /*getOptionLabel={(option) => option.title?option.title:'Выбор отсутствует'} 
-            disableCloseOnSelect
-             renderOption={(props, option, { selected }) => (
-              <li {...props}>
-                <Checkbox size="small" icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected}/>
-                {option.name_rus}
-              </li>
-            )} */
+            options={tableIrradiationFiltered.filter((row) => [2,6, 30319, 30316].includes(row.id)) }
+            getOptionLabel={(option) => option.name_rus?option.name_rus:''}  
             renderInput={(params) => (
               <TextField {...params} label="Тип облучения" placeholder="Тип облучения" />
             )}
@@ -786,7 +808,7 @@ const BigTableValueIntDose = (props) => {
             &nbsp;&nbsp;
           </td>
           <td>        
-            <IconButton onClick={()=>setSelIrradiationValues(tableIrradiation.filter((row) => [2,6, 30319, 30316].includes(row.id)))} color="primary" size="small" title="Выбрать все">
+            <IconButton onClick={()=>setSelIrradiationValues(tableIrradiationFiltered.filter((row) => [2,6, 30319, 30316].includes(row.id)))} color="primary" size="small" title="Выбрать все">
             <SvgIcon fontSize="small" component={CheckDoubleIcon} inheritViewBox /></IconButton>
           </td>
           <td>
@@ -801,7 +823,7 @@ const BigTableValueIntDose = (props) => {
             id="autocomplete-subst_form"
             options={tableSubstForm}
             disabled={  (!selDataSourceValues.length) ||  
-              (!selIrradiationValues) || (selIrradiationValues.id!==2)
+              (!selIrradiationValue) || (selIrradiationValue.id!==2)
                 //((selIrradiationValues.filter((row) => [2].includes(row.id))).length===0) 
             }          
             getOptionLabel={(option) => option.name_rus}
@@ -897,7 +919,6 @@ const BigTableValueIntDose = (props) => {
         </tbody></table>  
         <p></p>
 
-
         <table border = "0" cellSpacing="0" cellPadding="0"><tbody>
           <tr>      
           <td width={348}>
@@ -907,8 +928,8 @@ const BigTableValueIntDose = (props) => {
             onChange={handleChangePeopleClass}
             multiple
             id="autocomplete-people_class"
-            options={tablePeopleClass}
-            Запись классификатора с кодом ={(option) => option.name_rus}
+            options={tablePeopleClassFiltered}
+            getOptionLabel ={(option) => option.name_rus}
             disableCloseOnSelect
             renderOption={(props, option, { selected }) => (
               <li {...props}>
@@ -925,7 +946,7 @@ const BigTableValueIntDose = (props) => {
               &nbsp;&nbsp;
             </td>
             <td>        
-              <IconButton onClick={()=>setSelPeopleClassValues(tablePeopleClass)} color="primary" size="small" title="Выбрать все">
+              <IconButton onClick={()=>setSelPeopleClassValues(tablePeopleClassFiltered)} color="primary" size="small" title="Выбрать все">
               <SvgIcon fontSize="small" component={CheckDoubleIcon} inheritViewBox /></IconButton>
             </td>
             <td>
@@ -1067,7 +1088,7 @@ const BigTableValueIntDose = (props) => {
         </table>
         <p></p>  
 
-        <IconButton onClick={()=>reloadDataAlert()} color="primary" size="small" title="Получить данные">
+        <IconButton onClick={()=>reloadDataHandler()} color="primary" size="small" title="Получить данные">
           <SvgIcon fontSize="small" component={ArrowAltDownIcon} inheritViewBox /></IconButton>
 
         </AccordionDetails>
