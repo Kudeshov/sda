@@ -96,7 +96,7 @@ const BigTableValueIntDose = (props) => {
   const [selIrradiationValue, setSelIrradiationValue] = useState(null);
   const [selIsotopeValues, setSelIsotopeValues] = useState([]);
   const [selIntegralPeriodValues, setSelIntegralPeriodValues] = useState([]);
-  const [selDoseRatioValue, setSelDoseRatioValues] = useState(null);
+  const [selDoseRatioValue, setSelDoseRatioValue] = useState(null);
   const [selLetLevelValues, setSelLetLevelValues] = useState([]);
   const [selAgeGroupValues, setSelAgeGroupValues] = useState([]);
   const [selSubstFormValues, setSelSubstFormValues] = useState([]);
@@ -140,7 +140,7 @@ const BigTableValueIntDose = (props) => {
     let filteredDoseRatio = tableDoseRatio.filter(item => ((ids_dose_ratio.includes(item.id))) );
     setTableDoseRatioFiltered( filteredDoseRatio ); 
     // если отфильтрованная таблица DoseRatio содержит значение, выбранное в выпадающем списке
-    if ((filteredDoseRatio&&selDoseRatioValue)&&(!filteredDoseRatio.some(item => item.id === selDoseRatioValue.id) )) setSelDoseRatioValues(null);
+    if ((filteredDoseRatio&&selDoseRatioValue)&&(!filteredDoseRatio.some(item => item.id === selDoseRatioValue.id) )) setSelDoseRatioValue(null);
 
     var ids_irradiation = tableDataSourceClass.filter(item => ((item.table_name === 'irradiation' )&&(ids.includes(item.data_source_id))) ).map(item => item.rec_id);
     let filteredIrradiation = tableIrradiation.filter(item => ((ids_irradiation.includes(item.id))) );
@@ -171,7 +171,7 @@ const BigTableValueIntDose = (props) => {
   const handleChangeDoseRatio = (event, value) => {
     //console.log('handleChangeDoseRatio');
     //console.log(value);
-    setSelDoseRatioValues(value);
+    setSelDoseRatioValue(value);
   };
 
   const handleChangeOrgan = (event, value) => {
@@ -454,9 +454,9 @@ const BigTableValueIntDose = (props) => {
     setIsLoading(true);
     try {
       //console.log(selDataSourceValues);
-      var ds_id = 0;
-      if (selDataSourceValues.length)
-        ds_id = selDataSourceValues[0].id;
+      //var ds_id = 0;
+      //if (selDataSourceValues.length)
+      //  ds_id = selDataSourceValues[0].id;
       //console.log(ds_id);  
 
       const  idsDS =  selDataSourceValues.map(item => item.id).join(',');
@@ -606,23 +606,49 @@ const BigTableValueIntDose = (props) => {
   }, [pageState.pageSize, pageState.page]); */
 
 
-  function GetFilterCaption() {
+  function GetFilterCaption() { //формирование заголовка выбранных фильтров
     //console.log('MyFilterCaption');
-
+    //console.log(selPeopleClassValues); 
     //console.log(selDataSourceValues);
     return (
       <>
- {/*       {selDataSourceValues.length > 0 ? 
-          (<Typography>Источники данных: {selDataSourceValues.map(value => value.title).join(', ')}</Typography>) : ''}
-         {selDoseRatioValue&&selDoseRatioValue.title? (
-          <Typography>Параметр: {selDoseRatioValue.title}</Typography>) : '' }
+        {selDataSourceValues.length > 0 ? (<div>Источники данных: {selDataSourceValues.map(value => value.title).join(', ')}<br /></div>) : ''}
+
+        {selDoseRatioValue&&selDoseRatioValue.title? (<div>Параметр: {selDoseRatioValue.title}<br /></div>) : '' }
+
         {!((!selDataSourceValues.length)||(!selDoseRatioValue)||(![2, 8].includes(selDoseRatioValue.id)))&&(selOrganValues.length > 0) ? 
-          (<Typography>Органы и ткани: {selOrganValues.map(value => value.name_rus).join(', ')}</Typography>) : ''}
+          (<div>Органы и ткани: {selOrganValues.map(value => value.name_rus).join(', ')}<br /></div>) : ''}
+
         {!((!selDataSourceValues.length)||(!selDoseRatioValue)||(![8].includes(selDoseRatioValue.id)))&&(selLetLevelValues.length > 0) ? 
-          (<Typography>Уровни ЛПЭ: {selLetLevelValues.map(value => value.name_rus).join(', ')}</Typography>) : ''}
-        {selIrradiationValue&&selIrradiationValue.name_rus? (
-          <Typography>Тип облучения: {selIrradiationValue.name_rus}</Typography>) : '' } */}
-      </>
+          (<div>Уровни ЛПЭ: {selLetLevelValues.map(value => value.name_rus).join(', ')}<br /></div>) : ''}
+
+        {selIrradiationValue&&selIrradiationValue.name_rus? (<div>Тип облучения: {selIrradiationValue.name_rus}<br /></div>) : '' }
+
+        {!((!selDataSourceValues.length) || (!selIrradiationValue) || (selIrradiationValue.id!==2))&&(selSubstFormValues.length > 0) ? 
+          (<div>Формы вещества: {selSubstFormValues.map(value => value.name_rus).join(', ')}<br /></div>) : ''}
+
+        {!((!selDataSourceValues.length) || (!selIrradiationValue) || (selIrradiationValue.id!==2))&&
+         !((selSubstFormValues.filter((row) => [162].includes(row.id))).length===0)&& 
+          (selAerosolSolValues.length > 0) ? 
+          (<div>Типы растворимости аэрозолей: {selAerosolSolValues.map(value => value.name_rus).join(', ')}<br /></div>) : ''}
+
+        {!((!selDataSourceValues.length) || (!selIrradiationValue) || (selIrradiationValue.id!==2))&&
+         !((selSubstFormValues.filter((row) => [162].includes(row.id))).length===0)&& 
+          (selAerosolAMADValues.length > 0) ? 
+          (<div>AMAD аэрозолей: {selAerosolAMADValues.map(value => value.name_rus).join(', ')}<br /></div>) : ''}
+
+        {selPeopleClassValues.length > 0? (<div>Типы облучаемых лиц: {selPeopleClassValues.map(value => value.name_rus).join(', ')}<br /></div>) : '' }
+       
+        {!( (!selDataSourceValues.length) || ((selPeopleClassValues.filter((row) => [1].includes(row.id))).length===0) )&&
+        (selAgeGroupValues.length > 0)? (<div>Возрастные группы населения: {selAgeGroupValues.map(value => value.name_rus).join(', ')}<br /></div>) : '' }
+ 
+        {!( (!selDataSourceValues.length) || ((selPeopleClassValues.filter((row) => [3,4].includes(row.id))).length===0) )&&
+        (selExpScenarioValues.length > 0)? (<div>Сценарии поступления: {selExpScenarioValues.map(value => value.name_rus).join(', ')}<br /></div>) : '' }
+
+        {selIsotopeValues.length > 0? (<div>Нуклиды: {selIsotopeValues.map(value => value.title).join(', ')}<br /></div>) : '' }
+ 
+        {selIntegralPeriodValues.length > 0? (<div>Периоды интегрирования: {selIntegralPeriodValues.map(value => value.name_rus).join(', ')}<br /></div>) : '' }
+      </>  
     );
   }
 
@@ -636,8 +662,8 @@ const BigTableValueIntDose = (props) => {
           aria-controls="panel1a-content"
           id="panel1a-header"
         >
-          <Typography>Фильтры {GetFilterCaption()}</Typography>
-
+          <Typography>Фильтры {GetFilterCaption()}</Typography> 
+ 
         </AccordionSummary>
         <AccordionDetails>
         <table border = "0" cellSpacing="0" cellPadding="0"><tbody>
@@ -696,7 +722,7 @@ const BigTableValueIntDose = (props) => {
             &nbsp;&nbsp;
           </td>
           <td>        
-            <IconButton onClick={()=>setSelDoseRatioValues(tableDoseRatioFiltered.filter((row) => [1, 2, 8].includes(row.id)))} color="primary" size="small" title="Выбрать все">
+            <IconButton onClick={()=>setSelDoseRatioValue(tableDoseRatioFiltered.filter((row) => [1, 2, 8].includes(row.id)))} color="primary" size="small" title="Выбрать все">
             <SvgIcon fontSize="small" component={CheckDoubleIcon} inheritViewBox /></IconButton>
           </td>
           <td>
@@ -772,6 +798,7 @@ const BigTableValueIntDose = (props) => {
             />  
             </td>
           )}
+
           {!((!selDataSourceValues.length)||(!selDoseRatioValue)||(![8].includes(selDoseRatioValue.id)) ) && (
             <td>
               &nbsp;&nbsp;
@@ -785,9 +812,8 @@ const BigTableValueIntDose = (props) => {
           )}
           </tr>
         </tbody></table>  
-        <p></p>        
 
-
+        <p>{/* Тип облучения */}</p>        
 
         <table border = "0" cellSpacing="0" cellPadding="0"><tbody>
           <tr>      
@@ -815,42 +841,46 @@ const BigTableValueIntDose = (props) => {
           <td>
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
           </td>
-          <td width={300}>      
-            <Autocomplete
-            size="small"
-            value={selSubstFormValues}
-            isOptionEqualToValue={(option, value) => option.id === value.id}
-            onChange={handleChangeSubstForm}
-            multiple
-            id="autocomplete-subst_form"
-            options={tableSubstForm}
-            disabled={  (!selDataSourceValues.length) ||  
-              (!selIrradiationValue) || (selIrradiationValue.id!==2)
-                //((selIrradiationValues.filter((row) => [2].includes(row.id))).length===0) 
-            }          
-            getOptionLabel={(option) => option.name_rus}
-            disableCloseOnSelect
-            renderOption={(props, option, { selected }) => (
-              <li {...props}>
-                <Checkbox size="small" icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected}/>
-                {option.name_rus}
-              </li>
-            )}
-            renderInput={(params) => (
-              <TextField {...params} label="Формы вещества" placeholder="Формы вещества" />
-            )}
-            />
-          </td>
-          <td>
-            &nbsp;&nbsp;
-          </td>
-          <td>        
-            <IconButton onClick={()=>setSelSubstFormValues(tableSubstForm)} color="primary" size="small" title="Выбрать все">
-            <SvgIcon fontSize="small" component={CheckDoubleIcon} inheritViewBox /></IconButton>
-          </td>
-          <td>
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-          </td>
+
+          {!( (!selDataSourceValues.length) || (!selIrradiationValue) || (selIrradiationValue.id!==2) ) && (
+            /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            <> 
+            
+            <td width={300}>      
+              <Autocomplete
+              size="small"
+              value={selSubstFormValues}
+              onChange={handleChangeSubstForm}
+              multiple
+              id="autocomplete-subst_form"
+              options={tableSubstForm}
+              disabled={  (!selDataSourceValues.length) || (!selIrradiationValue) || (selIrradiationValue.id!==2)}          
+              getOptionLabel={(option) => option.name_rus}
+              disableCloseOnSelect
+              renderOption={(props, option, { selected }) => (
+                <li {...props}>
+                  <Checkbox size="small" icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected}/>
+                  {option.name_rus}
+                </li>
+              )}
+              renderInput={(params) => (
+                <TextField {...params} label="Формы вещества" placeholder="Формы вещества" />
+              )}
+              />
+            </td>          
+            <td>
+              &nbsp;&nbsp;
+            </td>
+            <td>        
+              <IconButton onClick={()=>setSelSubstFormValues(tableSubstForm)} color="primary" size="small" title="Выбрать все">
+              <SvgIcon fontSize="small" component={CheckDoubleIcon} inheritViewBox /></IconButton>
+            </td>
+            <td>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </td>
+
+          {!( (!selDataSourceValues.length) ||  ((selSubstFormValues.filter((row) => [162].includes(row.id))).length===0) ) && (
+          <>  
           <td width={300}>      
             <Autocomplete
             size="small"
@@ -915,15 +945,22 @@ const BigTableValueIntDose = (props) => {
           <td>
             &nbsp;&nbsp;
           </td>
-          <td>        
+          <td> 
             <IconButton onClick={()=>setSelAerosolAMADValues(tableAerosolAMAD)} color="primary" size="small" title="Выбрать все">
             <SvgIcon fontSize="small" component={CheckDoubleIcon} inheritViewBox /></IconButton>
           </td>
+
+          </> 
+          )} 
+          </> 
+          )} 
           </tr>
         </tbody></table>  
-        <p></p>
 
-         <table border = "0" cellSpacing="0" cellPadding="0"><tbody>
+
+        <p>{/* блок Типы облучаемых лиц */}</p>
+
+        <table border = "0" cellSpacing="0" cellPadding="0"><tbody>
           <tr>      
           <td width={348}>
             <Autocomplete
@@ -957,6 +994,9 @@ const BigTableValueIntDose = (props) => {
             <td>
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             </td>
+
+          {!( (!selDataSourceValues.length) || ((selPeopleClassValues.filter((row) => [1].includes(row.id))).length===0) ) && (
+          < >
           <td width={348}>      
             <Autocomplete
             size="small"
@@ -965,11 +1005,9 @@ const BigTableValueIntDose = (props) => {
             onChange={handleChangeAgeGroup}
             multiple
             id="autocomplete-age_group"
-            disabled={  (!selDataSourceValues.length) ||  
-              ((selPeopleClassValues.filter((row) => [1].includes(row.id))).length===0) 
-            }              
+            disabled={(!selDataSourceValues.length) || ((selPeopleClassValues.filter((row) => [1].includes(row.id))).length===0) }              
             options={tableAgeGroup}
-            getOptionLabel={(option) => option.name_rus}
+            getOptionLabel ={(option) => option.name_rus}
             disableCloseOnSelect
             renderOption={(props, option, { selected }) => (
               <li {...props}>
@@ -989,6 +1027,13 @@ const BigTableValueIntDose = (props) => {
             <IconButton onClick={()=>setSelAgeGroupValues(tableAgeGroup)} color="primary" size="small" title="Выбрать все">
             <SvgIcon fontSize="small" component={CheckDoubleIcon} inheritViewBox /></IconButton>
           </td>
+          <td>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          </td>
+          </ >
+          )}
+
+          {!((!selDataSourceValues.length) || ((selPeopleClassValues.filter((row) => [3,4].includes(row.id))).length===0) ) && (
           <td width={348}>      
             <Autocomplete
             size="small"
@@ -998,10 +1043,8 @@ const BigTableValueIntDose = (props) => {
             multiple
             id="autocomplete-aerosol_amad"
             options={tableExpScenario}
-            disabled={ (!selDataSourceValues.length) ||  
-              ((selPeopleClassValues.filter((row) => [3,4].includes(row.id))).length===0) 
-            }              
-            getOptionLabel={(option) => option.name_rus}
+            disabled={ (!selDataSourceValues.length) || ((selPeopleClassValues.filter((row) => [3,4].includes(row.id))).length===0) }              
+            getOptionLabel ={(option) => option.name_rus}
             disableCloseOnSelect
             renderOption={(props, option, { selected }) => (
               <li {...props}>
@@ -1014,19 +1057,27 @@ const BigTableValueIntDose = (props) => {
             )}
             />
           </td>
+          )} 
+
+          {!((!selDataSourceValues.length) ||  ((selPeopleClassValues.filter((row) => [3,4].includes(row.id))).length===0)  ) && (   
           <td>
             &nbsp;&nbsp;
           </td>
-          <td>        
+          )}
+          
+          {!((!selDataSourceValues.length) ||  ((selPeopleClassValues.filter((row) => [3,4].includes(row.id))).length===0)  ) && (   
+          <td>     
             <IconButton onClick={()=>setSelExpScenarioValues(tableExpScenario)} color="primary" size="small" title="Выбрать все">
             <SvgIcon fontSize="small" component={CheckDoubleIcon} inheritViewBox /></IconButton>
           </td>
+          )}
+
+
           </tr>
           </tbody>
-        </table>  
-        <p></p>                           
+        </table> 
 
-
+        <p>{/* Блок Нуклиды ==== Периоды интегрирования */}</p>                           
         <table border = "0" cellSpacing="0" cellPadding="0"><tbody>
           <tr>      
           <td width={348}>
@@ -1192,7 +1243,7 @@ const BigTableValueIntDose = (props) => {
       <Dialog open={openEdit} onClose={handleCloseEditNo} fullWidth={false} maxWidth="800px">
       <DialogTitle>Редактировать запись {valueID}</DialogTitle>  
         <DialogContent style={{height:'480px', width: '700px'}}>
-{/*           <p></p>
+           <p></p>
           <table border = "0" cellSpacing="0" cellPadding="0"><tbody><tr>
           <td>
           <div style={{width: '320px'}}><Autocomplete
@@ -1297,7 +1348,7 @@ const BigTableValueIntDose = (props) => {
             value={valueDrValue || ''}
             fullWidth
             onChange={e => setValueDrValue(e.target.value)}
-          />      */}   
+          />          
           </DialogContent>
         <DialogActions>
           <Button variant="outlined" onClick={handleCloseEditNo}>Отмена</Button>
