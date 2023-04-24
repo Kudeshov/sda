@@ -93,10 +93,10 @@ const BigTableValueIntDose = (props) => {
   const [openAlert, setOpenAlert] = React.useState(false, '');
   const [selDataSourceValues, setSelDataSourceValues] = useState([]);
   const [selOrganValues, setSelOrganValues] = useState([]);
-  const [selIrradiationValue, setSelIrradiationValues] = useState();
+  const [selIrradiationValue, setSelIrradiationValue] = useState(null);
   const [selIsotopeValues, setSelIsotopeValues] = useState([]);
   const [selIntegralPeriodValues, setSelIntegralPeriodValues] = useState([]);
-  const [selDoseRatioValue, setSelDoseRatioValues] = useState();
+  const [selDoseRatioValue, setSelDoseRatioValue] = useState(null);
   const [selLetLevelValues, setSelLetLevelValues] = useState([]);
   const [selAgeGroupValues, setSelAgeGroupValues] = useState([]);
   const [selSubstFormValues, setSelSubstFormValues] = useState([]);
@@ -128,8 +128,8 @@ const BigTableValueIntDose = (props) => {
   //const [tableDataSourceClassFiltered, setTableDataSourceClassFiltered] = useState([]);
 
   const handleChangeDataSource = (event, value) => {
-    console.log('handleChangeDataSource');
-    console.log(value);
+    //console.log('handleChangeDataSource');
+    //console.log(value);
     setSelDataSourceValues(value);
   };
   
@@ -140,12 +140,12 @@ const BigTableValueIntDose = (props) => {
     let filteredDoseRatio = tableDoseRatio.filter(item => ((ids_dose_ratio.includes(item.id))) );
     setTableDoseRatioFiltered( filteredDoseRatio ); 
     // если отфильтрованная таблица DoseRatio содержит значение, выбранное в выпадающем списке
-    if ((filteredDoseRatio&&selDoseRatioValue)&&(!filteredDoseRatio.some(item => item.id === selDoseRatioValue.id) )) setSelDoseRatioValues(null);
+    if ((filteredDoseRatio&&selDoseRatioValue)&&(!filteredDoseRatio.some(item => item.id === selDoseRatioValue.id) )) setSelDoseRatioValue(null);
 
     var ids_irradiation = tableDataSourceClass.filter(item => ((item.table_name === 'irradiation' )&&(ids.includes(item.data_source_id))) ).map(item => item.rec_id);
     let filteredIrradiation = tableIrradiation.filter(item => ((ids_irradiation.includes(item.id))) );
     setTableIrradiationFiltered( filteredIrradiation ); 
-    if ((filteredIrradiation&&selIrradiationValue)&&(!filteredIrradiation.some(item => item.id === selIrradiationValue.id) )) setSelIrradiationValues(null);
+    if ((filteredIrradiation&&selIrradiationValue)&&(!filteredIrradiation.some(item => item.id === selIrradiationValue.id) )) setSelIrradiationValue(null);
 
     var ids_people_class = tableDataSourceClass.filter(item => ((item.table_name === 'people_class' )&&(ids.includes(item.data_source_id))) ).map(item => item.rec_id);
     let filteredPeopleClass = tablePeopleClass.filter(item => ((ids_people_class.includes(item.id))) );
@@ -169,59 +169,59 @@ const BigTableValueIntDose = (props) => {
 
 
   const handleChangeDoseRatio = (event, value) => {
-    console.log('handleChangeDoseRatio');
-    console.log(value);
-    setSelDoseRatioValues(value);
+    //console.log('handleChangeDoseRatio');
+    //console.log(value);
+    setSelDoseRatioValue(value);
   };
 
   const handleChangeOrgan = (event, value) => {
     setSelOrganValues(value);
-    console.log(value);
+    //console.log(value);
   };
 
   const handleChangeIrradiation = (event, value) => {
-    setSelIrradiationValues(value);
-    console.log(value);
+    setSelIrradiationValue(value);
+    //console.log(value);
   };
 
   const handleChangeIsotope = (event, value) => {
     setSelIsotopeValues(value);
-    console.log(value);
+    //console.log(value);
   };
 
   const handleChangeIntegralPeriod = (event, value) => {
     setSelIntegralPeriodValues(value);
-    console.log(value);
+    //console.log(value);
   };
 
   const handleChangeLetLevel = (event, value) => {
     setSelLetLevelValues(value);
-    console.log(value);
+    //console.log(value);
   };
   
   const handleChangeAgeGroup = (event, value) => {
     setSelAgeGroupValues(value);
-    console.log(value);
+    //console.log(value);
   }; 
 
   const handleChangeSubstForm = (event, value) => {
     setSelSubstFormValues(value);
-    console.log(value);
+    //console.log(value);
   };   
 
   const handleChangeAerosolSol = (event, value) => {
     setSelAerosolSolValues(value);
-    console.log(value);
+    //console.log(value);
   }; 
 
   const handleChangeAerosolAMAD = (event, value) => {
     setSelAerosolAMADValues(value);
-    console.log(value);
+    //console.log(value);
   };
   
   const handleChangeExpScenario = (event, value) => {
     setSelExpScenarioValues(value);
-    console.log(value);
+    //console.log(value);
   };     
   
   const handleChangePeopleClass = (event, value) => {
@@ -257,7 +257,7 @@ const BigTableValueIntDose = (props) => {
 
   const handleRowClick = (params) => {
     //setOpenAlert(false);
-    console.log( 'handleRowClick dose_ratio_id = '+params.row.dose_ratio_id);
+    //console.log( 'handleRowClick dose_ratio_id = '+params.row.dose_ratio_id);
     //if (editStarted&&(!isEmpty))
       setValueID(params.row.id);
       setValueDoseRatioID(params.row.dose_ratio_id);
@@ -453,38 +453,38 @@ const BigTableValueIntDose = (props) => {
   const reloadData = async () => {
     setIsLoading(true);
     try {
-      console.log(selDataSourceValues);
-      var ds_id = 0;
-      if (selDataSourceValues.length)
-        ds_id = selDataSourceValues[0].id;
-      console.log(ds_id);  
+      //console.log(selDataSourceValues);
+      //var ds_id = 0;
+      //if (selDataSourceValues.length)
+      //  ds_id = selDataSourceValues[0].id;
+      //console.log(ds_id);  
 
       const  idsDS =  selDataSourceValues.map(item => item.id).join(',');
-      console.log('idsDS = '+idsDS);  
+      ////console.log('idsDS = '+idsDS);  
       const  idsOrgan =  selOrganValues.map(item => item.id).join(',');
-      console.log('idsOrgan = '+idsOrgan);  
+      ////console.log('idsOrgan = '+idsOrgan);  
       const  idsIrradiation = selIrradiationValue?[selIrradiationValue.id]:[]; //selIrradiationValue.map(item => item.id).join(',');
-      console.log('idsIrradiation = '+idsIrradiation);        
+      //console.log('idsIrradiation = '+idsIrradiation);        
       const  idsIsotope =  selIsotopeValues.map(item => item.id).join(',');
-      console.log('idsIsotope = '+idsIsotope);  
+      //console.log('idsIsotope = '+idsIsotope);  
       const  idsIntegralPeriod =  selIntegralPeriodValues.map(item => item.id).join(',');
-      console.log('idsIntegralPeriod = '+idsIntegralPeriod);  
+      //console.log('idsIntegralPeriod = '+idsIntegralPeriod);  
       const  idsDoseRatio =  selDoseRatioValue?[selDoseRatioValue.id]:[]; //map(item => item.id).join(',');
-      console.log('idsDoseRatio = '+idsDoseRatio);  
+      //console.log('idsDoseRatio = '+idsDoseRatio);  
       const  idsLetLevel =  selLetLevelValues.map(item => item.id).join(',');
-      console.log('idsLetLevel = '+idsLetLevel);  
+      //console.log('idsLetLevel = '+idsLetLevel);  
       const  idsAgeGroup =  selAgeGroupValues.map(item => item.id).join(',');
-      console.log('idsAgeGroup = '+idsAgeGroup);  
+      //console.log('idsAgeGroup = '+idsAgeGroup);  
       const  idsSubstForm =  selSubstFormValues.map(item => item.id).join(',');
-      console.log('idsSubstForm = '+idsSubstForm);  
+      //console.log('idsSubstForm = '+idsSubstForm);  
       const  idsAerosolSol =  selAerosolSolValues.map(item => item.id).join(',');
-      console.log('idsAerosolSol = '+idsAerosolSol);  
+      //console.log('idsAerosolSol = '+idsAerosolSol);  
       const  idsAerosolAMAD =  selAerosolAMADValues.map(item => item.id).join(',');
-      console.log('idsAerosolAMAD = '+idsAerosolAMAD);  
+      //console.log('idsAerosolAMAD = '+idsAerosolAMAD);  
       const  idsExpScenario =  selExpScenarioValues.map(item => item.id).join(',');
-      console.log('idsExpScenario = '+idsExpScenario); 
+      //console.log('idsExpScenario = '+idsExpScenario); 
       const  idsPeopleClass =  selPeopleClassValues.map(item => item.id).join(',');
-      console.log('idsPeopleClass = '+idsPeopleClass); 
+      //console.log('idsPeopleClass = '+idsPeopleClass); 
 
       const response = await fetch(`/value_int_dose?data_source_id=`+idsDS+`&organ_id=`+idsOrgan+
       `&irradiation_id=`+idsIrradiation+`&isotope_id=`+idsIsotope+
@@ -506,7 +506,7 @@ const BigTableValueIntDose = (props) => {
         setTableValueIntDose(result);
       }
     } catch (err) {
-      //console.log('catch err');
+      ////console.log('catch err');
       throw err;
     } finally {
       setIsLoading(false);
@@ -514,7 +514,7 @@ const BigTableValueIntDose = (props) => {
   };
 
   useEffect(() => {
-    console.log("---");
+    //console.log("---");
     const fetchData = async () => {
       setPageState((old) => ({ ...old, isLoading: true }));
       // console.log("pageState:", pageState);
@@ -606,23 +606,49 @@ const BigTableValueIntDose = (props) => {
   }, [pageState.pageSize, pageState.page]); */
 
 
-  function GetFilterCaption() {
+  function GetFilterCaption() { //формирование заголовка выбранных фильтров
     //console.log('MyFilterCaption');
-
-    console.log(selDataSourceValues);
+    //console.log(selPeopleClassValues); 
+    //console.log(selDataSourceValues);
     return (
       <>
-        {selDataSourceValues.length > 0 ? 
-          (<Typography>Источники данных: {selDataSourceValues.map(value => value.title).join(', ')}</Typography>) : ''}
-        {selDoseRatioValue&&selDoseRatioValue.title? (
-          <Typography>Параметр: {selDoseRatioValue.title}</Typography>) : '' }
+        {selDataSourceValues.length > 0 ? (<div>Источники данных: {selDataSourceValues.map(value => value.title).join(', ')}<br /></div>) : ''}
+
+        {selDoseRatioValue&&selDoseRatioValue.title? (<div>Параметр: {selDoseRatioValue.title}<br /></div>) : '' }
+
         {!((!selDataSourceValues.length)||(!selDoseRatioValue)||(![2, 8].includes(selDoseRatioValue.id)))&&(selOrganValues.length > 0) ? 
-          (<Typography>Органы и ткани: {selOrganValues.map(value => value.name_rus).join(', ')}</Typography>) : ''}
+          (<div>Органы и ткани: {selOrganValues.map(value => value.name_rus).join(', ')}<br /></div>) : ''}
+
         {!((!selDataSourceValues.length)||(!selDoseRatioValue)||(![8].includes(selDoseRatioValue.id)))&&(selLetLevelValues.length > 0) ? 
-          (<Typography>Уровни ЛПЭ: {selLetLevelValues.map(value => value.name_rus).join(', ')}</Typography>) : ''}
-        {selIrradiationValue&&selIrradiationValue.name_rus? (
-          <Typography>Тип облучения: {selIrradiationValue.name_rus}</Typography>) : '' }
-      </>
+          (<div>Уровни ЛПЭ: {selLetLevelValues.map(value => value.name_rus).join(', ')}<br /></div>) : ''}
+
+        {selIrradiationValue&&selIrradiationValue.name_rus? (<div>Тип облучения: {selIrradiationValue.name_rus}<br /></div>) : '' }
+
+        {!((!selDataSourceValues.length) || (!selIrradiationValue) || (selIrradiationValue.id!==2))&&(selSubstFormValues.length > 0) ? 
+          (<div>Формы вещества: {selSubstFormValues.map(value => value.name_rus).join(', ')}<br /></div>) : ''}
+
+        {!((!selDataSourceValues.length) || (!selIrradiationValue) || (selIrradiationValue.id!==2))&&
+         !((selSubstFormValues.filter((row) => [162].includes(row.id))).length===0)&& 
+          (selAerosolSolValues.length > 0) ? 
+          (<div>Типы растворимости аэрозолей: {selAerosolSolValues.map(value => value.name_rus).join(', ')}<br /></div>) : ''}
+
+        {!((!selDataSourceValues.length) || (!selIrradiationValue) || (selIrradiationValue.id!==2))&&
+         !((selSubstFormValues.filter((row) => [162].includes(row.id))).length===0)&& 
+          (selAerosolAMADValues.length > 0) ? 
+          (<div>AMAD аэрозолей: {selAerosolAMADValues.map(value => value.name_rus).join(', ')}<br /></div>) : ''}
+
+        {selPeopleClassValues.length > 0? (<div>Типы облучаемых лиц: {selPeopleClassValues.map(value => value.name_rus).join(', ')}<br /></div>) : '' }
+       
+        {!( (!selDataSourceValues.length) || ((selPeopleClassValues.filter((row) => [1].includes(row.id))).length===0) )&&
+        (selAgeGroupValues.length > 0)? (<div>Возрастные группы населения: {selAgeGroupValues.map(value => value.name_rus).join(', ')}<br /></div>) : '' }
+ 
+        {!( (!selDataSourceValues.length) || ((selPeopleClassValues.filter((row) => [3,4].includes(row.id))).length===0) )&&
+        (selExpScenarioValues.length > 0)? (<div>Сценарии поступления: {selExpScenarioValues.map(value => value.name_rus).join(', ')}<br /></div>) : '' }
+
+        {selIsotopeValues.length > 0? (<div>Нуклиды: {selIsotopeValues.map(value => value.title).join(', ')}<br /></div>) : '' }
+ 
+        {selIntegralPeriodValues.length > 0? (<div>Периоды интегрирования: {selIntegralPeriodValues.map(value => value.name_rus).join(', ')}<br /></div>) : '' }
+      </>  
     );
   }
 
@@ -636,8 +662,8 @@ const BigTableValueIntDose = (props) => {
           aria-controls="panel1a-content"
           id="panel1a-header"
         >
-          <Typography>Фильтры {GetFilterCaption()}</Typography>
-
+          <Typography>Фильтры {GetFilterCaption()}</Typography> 
+ 
         </AccordionSummary>
         <AccordionDetails>
         <table border = "0" cellSpacing="0" cellPadding="0"><tbody>
@@ -652,6 +678,7 @@ const BigTableValueIntDose = (props) => {
             id="autocomplete-datasource"
             options={tableDataSource}
             getOptionLabel={(option) => option.title}
+            isOptionEqualToValue={(option, value) => option.id === value.id}
             disableCloseOnSelect
             renderOption={(props, option, { selected }) => (
               <li {...props}>
@@ -680,7 +707,8 @@ const BigTableValueIntDose = (props) => {
           <td width={348}>      
           <Autocomplete
             size="small"  
-            value={selDoseRatioValue||[]}
+            value={selDoseRatioValue}
+            //isOptionEqualToValue={(option, value) => option.id === value.id}
             onChange={handleChangeDoseRatio}
             id="autocomplete-dose_ratio"
             options={ tableDoseRatioFiltered.filter((row) => [1, 2, 8].includes(row.id)) }
@@ -694,7 +722,7 @@ const BigTableValueIntDose = (props) => {
             &nbsp;&nbsp;
           </td>
           <td>        
-            <IconButton onClick={()=>setSelDoseRatioValues(tableDoseRatioFiltered.filter((row) => [1, 2, 8].includes(row.id)))} color="primary" size="small" title="Выбрать все">
+            <IconButton onClick={()=>setSelDoseRatioValue(tableDoseRatioFiltered.filter((row) => [1, 2, 8].includes(row.id)))} color="primary" size="small" title="Выбрать все">
             <SvgIcon fontSize="small" component={CheckDoubleIcon} inheritViewBox /></IconButton>
           </td>
           <td>
@@ -702,19 +730,15 @@ const BigTableValueIntDose = (props) => {
           </td>
 
 
-          {!((!selDataSourceValues.length)||(!selDoseRatioValue)||(![2, 8].includes(selDoseRatioValue.id)))&&(    
+           {!((!selDataSourceValues.length)||(!selDoseRatioValue)||(![2, 8].includes(selDoseRatioValue.id)))&&(    
             <td width={548}>      
             <Autocomplete
             size="small"
             limitTags={7}
             value={selOrganValues}
+            isOptionEqualToValue={(option, value) => option.id === value.id}
             onChange={handleChangeOrgan}
             multiple
-  /*           disabled={ (!selDataSourceValues.length) 
-              ||
-              (!selDoseRatioValues) ||
-              (![2, 8].includes(selDoseRatioValues.id)) 
-            } */
             id="autocomplete-organ"
             options={tableOrgan}
             getOptionLabel={(option) => option.name_rus}
@@ -748,13 +772,14 @@ const BigTableValueIntDose = (props) => {
             </td>
           )}
           
-{/* --------------------------------------------------------------------------------------------------------------- */}
+ 
           {!((!selDataSourceValues.length)||(!selDoseRatioValue)||(![8].includes(selDoseRatioValue.id)) ) && (
             <td width={348}> 
             <Autocomplete
             size="small"
             limitTags={7}
             value={selLetLevelValues}
+            isOptionEqualToValue={(option, value) => option.id === value.id}
             onChange={handleChangeLetLevel}
             multiple
             id="autocomplete-let_level"
@@ -770,9 +795,10 @@ const BigTableValueIntDose = (props) => {
             renderInput={(params) => (
               <TextField {...params} label="Уровни ЛПЭ" placeholder="Уровни ЛПЭ" />
             )}
-            />
+            />  
             </td>
           )}
+
           {!((!selDataSourceValues.length)||(!selDoseRatioValue)||(![8].includes(selDoseRatioValue.id)) ) && (
             <td>
               &nbsp;&nbsp;
@@ -786,60 +812,15 @@ const BigTableValueIntDose = (props) => {
           )}
           </tr>
         </tbody></table>  
-        <p></p>        
 
+        <p>{/* Тип облучения */}</p>        
 
-
-        {!((!selDataSourceValues.length)||(!selDoseRatioValues)||(![8].includes(selDoseRatioValues.id)) ) && (
-            <td width={348}> 
-            <Autocomplete
-            size="small"
-            limitTags={7}
-            value={selLetLevelValues}
-            onChange={handleChangeLetLevel}
-            multiple
-  /*           disabled={ (!selDataSourceValues.length) 
-              ||
-              (!selDoseRatioValues) ||
-              (![8].includes(selDoseRatioValues.id)) 
-            } */
-            id="autocomplete-let_level"
-            options={tableLetLevel}
-            getOptionLabel={(option) => option.name_rus}
-            disableCloseOnSelect
-            renderOption={(props, option, { selected }) => (
-              <li {...props}>
-                <Checkbox size="small" icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected}/>
-                {option.name_rus}
-              </li>
-            )}
-            renderInput={(params) => (
-              <TextField {...params} label="Уровни ЛПЭ" placeholder="Уровни ЛПЭ" />
-            )}
-            />
-            </td>
-          )}
-          {!((!selDataSourceValues.length)||(!selDoseRatioValues)||(![8].includes(selDoseRatioValues.id)) ) && (
-            <td>
-              &nbsp;&nbsp;
-            </td>
-          )}
-          {!((!selDataSourceValues.length)||(!selDoseRatioValues)||(![8].includes(selDoseRatioValues.id)) ) && (
-            <td>        
-              <IconButton onClick={()=>setSelLetLevelValues(tableLetLevel)} color="primary" size="small" title="Выбрать все">
-              <SvgIcon fontSize="small" component={CheckDoubleIcon} inheritViewBox /></IconButton>
-            </td>
-          )}
-
-
-
-
-        <table border = "1" cellSpacing="0" cellPadding="0"><tbody>
+        <table border = "0" cellSpacing="0" cellPadding="0"><tbody>
           <tr>      
           <td width={348}>
           <Autocomplete
             size="small"
-            value={selIrradiationValue||[]}
+            value={selIrradiationValue}
             onChange={handleChangeIrradiation}
             //multiple
             id="autocomplete-irradiation"
@@ -854,13 +835,17 @@ const BigTableValueIntDose = (props) => {
             &nbsp;&nbsp;
           </td>
           <td>        
-            <IconButton onClick={()=>setSelIrradiationValues(tableIrradiationFiltered.filter((row) => [2,6, 30319, 30316].includes(row.id)))} color="primary" size="small" title="Выбрать все">
+            <IconButton onClick={()=>setSelIrradiationValue(tableIrradiationFiltered.filter((row) => [2,6, 30319, 30316].includes(row.id)))} color="primary" size="small" title="Выбрать все">
             <SvgIcon fontSize="small" component={CheckDoubleIcon} inheritViewBox /></IconButton>
           </td>
           <td>
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
           </td>
-          {!( (!selDataSourceValues.length) || (!selIrradiationValues) || (selIrradiationValues.id!==2) ) && (
+
+          {!( (!selDataSourceValues.length) || (!selIrradiationValue) || (selIrradiationValue.id!==2) ) && (
+            /////////////////////////////////////////////////////////////////////////////////////////////////////////////
+            <> 
+            
             <td width={300}>      
               <Autocomplete
               size="small"
@@ -869,10 +854,7 @@ const BigTableValueIntDose = (props) => {
               multiple
               id="autocomplete-subst_form"
               options={tableSubstForm}
-              disabled={  (!selDataSourceValues.length) ||  
-                (!selIrradiationValues) || (selIrradiationValues.id!==2)
-                  
-              }          
+              disabled={  (!selDataSourceValues.length) || (!selIrradiationValue) || (selIrradiationValue.id!==2)}          
               getOptionLabel={(option) => option.name_rus}
               disableCloseOnSelect
               renderOption={(props, option, { selected }) => (
@@ -886,27 +868,24 @@ const BigTableValueIntDose = (props) => {
               )}
               />
             </td>          
-          )}
-          {!( (!selDataSourceValues.length) || (!selIrradiationValues) || (selIrradiationValues.id!==2) ) && (
+            <td>
+              &nbsp;&nbsp;
+            </td>
+            <td>        
+              <IconButton onClick={()=>setSelSubstFormValues(tableSubstForm)} color="primary" size="small" title="Выбрать все">
+              <SvgIcon fontSize="small" component={CheckDoubleIcon} inheritViewBox /></IconButton>
+            </td>
+            <td>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </td>
+
+          {!( (!selDataSourceValues.length) ||  ((selSubstFormValues.filter((row) => [162].includes(row.id))).length===0) ) && (
           <>  
-          {!( (!selDataSourceValues.length) || (!selIrradiationValues) || (selIrradiationValues.id!==2) ) && (
-          <td>
-            &nbsp;&nbsp;
-          </td>
-          )}
-          <td>        
-            <IconButton onClick={()=>setSelSubstFormValues(tableSubstForm)} color="primary" size="small" title="Выбрать все">
-            <SvgIcon fontSize="small" component={CheckDoubleIcon} inheritViewBox /></IconButton>
-          </td>
-          <td>
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-          </td></>
-          )}
-          {!(   (!selDataSourceValues.length) ||  ((selSubstFormValues.filter((row) => [162].includes(row.id))).length===0) ) && (
           <td width={300}>      
             <Autocomplete
             size="small"
             value={selAerosolSolValues}
+            isOptionEqualToValue={(option, value) => option.id === value.id}
             onChange={handleChangeAerosolSol}
             multiple
             id="autocomplete-aerosol_sol"
@@ -927,29 +906,21 @@ const BigTableValueIntDose = (props) => {
             )}
             />
           </td>
-          )}
-          
           <td>
-
             &nbsp;&nbsp;
           </td>
-          {!(   (!selDataSourceValues.length) ||  ((selSubstFormValues.filter((row) => [162].includes(row.id))).length===0) ) && (
-            
           <td>        
             <IconButton onClick={()=>setSelAerosolSolValues(tableAerosolSol)} color="primary" size="small" title="Выбрать все">
             <SvgIcon fontSize="small" component={CheckDoubleIcon} inheritViewBox /></IconButton>
           </td>
-          )}
-          {!(   (!selDataSourceValues.length) ||  ((selSubstFormValues.filter((row) => [162].includes(row.id))).length===0) ) && (
           <td>
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
           </td>
-          )}
-          {!(   (!selDataSourceValues.length) ||  ((selSubstFormValues.filter((row) => [162].includes(row.id))).length===0)  ) && (
           <td width={300}>      
             <Autocomplete
             size="small"
             value={selAerosolAMADValues}
+            isOptionEqualToValue={(option, value) => option.id === value.id}
             limitTags={7}
             onChange={handleChangeAerosolAMAD}
             multiple
@@ -971,27 +942,31 @@ const BigTableValueIntDose = (props) => {
             )}
             />
           </td>
-          )}
-           {!(   (!selDataSourceValues.length) ||  ((selSubstFormValues.filter((row) => [162].includes(row.id))).length===0)  ) && (
           <td>
             &nbsp;&nbsp;
           </td>
-           )}
-          {!(   (!selDataSourceValues.length) ||  ((selSubstFormValues.filter((row) => [162].includes(row.id))).length===0)  ) && (
           <td> 
             <IconButton onClick={()=>setSelAerosolAMADValues(tableAerosolAMAD)} color="primary" size="small" title="Выбрать все">
             <SvgIcon fontSize="small" component={CheckDoubleIcon} inheritViewBox /></IconButton>
           </td>
-          )}
+
+          </> 
+          )} 
+          </> 
+          )} 
           </tr>
         </tbody></table>  
-        <p></p>
+
+
+        <p>{/* блок Типы облучаемых лиц */}</p>
+
         <table border = "0" cellSpacing="0" cellPadding="0"><tbody>
           <tr>      
           <td width={348}>
             <Autocomplete
             size="small"
             value={selPeopleClassValues}
+            isOptionEqualToValue={(option, value) => option.id === value.id}
             onChange={handleChangePeopleClass}
             multiple
             id="autocomplete-people_class"
@@ -1019,17 +994,18 @@ const BigTableValueIntDose = (props) => {
             <td>
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             </td>
-            {!(  (!selDataSourceValues.length) ||  ((selPeopleClassValues.filter((row) => [1].includes(row.id))).length===0) ) && (
+
+          {!( (!selDataSourceValues.length) || ((selPeopleClassValues.filter((row) => [1].includes(row.id))).length===0) ) && (
+          < >
           <td width={348}>      
             <Autocomplete
             size="small"
             value={selAgeGroupValues}
+            isOptionEqualToValue={(option, value) => option.id === value.id}
             onChange={handleChangeAgeGroup}
             multiple
             id="autocomplete-age_group"
-            disabled={  (!selDataSourceValues.length) ||  
-              ((selPeopleClassValues.filter((row) => [1].includes(row.id))).length===0) 
-            }              
+            disabled={(!selDataSourceValues.length) || ((selPeopleClassValues.filter((row) => [1].includes(row.id))).length===0) }              
             options={tableAgeGroup}
             getOptionLabel ={(option) => option.name_rus}
             disableCloseOnSelect
@@ -1044,32 +1020,30 @@ const BigTableValueIntDose = (props) => {
             )}
             />
           </td>
-            )}
-             {!(  (!selDataSourceValues.length) ||  
-              ((selPeopleClassValues.filter((row) => [1].includes(row.id))).length===0) ) && (
           <td>
             &nbsp;&nbsp;
           </td>
-              )}
-          {!(  (!selDataSourceValues.length) ||  
-              ((selPeopleClassValues.filter((row) => [1].includes(row.id))).length===0) ) && (
           <td>        
             <IconButton onClick={()=>setSelAgeGroupValues(tableAgeGroup)} color="primary" size="small" title="Выбрать все">
             <SvgIcon fontSize="small" component={CheckDoubleIcon} inheritViewBox /></IconButton>
           </td>
-              )}
-              {!((!selDataSourceValues.length) ||  ((selPeopleClassValues.filter((row) => [3,4].includes(row.id))).length===0)  ) && (
+          <td>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          </td>
+          </ >
+          )}
+
+          {!((!selDataSourceValues.length) || ((selPeopleClassValues.filter((row) => [3,4].includes(row.id))).length===0) ) && (
           <td width={348}>      
             <Autocomplete
             size="small"
             value={selExpScenarioValues}
+            isOptionEqualToValue={(option, value) => option.id === value.id}
             onChange={handleChangeExpScenario}
             multiple
             id="autocomplete-aerosol_amad"
             options={tableExpScenario}
-            disabled={ (!selDataSourceValues.length) ||  
-              ((selPeopleClassValues.filter((row) => [3,4].includes(row.id))).length===0) 
-            }              
+            disabled={ (!selDataSourceValues.length) || ((selPeopleClassValues.filter((row) => [3,4].includes(row.id))).length===0) }              
             getOptionLabel ={(option) => option.name_rus}
             disableCloseOnSelect
             renderOption={(props, option, { selected }) => (
@@ -1083,32 +1057,34 @@ const BigTableValueIntDose = (props) => {
             )}
             />
           </td>
-              )}
-                {!((!selDataSourceValues.length) ||  ((selPeopleClassValues.filter((row) => [3,4].includes(row.id))).length===0)  ) && (   
+          )} 
+
+          {!((!selDataSourceValues.length) ||  ((selPeopleClassValues.filter((row) => [3,4].includes(row.id))).length===0)  ) && (   
           <td>
             &nbsp;&nbsp;
           </td>
           )}
           
-          
-              {!((!selDataSourceValues.length) ||  ((selPeopleClassValues.filter((row) => [3,4].includes(row.id))).length===0)  ) && (   
+          {!((!selDataSourceValues.length) ||  ((selPeopleClassValues.filter((row) => [3,4].includes(row.id))).length===0)  ) && (   
           <td>     
             <IconButton onClick={()=>setSelExpScenarioValues(tableExpScenario)} color="primary" size="small" title="Выбрать все">
             <SvgIcon fontSize="small" component={CheckDoubleIcon} inheritViewBox /></IconButton>
           </td>
-              )}
+          )}
+
+
           </tr>
           </tbody>
-        </table>  
-        <p></p>                           
+        </table> 
 
-
+        <p>{/* Блок Нуклиды ==== Периоды интегрирования */}</p>                           
         <table border = "0" cellSpacing="0" cellPadding="0"><tbody>
           <tr>      
           <td width={348}>
             <Autocomplete
               size="small"
               value={selIsotopeValues}
+              isOptionEqualToValue={(option, value) => option.id === value.id}
               onChange={handleChangeIsotope}
               multiple
               limitTags={7}
@@ -1141,6 +1117,7 @@ const BigTableValueIntDose = (props) => {
             <Autocomplete
             size="small"
             value={selIntegralPeriodValues}
+            isOptionEqualToValue={(option, value) => option.id === value.id}
             onChange={handleChangeIntegralPeriod}
             multiple
             limitTags={7}
@@ -1266,7 +1243,7 @@ const BigTableValueIntDose = (props) => {
       <Dialog open={openEdit} onClose={handleCloseEditNo} fullWidth={false} maxWidth="800px">
       <DialogTitle>Редактировать запись {valueID}</DialogTitle>  
         <DialogContent style={{height:'480px', width: '700px'}}>
-          <p></p>
+           <p></p>
           <table border = "0" cellSpacing="0" cellPadding="0"><tbody><tr>
           <td>
           <div style={{width: '320px'}}><Autocomplete
@@ -1371,7 +1348,7 @@ const BigTableValueIntDose = (props) => {
             value={valueDrValue || ''}
             fullWidth
             onChange={e => setValueDrValue(e.target.value)}
-          />        
+          />          
           </DialogContent>
         <DialogActions>
           <Button variant="outlined" onClick={handleCloseEditNo}>Отмена</Button>
