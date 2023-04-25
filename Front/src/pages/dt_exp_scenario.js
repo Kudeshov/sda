@@ -911,15 +911,15 @@ const DataTableExpScenario = (props) => {
     <DialogContent>
         <DialogContentText>
           {valueId?
-          `В запись таблицы "${table_names[props.table_name]}" с кодом ${valueId} внесены изменения.`:
-          `В таблицу "${table_names[props.table_name]}" внесена новая несохраненная запись.`}<p></p>
-            {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p></p>
+          `В запись таблицы "${table_names[props.table_name]}"/*  с кодом ${valueId} */ внесены изменения.`:
+          `В таблицу "${table_names[props.table_name]}" внесена новая несохраненная запись.`}
+{/*             {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p></p>
             {valueParentID === valueParentIDInitial ? '' : 'Родительский класс: '+valueParentID+'; ' }<p></p>
             {valueNameRus === valueNameRusInitial ? '' : 'Название (рус. яз): '+valueNameRus+'; ' }<p></p>
             {valueNameEng === valueNameEngInitial ? '' : 'Название (англ. яз): '+valueNameEng+'; ' }<p></p>
             {valueDescrRus === valueDescrRusInitial ? '' : 'Комментарий (рус. яз): '+valueDescrRus+'; ' }<p></p>
-            {valueDescrEng === valueDescrEngInitial ? '' : 'Комментарий (англ. яз): '+valueDescrEng+'; ' }<p></p>
-          Вы желаете сохранить указанную запись?
+            {valueDescrEng === valueDescrEngInitial ? '' : 'Комментарий (англ. яз): '+valueDescrEng+'; ' }<p></p> */}
+          <br/>Вы желаете сохранить указанную запись?
         </DialogContentText>
     </DialogContent>
     <DialogActions>
@@ -935,15 +935,15 @@ const DataTableExpScenario = (props) => {
     <DialogContent>
     <DialogContentText>
           {valueId?
-          `В запись таблицы "${table_names[props.table_name]}" с кодом ${valueId} внесены изменения.`:
-          `В таблицу "${table_names[props.table_name]}" внесена новая несохраненная запись.`}<p></p>
-            {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p></p>
+          `В запись таблицы "${table_names[props.table_name]}"   /* с кодом ${valueId}  */  внесены изменения.`:
+          `В таблицу "${table_names[props.table_name]}" внесена новая несохраненная запись.`}
+{/*             {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p></p>
             {valueParentID === valueParentIDInitial ? '' : 'Родительский класс: '+valueParentID+'; ' }<p></p>
             {valueNameRus === valueNameRusInitial ? '' : 'Название (рус. яз): '+valueNameRus+'; ' }<p></p>
             {valueNameEng === valueNameEngInitial ? '' : 'Название (англ. яз): '+valueNameEng+'; ' }<p></p>
             {valueDescrRus === valueDescrRusInitial ? '' : 'Комментарий (рус. яз): '+valueDescrRus+'; ' }<p></p>
-            {valueDescrEng === valueDescrEngInitial ? '' : 'Комментарий (англ. яз): '+valueDescrEng+'; ' }<p></p>
-          Вы желаете сохранить указанную запись?
+            {valueDescrEng === valueDescrEngInitial ? '' : 'Комментарий (англ. яз): '+valueDescrEng+'; ' }<p></p> */}
+          <br/>Вы желаете сохранить указанную запись?
         </DialogContentText>
     </DialogContent>
     <DialogActions>

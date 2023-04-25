@@ -851,14 +851,14 @@ const DataTableIsotope = (props) => {
     </DialogTitle>
     <DialogContent>
         <DialogContentText>
-            В запись таблицы {table_names[props.table_name]} с кодом <b>{valueId}</b> внесены изменения.<p></p>
+            В запись таблицы {table_names[props.table_name]} {/* с кодом <b>{valueId}</b> */} внесены изменения.
 {/*             {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p></p>
             {valueNIndex === valueNIndexInitial ? '' : 'Индекс: '+valueNIndex+'; ' }<p></p>
             {valueHalfLifeValue === valueHalfLifeValueInitial ? '' : 'Период полураспада: '+valueHalfLifeValue+'; ' }<p></p>
             {valueHalfLifePeriod === valueHalfLifePeriodInitial ? '' : 'Ед. изм.: '+valueHalfLifePeriod+'; ' }<p></p>
             {valueDecayConst === valueDecayConstInitial ? '' : 'Постоянная распада, (1/сек) '+valueDecayConst+'; ' }<p></p>
             {valueNuclideId === valueNuclideIdInitial ? '' : 'Нуклид: '+getNuclideNameById(valueNuclideId)+'; ' }<p></p> */}
-            <p></p>Вы желаете сохранить указанную запись?
+            <br/>Вы желаете сохранить указанную запись?
         </DialogContentText>
     </DialogContent>
     <DialogActions>
@@ -873,14 +873,14 @@ const DataTableIsotope = (props) => {
     </DialogTitle>
     <DialogContent>
         <DialogContentText>
-            В запись таблицы {table_names[props.table_name]} с кодом <b>{valueId}</b> внесены изменения.<p></p>
+            В запись таблицы {table_names[props.table_name]} {/* с кодом <b>{valueId}</b>  */}внесены изменения.
 {/*             {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p></p>
             {valueNIndex === valueNIndexInitial ? '' : 'Индекс: '+valueNIndex+'; ' }<p></p>
             {valueHalfLifeValue === valueHalfLifeValueInitial ? '' : 'Период полураспада: '+valueHalfLifeValue+'; ' }<p></p>
             {valueHalfLifePeriod === valueHalfLifePeriodInitial ? '' : 'Ед. изм.: '+valueHalfLifePeriod+'; ' }<p></p>
             {valueDecayConst === valueDecayConstInitial ? '' : 'Постоянная распада, (1/сек) '+valueDecayConst+'; ' }<p></p>
             {valueNuclideId === valueNuclideIdInitial ? '' : 'Нуклид: '+getNuclideNameById(valueNuclideId)+'; ' }<p></p> */}
-            <p></p>Вы желаете сохранить указанную запись?
+           <br/>Вы желаете сохранить указанную запись?
         </DialogContentText>
     </DialogContent>
     <DialogActions>
