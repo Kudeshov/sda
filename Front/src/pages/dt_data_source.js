@@ -62,16 +62,9 @@ const DataTableDataSource = (props) => {
     { label: 'Целевая БД', value: 'false' },
     { label: 'Внешний источник', value: 'true' } ];
 
-
-
-
-
-    
-    useEffect(() => {
-      setIsEmpty((''==valueTitle)&&(''==valueShortName)&&(''==valueFullName)&&(''==valueDescr)&&(''==valueExternalDS)   );
-      }, [ valueTitle, valueShortName, valueFullName, valueDescr, valueExternalDS]); 
-        
-  
+  useEffect(() => {
+    setIsEmpty((''===valueTitle)&&(''===valueShortName)&&(''===valueFullName)&&(''===valueDescr)&&(''===valueExternalDS)   );
+    }, [ valueTitle, valueShortName, valueFullName, valueDescr, valueExternalDS]); 
 
   useEffect(() => {
     setEditStarted((valueTitleInitial!==valueTitle)||(valueShortNameInitial!==valueShortName)||(valueFullNameInitial!==valueFullName)

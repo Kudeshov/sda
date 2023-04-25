@@ -4,7 +4,7 @@ const getNLSQuery = (name, descr, table_id, lang_id, table_name) =>
   if (table_name==='dose_ratio') descr_field_name = 'fullname';
 
   const sql_nls = `DO $$ `+
-  `declare aname VARCHAR(50) := '${name}'; `+
+  `declare aname VARCHAR := '${name}'; `+
   `declare adesc text := '${descr}'; `+
   `declare a${table_name}_id INT4 := ${table_id}; `+
   `declare alang_id INT4 := ${lang_id}; `+
@@ -25,7 +25,7 @@ const getNLSQuery = (name, descr, table_id, lang_id, table_name) =>
 const getNLSQueryNoDescr = (name, table_id, lang_id, table_name) => 
 {
   const sql_nls = `DO $$ `+
-  `declare aname VARCHAR(50) := '${name}'; `+
+  `declare aname VARCHAR := '${name}'; `+
   `declare a${table_name}_id INT4 := ${table_id}; `+
   `declare alang_id INT4 := ${lang_id}; `+
   `BEGIN `+
