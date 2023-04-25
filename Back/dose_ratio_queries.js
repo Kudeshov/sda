@@ -71,10 +71,10 @@ const createDoseRatio = (request, response, table_name )=> {
       return !!err
     }
 
-    const { title, name_rus, name_eng, descr_rus, descr_eng, physparam_id } = request.body;
+    const { title, name_rus, name_eng, descr_rus, descr_eng, physparam_id, dr_type } = request.body;
     client.query(`BEGIN`, err => {
       if (shouldAbort(err, response)) return;
-      client.query(`INSERT INTO nucl.${table_name}( title, physparam_id ) VALUES ($1,$2) RETURNING id`, [title,physparam_id], (err, res) => {
+      client.query(`INSERT INTO nucl.${table_name}( title, physparam_id, dr_type ) VALUES ($1,$2,$3) RETURNING id`, [title,physparam_id,dr_type], (err, res) => {
         if (shouldAbort(err, response)) return;      
         const { id } = res.rows[0];
         console.log(`Id = `+id);
@@ -196,33 +196,37 @@ const updateDoseRatio = (request, response, table_name ) => {
     }
     //id
     const id = parseInt(request.params.id);
-    const { title, name_rus, name_eng, descr_rus, descr_eng, physparam_id  } = request.body;
+    const { title, name_rus, name_eng, descr_rus, descr_eng, physparam_id, dr_type  } = request.body;
+    console.log(request.body); 
     client.query(`BEGIN`, err => {
       if (shouldAbort(err, response)) return;
-      client.query(`UPDATE nucl.${table_name} SET title = $1, physparam_id = $2 WHERE id = $3`, [title, physparam_id, id], (err, res) => {
-        if (shouldAbort(err, response)) return;      
+      client.query(`UPDATE nucl.${table_name} SET title = $1, physparam_id = $2, dr_type = $3 WHERE id = $4`, [title, physparam_id, dr_type, id], (err, res) => {
+        if (shouldAbort(err, response)) return;    
+        console.log('пошел nls');   
         var s_q = c_c.getNLSQuery(name_rus||'', descr_rus||'', id, 1, table_name);
+
+        console.log('s_q');  
         console.log(s_q);  
-        client.query( c_c.getNLSQuery(name_rus||'', descr_rus||'', id, 1, table_name), (err, res) => {
-          console.log(`rus изменяется`); 
+        client.query( s_q, (err, res) => {
+          //console.log(`rus изменяется`); 
 
           if (shouldAbort(err, response)) return;
-          console.log(`rus изменен`);
+          //console.log(`rus изменен`);
 
           var s_q = c_c.getNLSQuery(name_eng||'', descr_eng||'', id, 2, table_name);
           console.log(s_q);          
           client.query( c_c.getNLSQuery(name_eng||'', descr_eng||'', id, 2, table_name), (err, res) => {
-            console.log(`eng изменяется`);  
+            //console.log(`eng изменяется`);  
             if (shouldAbort(err, response)) return;
-            console.log(`eng изменен`);
-            console.log(`начинаем Commit`);     
+            //console.log(`eng изменен`);
+            //console.log(`начинаем Commit`);     
             client.query(`COMMIT`, err => {
               if (err) {
-                console.error(`Ошибка при подтверждении транзакции`, err.stack);
+                //console.error(`Ошибка при подтверждении транзакции`, err.stack);
                 response.status(400).send(`Ошибка при подтверждении транзакции`, err.stack);
               }
               else {
-                console.log(`Запись с кодом ${id} сохранена`); 
+                //console.log(`Запись с кодом ${id} сохранена`); 
                 response.status(200).send(`Запись с кодом ${id} сохранена`);
               }
               done()

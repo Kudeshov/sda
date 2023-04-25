@@ -1,11 +1,10 @@
 // Big f....g table VALUE_INT_DOSE
-
 import React, { useState, useEffect } from 'react';
 import {
   DataGrid, 
   ruRU,
   GridToolbarContainer,
-//  useGridApiContext,
+  //useGridApiContext,
   //gridFilteredSortedRowIdsSelector,
 } from '@mui/x-data-grid';
 import TextField from '@mui/material/TextField';
@@ -13,29 +12,18 @@ import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
-//import DialogContentText from '@mui/material/DialogContentTecxt';
 import DialogTitle from '@mui/material/DialogTitle';
-//import { FormControl } from "@mui/material";
-//import { InputLabel } from "@mui/material";
-//import { Select } from "@mui/material";
 import { Box, IconButton } from '@mui/material';
 import Alert from '@mui/material/Alert';
 import Collapse from '@mui/material/Collapse';
 import CloseIcon from '@mui/icons-material/Close';
 import SvgIcon from '@mui/material/SvgIcon';
-//import { ReactComponent as SaveLightIcon } from "./../icons/save.svg";
 import { ReactComponent as PlusLightIcon } from "./../icons/plus.svg";
 import { ReactComponent as EditLightIcon } from "./../icons/edit.svg";
-//import { ReactComponent as DownloadLightIcon } from "./../icons/download.svg";
 import { ReactComponent as TrashLightIcon } from "./../icons/trash.svg";
 import { ReactComponent as RepeatLightIcon } from "./../icons/repeat.svg";
 import { ReactComponent as CheckDoubleIcon } from "./../icons/check-double.svg";
 import { ReactComponent as ArrowAltDownIcon } from "./../icons/arrow-alt-down.svg";
-/* import { table_names } from './sda_types';
-import { FormControl } from "@mui/material";
-import { InputLabel } from "@mui/material";
-import { Select } from "@mui/material";
-import { MenuItem } from "@mui/material"; */
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Backdrop from '@mui/material/Backdrop';
 import Autocomplete from '@mui/material/Autocomplete';
@@ -48,15 +36,26 @@ import AccordionSummary from '@mui/material/AccordionSummary';
 import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 //import ServerPaginationGrid from './sp_datagrid';
+//import DialogContentText from '@mui/material/DialogContentTecxt';
+//import { FormControl } from "@mui/material";
+//import { InputLabel } from "@mui/material";
+//import { Select } from "@mui/material";
+//import { ReactComponent as SaveLightIcon } from "./../icons/save.svg";
+//import { ReactComponent as DownloadLightIcon } from "./../icons/download.svg";
+/* import { table_names } from './sda_types';
+import { FormControl } from "@mui/material";
+import { InputLabel } from "@mui/material";
+import { Select } from "@mui/material";
+import { MenuItem } from "@mui/material"; */
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
 
-var alertText = "Сообщение";
-var alertSeverity = "info";
+let alertText = "Сообщение";
+let alertSeverity = "info";
 
 const BigTableValueIntDose = (props) => {
-  const [pageState, setPageState] = useState({
+   const [pageState/* , setPageState */] = useState({
     page: 0,
     pageSize: 10,
     rows: [],
@@ -64,6 +63,7 @@ const BigTableValueIntDose = (props) => {
     isLoading: false
   });
 
+  // заголовки столбцов основной таблицы
   const columnsValueIntDose = [
     { field: 'id', headerName: 'ID', width: 100 },
     { field: 'people_class_name_rus', headerName: 'Тип облучаемых лиц', width: 180 },
@@ -83,14 +83,13 @@ const BigTableValueIntDose = (props) => {
     { field: 'exp_scenario_name_rus', headerName: 'Сценарии поступления', width: 200 },
    ]
 
-/*    const columnsDataSourceClass = [
-    { field: 'id', headerName: 'Код', width: 60 },
-    { field: 'data_source_id', headerName: 'Код источника данных', width: 100 },
-    { field: 'table_name', headerName: 'Имя таблицы БД', width: 180 },
-    { field: 'rec_id', headerName: `Идентификатор записи в таблице `, width: 100 },
-  ]
- */
+  //состояние загрузки таблицы для отображения крутилки
+  const [isLoading, setIsLoading] = React.useState(false);
+
+  //состояние открытой панельки алерта-уведомления
   const [openAlert, setOpenAlert] = React.useState(false, '');
+
+  // значения, выбранные в автокомплитах
   const [selDataSourceValues, setSelDataSourceValues] = useState([]);
   const [selOrganValues, setSelOrganValues] = useState([]);
   const [selIrradiationValue, setSelIrradiationValue] = useState(null);
@@ -104,13 +103,17 @@ const BigTableValueIntDose = (props) => {
   const [selAerosolAMADValues, setSelAerosolAMADValues] = useState([]);
   const [selExpScenarioValues, setSelExpScenarioValues] = useState([]);
   const [selPeopleClassValues, setSelPeopleClassValues] = useState([]);
-  //const [selDoseRatioID, setSelDoseRatioID] = useState([]);
-  const [isLoading, setIsLoading] = React.useState(false);
+
+  //массивы, содержащие данные для автокомплитов
   const [tableDataSource, setTableDataSource] = useState([]); 
   const [tableOrgan, setTableOrgan] = useState([]);
+  
   const [tableIrradiation, setTableIrradiation] = useState([]);  
   const [tableIrradiationFiltered, setTableIrradiationFiltered] = useState([]);  
+  
   const [tableIsotope, setTableIsotope] = useState([]);
+  const [tableIsotopeFiltered, setTableIsotopeFiltered] = useState([]);
+
   const [tableIntegralPeriod, setTableIntegralPeriod] = useState([]);
   const [tableDoseRatio, setTableDoseRatio] = useState([]);
   const [tableDoseRatioFiltered, setTableDoseRatioFiltered] = useState([]);
@@ -128,32 +131,38 @@ const BigTableValueIntDose = (props) => {
   //const [tableDataSourceClassFiltered, setTableDataSourceClassFiltered] = useState([]);
 
   const handleChangeDataSource = (event, value) => {
-    //console.log('handleChangeDataSource');
-    //console.log(value);
     setSelDataSourceValues(value);
   };
   
   useEffect(() => {
     //взяли айди выбранных источников данных
-    var ids = selDataSourceValues.map(item => item.id);
-    var ids_dose_ratio = tableDataSourceClass.filter(item => ((item.table_name === 'dose_ratio' )&&(ids.includes(item.data_source_id))) ).map(item => item.rec_id);
+    let ids = selDataSourceValues.map(item => item.id);
+    //отфильтровали dose_ratio.id для выбранных источников данных, чтобы отфильтровать его автокомплит
+    let ids_dose_ratio = tableDataSourceClass.filter(item => ((item.table_name === 'dose_ratio' )&&(ids.includes(item.data_source_id))) ).map(item => item.rec_id);
     let filteredDoseRatio = tableDoseRatio.filter(item => ((ids_dose_ratio.includes(item.id))) );
     setTableDoseRatioFiltered( filteredDoseRatio ); 
-    // если отфильтрованная таблица DoseRatio содержит значение, выбранное в выпадающем списке
-    if ((filteredDoseRatio&&selDoseRatioValue)&&(!filteredDoseRatio.some(item => item.id === selDoseRatioValue.id) )) setSelDoseRatioValue(null);
+    // если отфильтрованная таблица DoseRatio не содержит значение, выбранное в выпадающем списке
+    if ((filteredDoseRatio&&selDoseRatioValue)&&(!filteredDoseRatio.some(item => item.id === selDoseRatioValue.id) )) 
+      setSelDoseRatioValue(null); //выставляем его в null
 
-    var ids_irradiation = tableDataSourceClass.filter(item => ((item.table_name === 'irradiation' )&&(ids.includes(item.data_source_id))) ).map(item => item.rec_id);
+    // то же самое для остальных автокомплитов
+    let ids_irradiation = tableDataSourceClass.filter(item => ((item.table_name === 'irradiation' )&&(ids.includes(item.data_source_id))) ).map(item => item.rec_id);
     let filteredIrradiation = tableIrradiation.filter(item => ((ids_irradiation.includes(item.id))) );
     setTableIrradiationFiltered( filteredIrradiation ); 
     if ((filteredIrradiation&&selIrradiationValue)&&(!filteredIrradiation.some(item => item.id === selIrradiationValue.id) )) setSelIrradiationValue(null);
 
-    var ids_people_class = tableDataSourceClass.filter(item => ((item.table_name === 'people_class' )&&(ids.includes(item.data_source_id))) ).map(item => item.rec_id);
+    let ids_people_class = tableDataSourceClass.filter(item => ((item.table_name === 'people_class' )&&(ids.includes(item.data_source_id))) ).map(item => item.rec_id);
     let filteredPeopleClass = tablePeopleClass.filter(item => ((ids_people_class.includes(item.id))) );
     setTablePeopleClassFiltered( filteredPeopleClass ); 
+
+    let ids_isotope = tableDataSourceClass.filter(item => ((item.table_name === 'isotope' )&&(ids.includes(item.data_source_id))) ).map(item => item.rec_id);
+    let filteredIsotope = tableIsotope.filter(item => ((ids_isotope.includes(item.id))) );
+    setTableIsotopeFiltered( filteredIsotope ); 
 
   }, [selDataSourceValues, tableDataSourceClass, 
       tableDoseRatio, selDoseRatioValue, 
       tableIrradiation, selIrradiationValue,
+      tableIsotope, //selIsotopeValues,
       tablePeopleClass 
     ]);
 
@@ -167,68 +176,21 @@ const BigTableValueIntDose = (props) => {
     });
   }, [tablePeopleClassFiltered]);      
 
+  //обработчики автокомплитов
+  const handleChangeDoseRatio = (event, value) => { setSelDoseRatioValue(value); };
+  const handleChangeOrgan = (event, value) => { setSelOrganValues(value); };
+  const handleChangeIrradiation = (event, value) => { setSelIrradiationValue(value); };
+  const handleChangeIsotope = (event, value) => { setSelIsotopeValues(value); };
+  const handleChangeIntegralPeriod = (event, value) => { setSelIntegralPeriodValues(value); };
+  const handleChangeLetLevel = (event, value) => { setSelLetLevelValues(value); };
+  const handleChangeAgeGroup = (event, value) => { setSelAgeGroupValues(value); }; 
+  const handleChangeSubstForm = (event, value) => { setSelSubstFormValues(value); };   
+  const handleChangeAerosolSol = (event, value) => { setSelAerosolSolValues(value); }; 
+  const handleChangeAerosolAMAD = (event, value) => { setSelAerosolAMADValues(value); };
+  const handleChangeExpScenario = (event, value) => { setSelExpScenarioValues(value); };     
+  const handleChangePeopleClass = (event, value) => { setSelPeopleClassValues(value); };  
 
-  const handleChangeDoseRatio = (event, value) => {
-    //console.log('handleChangeDoseRatio');
-    //console.log(value);
-    setSelDoseRatioValue(value);
-  };
-
-  const handleChangeOrgan = (event, value) => {
-    setSelOrganValues(value);
-    //console.log(value);
-  };
-
-  const handleChangeIrradiation = (event, value) => {
-    setSelIrradiationValue(value);
-    //console.log(value);
-  };
-
-  const handleChangeIsotope = (event, value) => {
-    setSelIsotopeValues(value);
-    //console.log(value);
-  };
-
-  const handleChangeIntegralPeriod = (event, value) => {
-    setSelIntegralPeriodValues(value);
-    //console.log(value);
-  };
-
-  const handleChangeLetLevel = (event, value) => {
-    setSelLetLevelValues(value);
-    //console.log(value);
-  };
-  
-  const handleChangeAgeGroup = (event, value) => {
-    setSelAgeGroupValues(value);
-    //console.log(value);
-  }; 
-
-  const handleChangeSubstForm = (event, value) => {
-    setSelSubstFormValues(value);
-    //console.log(value);
-  };   
-
-  const handleChangeAerosolSol = (event, value) => {
-    setSelAerosolSolValues(value);
-    //console.log(value);
-  }; 
-
-  const handleChangeAerosolAMAD = (event, value) => {
-    setSelAerosolAMADValues(value);
-    //console.log(value);
-  };
-  
-  const handleChangeExpScenario = (event, value) => {
-    setSelExpScenarioValues(value);
-    //console.log(value);
-  };     
-  
-  const handleChangePeopleClass = (event, value) => {
-    setSelPeopleClassValues(value);
-    //console.log(value);
-  };  
-
+  // переменные, относящиеся к редактированию данных в таблице
   const [openEdit, setOpenEdit] = React.useState(false);
   const handleClickEdit = () => {
     setOpenEdit(true);
@@ -240,7 +202,6 @@ const BigTableValueIntDose = (props) => {
   const handleCloseEditNo = () => {
     setOpenEdit(false);
   };
-
   const [valueID, setValueID] = React.useState();
   const [valueDoseRatioID, setValueDoseRatioID] = React.useState();
   const [valuePeopleClassID, setValuePeopleClassID] = React.useState();
@@ -249,16 +210,13 @@ const BigTableValueIntDose = (props) => {
   const [valueOrganID, setValueOrganID] = React.useState();
   const [valueAgeGroupID, setValueAgeGroupID] = React.useState();
   const [valueDataSourceID, setValueDataSourceID] = React.useState();
-  
   const [valueDrValue, setValueDrValue] = React.useState();
+
+  // состояния Accordion-а
   const [isTableExpanded, setIsTableExpanded] = useState(false);
   const [isFilterExpanded, setIsFilterExpanded] = useState(true);
-  
 
   const handleRowClick = (params) => {
-    //setOpenAlert(false);
-    //console.log( 'handleRowClick dose_ratio_id = '+params.row.dose_ratio_id);
-    //if (editStarted&&(!isEmpty))
       setValueID(params.row.id);
       setValueDoseRatioID(params.row.dose_ratio_id);
       setValuePeopleClassID(params.row.people_class_id);
@@ -279,7 +237,7 @@ const BigTableValueIntDose = (props) => {
       dose_ratio_id: valueDoseRatioID,
       dr_value: valueDrValue    
     });
-/*     if (!valueId) {
+    /*     if (!valueId) {
       addRec();
       return;
     } */
@@ -310,34 +268,20 @@ const BigTableValueIntDose = (props) => {
      setOpenAlert(true);
    } finally {
      setIsLoading(false);
-/*      if (fromToolbar) 
-     {
-       setValueTitleInitial(valueTitle);       
-       setValueShortNameInitial(valueShortName);
-       setValueFullNameInitial(valueFullName);
-       setValueExternalDSInitial(valueExternalDS);
-       setValueDescrInitial(valueDescr);           
-     } */
     reloadData();     
    }
   }
- };  
+  };  
 
-  useEffect(  () => {
-/*     const setFirst =  async (data) => { 
-      if ((tableDataSource.length>0)&&(selDataSourceValues.length===0)) {
-        setSelDataSourceValues([tableDataSource[0]]);
-      } 
-    }  */
+  // загрузка справочников   
+  useEffect( () => {
     async function fetchData() {
       await fetch(`/data_source`)
       .then((data) => data.json())
       .then((data) => setTableDataSource(data));
     }
-
     fetchData();
-    //setFirst();
-  },[ ]); //, [props.table_name]
+  },[]);
 
   useEffect(() => {
     const setFirst =  async () => { 
@@ -450,41 +394,23 @@ const BigTableValueIntDose = (props) => {
     setIsFilterExpanded(false);
   }
 
+  //загрузка данных в основную таблицу
   const reloadData = async () => {
     setIsLoading(true);
     try {
-      //console.log(selDataSourceValues);
-      //var ds_id = 0;
-      //if (selDataSourceValues.length)
-      //  ds_id = selDataSourceValues[0].id;
-      //console.log(ds_id);  
-
-      const  idsDS =  selDataSourceValues.map(item => item.id).join(',');
-      ////console.log('idsDS = '+idsDS);  
+      const  idsDS =  selDataSourceValues.map(item => item.id).join(','); //список ids
       const  idsOrgan =  selOrganValues.map(item => item.id).join(',');
-      ////console.log('idsOrgan = '+idsOrgan);  
-      const  idsIrradiation = selIrradiationValue?[selIrradiationValue.id]:[]; //selIrradiationValue.map(item => item.id).join(',');
-      //console.log('idsIrradiation = '+idsIrradiation);        
+      const  idsIrradiation = selIrradiationValue?[selIrradiationValue.id]:[]; //одно значение - поэтому приводим его к массиву []
       const  idsIsotope =  selIsotopeValues.map(item => item.id).join(',');
-      //console.log('idsIsotope = '+idsIsotope);  
       const  idsIntegralPeriod =  selIntegralPeriodValues.map(item => item.id).join(',');
-      //console.log('idsIntegralPeriod = '+idsIntegralPeriod);  
       const  idsDoseRatio =  selDoseRatioValue?[selDoseRatioValue.id]:[]; //map(item => item.id).join(',');
-      //console.log('idsDoseRatio = '+idsDoseRatio);  
       const  idsLetLevel =  selLetLevelValues.map(item => item.id).join(',');
-      //console.log('idsLetLevel = '+idsLetLevel);  
       const  idsAgeGroup =  selAgeGroupValues.map(item => item.id).join(',');
-      //console.log('idsAgeGroup = '+idsAgeGroup);  
       const  idsSubstForm =  selSubstFormValues.map(item => item.id).join(',');
-      //console.log('idsSubstForm = '+idsSubstForm);  
       const  idsAerosolSol =  selAerosolSolValues.map(item => item.id).join(',');
-      //console.log('idsAerosolSol = '+idsAerosolSol);  
       const  idsAerosolAMAD =  selAerosolAMADValues.map(item => item.id).join(',');
-      //console.log('idsAerosolAMAD = '+idsAerosolAMAD);  
       const  idsExpScenario =  selExpScenarioValues.map(item => item.id).join(',');
-      //console.log('idsExpScenario = '+idsExpScenario); 
       const  idsPeopleClass =  selPeopleClassValues.map(item => item.id).join(',');
-      //console.log('idsPeopleClass = '+idsPeopleClass); 
 
       const response = await fetch(`/value_int_dose?data_source_id=`+idsDS+`&organ_id=`+idsOrgan+
       `&irradiation_id=`+idsIrradiation+`&isotope_id=`+idsIsotope+
@@ -506,18 +432,16 @@ const BigTableValueIntDose = (props) => {
         setTableValueIntDose(result);
       }
     } catch (err) {
-      ////console.log('catch err');
       throw err;
     } finally {
       setIsLoading(false);
     }
   };
 
-  useEffect(() => {
-    //console.log("---");
+  //pagination - динамическая подгрузка страниц, пока не используем, оставим на будущее
+/*   useEffect(() => {
     const fetchData = async () => {
       setPageState((old) => ({ ...old, isLoading: true }));
-      // console.log("pageState:", pageState);
       const response = await fetch(
         `/value_int_dose?page=${
           pageState.page + 1
@@ -533,37 +457,7 @@ const BigTableValueIntDose = (props) => {
     };
     fetchData();
   }, [pageState.pageSize, pageState.page]);
-
-  //////////////////////////////////////////////////////// ACTIONS ///////////////////////////////
-  function CustomToolbar1() {
-/*   const apiRef = useGridApiContext();
-     const handleExport = (options) =>
-      apiRef.current.exportDataAsCsv(options); */
-
-    return(
-      <GridToolbarContainer>
-        <IconButton /* onClick={()=>handleClearClick()}  */ color="primary" size="small" title="Создать запись">
-          <SvgIcon fontSize="small" component={PlusLightIcon} inheritViewBox /></IconButton>
-
-        <IconButton onClick={()=>handleClickEdit()} color="primary" size="small" title="Редактировать запись">
-          <SvgIcon fontSize="small" component={EditLightIcon} inheritViewBox /></IconButton>          
-{/*         <IconButton  color="primary" size="small" title="Сохранить запись в БД">
-          <SvgIcon fontSize="small" component={SaveLightIcon} inheritViewBox/></IconButton> */}
-        <IconButton /* onClick={()=>handleClickDelete()} */  color="primary" size="small" title="Удалить запись">
-          <SvgIcon fontSize="small" component={TrashLightIcon} inheritViewBox /></IconButton>
-{/*         <IconButton   color="primary" size="small" title="Отменить редактирование">
-          <SvgIcon fontSize="small" component={UndoLightIcon} inheritViewBox /></IconButton> */}
-        <IconButton /* onClick={()=>reloadDataAlert()} */ color="primary" size="small" title="Обновить данные">
-          <SvgIcon fontSize="small" component={RepeatLightIcon} inheritViewBox /></IconButton>
-{/*         <IconButton onClick={()=>handleExport({ delimiter: ';', utf8WithBom: true, getRowsToExport: () => gridFilteredSortedRowIdsSelector(apiRef) })} color="primary" 
-            size="small" title="Сохранить в формате CSV">
-          <SvgIcon fontSize="small" component={DownloadLightIcon} inheritViewBox /></IconButton>  */}
-      </GridToolbarContainer>
-    );
-  }
-
-
-
+ */
 /*  
     const setPage = (page) => {
     setPageState({ ...pageState, page: page });
@@ -605,11 +499,34 @@ const BigTableValueIntDose = (props) => {
     fetchData();
   }, [pageState.pageSize, pageState.page]); */
 
+  //////////////////////////////////////////////////////// ACTIONS ///////////////////////////////
+  function CustomToolbar1() {
+/*   const apiRef = useGridApiContext();
+     const handleExport = (options) =>
+      apiRef.current.exportDataAsCsv(options); */
+    return(
+      <GridToolbarContainer>
+        <IconButton /* onClick={()=>handleClearClick()}  */ color="primary" size="small" title="Создать запись">
+          <SvgIcon fontSize="small" component={PlusLightIcon} inheritViewBox /></IconButton>
 
-  function GetFilterCaption() { //формирование заголовка выбранных фильтров
-    //console.log('MyFilterCaption');
-    //console.log(selPeopleClassValues); 
-    //console.log(selDataSourceValues);
+        <IconButton onClick={()=>handleClickEdit()} color="primary" size="small" title="Редактировать запись">
+          <SvgIcon fontSize="small" component={EditLightIcon} inheritViewBox /></IconButton>          
+{/*         <IconButton  color="primary" size="small" title="Сохранить запись в БД">
+          <SvgIcon fontSize="small" component={SaveLightIcon} inheritViewBox/></IconButton> */}
+        <IconButton /* onClick={()=>handleClickDelete()} */  color="primary" size="small" title="Удалить запись">
+          <SvgIcon fontSize="small" component={TrashLightIcon} inheritViewBox /></IconButton>
+{/*         <IconButton   color="primary" size="small" title="Отменить редактирование">
+          <SvgIcon fontSize="small" component={UndoLightIcon} inheritViewBox /></IconButton> */}
+        <IconButton /* onClick={()=>reloadDataAlert()} */ color="primary" size="small" title="Обновить данные">
+          <SvgIcon fontSize="small" component={RepeatLightIcon} inheritViewBox /></IconButton>
+{/*         <IconButton onClick={()=>handleExport({ delimiter: ';', utf8WithBom: true, getRowsToExport: () => gridFilteredSortedRowIdsSelector(apiRef) })} color="primary" 
+            size="small" title="Сохранить в формате CSV">
+          <SvgIcon fontSize="small" component={DownloadLightIcon} inheritViewBox /></IconButton>  */}
+      </GridToolbarContainer>
+    );
+  }
+
+  function GetFilterCaption() { //формирование заголовка выбранных фильтров для использования в аккордеоне
     return (
       <>
         {selDataSourceValues.length > 0 ? (<div>Источники данных: {selDataSourceValues.map(value => value.title).join(', ')}<br /></div>) : ''}
@@ -653,18 +570,17 @@ const BigTableValueIntDose = (props) => {
   }
 
   const formRef = React.useRef();
+
+  // основной генератор страницы
   return (
-    <div /* style={{ height: 640, width: 1500 }} */>
+    <div>
     <form ref={formRef}>  
+      {/* аккордеон по страницам */} 
       <Accordion expanded={isFilterExpanded} onChange={() => setIsFilterExpanded(!isFilterExpanded)}>
-        <AccordionSummary
-          expandIcon={<ExpandMoreIcon />}
-          aria-controls="panel1a-content"
-          id="panel1a-header"
-        >
+        <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1a-content" id="panel1a-header">
           <Typography>Фильтры {GetFilterCaption()}</Typography> 
- 
         </AccordionSummary>
+
         <AccordionDetails>
         <table border = "0" cellSpacing="0" cellPadding="0"><tbody>
           <tr>      
@@ -729,8 +645,7 @@ const BigTableValueIntDose = (props) => {
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
           </td>
 
-
-           {!((!selDataSourceValues.length)||(!selDoseRatioValue)||(![2, 8].includes(selDoseRatioValue.id)))&&(    
+          {!((!selDataSourceValues.length)||(!selDoseRatioValue)||(![2, 8].includes(selDoseRatioValue.id)))&&(    
             <td width={548}>      
             <Autocomplete
             size="small"
@@ -771,7 +686,6 @@ const BigTableValueIntDose = (props) => {
               &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
             </td>
           )}
-          
  
           {!((!selDataSourceValues.length)||(!selDoseRatioValue)||(![8].includes(selDoseRatioValue.id)) ) && (
             <td width={348}> 
@@ -1089,7 +1003,7 @@ const BigTableValueIntDose = (props) => {
               multiple
               limitTags={7}
               id="autocomplete-isotope"
-              options={tableIsotope}
+              options={tableIsotopeFiltered}
               getOptionLabel={(option) => option.title}
               disableCloseOnSelect
               renderOption={(props, option, { selected }) => (
@@ -1107,7 +1021,7 @@ const BigTableValueIntDose = (props) => {
             &nbsp;&nbsp;
           </td>
           <td>        
-            <IconButton onClick={()=>setSelIsotopeValues(tableIsotope)} color="primary" size="small" title="Выбрать все">
+            <IconButton onClick={()=>setSelIsotopeValues(tableIsotopeFiltered)} color="primary" size="small" title="Выбрать все">
             <SvgIcon fontSize="small" component={CheckDoubleIcon} inheritViewBox /></IconButton>
           </td>
           <td>
@@ -1278,7 +1192,7 @@ const BigTableValueIntDose = (props) => {
           <Autocomplete
             size="small"
             disabled={ (!selDataSourceValues.length) }
-            value={tableIsotope.find((option) => option.id === valueIsotopeID)  }
+            value={tableIsotopeFiltered.find((option) => option.id === valueIsotopeID)  }
             onChange={(event, newValueAC) => { console.log('aaa '+newValueAC?newValueAC.id:-1); setValueIsotopeID(newValueAC?newValueAC.id:-1) } }
             id="autocomplete-nuclide_edit"
             options={ tableIsotope }
@@ -1355,8 +1269,6 @@ const BigTableValueIntDose = (props) => {
           <Button variant="outlined" /* disabled={!valueTitleSrc||!valueDataSourceId} */ onClick={handleCloseEditYes}>Сохранить</Button>
         </DialogActions>
       </Dialog>
-
-
 
  {/* <Dialog open={openDel} onClose={handleCloseDelNo} fullWidth={true}>
       <DialogTitle>

@@ -70,20 +70,34 @@ const DataTableDoseRatio = (props) => {
   const [valueExtGroundInitial, setValueExtGroundInitial] = React.useState();
 
   const [tablePhysParam, settablePhysParam] = useState([]); 
+
   const [valuePhysParamID, setValuePhysParamId] = useState(); 
   const [valuePhysParamIDInitial, setValuePhysParamIdInitial] = useState(); 
-  const [valuePhysParamCode, setValuePhysParamCode] = useState([]); 
-  const [valuePhysParamNameRus, setValuePhysParamNameRus] = useState([]); 
-  const [valuePhysParamDimension, setValuePhysParamDimension] = useState([]);
+  const [valuePhysParamCode, setValuePhysParamCode] = useState(); 
+  const [valuePhysParamNameRus, setValuePhysParamNameRus] = useState(); 
+  const [valuePhysParamDimension, setValuePhysParamDimension] = useState();
+
+  const [valueDrType, setValueDrType] = useState('e'); 
+  const [valueDrTypeInitial, setValueDrTypeInitial] = useState('e'); 
 
   const [valueUsed, setValueUsed] = useState(true);
-  const [valueUsedInitial, setValueUsedInitial] = useState([]);
-  const [valueParameters, setValueParameters] = useState([]);
-  const [valueParametersInitial, setValueParametersInitial] = useState([]);
-  const [valueParametersDialog, setValueParametersDialog] = useState([]);
+  const [valueUsedInitial, setValueUsedInitial] = useState();
+  const [valueParameters, setValueParameters] = useState();
+  const [valueParametersInitial, setValueParametersInitial] = useState();
+  const [valueParametersDialog, setValueParametersDialog] = useState();
   
   const [isEmpty, setIsEmpty] = useState([false]);
 
+  const valuesDrTypeList = [
+    { label: 'внешнего облучения', value: 'e' },
+    { label: 'внутреннего облучения', value: 'i' },
+    { label: 'поглощения в ЖКТ', value: 'f' } ];
+
+/*     const valuesDrTypeList = [
+      { label: 'e', value: 'e' },
+      { label: 'i', value: 'i' },
+      { label: 'f', value: 'f' } ]; */
+  
 
   useEffect(() => {
     setValuePhysParamCode(valuePhysParamID);
@@ -108,22 +122,26 @@ const DataTableDoseRatio = (props) => {
 
     }, [ valueTitle, valueNameRus, valueNameEng, valueDescrEng, valueDescrRus, 
         valueRespRate, valueRespYear,  valueIndoor, valueExtCloud, valueExtGround,
-        valuePhysParamID, valueUsed,valueParameters, valueParametersDialog]); 
+        valuePhysParamID, valueUsed, valueParameters, valueParametersDialog]); 
       
-
-
   useEffect(() => {
     setEditStarted((valueTitleInitial!==valueTitle)||(valueNameRusInitial!==valueNameRus)||(valueNameEngInitial!==valueNameEng)
       ||(valueDescrEngInitial!==valueDescrEng)||(valueDescrRusInitial!==valueDescrRus)   
       ||(valueRespRateInitial!==valueRespRate)||(valueRespYearInitial!==valueRespYear)||(valueIndoorInitial!==valueIndoor)
       ||(valueExtCloudInitial!==valueExtCloud)||(valueExtGroundInitial!==valueExtGround)||(valuePhysParamIDInitial!==valuePhysParamID)
-      ||(valueUsedInitial!==valueUsed)||(valueParametersInitial!==valueParameters)
+      ||(valueUsedInitial!==valueUsed)||(valueParametersInitial!==valueParameters)||(valueDrTypeInitial!==valueDrType)
       );
+
+      console.log('compare valueDrType');
+      console.log(valueDrType);
+
     }, [valueTitleInitial, valueTitle, valueNameRusInitial, valueNameRus, valueNameEngInitial, valueNameEng, 
         valueDescrEngInitial, valueDescrEng, valueDescrRusInitial, valueDescrRus, 
         valueRespRateInitial, valueRespRate, valueRespYearInitial, valueRespYear, valueIndoorInitial, 
         valueIndoor, valueExtCloudInitial, valueExtCloud, valueExtGroundInitial, valueExtGround,
-        valuePhysParamID, valuePhysParamIDInitial, valueUsed, valueUsedInitial, valueParameters, valueParametersInitial]); 
+        valuePhysParamID, valuePhysParamIDInitial, valueUsed, valueUsedInitial, valueParameters, valueParametersInitial,
+        valueDrType, valueDrTypeInitial
+      ]); 
 
   useEffect(() => {
     if ((!isLoading) && (tableData) && (tableData.length)) {
@@ -164,6 +182,11 @@ const DataTableDoseRatio = (props) => {
         setValueUsedInitial(tableData[0].used);
         setValueParameters(tableData[0].parameters);
         setValueParametersInitial(tableData[0].parameters);
+
+        setValueDrType(tableData[0].dr_type);
+        setValueDrTypeInitial(tableData[0].dr_type);
+        console.log('init tableData[0].dr_type');
+        console.log(tableData[0].dr_type);
       }
     }
     }, [ isLoading, tableData] );
@@ -202,12 +225,16 @@ const DataTableDoseRatio = (props) => {
       setValueExtGroundInitial(params.row.ext_ground );
       setValuePhysParamId(params.row.physparam_id);
       setValuePhysParamIdInitial(params.row.physparam_id);
-      console.log(params.row.physparam_id);
 
       setValueUsed(params.row.used);
       setValueUsedInitial(params.row.used);
       setValueParameters(params.row.parameters);
       setValueParametersInitial(params.row.parameters);
+
+      setValueDrType(params.row.dr_type);
+      setValueDrTypeInitial(params.row.dr_type);      
+      console.log('params.row.dr_type');
+      console.log(params.row.dr_type);
     }
   }; 
 
@@ -232,6 +259,7 @@ const DataTableDoseRatio = (props) => {
       setValuePhysParamId('');  
       setValueUsed(``);
       setValueParameters(``);
+      setValueDrType(``);  
     }
   }; 
 
@@ -268,6 +296,7 @@ const DataTableDoseRatio = (props) => {
       ext_cloud: valueExtCloud,
       ext_ground: valueExtGround,
       physparam_id: valuePhysParamID,
+      dr_type: valueDrType,
       used: valueUsed,
       parameters: valueParameters
     });
@@ -317,6 +346,8 @@ const DataTableDoseRatio = (props) => {
        setValuePhysParamIdInitial(valuePhysParamID);            
        setValueUsedInitial(valueUsed);           
        setValueParametersInitial(valueParameters);
+       setValueDrType(valueDrType);
+
      }
     reloadData();     
    }
@@ -339,6 +370,7 @@ const DataTableDoseRatio = (props) => {
       physparam_id: valuePhysParamID||0,
       used: valueUsed,       
       parameters: valueParameters,
+      dr_type: valueDrType,
     });
     setIsLoading(true);
     try {
@@ -402,6 +434,7 @@ const DataTableDoseRatio = (props) => {
       setValuePhysParamIdInitial(valuePhysParamID);
       setValueUsedInitial(valueUsed); 
       setValueParametersInitial(valueParameters);
+      setValueDrType(valueDrType);
     }
   };
 
@@ -616,6 +649,7 @@ const handleCloseDSInfo = () => {
     { field: 'name_eng', headerName: 'Название (англ.яз)', width: 180 },
     { field: 'descr_rus', headerName: 'Полное название (рус.яз)', width: 180 },
     { field: 'descr_eng', headerName: 'Полное название (англ.яз)', width: 180 },
+    { field: 'dr_type', headerName: 'Тип дозового коэффициента', width: 180 },
   ]
 
   const [openAlert, setOpenAlert] = React.useState(false, '');
@@ -769,6 +803,27 @@ const handleCloseDSInfo = () => {
       <p></p> 
       <TextField  id="ch_descr_rus" sx={{ width: '100ch' }} label="Комментарий (англ.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrEng || ''} onChange={e => setValueDescrEng(e.target.value)}/>
       <p></p>
+      <FormControl sx={{ width: '40ch' }} size="small">
+        <InputLabel required id="demo-controlled-open-select-label">Тип дозового коэффициента</InputLabel>
+        <Select
+          labelId="dose-coeff-select"
+          id="dose-coeff-select"
+          required
+          value={valueDrType}
+          label="Тип дозового коэффициента"
+         // defaultValue="e"
+          onChange={e => setValueDrType(e.target.value)}
+        >
+        {valuesDrTypeList?.map(option => {
+            return (
+              <MenuItem key={option.value} value={option.value}>
+                {option.label ?? option.value}
+              </MenuItem>
+            );
+        })}
+        </Select>
+      </FormControl>  
+      <p></p>    
 
       <div>
       {(() => {
@@ -866,7 +921,9 @@ const handleCloseDSInfo = () => {
       </DialogActions>
       </Dialog>
 
-        <p></p>  
+      <p></p>
+
+   
 
         
 
