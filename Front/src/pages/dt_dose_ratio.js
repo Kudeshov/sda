@@ -948,7 +948,9 @@ const handleCloseDSInfo = () => {
           <p></p>
  */}
       <div style={{ height: 300, width: 800 }}>
+      <td>Источники данных<br/>
         <DataTableDataSourceClass table_name={props.table_name} rec_id={valueId} />
+        </td>
       </div>
     </td>
   </tr>

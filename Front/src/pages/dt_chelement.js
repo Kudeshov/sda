@@ -722,7 +722,6 @@ const DataTableChelement = (props) => {
     <tr>
       <td style={{ height: 640, width: 600, verticalAlign: 'top' }}>
       <div style={{ height: 486, width: 585 }}>
-
       <DataGrid
         components={{ Toolbar: CustomToolbar1 }}
         hideFooterSelectedRowCount={true}
@@ -733,7 +732,9 @@ const DataTableChelement = (props) => {
         columns={columns}
         onSelectionModelChange={(newSelectionModel) => {
           setSelectionModel(newSelectionModel);
+          
         }}
+        
         selectionModel={selectionModel}        
         initialState={{
           columns: {
@@ -743,7 +744,9 @@ const DataTableChelement = (props) => {
               descr_eng: false,
             },
           },
+          
         }}        
+        
         onRowClick={handleRowClick} {...tableData} 
       />
       </div>
@@ -781,6 +784,7 @@ const DataTableChelement = (props) => {
       &nbsp;&nbsp;&nbsp;&nbsp;
       <TextField  id="ch_name_eng" sx={{ width: '49ch' }} size="small" label="Название (англ.яз)"  variant="outlined" value={valueNameEng || ''} onChange={e => setValueNameEng(e.target.value)}/>
       <p></p>
+      Физико-химические формы элемента
       <DataGrid
         style={{ height: 230, width: 800, verticalAlign: 'top' }}
         //sx={{ height: 200 }}
@@ -810,6 +814,7 @@ const DataTableChelement = (props) => {
       <p></p>
       <table cellSpacing={0} cellPadding={0} style={{ height: 270, width: 886, verticalAlign: 'top' }} border="0"><tbody><tr>
         <td style={{ height: 270, width: 800, verticalAlign: 'top' }}>
+        Радионуклиды элемента
         <DataGrid
         style={{ height: 270, width: 800, verticalAlign: 'top' }}
         hideFooterSelectedRowCount={true}

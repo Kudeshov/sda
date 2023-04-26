@@ -953,7 +953,9 @@ const DataTableCriterion= (props) => {
       <TextField  id="ch_descr_rus" sx={{ width: '100ch' }} label="Комментарий (англ.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrEng || ''} onChange={e => setValueDescrEng(e.target.value)}/>
       <p></p>
       <div style={{ height: 300, width: 800 }}>
+      <td>Источники данных<br/>
         <DataTableDataSourceClass table_name={props.table_name} rec_id={valueId||0} />
+        </td>
       </div>
     </td>
   </tr>

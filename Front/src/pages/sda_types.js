@@ -6,7 +6,7 @@ export const table_names = {
     'let_level': 'Уровни ЛПЭ',
     'integral_period': 'Периоды интегрирования',
     'irradiation': 'Типы облучения',
-    'chelement': 'Химические элементы',
+    'chelement': 'Химические элементы и радиоизотопы',
     'data_source': 'Источники данных',
     'exp_scenario': 'Сценарии поступления',
     'dose_ratio': 'Параметры',
