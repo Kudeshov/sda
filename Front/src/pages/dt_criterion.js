@@ -68,8 +68,8 @@ const DataTableCriterion= (props) => {
 
 
   useEffect(() => {
-    setIsEmpty((''==valueTitle)&&(''==valueNameRus)&&(''==valueNameEng)&&(''==valueDescrEng)&&(''==valueDescrRus)   
-      &&(''==valueParentID)&&(''==valueNormativ));
+    setIsEmpty((''===valueTitle)&&(''===valueNameRus)&&(''===valueNameEng)&&(''===valueDescrEng)&&(''===valueDescrRus)   
+      &&(''===valueParentID)&&(''===valueNormativ));
     }, [ valueTitle, valueNameRus, valueNameEng, valueDescrEng, valueDescrRus, 
       valueParentID, valueNormativ]); 
       

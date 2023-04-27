@@ -593,7 +593,7 @@ const DataTableIsotope = (props) => {
   function timeDisplay(val, per) {
     return(<span> ({val} {per})</span>);
   }
-   */
+   
   function getNuclideNameById(n_id) {
     if (n_id) {
       var arr= tableNuclide.filter((row) => n_id===row.id);
@@ -605,6 +605,7 @@ const DataTableIsotope = (props) => {
       return('');
     }
    }
+*/
 
 /*   const getTreeNodesFromData = treeItems => {
     return treeItems.map(treeItemData => {

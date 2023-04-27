@@ -51,7 +51,7 @@ const DataTablePeopleClass = (props) => {
 
 
   useEffect(() => {
-    setIsEmpty((''==valueTitle)&&(''==valueNameRus)&&(''==valueNameEng)&&(''==valueDescrEng)&&(''==valueDescrRus));
+    setIsEmpty((''===valueTitle)&&(''===valueNameRus)&&(''===valueNameEng)&&(''===valueDescrEng)&&(''===valueDescrRus));
     }, [ valueTitle, valueNameRus, valueNameEng, valueDescrEng, valueDescrRus, ]); 
       
 
