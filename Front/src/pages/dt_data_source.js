@@ -12,7 +12,7 @@ import {
   //gridExpandedSortedRowIdsSelector,
   //GridCellParams
 } from "@mui/x-data-grid";
-import { useDemoData } from "@mui/x-data-grid-generator";
+//import { useDemoData } from "@mui/x-data-grid-generator";
 
 export default function DataTableDataSource() {
   const apiRef = useGridApiRef();
@@ -23,11 +23,11 @@ export default function DataTableDataSource() {
     colIndex: 0,
   }); */
 
-  const { data } = useDemoData({
+/*   const { data } = useDemoData({
     dataSet: "Commodity",
     rowLength: 100
   });
-
+ */
   /*   React.useEffect(() => {
     const { rowIndex, colIndex } = coordinates;
     
@@ -104,7 +104,7 @@ export default function DataTableDataSource() {
           apiRef={apiRef}
           //onCellClick={handleCellClick}
           hideFooter
-          {...data}
+         // {...data}
         />
       </Box>
     </Box>

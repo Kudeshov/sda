@@ -412,7 +412,8 @@ const DataTableChelement = (props) => {
     { field: 'title', headerName: 'Обозначение', width: 180, hideable: false },
     { field: 'name_rus', headerName: 'Название (рус.яз)', width: 250 },
     { field: 'name_eng', headerName: 'Название (англ.яз)', width: 180 },
-    { field: 'atomic_num', headerName: 'Атомный номер', width: 180 }
+    { field: 'atomic_num', headerName: 'Атомный номер', width: 180 },
+    { field: 'mass_numbers', headerName: 'Радионуклиды элемента', width: 300 }
   ]
 
   /*
