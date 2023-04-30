@@ -22,18 +22,6 @@ pool.on(`error`, function (err, client) {
 });
 
 const getChelement = (request, response, table_name ) => {
-
-  let s = `SELECT pc.*, pcn1.name name_rus, pcn2.name name_eng,   
-  string_agg(pc.title || '-' || nuclide.mass_number::text, ',') AS mass_numbers 
-  FROM nucl.chelement pc
-  left join nucl.chelement_nls pcn1 on pc.id=pcn1.chelement_id and pcn1.lang_id=1  
-  left join nucl.chelement_nls pcn2 on pc.id=pcn2.chelement_id and pcn2.lang_id=2 
-  LEFT JOIN nucl.nuclide ON pc.id = nuclide.chelement_id 
-  GROUP BY pc.id, pcn1.name, pcn2.name
-  ORDER BY pc.title ASC`;
-
-  console.log(s);
-
   pool.query(`SELECT pc.*, pcn1.name name_rus, pcn2.name name_eng,   
   string_agg(pc.title || '-' || nuclide.mass_number::text, ',') AS mass_numbers 
   FROM nucl.chelement pc
