@@ -3,7 +3,7 @@ import {
   DataGrid, 
   ruRU,
   GridToolbarContainer,
-  useGridApiContext,
+//  useGridApiContext,
   gridFilteredSortedRowIdsSelector,
 } from '@mui/x-data-grid';
 import TextField from '@mui/material/TextField';
@@ -31,12 +31,18 @@ import { Select } from "@mui/material";
 import { MenuItem } from "@mui/material";
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Backdrop from '@mui/material/Backdrop';
+import { useGridApiRef } from '@mui/x-data-grid';
 
 var alertText = "Сообщение";
 var alertSeverity = "info";
 var lastId = 0;
 
 const DataTableDataSource = (props) => {
+
+  const apiRef = useGridApiRef();
+  //console.log('aaa');
+  //console.log(apiRef);
+
   const [valueId, setValueID] = React.useState();
   const [valueTitle, setValueTitle] = React.useState();
   const [valueTitleInitial, setValueTitleInitial] = React.useState();
@@ -53,7 +59,8 @@ const DataTableDataSource = (props) => {
 
   const [isLoading, setIsLoading] = React.useState(false);
   const [tableData, setTableData] = useState([]); 
-  const [selectionModel, setSelectionModel] = React.useState([]);
+ // const [selectionModel, setSelectionModel] = React.useState([]);
+  const [rowSelectionModel, setRowSelectionModel] = React.useState([]);
   const [editStarted, setEditStarted] = useState([false]);
 
   const [isEmpty, setIsEmpty] = useState([false]);
@@ -62,16 +69,9 @@ const DataTableDataSource = (props) => {
     { label: 'Целевая БД', value: 'false' },
     { label: 'Внешний источник', value: 'true' } ];
 
-
-
-
-
-    
-    useEffect(() => {
-      setIsEmpty((''==valueTitle)&&(''==valueShortName)&&(''==valueFullName)&&(''==valueDescr)&&(''==valueExternalDS)   );
-      }, [ valueTitle, valueShortName, valueFullName, valueDescr, valueExternalDS]); 
-        
-  
+  useEffect(() => {
+    setIsEmpty((''===valueTitle)&&(''===valueShortName)&&(''===valueFullName)&&(''===valueDescr)&&(''===valueExternalDS)   );
+    }, [ valueTitle, valueShortName, valueFullName, valueDescr, valueExternalDS]); 
 
   useEffect(() => {
     setEditStarted((valueTitleInitial!==valueTitle)||(valueShortNameInitial!==valueShortName)||(valueFullNameInitial!==valueFullName)
@@ -85,7 +85,7 @@ const DataTableDataSource = (props) => {
       {
         console.log('isLoading, tableData[0].external_ds '+tableData[0].external_ds);
         lastId = tableData[0].id;
-        setSelectionModel([tableData[0].id]);
+        setRowSelectionModel([tableData[0].id]);
         setValueID(tableData[0].id);
 
         setValueTitle(tableData[0].title);
@@ -99,16 +99,14 @@ const DataTableDataSource = (props) => {
         setValueFullNameInitial(tableData[0].fullname || "" );
         setValueExternalDSInitial(tableData[0].external_ds);
         setValueDescrInitial(tableData[0].descr || "" ); 
-        
-        
       }
     }
     }, [ isLoading, tableData] );
 
   const handleRowClick = (params) => {
     setOpenAlert(false);
-    console.log( 'isEmpty = '+isEmpty);
-    console.log('handleRowClick params.row.external_ds'+ params.row.external_ds);
+    //console.log( 'isEmpty = '+isEmpty);
+    //console.log('handleRowClick params.row.external_ds'+ params.row.external_ds);
     if (editStarted&&(!isEmpty))
     {
       handleClickSave(params);
@@ -209,11 +207,28 @@ const DataTableDataSource = (props) => {
        setValueExternalDSInitial(valueExternalDS);
        setValueDescrInitial(valueDescr);           
      }
-    reloadData();     
+    reloadData(valueId);     
    }
   }
  };
 /////////////////////////////////////////////////////////////////// ADDREC ///////////////////// 
+
+const [scrollToIndex, setScrollToIndex] = useState(-1);
+
+useEffect(() => {
+  console.log('scrollToIndex= ' + scrollToIndex ); //+ 'isLoading= '+ isLoading);
+
+  const index = tableData.findIndex((row) => row.id === scrollToIndex);
+  console.log('Index= ' + index );
+  if (!index) return;
+  //if (isLoading) return;
+
+  if (scrollToIndex !== null) {
+    handleScrollToRow(scrollToIndex);
+    setScrollToIndex(null);
+  }
+}, [tableData]);
+
   const addRec = async ()  => {
     const js = JSON.stringify({
       id: valueId,
@@ -256,8 +271,12 @@ const DataTableDataSource = (props) => {
       setOpenAlert(true);
     } finally {
       setIsLoading(false);
-      reloadData();
-      setSelectionModel([lastId]);
+      reloadData(lastId);
+
+      setRowSelectionModel([lastId]);
+
+      setScrollToIndex(lastId); // замените на нужный индекс строки
+      //handleScrollToRow(lastId);
       //Refresh initial state
       //console.log('addRec Refresh initial '+valueTitle+' '+valueShortName);      
       setValueTitle(valueTitle);       
@@ -301,8 +320,8 @@ const DataTableDataSource = (props) => {
         alertSeverity = "success";
         alertText = await response.text();
         setOpenAlert(true); 
-        reloadData();
-        setSelectionModel([tableData[0].id ]);  
+        reloadData(tableData[0].id);
+        setRowSelectionModel([tableData[0].id ]);  
         setValueID(tableData[0].id);
 
         setValueTitle(tableData[0].title);
@@ -332,7 +351,7 @@ const DataTableDataSource = (props) => {
     alertText =  'Данные успешно обновлены';
     try 
     {
-      await reloadData();
+      await reloadData(valueId);
     } catch(e)
     {
       alertSeverity = "error";
@@ -343,7 +362,7 @@ const DataTableDataSource = (props) => {
     setOpenAlert(true);        
   }
 
-  const reloadData = async () => {
+  const reloadData = async (val_id_position) => {
     try {
       const response = await fetch(`/${props.table_name}/`);
        if (!response.ok) {
@@ -357,6 +376,9 @@ const DataTableDataSource = (props) => {
       {  
         const result = await response.json();
         setTableData(result);
+        //setTableData(valueId);
+        //console.log('setTableData(result) valueId=' + val_id_position); 
+        //handleScrollToRow(val_id_position);
       }
     } catch (err) {
       //console.log('catch err');
@@ -446,11 +468,8 @@ const DataTableDataSource = (props) => {
   const handleCancelClick = () => 
   {
     console.log('handleCancelClick');
-    //console.log('selectionModel');
-    //console.log(selectionModel);
-    //console.log('selectionModel='+selectionModel.row.id);
-    const selectedIDs = new Set(selectionModel);
-    //console.log(selectedIDs);
+    const selectedIDs = new Set(rowSelectionModel);
+    
     const selectedRowData = tableData.filter((row) => selectedIDs.has(row.id));
     //console.log(selectedRowData);
     if (selectedRowData.length)
@@ -471,10 +490,67 @@ const DataTableDataSource = (props) => {
     }
   }
 
+  //const apiRef= useGridApiRef();;
+  //console.log (apiRef);
+ 
+  //const [selectedId, setSelectedId] = useState(458);
+  
+  const handleScrollToRow = (v_id) => {
+    console.log ('handleScrollToRow ' + v_id);
+    //console.log (apiRef);
+    console.log (tableData);    
+    //setSelectedId(458);
+    let index = tableData.findIndex((row) => row.id == v_id);
+    console.log ('index='+index);
+
+    console.log ('getRowIdFromRowIndex='+apiRef.current.getRowIdFromRowIndex (index) );
+    //const foundItem  = tableData.findIndex((row) => row.id === v_id);
+    //console.log ('foundItem ='+foundItem );
+
+/*     let foundItem = null;
+    for (let i = 0; i < tableData.length; i++) {
+      console.log ('id='+tableData[i].id + ' v_id='+v_id + ' compare = ' +(tableData[i].id == v_id));
+      if (tableData[i].id == v_id) {
+        foundItem = tableData[i];
+        break;
+      }
+    }
+    con3ole.log ('foundItem ='+foundItem );
+
+    if (foundItem) 
+      index=foundItem.id; 
+    console.log ('index='+index);*/
+
+    let a = 2;
+    a = v_id;
+
+    if (index !== -1) {
+      console.log (apiRef.current);
+      // прокручиваем до нужной строки
+      setTimeout(function() {
+        // Код, который нужно выполнить после задержки
+        console.log ('setSelectionModel([a]);'+ a );
+        setRowSelectionModel([a]);
+        apiRef.current.scrollToIndexes({ rowIndex: index, colIndex: 0 });
+      }, 10);
+      
+    }
+  };
+
+
+  const handleSelectRow = (v_id) => {
+ 
+
+    console.log ('handleSelectRow v_id='+v_id );
+    let a = 444;
+
+    setRowSelectionModel(a);
+  };
+
   function CustomToolbar1() {
-    const apiRef = useGridApiContext();
+    //const apiRef = useGridApiContext();
     const handleExport = (options/* : GridCsvExportOptions */) =>
-      apiRef.current.exportDataAsCsv(options);
+       apiRef.current.exportDataAsCsv(options);
 
     return (
       <GridToolbarContainer>
@@ -486,18 +562,27 @@ const DataTableDataSource = (props) => {
           <SvgIcon fontSize="small" component={TrashLightIcon} inheritViewBox /></IconButton>
         <IconButton onClick={()=>handleCancelClick()} disabled={!editStarted} color="primary" size="small" title="Отменить редактирование">
           <SvgIcon fontSize="small" component={UndoLightIcon} inheritViewBox /></IconButton>
-        <IconButton onClick={()=>reloadDataAlert()} color="primary" size="small" title="Обновить данные">
+        <IconButton onClick={()=>reloadDataAlert(valueId)} color="primary" size="small" title="Обновить данные">
           <SvgIcon fontSize="small" component={RepeatLightIcon} inheritViewBox /></IconButton>
         <IconButton onClick={()=>handleExport({ delimiter: ';', utf8WithBom: true, getRowsToExport: () => gridFilteredSortedRowIdsSelector(apiRef) })} color="primary" 
             size="small" title="Сохранить в формате CSV">
           <SvgIcon fontSize="small" component={DownloadLightIcon} inheritViewBox /></IconButton>
+        <IconButton onClick={()=>handleScrollToRow(valueId)} color="primary" size="small" title="Переместиться на строку 1">
+          <SvgIcon fontSize="small" component={RepeatLightIcon} inheritViewBox /></IconButton>
+
+        <IconButton onClick={()=>handleSelectRow(valueId)} color="primary" size="small" title="Переместиться на строку 0">
+          <SvgIcon fontSize="small" component={RepeatLightIcon} inheritViewBox /></IconButton>
+ 
       </GridToolbarContainer>
     );
   }
 
   const formRef = React.useRef();
 
+  //const gridRef = React.useRef();
+
   return (
+    
     <div style={{ height: 640, width: 1500 }}>
 
     <form ref={formRef}>  
@@ -505,19 +590,42 @@ const DataTableDataSource = (props) => {
     <tr>
       <td style={{ height: 640, width: 600, verticalAlign: 'top' }}>
       <div style={{ height: 486, width: 585 }}>
+{/*       <DataGrid
+          apiRef={apiRef}
+          hideFooter
+          {...tableData}
+        />
+      <br/>  */}
 
+{/*         <IconButton onClick={()=>handleScrollToRow()} color="primary" size="small" title="Переместиться на строку 1">
+          <SvgIcon fontSize="small" component={RepeatLightIcon} inheritViewBox /></IconButton> */}
+
+{/*       <DataGrid
+//          apiRef={apiRef}
+          hideFooter
+          columns={columns}
+          rows={tableData}
+        />
+ */}
       <DataGrid
         components={{ Toolbar: CustomToolbar1 }}
+        apiRef={apiRef}
         hideFooterSelectedRowCount={true}
         localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
         rowHeight={25}
+        pageSize={5}
         rows={tableData}
-        //loading={isLoading}
         columns={columns}
-        onSelectionModelChange={(newSelectionModel) => {
+/*         onSelectionModelChange={(newSelectionModel) => {
           setSelectionModel(newSelectionModel);
         }}
-        selectionModel={selectionModel}        
+      selectionModel={selectionModel}   */      
+
+       onRowSelectionModelChange={(newRowSelectionModel) => {
+         setRowSelectionModel(newRowSelectionModel);
+       }}
+       rowSelectionModel={rowSelectionModel}
+
         initialState={{
           columns: {
             columnVisibilityModel: {
@@ -570,7 +678,6 @@ const DataTableDataSource = (props) => {
           value={valueExternalDS}
           label="Тип источника"
           defaultValue={true}
-          
           onChange={e => setValueExternalDS(e.target.value)}
         >
         {valuesExtDS?.map(option => {
