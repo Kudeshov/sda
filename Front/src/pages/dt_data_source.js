@@ -471,9 +471,9 @@ const DataTableDataSource = (props) => {
   useEffect(() => {
     //console.log('useffect scrollToIndex '+scrollToIndex);
     //const index = tableData.findIndex((row) => row.id === scrollToIndex);
+    if (!scrollToIndex) return;
+    if (scrollToIndex===-1) return;
     console.log('scrollToIndex index '+ scrollToIndex /* + 'useEffect index '+index */);
-    //if (!index) return;
-    //if (index===-1) return;
     if (scrollToIndex !== null) {
       handleScrollToRow(scrollToIndex);
       setScrollToIndex(null);
@@ -495,68 +495,30 @@ const DataTableDataSource = (props) => {
   
 
   const handleScrollToRow = (v_id) => {
-    let index = tableData.findIndex((row) => row.id === parseInt(v_id));
-    console.log('index found =' + index + ' page=' + paginationModel.page);
+    //let index = tableData.findIndex((row) => row.id === parseInt(v_id)); //старое
+    const sortedRowIds = apiRef.current.getSortedRowIds(); //const rowIDS = apiRef.current.getAllRowIds();
+    //console.log('SortedRowIds =');
+    //console.log( sortedRowIds );
+    const index = sortedRowIds.indexOf(parseInt(v_id));
     if (index !== -1) {
       // определяем текущую страницу и индекс строки в этой странице
-      const pageSize = paginationModel.pageSize; //apiRef.current.getPageSize();
-      const currentPage = paginationModel.page;//apiRef.current.getPage();
+      const pageSize = paginationModel.pageSize;  
+      const currentPage = paginationModel.page; 
       const rowPageIndex = Math.floor(index / pageSize);
-      const rowPageRowIndex = index % pageSize;
-  
-      console.log('pageSize =' + pageSize +' currentPage =' + currentPage +
-                  ' rowPageIndex =' + rowPageIndex + ' rowPageRowIndex =' + rowPageRowIndex );
+      //console.log('pageSize =' + pageSize +' currentPage =' + currentPage +' rowPageIndex =' + rowPageIndex + ' rowPageRowIndex =' + rowPageRowIndex );
       // проверяем, нужно ли изменять страницу
       if (currentPage !== rowPageIndex) {
         apiRef.current.setPage(rowPageIndex);
       }
-  
       // прокручиваем до нужной строки
-      setTimeout(function() {
-        // ставим задержку 0.1 секунды, иначе скроллинг тупит
-        //const rowId = apiRef.current.getRowIdAtIndex(rowPageRowIndex);
-        //const rowNodeId = apiRef.current.getRowNodeId(rowId);
-        setRowSelectionModel([v_id]);
-        apiRef.current.scrollToIndexes({ rowIndex: index, colIndex: 0 });
-        //apiRef.current.ensureColumnVisible('id');
-/*         const rowNode = apiRef.current.getRowNode(rowNodeId);
-        if (rowNode) {
-          rowNode.setRowHeight(40); // задаем высоту строки
-        } */
-      }, 100);
-    }
-  };
-
- 
-  const handleSelectRow = (v_id) => {
-
-    let index = tableData.findIndex((row) => row.id === parseInt(444));
-    console.log('index found =' + index);
-    apiRef.current.setPage(0);
-
-/*     const rowIDS = apiRef.current.getAllRowIds();
-    console.log('rowIDS found =');
-    console.log( rowIDS );
- */
-/*     console.log ('getRowIdFromRowIndex='+apiRef.current.getRowIdFromRowIndex (index) );
-    let index1 = apiRef.current.getRowIdFromRowIndex( index );
-    console.log('index1 found =' + index1);
-
-    let index2 = apiRef.current.getRowIndexRelativeToVisibleRows( index1 );
-    console.log('index2 found =' + index2); */
-
-    if (index !== -1) {
-      // прокручиваем до нужной строки
-      setTimeout(function() {
-        // ставим задержку 0.1 секунды, иначе скроллинг тупит
-        setRowSelectionModel([444]);
+      setRowSelectionModel([v_id]); //это устанавливает выбранную строку (подсветка)
+      setTimeout(function() { //делаем таймаут в 0.1 секунды, иначе скроллинг тупит
         apiRef.current.scrollToIndexes({ rowIndex: index, colIndex: 0 });
       }, 100);
     }
   };
 
- 
-    function CustomToolbar1() {
+  function CustomToolbar1() {
     const handleExport = (options/* : GridCsvExportOptions */) =>
        apiRef.current.exportDataAsCsv(options);
 
