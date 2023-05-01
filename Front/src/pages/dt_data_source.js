@@ -242,10 +242,8 @@ const DataTableDataSource = (props) => {
     } finally {
       setIsLoading(false);
       reloadData(lastId);
-
-      //setRowSelectionModel([lastId]);
       console.log('addRec setScrollToIndex lastId = ' + lastId);
-      setScrollToIndex(lastId);  
+      scrollToIndexRef.current = lastId; //setScrollToIndex(lastId);  
       //Refresh initial state
       setValueTitle(valueTitle);       
       setValueShortName(valueShortName);
@@ -372,30 +370,25 @@ const DataTableDataSource = (props) => {
   };
 
   const handleClickSave = () => {
-    //console.log('handleClickSave');
     setOpenSave(true);
   };
 
   const handleCloseSaveNo = () => {
-    //console.log('handleCloseSaveNo');
     setOpenSave(false);
     handleCancelClick();
   };
 
   const handleCloseSaveYes = () => {
-    //console.log('handleCloseSaveYes');
     setOpenSave(false);
     saveRec(false);
     handleCancelClick();
   };
 
   const handleClickSaveWhenNew = () => {
-    //console.log('handleClickSaveWhenNew');
     setOpenSaveWhenNew(true);
   };
 
   const handleCloseSaveWhenNewNo = () => {
-    //console.log('handleCloseSaveNo');
     setOpenSaveWhenNew(false);
 
     setValueID('');
@@ -407,7 +400,6 @@ const DataTableDataSource = (props) => {
   };
 
   const handleCloseSaveWhenNewYes = () => {
-    //console.log('handleCloseSaveYes');
     setOpenSaveWhenNew(false);
     saveRec(true);
     setValueID('');
@@ -432,11 +424,8 @@ const DataTableDataSource = (props) => {
   const [openAlert, setOpenAlert] = React.useState(false, '');
   const handleCancelClick = () => 
   {
-    //console.log('handleCancelClick');
     const selectedIDs = new Set(rowSelectionModel);
-    
     const selectedRowData = tableData.filter((row) => selectedIDs.has(row.id));
-    //console.log(selectedRowData);
     if (selectedRowData.length)
     {
       setValueID(selectedRowData[0].id);
@@ -456,8 +445,6 @@ const DataTableDataSource = (props) => {
   }
 
   // Scrolling and positionning
-  const [scrollToIndex, setScrollToIndex] = useState(-1);
-
   const [paginationModel, setPaginationModel] = React.useState({
     pageSize: 25,
     page: 0,
@@ -467,56 +454,34 @@ const DataTableDataSource = (props) => {
     console.log(paginationModel.page);
   }, [paginationModel]);
   
-
-  useEffect(() => {
-    //console.log('useffect scrollToIndex '+scrollToIndex);
-    //const index = tableData.findIndex((row) => row.id === scrollToIndex);
-    if (!scrollToIndex) return;
-    if (scrollToIndex===-1) return;
-    console.log('scrollToIndex index '+ scrollToIndex /* + 'useEffect index '+index */);
-    if (scrollToIndex !== null) {
-      handleScrollToRow(scrollToIndex);
-      setScrollToIndex(null);
-    }
-  }, [tableData]);
-
-/*   const handleScrollToRow = (v_id) => {
-    let index = tableData.findIndex((row) => row.id === parseInt(v_id));
-    console.log('index found =' + index);
+  const handleScrollToRow = React.useCallback((v_id) => {
+    const sortedRowIds = apiRef.current.getSortedRowIds(); //получаем список отсортированных строк грида
+    const index = sortedRowIds.indexOf(parseInt(v_id));    //ищем в нем номер нужной записи
     if (index !== -1) {
-      // прокручиваем до нужной строки
-      setTimeout(function() {
-        // ставим задержку 0.1 секунды, иначе скроллинг тупит
-        setRowSelectionModel([v_id]);
-        apiRef.current.scrollToIndexes({ rowIndex: index, colIndex: 0 });
-      }, 100);
-    }
-  }; */
-  
-
-  const handleScrollToRow = (v_id) => {
-    //let index = tableData.findIndex((row) => row.id === parseInt(v_id)); //старое
-    const sortedRowIds = apiRef.current.getSortedRowIds(); //const rowIDS = apiRef.current.getAllRowIds();
-    //console.log('SortedRowIds =');
-    //console.log( sortedRowIds );
-    const index = sortedRowIds.indexOf(parseInt(v_id));
-    if (index !== -1) {
-      // определяем текущую страницу и индекс строки в этой странице
-      const pageSize = paginationModel.pageSize;  
-      const currentPage = paginationModel.page; 
+      const pageSize = paginationModel.pageSize; // определяем текущую страницу и индекс строки в этой странице
+      const currentPage = paginationModel.page;
       const rowPageIndex = Math.floor(index / pageSize);
-      //console.log('pageSize =' + pageSize +' currentPage =' + currentPage +' rowPageIndex =' + rowPageIndex + ' rowPageRowIndex =' + rowPageRowIndex );
-      // проверяем, нужно ли изменять страницу
-      if (currentPage !== rowPageIndex) {
+      if (currentPage !== rowPageIndex) { // проверяем, нужно ли изменять страницу
         apiRef.current.setPage(rowPageIndex);
       }
-      // прокручиваем до нужной строки
-      setRowSelectionModel([v_id]); //это устанавливает выбранную строку (подсветка)
-      setTimeout(function() { //делаем таймаут в 0.1 секунды, иначе скроллинг тупит
+      setRowSelectionModel([v_id]); //это устанавливает фокус на выбранной строке (подсветка)
+      setTimeout(function() {       //делаем таймаут в 0.1 секунды, иначе скроллинг тупит
         apiRef.current.scrollToIndexes({ rowIndex: index, colIndex: 0 });
       }, 100);
     }
-  };
+  }, [apiRef, paginationModel, setRowSelectionModel]);
+  
+  const scrollToIndexRef = React.useRef(null); //тут хранится значение (айди) добавленной записи
+
+  useEffect(() => {
+    //событие, которое вызовет скроллинг грида после изменения данных в tableData
+    if (!scrollToIndexRef.current) return; //если значение не указано, то ничего не делаем
+    if (scrollToIndexRef.current===-1) return;
+    // console.log('scrollToIndex index '+ scrollToIndexRef.current);
+    handleScrollToRow(scrollToIndexRef.current);
+    scrollToIndexRef.current = null; //обнуляем значение
+  }, [tableData, handleScrollToRow]);
+
 
   function CustomToolbar1() {
     const handleExport = (options/* : GridCsvExportOptions */) =>
@@ -537,12 +502,10 @@ const DataTableDataSource = (props) => {
         <IconButton onClick={()=>handleExport({ delimiter: ';', utf8WithBom: true, getRowsToExport: () => gridFilteredSortedRowIdsSelector(apiRef) })} color="primary" 
             size="small" title="Сохранить в формате CSV">
           <SvgIcon fontSize="small" component={DownloadLightIcon} inheritViewBox /></IconButton>
-{/*         <IconButton onClick={()=>handleScrollToRow(valueId)} color="primary" size="small" title="Переместиться на строку 1">
-          <SvgIcon fontSize="small" component={RepeatLightIcon} inheritViewBox /></IconButton> */}
-
+{/*     <IconButton onClick={()=>handleScrollToRow(valueId)} color="primary" size="small" title="Переместиться на строку 1">
+          <SvgIcon fontSize="small" component={RepeatLightIcon} inheritViewBox /></IconButton> 
         <IconButton onClick={()=>handleScrollToRow(valueId)} color="primary" size="small" title="Переместиться на строку 0">
-          <SvgIcon fontSize="small" component={RepeatLightIcon} inheritViewBox /></IconButton>
- 
+          <SvgIcon fontSize="small" component={RepeatLightIcon} inheritViewBox /></IconButton>*/}
       </GridToolbarContainer>
     );
   }
