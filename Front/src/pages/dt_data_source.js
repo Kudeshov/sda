@@ -38,10 +38,7 @@ var alertSeverity = "info";
 var lastId = 0;
 
 const DataTableDataSource = (props) => {
-
-  const apiRef = useGridApiRef();
-  //console.log('aaa');
-  //console.log(apiRef);
+  const apiRef = useGridApiRef(); // init DataGrid API for scrolling
 
   const [valueId, setValueID] = React.useState();
   const [valueTitle, setValueTitle] = React.useState();
@@ -59,7 +56,6 @@ const DataTableDataSource = (props) => {
 
   const [isLoading, setIsLoading] = React.useState(false);
   const [tableData, setTableData] = useState([]); 
- // const [selectionModel, setSelectionModel] = React.useState([]);
   const [rowSelectionModel, setRowSelectionModel] = React.useState([]);
   const [editStarted, setEditStarted] = useState([false]);
 
@@ -83,7 +79,7 @@ const DataTableDataSource = (props) => {
     if ((!isLoading) && (tableData) && (tableData.length)) {
       if (!lastId) 
       {
-        console.log('isLoading, tableData[0].external_ds '+tableData[0].external_ds);
+        //console.log('isLoading, tableData[0].external_ds '+tableData[0].external_ds);
         lastId = tableData[0].id;
         setRowSelectionModel([tableData[0].id]);
         setValueID(tableData[0].id);
@@ -105,8 +101,6 @@ const DataTableDataSource = (props) => {
 
   const handleRowClick = (params) => {
     setOpenAlert(false);
-    //console.log( 'isEmpty = '+isEmpty);
-    //console.log('handleRowClick params.row.external_ds'+ params.row.external_ds);
     if (editStarted&&(!isEmpty))
     {
       handleClickSave(params);
@@ -114,13 +108,11 @@ const DataTableDataSource = (props) => {
     else 
     {
       setValueID(params.row.id);
-
       setValueTitle(params.row.title);
       setValueShortName(params.row.shortname);
       setValueFullName( params.row.fullname || "" );
       setValueExternalDS(params.row.external_ds);
       setValueDescr( params.row.descr  || "" );
-
       setValueTitleInitial(params.row.title);
       setValueShortNameInitial(params.row.shortname);
       setValueFullNameInitial( params.row.fullname || "" );
@@ -130,11 +122,8 @@ const DataTableDataSource = (props) => {
   }; 
 
   const handleClearClick = (params) => {
-    //console.log('handleClearClick');
     if (editStarted&&(!isEmpty))
     {
-      //console.log('params');
-      //console.log(params);
       handleClickSaveWhenNew(params);
     } 
     else 
@@ -157,10 +146,8 @@ const DataTableDataSource = (props) => {
 
   ///////////////////////////////////////////////////////////////////  SAVE  /////////////////////
   const saveRec = async ( fromToolbar ) => {
-
     if (formRef.current.reportValidity() )
     {
-
     const js = JSON.stringify({
       title: valueTitle,
       shortname: valueShortName,
@@ -212,23 +199,6 @@ const DataTableDataSource = (props) => {
   }
  };
 /////////////////////////////////////////////////////////////////// ADDREC ///////////////////// 
-
-const [scrollToIndex, setScrollToIndex] = useState(-1);
-
-useEffect(() => {
-  console.log('scrollToIndex= ' + scrollToIndex ); //+ 'isLoading= '+ isLoading);
-
-  const index = tableData.findIndex((row) => row.id === scrollToIndex);
-  console.log('Index= ' + index );
-  if (!index) return;
-  //if (isLoading) return;
-
-  if (scrollToIndex !== null) {
-    handleScrollToRow(scrollToIndex);
-    setScrollToIndex(null);
-  }
-}, [tableData]);
-
   const addRec = async ()  => {
     const js = JSON.stringify({
       id: valueId,
@@ -239,7 +209,7 @@ useEffect(() => {
       descr: valueDescr         
    });
     setIsLoading(true);
-    console.log(js);
+    //console.log(js);
     try {
       const response = await fetch(`/${props.table_name}/`, {
         method: 'POST',
@@ -273,12 +243,10 @@ useEffect(() => {
       setIsLoading(false);
       reloadData(lastId);
 
-      setRowSelectionModel([lastId]);
-
-      setScrollToIndex(lastId); // замените на нужный индекс строки
-      //handleScrollToRow(lastId);
+      //setRowSelectionModel([lastId]);
+      console.log('addRec setScrollToIndex lastId = ' + lastId);
+      setScrollToIndex(lastId);  
       //Refresh initial state
-      //console.log('addRec Refresh initial '+valueTitle+' '+valueShortName);      
       setValueTitle(valueTitle);       
       setValueShortName(valueShortName);
       setValueFullName(valueFullName);
@@ -376,9 +344,6 @@ useEffect(() => {
       {  
         const result = await response.json();
         setTableData(result);
-        //setTableData(valueId);
-        //console.log('setTableData(result) valueId=' + val_id_position); 
-        //handleScrollToRow(val_id_position);
       }
     } catch (err) {
       //console.log('catch err');
@@ -407,30 +372,30 @@ useEffect(() => {
   };
 
   const handleClickSave = () => {
-    console.log('handleClickSave');
+    //console.log('handleClickSave');
     setOpenSave(true);
   };
 
   const handleCloseSaveNo = () => {
-    console.log('handleCloseSaveNo');
+    //console.log('handleCloseSaveNo');
     setOpenSave(false);
     handleCancelClick();
   };
 
   const handleCloseSaveYes = () => {
-    console.log('handleCloseSaveYes');
+    //console.log('handleCloseSaveYes');
     setOpenSave(false);
     saveRec(false);
     handleCancelClick();
   };
 
   const handleClickSaveWhenNew = () => {
-    console.log('handleClickSaveWhenNew');
+    //console.log('handleClickSaveWhenNew');
     setOpenSaveWhenNew(true);
   };
 
   const handleCloseSaveWhenNewNo = () => {
-    console.log('handleCloseSaveNo');
+    //console.log('handleCloseSaveNo');
     setOpenSaveWhenNew(false);
 
     setValueID('');
@@ -442,7 +407,7 @@ useEffect(() => {
   };
 
   const handleCloseSaveWhenNewYes = () => {
-    console.log('handleCloseSaveYes');
+    //console.log('handleCloseSaveYes');
     setOpenSaveWhenNew(false);
     saveRec(true);
     setValueID('');
@@ -467,7 +432,7 @@ useEffect(() => {
   const [openAlert, setOpenAlert] = React.useState(false, '');
   const handleCancelClick = () => 
   {
-    console.log('handleCancelClick');
+    //console.log('handleCancelClick');
     const selectedIDs = new Set(rowSelectionModel);
     
     const selectedRowData = tableData.filter((row) => selectedIDs.has(row.id));
@@ -490,65 +455,108 @@ useEffect(() => {
     }
   }
 
-  //const apiRef= useGridApiRef();;
-  //console.log (apiRef);
- 
-  //const [selectedId, setSelectedId] = useState(458);
+  // Scrolling and positionning
+  const [scrollToIndex, setScrollToIndex] = useState(-1);
+
+  const [paginationModel, setPaginationModel] = React.useState({
+    pageSize: 25,
+    page: 0,
+  });
+
+  useEffect(() => {
+    console.log(paginationModel.page);
+  }, [paginationModel]);
   
-  const handleScrollToRow = (v_id) => {
-    console.log ('handleScrollToRow ' + v_id);
-    //console.log (apiRef);
-    console.log (tableData);    
-    //setSelectedId(458);
-    let index = tableData.findIndex((row) => row.id == v_id);
-    console.log ('index='+index);
 
-    console.log ('getRowIdFromRowIndex='+apiRef.current.getRowIdFromRowIndex (index) );
-    //const foundItem  = tableData.findIndex((row) => row.id === v_id);
-    //console.log ('foundItem ='+foundItem );
-
-/*     let foundItem = null;
-    for (let i = 0; i < tableData.length; i++) {
-      console.log ('id='+tableData[i].id + ' v_id='+v_id + ' compare = ' +(tableData[i].id == v_id));
-      if (tableData[i].id == v_id) {
-        foundItem = tableData[i];
-        break;
-      }
+  useEffect(() => {
+    //console.log('useffect scrollToIndex '+scrollToIndex);
+    //const index = tableData.findIndex((row) => row.id === scrollToIndex);
+    console.log('scrollToIndex index '+ scrollToIndex /* + 'useEffect index '+index */);
+    //if (!index) return;
+    //if (index===-1) return;
+    if (scrollToIndex !== null) {
+      handleScrollToRow(scrollToIndex);
+      setScrollToIndex(null);
     }
-    con3ole.log ('foundItem ='+foundItem );
+  }, [tableData]);
 
-    if (foundItem) 
-      index=foundItem.id; 
-    console.log ('index='+index);*/
-
-    let a = 2;
-    a = v_id;
-
+/*   const handleScrollToRow = (v_id) => {
+    let index = tableData.findIndex((row) => row.id === parseInt(v_id));
+    console.log('index found =' + index);
     if (index !== -1) {
-      console.log (apiRef.current);
       // прокручиваем до нужной строки
       setTimeout(function() {
-        // Код, который нужно выполнить после задержки
-        console.log ('setSelectionModel([a]);'+ a );
-        setRowSelectionModel([a]);
+        // ставим задержку 0.1 секунды, иначе скроллинг тупит
+        setRowSelectionModel([v_id]);
         apiRef.current.scrollToIndexes({ rowIndex: index, colIndex: 0 });
-      }, 10);
-      
+      }, 100);
+    }
+  }; */
+  
+
+  const handleScrollToRow = (v_id) => {
+    let index = tableData.findIndex((row) => row.id === parseInt(v_id));
+    console.log('index found =' + index + ' page=' + paginationModel.page);
+    if (index !== -1) {
+      // определяем текущую страницу и индекс строки в этой странице
+      const pageSize = paginationModel.pageSize; //apiRef.current.getPageSize();
+      const currentPage = paginationModel.page;//apiRef.current.getPage();
+      const rowPageIndex = Math.floor(index / pageSize);
+      const rowPageRowIndex = index % pageSize;
+  
+      console.log('pageSize =' + pageSize +' currentPage =' + currentPage +
+                  ' rowPageIndex =' + rowPageIndex + ' rowPageRowIndex =' + rowPageRowIndex );
+      // проверяем, нужно ли изменять страницу
+      if (currentPage !== rowPageIndex) {
+        apiRef.current.setPage(rowPageIndex);
+      }
+  
+      // прокручиваем до нужной строки
+      setTimeout(function() {
+        // ставим задержку 0.1 секунды, иначе скроллинг тупит
+        //const rowId = apiRef.current.getRowIdAtIndex(rowPageRowIndex);
+        //const rowNodeId = apiRef.current.getRowNodeId(rowId);
+        setRowSelectionModel([v_id]);
+        apiRef.current.scrollToIndexes({ rowIndex: index, colIndex: 0 });
+        //apiRef.current.ensureColumnVisible('id');
+/*         const rowNode = apiRef.current.getRowNode(rowNodeId);
+        if (rowNode) {
+          rowNode.setRowHeight(40); // задаем высоту строки
+        } */
+      }, 100);
     }
   };
 
-
-  const handleSelectRow = (v_id) => {
  
+  const handleSelectRow = (v_id) => {
 
-    console.log ('handleSelectRow v_id='+v_id );
-    let a = 444;
+    let index = tableData.findIndex((row) => row.id === parseInt(444));
+    console.log('index found =' + index);
+    apiRef.current.setPage(0);
 
-    setRowSelectionModel(a);
+/*     const rowIDS = apiRef.current.getAllRowIds();
+    console.log('rowIDS found =');
+    console.log( rowIDS );
+ */
+/*     console.log ('getRowIdFromRowIndex='+apiRef.current.getRowIdFromRowIndex (index) );
+    let index1 = apiRef.current.getRowIdFromRowIndex( index );
+    console.log('index1 found =' + index1);
+
+    let index2 = apiRef.current.getRowIndexRelativeToVisibleRows( index1 );
+    console.log('index2 found =' + index2); */
+
+    if (index !== -1) {
+      // прокручиваем до нужной строки
+      setTimeout(function() {
+        // ставим задержку 0.1 секунды, иначе скроллинг тупит
+        setRowSelectionModel([444]);
+        apiRef.current.scrollToIndexes({ rowIndex: index, colIndex: 0 });
+      }, 100);
+    }
   };
 
-  function CustomToolbar1() {
-    //const apiRef = useGridApiContext();
+ 
+    function CustomToolbar1() {
     const handleExport = (options/* : GridCsvExportOptions */) =>
        apiRef.current.exportDataAsCsv(options);
 
@@ -567,10 +575,10 @@ useEffect(() => {
         <IconButton onClick={()=>handleExport({ delimiter: ';', utf8WithBom: true, getRowsToExport: () => gridFilteredSortedRowIdsSelector(apiRef) })} color="primary" 
             size="small" title="Сохранить в формате CSV">
           <SvgIcon fontSize="small" component={DownloadLightIcon} inheritViewBox /></IconButton>
-        <IconButton onClick={()=>handleScrollToRow(valueId)} color="primary" size="small" title="Переместиться на строку 1">
-          <SvgIcon fontSize="small" component={RepeatLightIcon} inheritViewBox /></IconButton>
+{/*         <IconButton onClick={()=>handleScrollToRow(valueId)} color="primary" size="small" title="Переместиться на строку 1">
+          <SvgIcon fontSize="small" component={RepeatLightIcon} inheritViewBox /></IconButton> */}
 
-        <IconButton onClick={()=>handleSelectRow(valueId)} color="primary" size="small" title="Переместиться на строку 0">
+        <IconButton onClick={()=>handleScrollToRow(valueId)} color="primary" size="small" title="Переместиться на строку 0">
           <SvgIcon fontSize="small" component={RepeatLightIcon} inheritViewBox /></IconButton>
  
       </GridToolbarContainer>
@@ -578,9 +586,6 @@ useEffect(() => {
   }
 
   const formRef = React.useRef();
-
-  //const gridRef = React.useRef();
-
   return (
     
     <div style={{ height: 640, width: 1500 }}>
@@ -590,23 +595,6 @@ useEffect(() => {
     <tr>
       <td style={{ height: 640, width: 600, verticalAlign: 'top' }}>
       <div style={{ height: 486, width: 585 }}>
-{/*       <DataGrid
-          apiRef={apiRef}
-          hideFooter
-          {...tableData}
-        />
-      <br/>  */}
-
-{/*         <IconButton onClick={()=>handleScrollToRow()} color="primary" size="small" title="Переместиться на строку 1">
-          <SvgIcon fontSize="small" component={RepeatLightIcon} inheritViewBox /></IconButton> */}
-
-{/*       <DataGrid
-//          apiRef={apiRef}
-          hideFooter
-          columns={columns}
-          rows={tableData}
-        />
- */}
       <DataGrid
         components={{ Toolbar: CustomToolbar1 }}
         apiRef={apiRef}
@@ -616,15 +604,12 @@ useEffect(() => {
         pageSize={5}
         rows={tableData}
         columns={columns}
-/*         onSelectionModelChange={(newSelectionModel) => {
-          setSelectionModel(newSelectionModel);
+        paginationModel={paginationModel}
+        onPaginationModelChange={setPaginationModel}
+        onRowSelectionModelChange={(newRowSelectionModel) => {
+          setRowSelectionModel(newRowSelectionModel);
         }}
-      selectionModel={selectionModel}   */      
-
-       onRowSelectionModelChange={(newRowSelectionModel) => {
-         setRowSelectionModel(newRowSelectionModel);
-       }}
-       rowSelectionModel={rowSelectionModel}
+        rowSelectionModel={rowSelectionModel}
 
         initialState={{
           columns: {
