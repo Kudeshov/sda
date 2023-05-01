@@ -62,15 +62,11 @@ const DataTableExpScenario = (props) => {
   const [editStarted, setEditStarted] = useState([false]);
   const [isEmpty, setIsEmpty] = useState([false]);
 
-
-
   useEffect(() => {
     setIsEmpty((''===valueTitle)&&(''===valueNameRus)&&(''===valueNameEng)&&(''===valueDescrEng)&&(''===valueDescrRus)   
       &&(''===valueParentID)&&(''===valueNormativ));
     }, [ valueTitle, valueNameRus, valueNameEng, valueDescrEng, valueDescrRus, 
       valueParentID, valueNormativ]); 
-      
-
 
   useEffect(() => {
     //console.log('setEditStarted valueTitleInitial='+valueTitleInitial+' valueTitle = '+ valueTitle);    

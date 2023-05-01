@@ -3,7 +3,7 @@ import {
   DataGrid, 
   ruRU,
   GridToolbarContainer,
-  useGridApiContext,
+  useGridApiRef,
   gridFilteredSortedRowIdsSelector,
 } from '@mui/x-data-grid';
 
@@ -42,6 +42,8 @@ var alertSeverity = "info";
 var lastId = 0;
 
 const DataTableDoseRatio = (props) => {
+  const apiRef = useGridApiRef(); // init DataGrid API for scrolling
+
   const [valueId, setValueID] = React.useState();
   const [valueTitle, setValueTitle] = React.useState();
   const [valueTitleInitial, setValueTitleInitial] = React.useState();
@@ -55,7 +57,7 @@ const DataTableDoseRatio = (props) => {
   const [valueDescrRusInitial, setValueDescrRusInitial] = React.useState();
   const [isLoading, setIsLoading] = React.useState(false);
   const [tableData, setTableData] = useState([]); 
-  const [selectionModel, setSelectionModel] = React.useState([]);
+  const [rowSelectionModel, setRowSelectionModel] = React.useState([]);
   const [editStarted, setEditStarted] = useState([false]);
 
   const [valueRespRate, setValueRespRate] = React.useState();
@@ -76,10 +78,8 @@ const DataTableDoseRatio = (props) => {
   const [valuePhysParamCode, setValuePhysParamCode] = useState(); 
   const [valuePhysParamNameRus, setValuePhysParamNameRus] = useState(); 
   const [valuePhysParamDimension, setValuePhysParamDimension] = useState();
-
   const [valueDrType, setValueDrType] = useState('e'); 
   const [valueDrTypeInitial, setValueDrTypeInitial] = useState('e'); 
-
   const [valueUsed, setValueUsed] = useState(true);
   const [valueUsedInitial, setValueUsedInitial] = useState();
   const [valueParameters, setValueParameters] = useState();
@@ -120,6 +120,8 @@ const DataTableDoseRatio = (props) => {
       &&(''===valueRespRate)&&(''===valueRespYear)&&(''===valueIndoor)&&(''===valueExtCloud)&&(''===valueExtGround)
       &&(''===valuePhysParamID)&&(''===valueUsed)&&(''===valueParameters)&&(''===valueParametersDialog));
 
+      console.log('setIsEmpty');
+
     }, [ valueTitle, valueNameRus, valueNameEng, valueDescrEng, valueDescrRus, 
         valueRespRate, valueRespYear,  valueIndoor, valueExtCloud, valueExtGround,
         valuePhysParamID, valueUsed, valueParameters, valueParametersDialog]); 
@@ -131,9 +133,8 @@ const DataTableDoseRatio = (props) => {
       ||(valueExtCloudInitial!==valueExtCloud)||(valueExtGroundInitial!==valueExtGround)||(valuePhysParamIDInitial!==valuePhysParamID)
       ||(valueUsedInitial!==valueUsed)||(valueParametersInitial!==valueParameters)||(valueDrTypeInitial!==valueDrType)
       );
-
-      console.log('compare valueDrType');
-      console.log(valueDrType);
+      console.log('compare valueDrType, valueDrTypeInitial');
+      console.log(valueDrType); console.log(valueDrTypeInitial);
 
     }, [valueTitleInitial, valueTitle, valueNameRusInitial, valueNameRus, valueNameEngInitial, valueNameEng, 
         valueDescrEngInitial, valueDescrEng, valueDescrRusInitial, valueDescrRus, 
@@ -149,7 +150,7 @@ const DataTableDoseRatio = (props) => {
       {
         //console.log('isLoading, tableData ON lastId  '+lastId);  
         lastId = tableData[0].id;
-        setSelectionModel([tableData[0].id]);
+        setRowSelectionModel([tableData[0].id]);
         setValueID(tableData[0].id);
 
         setValueTitle(tableData[0].title);
@@ -257,7 +258,7 @@ const DataTableDoseRatio = (props) => {
       setValueExtCloud(``);
       setValueExtGround(``);
       setValuePhysParamId('');  
-      setValueUsed(``);
+      setValueUsed(true);
       setValueParameters(``);
       setValueDrType(``);  
     }
@@ -346,8 +347,7 @@ const DataTableDoseRatio = (props) => {
        setValuePhysParamIdInitial(valuePhysParamID);            
        setValueUsedInitial(valueUsed);           
        setValueParametersInitial(valueParameters);
-       setValueDrType(valueDrType);
-
+       setValueDrTypeInitial(valueDrType);
      }
     reloadData();     
    }
@@ -404,9 +404,10 @@ const DataTableDoseRatio = (props) => {
     } finally {
       setIsLoading(false);
       reloadData();
-      setSelectionModel([lastId]);
+      setRowSelectionModel([lastId]);
+      console.log('addRec setScrollToIndex lastId = ' + lastId);
+      scrollToIndexRef.current = lastId;  
       //Refresh initial state
-      //console.log('addRec Refresh initial '+valueTitle+' '+valueNameRus);
       setValueTitle(valueTitle);
       setValueNameRus(valueNameRus);
       setValueNameEng(valueNameEng);
@@ -420,6 +421,7 @@ const DataTableDoseRatio = (props) => {
       setValuePhysParamId(valuePhysParamID);
       setValueUsed(valueUsed); 
       setValueParameters(valueParameters);
+      setValueDrType(valueDrType);
 
       setValueTitleInitial(valueTitle);
       setValueNameRusInitial(valueNameRus);
@@ -434,7 +436,7 @@ const DataTableDoseRatio = (props) => {
       setValuePhysParamIdInitial(valuePhysParamID);
       setValueUsedInitial(valueUsed); 
       setValueParametersInitial(valueParameters);
-      setValueDrType(valueDrType);
+      setValueDrTypeInitial(valueDrType);
     }
   };
 
@@ -478,7 +480,7 @@ const handleCloseDSInfo = () => {
         alertText = await response.text();
         setOpenAlert(true); 
         reloadData();
-        setSelectionModel([tableData[0].id ]);  
+        setRowSelectionModel([tableData[0].id]);  
         setValueID(tableData[0].id);
         setValueTitle(tableData[0].title);
         setValueNameRus(tableData[0].name_rus);
@@ -640,7 +642,6 @@ const handleCloseDSInfo = () => {
     setValuePhysParamId(``);
   };
 
-
   //////////////////////////////////////////////////////// ACTIONS ///////////////////////////////
   const columns = [
     { field: 'id', headerName: 'Код', width: 80 },
@@ -655,8 +656,8 @@ const handleCloseDSInfo = () => {
   const [openAlert, setOpenAlert] = React.useState(false, '');
   const handleCancelClick = () => 
   {
-    console.log(selectionModel);    
-    const selectedIDs = new Set(selectionModel);
+    console.log(rowSelectionModel);    
+    const selectedIDs = new Set(rowSelectionModel);
     console.log(selectedIDs);
     const selectedRowData = tableData.filter((row) => selectedIDs.has(row.id));
     if (selectedRowData.length)
@@ -688,12 +689,54 @@ const handleCloseDSInfo = () => {
       setValueUsed(selectedRowData[0].used); 
       setValueUsedInitial(selectedRowData[0].used); 
       setValueParameters(selectedRowData[0].parameters);      
-      setValueParametersInitial(selectedRowData[0].parameters);      
+      setValueParametersInitial(selectedRowData[0].parameters); 
+
+      setValueDrType(selectedRowData[0].dr_type);      
+      setValueDrTypeInitial(selectedRowData[0].dr_type);           
     }
   }
 
+  // Scrolling and positionning
+  const [paginationModel, setPaginationModel] = React.useState({
+    pageSize: 25,
+    page: 0,
+  });
+
+  useEffect(() => {
+    console.log(paginationModel.page);
+  }, [paginationModel]);
+  
+  const handleScrollToRow = React.useCallback((v_id) => {
+    const sortedRowIds = apiRef.current.getSortedRowIds(); //получаем список отсортированных строк грида
+    const index = sortedRowIds.indexOf(parseInt(v_id));    //ищем в нем номер нужной записи
+    if (index !== -1) {
+      const pageSize = paginationModel.pageSize; // определяем текущую страницу и индекс строки в этой странице
+      const currentPage = paginationModel.page;
+      const rowPageIndex = Math.floor(index / pageSize);
+      if (currentPage !== rowPageIndex) { // проверяем, нужно ли изменять страницу
+        apiRef.current.setPage(rowPageIndex);
+      }
+      setRowSelectionModel([v_id]); //это устанавливает фокус на выбранной строке (подсветка)
+      setTimeout(function() {       //делаем таймаут в 0.1 секунды, иначе скроллинг тупит
+        apiRef.current.scrollToIndexes({ rowIndex: index, colIndex: 0 });
+      }, 100);
+    }
+  }, [apiRef, paginationModel, setRowSelectionModel]);
+  
+  const scrollToIndexRef = React.useRef(null); //тут хранится значение (айди) добавленной записи
+
+  useEffect(() => {
+    //событие, которое вызовет скроллинг грида после изменения данных в tableData
+    if (!scrollToIndexRef.current) return; //если значение не указано, то ничего не делаем
+    if (scrollToIndexRef.current===-1) return;
+    // console.log('scrollToIndex index '+ scrollToIndexRef.current);
+    handleScrollToRow(scrollToIndexRef.current);
+    scrollToIndexRef.current = null; //обнуляем значение
+  }, [tableData, handleScrollToRow]);
+
+
   function CustomToolbar1() {
-    const apiRef = useGridApiContext();
+    const apiRef = useGridApiRef(); // init DataGrid API for scrolling
     const handleExport = (options) =>
       apiRef.current.exportDataAsCsv(options);
 
@@ -745,16 +788,20 @@ const handleCloseDSInfo = () => {
 
       <DataGrid
         components={{ Toolbar: CustomToolbar1 }}
+        apiRef={apiRef}
         hideFooterSelectedRowCount={true}
         localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
         rowHeight={25}
         rows={tableData}
         loading={isLoading}
         columns={columns}
-        onSelectionModelChange={(newSelectionModel) => {
-          setSelectionModel(newSelectionModel);
+        paginationModel={paginationModel}
+        onPaginationModelChange={setPaginationModel}
+        onRowSelectionModelChange={(newRowSelectionModel) => {
+          setRowSelectionModel(newRowSelectionModel);
         }}
-        selectionModel={selectionModel}        
+        rowSelectionModel={rowSelectionModel}
+     
         initialState={{
           columns: {
             columnVisibilityModel: {
@@ -803,6 +850,9 @@ const handleCloseDSInfo = () => {
       <p></p> 
       <TextField  id="ch_descr_rus" sx={{ width: '100ch' }} label="Комментарий (англ.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrEng || ''} onChange={e => setValueDescrEng(e.target.value)}/>
       <p></p>
+
+      {(props.table_name==='dose_ratio') && 
+      <>
       <FormControl sx={{ width: '40ch' }} size="small">
         <InputLabel required id="demo-controlled-open-select-label">Тип дозового коэффициента</InputLabel>
         <Select
@@ -823,7 +873,10 @@ const handleCloseDSInfo = () => {
         })}
         </Select>
       </FormControl>  
-      <p></p>    
+      <p></p></>
+      }
+
+          
 
       <div>
       {(() => {
@@ -861,7 +914,7 @@ const handleCloseDSInfo = () => {
             <p></p>
             <FormControl sx={{ width: '40ch' }} size="small">
             <InputLabel id="type"  >Используется расчетным модулем</InputLabel>
-              <Select labelId="type" id="type1"  label="Используется расчетным модулем"  defaultValue={true}  value={valueUsed  } onChange={e => setValueUsed(e.target.value)}>
+              <Select labelId="type" id="type1"  label="Используется расчетным модулем"  defaultValue={true}  value={valueUsed} onChange={e => setValueUsed(e.target.value)}>
                 {valuesYesNo?.map(option => {
                     return (
                       <MenuItem key={option.id} value={option.id}>

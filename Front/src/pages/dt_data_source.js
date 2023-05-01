@@ -3,7 +3,7 @@ import {
   DataGrid, 
   ruRU,
   GridToolbarContainer,
-//  useGridApiContext,
+  useGridApiRef,
   gridFilteredSortedRowIdsSelector,
 } from '@mui/x-data-grid';
 import TextField from '@mui/material/TextField';
@@ -31,7 +31,6 @@ import { Select } from "@mui/material";
 import { MenuItem } from "@mui/material";
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Backdrop from '@mui/material/Backdrop';
-import { useGridApiRef } from '@mui/x-data-grid';
 
 var alertText = "Сообщение";
 var alertSeverity = "info";
@@ -194,7 +193,7 @@ const DataTableDataSource = (props) => {
        setValueExternalDSInitial(valueExternalDS);
        setValueDescrInitial(valueDescr);           
      }
-    reloadData(valueId);     
+    reloadData();     
    }
   }
  };
@@ -241,7 +240,7 @@ const DataTableDataSource = (props) => {
       setOpenAlert(true);
     } finally {
       setIsLoading(false);
-      reloadData(lastId);
+      reloadData();
       console.log('addRec setScrollToIndex lastId = ' + lastId);
       scrollToIndexRef.current = lastId; //setScrollToIndex(lastId);  
       //Refresh initial state
@@ -286,7 +285,7 @@ const DataTableDataSource = (props) => {
         alertSeverity = "success";
         alertText = await response.text();
         setOpenAlert(true); 
-        reloadData(tableData[0].id);
+        reloadData();
         setRowSelectionModel([tableData[0].id ]);  
         setValueID(tableData[0].id);
 
@@ -317,7 +316,7 @@ const DataTableDataSource = (props) => {
     alertText =  'Данные успешно обновлены';
     try 
     {
-      await reloadData(valueId);
+      await reloadData();
     } catch(e)
     {
       alertSeverity = "error";
@@ -328,7 +327,7 @@ const DataTableDataSource = (props) => {
     setOpenAlert(true);        
   }
 
-  const reloadData = async (val_id_position) => {
+  const reloadData = async () => {
     try {
       const response = await fetch(`/${props.table_name}/`);
        if (!response.ok) {
