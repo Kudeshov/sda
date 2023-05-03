@@ -503,6 +503,16 @@ const DataTableAgeGroup = (props) => {
     { field: 'name_eng', headerName: 'Название (англ.яз)', width: 180 },
     { field: 'descr_rus', headerName: 'Комментарий (рус.яз)', width: 180 },
     { field: 'descr_eng', headerName: 'Комментарий (англ.яз)', width: 180 },
+    {
+      field: 'resp_rate',
+      headerName: 'Скорость дыхания',
+      width: 180,
+      valueGetter: (params) => {
+        const value = Number(params.value); // приводим значение к числу
+        return isNaN(value) ? '' : value.toExponential(); // возвращаем значение в экспоненциальной форме с двумя знаками после запятой, если возможно, иначе пустую строку
+      },
+    }
+    
   ]
 
   const [openAlert, setOpenAlert] = React.useState(false, '');
@@ -589,6 +599,7 @@ const DataTableAgeGroup = (props) => {
               name_eng: false,
               descr_rus: false,
               descr_eng: false,
+              resp_rate: false,
             },
           },
         }}        
@@ -627,7 +638,9 @@ const DataTableAgeGroup = (props) => {
       &nbsp;&nbsp;&nbsp;&nbsp;
       <TextField  id="ch_name_eng" sx={{ width: '49ch' }} size="small" label="Название (англ.яз)"  variant="outlined" value={valueNameEng || ''} onChange={e => setValueNameEng(e.target.value)}/>
       <p></p>
-      <TextField  id="ch_resp_rate" sx={{ width: '100ch' }} label="Скорость дыхания, куб.м/сек" required  size="small" variant="outlined" value={valueRespRate || ''} onChange={e => setValueRespRate(e.target.value)}/>
+      <TextField  id="ch_resp_rate" sx={{ width: '100ch' }} label="Скорость дыхания, куб.м/сек" required  size="small" variant="outlined" 
+        value={valueRespRate ? Number(valueRespRate).toExponential() : ''}
+        /* value={valueRespRate || ''}  */ onChange={e => setValueRespRate(e.target.value)}/>
       <p></p> 
       <TextField  id="ch_resp_year" sx={{ width: '100ch' }} label="Годовой объем вдыхаемого воздуха, куб.м"  size="small" variant="outlined" value={valueRespYear || ''} onChange={e => setValueRespYear(e.target.value)}/>
       <p></p> 
