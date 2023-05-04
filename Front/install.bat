@@ -1,1 +1,1 @@
-npm install @mui/icons-material
+npm install
