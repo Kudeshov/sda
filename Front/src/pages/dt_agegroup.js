@@ -49,7 +49,6 @@ const DataTableAgeGroup = (props) => {
   const [selectionModel, setSelectionModel] = React.useState([]);
   const [editStarted, setEditStarted] = useState([false]);
   const [isEmpty, setIsEmpty] = useState([false]);
-
   const [valueRespRate, setValueRespRate] = React.useState();
   const [valueRespRateInitial, setValueRespRateInitial] = React.useState();
   const [valueRespYear, setValueRespYear] = React.useState();
@@ -81,7 +80,6 @@ const DataTableAgeGroup = (props) => {
     if ((!isLoading) && (tableData) && (tableData.length)) {
       if (!lastId) 
       {
-        //console.log('isLoading, tableData ON lastId '+lastId);
         lastId = tableData[0].id;
         setSelectionModel([tableData[0].id]);
         setValueID(tableData[0].id);
@@ -90,20 +88,23 @@ const DataTableAgeGroup = (props) => {
         setValueNameEng(tableData[0].name_eng);
         setValueDescrRus(tableData[0].descr_rus);
         setValueDescrEng(tableData[0].descr_eng);
-
-        setValueRespRate(tableData[0].resp_rate);
+        let v_resp_rate = tableData[0].resp_rate; 
+        if (!isNaN(v_resp_rate)) {
+          setValueRespRate(Number(v_resp_rate).toExponential());
+          setValueRespRateInitial(Number(v_resp_rate).toExponential());
+        } else {
+          setValueRespRate(v_resp_rate);
+          setValueRespRateInitial(v_resp_rate);
+        }
         setValueRespYear(tableData[0].resp_year);
         setValueIndoor(tableData[0].indoor);
         setValueExtCloud(tableData[0].ext_cloud);
         setValueExtGround(tableData[0].ext_ground);
-        //console.log('useEffect Refresh initial '+tableData[0].title+' '+tableData[0].name_rus);
         setValueTitleInitial(tableData[0].title);       
         setValueNameRusInitial(tableData[0].name_rus);
         setValueNameEngInitial(tableData[0].name_eng);
         setValueDescrRusInitial(tableData[0].descr_rus);
         setValueDescrEngInitial(tableData[0].descr_eng);
-
-        setValueRespRateInitial(tableData[0].resp_rate);
         setValueRespYearInitial(tableData[0].resp_year);
         setValueIndoorInitial(tableData[0].indoor);
         setValueExtCloudInitial(tableData[0].ext_cloud);
@@ -128,19 +129,23 @@ const DataTableAgeGroup = (props) => {
       setValueDescrRus(params.row.descr_rus);
       setValueDescrEng(params.row.descr_eng);
 
-      setValueRespRate(params.row.resp_rate );
+      let v_resp_rate = params.row.resp_rate; 
+      if (!isNaN(v_resp_rate)) {
+        setValueRespRate(Number(v_resp_rate).toExponential());
+        setValueRespRateInitial(Number(v_resp_rate).toExponential());
+      } else {
+        setValueRespRate(v_resp_rate);
+        setValueRespRateInitial(v_resp_rate);
+      }
       setValueRespYear(params.row.resp_year );
       setValueIndoor(params.row.indoor );
       setValueExtCloud(params.row.ext_cloud );
       setValueExtGround(  params.row.ext_ground );
-      //console.log('handleRowClick Refresh initial '+params.row.title+' '+params.row.name_rus);
       setValueTitleInitial(params.row.title);
       setValueNameRusInitial(params.row.name_rus);
       setValueNameEngInitial(params.row.name_eng);
       setValueDescrRusInitial(params.row.descr_rus);
       setValueDescrEngInitial(params.row.descr_eng);
-
-      setValueRespRateInitial(params.row.resp_rate );
       setValueRespYearInitial(params.row.resp_year );
       setValueIndoorInitial(params.row.indoor );
       setValueExtCloudInitial(params.row.ext_cloud );
@@ -639,8 +644,8 @@ const DataTableAgeGroup = (props) => {
       <TextField  id="ch_name_eng" sx={{ width: '49ch' }} size="small" label="Название (англ.яз)"  variant="outlined" value={valueNameEng || ''} onChange={e => setValueNameEng(e.target.value)}/>
       <p></p>
       <TextField  id="ch_resp_rate" sx={{ width: '100ch' }} label="Скорость дыхания, куб.м/сек" required  size="small" variant="outlined" 
-        value={valueRespRate ? Number(valueRespRate).toExponential() : ''}
-        /* value={valueRespRate || ''}  */ onChange={e => setValueRespRate(e.target.value)}/>
+        value={valueRespRate || ''}  onChange={e => setValueRespRate(e.target.value)}  
+      />
       <p></p> 
       <TextField  id="ch_resp_year" sx={{ width: '100ch' }} label="Годовой объем вдыхаемого воздуха, куб.м"  size="small" variant="outlined" value={valueRespYear || ''} onChange={e => setValueRespYear(e.target.value)}/>
       <p></p> 

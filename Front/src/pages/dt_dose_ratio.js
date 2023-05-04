@@ -6,7 +6,7 @@ import {
   useGridApiRef,
   gridFilteredSortedRowIdsSelector,
 } from '@mui/x-data-grid';
-
+import Tooltip from '@mui/material/Tooltip';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
@@ -934,20 +934,29 @@ const handleCloseDSInfo = () => {
       <table border = "0" cellSpacing={0} cellPadding={0}><tbody>
       <tr>
       <td>
-      <Autocomplete
-        //sx={{ width: '50ch' }}
-        fullWidth
-        sx={{ width: '60ch' }} size="small"
-        disablePortal
-        id="combo-box-child-isotope"
-        value={tablePhysParam.find((option) => option.id === valuePhysParamID)||'' }
-        disableClearable
-        isOptionEqualToValue={(option, value) => option.id === value.id }  
-        onChange={(event, newValueAC) => { /*  console.log(newValueAC?newValueAC.id:-1);  */ setValuePhysParamId(newValueAC?newValueAC.id:-1) } }
-        options={tablePhysParam}
-        getOptionLabel={option => option?option.title:""} 
-        renderInput={(params) => <TextField {...params} label="Физический параметр (из общего списка)" required />}
-        
+        <Autocomplete
+          fullWidth
+          sx={{ width: '60ch' }}
+          size="small"
+          disablePortal
+          id="combo-box-child-isotope"
+          value={tablePhysParam.find((option) => option.id === valuePhysParamID) || ''}
+          disableClearable
+          isOptionEqualToValue={(option, value) => option.id === value.id}
+          onChange={(event, newValueAC) => { setValuePhysParamId(newValueAC ? newValueAC.id : -1) }}
+          options={tablePhysParam}
+          getOptionLabel={option => option ? option.title : ""}
+          renderInput={(params) => <TextField {...params} label="Физический параметр (из общего списка)" required />}
+          renderOption={(props, option) => (
+            <li {...props}>
+              <Tooltip title={option.name_rus}>
+                <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
+                  <span>{option.title}</span>
+                  <span></span>
+                </div>
+              </Tooltip>
+            </li>
+          )}
         />
         </td><td>
         &nbsp;<IconButton onClick={()=>handleOpenDSInfo()} color="primary" size="small" title="Физический параметр">
@@ -973,33 +982,7 @@ const handleCloseDSInfo = () => {
           <Button variant="outlined" onClick={handleCloseDSInfo} autoFocus>Закрыть</Button>
       </DialogActions>
       </Dialog>
-
       <p></p>
-
-   
-
-        
-
-{/*         <FormControl sx={{ width: '60ch' }} size="small">
-        <InputLabel id="fiz">Физический параметр (из общего списка)</InputLabel>
-          <Select labelId="fiz" id="fiz1" label="Физический параметр (из общего списка)" defaultValue="" value={valuePhysParamID||"0"} onChange={e => setValuePhysParamId(e.target.value)}>
-          {tablePhysParam?.map(option => {
-                return (
-                  <MenuItem key={option.id} value={option.id}>
-                    {option.title ?? option.id}
-                  </MenuItem>
-                );
-                })}
-          </Select>
-          </FormControl>   
-          <p></p> */}
-         {/*  &nbsp;&nbsp;&nbsp;&nbsp;<TextField sx={{width: '98ch', input: {background: '#EEEEEE'}}} id="physparam_code" label="Код"  size="small" variant="outlined" value={valuePhysParamCode || ''} />
-          <p></p>
-          &nbsp;&nbsp;&nbsp;&nbsp;<TextField sx={{width: '98ch', input: {background: '#EEEEEE'}}} id="physparam_name_rus" label="Название (рус.яз)"  size="small" variant="outlined" value={valuePhysParamNameRus || ''} />
-          <p></p>
-          &nbsp;&nbsp;&nbsp;&nbsp;<TextField sx={{width: '98ch', input: {background: '#EEEEEE'}}} id="dimension" label="Eд.измерения (базовая)"  size="small" variant="outlined" value={valuePhysParamDimension || ''} />
-          <p></p>
- */}
       <div style={{ height: 300, width: 800 }}>
       <td>Источники данных<br/>
         <DataTableDataSourceClass table_name={props.table_name} rec_id={valueId} />
