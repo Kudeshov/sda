@@ -26,9 +26,9 @@ const getPhchFormChelem = (request, response ) => {
   'ccgn.descr as chem_comp_gr_nls_descr, c.title as chelement_title, c.atomic_num as chelement_atomic_num '+
   'from nucl.phchform_chelem pc '+
   'join nucl.subst_form sf on sf.id = pc.subst_form_id '+
-  'join nucl.subst_form_nls sfn on sfn.subst_form_id = sf.id and sfn.lang_id = 1 '+
-  'join nucl.chem_comp_gr ccg on ccg.id = pc.chem_comp_gr_id '+
-  'join nucl.chem_comp_gr_nls ccgn on ccgn.chem_comp_gr_id = ccg.id and ccgn.lang_id = 1 '+
+  'left join nucl.subst_form_nls sfn on sfn.subst_form_id = sf.id and sfn.lang_id = 1 '+
+  'left join nucl.chem_comp_gr ccg on ccg.id = pc.chem_comp_gr_id '+
+  'left join nucl.chem_comp_gr_nls ccgn on ccgn.chem_comp_gr_id = ccg.id and ccgn.lang_id = 1 '+
   'join nucl.chelement c on c.id = pc.chelement_id '+
   'order by pc.chelement_id, sf.title', (error, results) => {
     if (error) {
