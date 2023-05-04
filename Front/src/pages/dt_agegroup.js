@@ -3,10 +3,9 @@ import {
   DataGrid, 
   ruRU,
   GridToolbarContainer,
-  useGridApiContext,
+  useGridApiRef,
   gridFilteredSortedRowIdsSelector,
 } from '@mui/x-data-grid';
-
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
@@ -33,6 +32,7 @@ var alertSeverity = "info";
 var lastId = 0;
 
 const DataTableAgeGroup = (props) => {
+  const apiRef = useGridApiRef(); // init DataGrid API for scrolling
   const [valueId, setValueID] = React.useState();
   const [valueTitle, setValueTitle] = React.useState();
   const [valueTitleInitial, setValueTitleInitial] = React.useState();
@@ -46,7 +46,7 @@ const DataTableAgeGroup = (props) => {
   const [valueDescrRusInitial, setValueDescrRusInitial] = React.useState();
   const [isLoading, setIsLoading] = React.useState(false);
   const [tableData, setTableData] = useState([]); 
-  const [selectionModel, setSelectionModel] = React.useState([]);
+  const [rowSelectionModel, setRowSelectionModel] = React.useState([]);
   const [editStarted, setEditStarted] = useState([false]);
   const [isEmpty, setIsEmpty] = useState([false]);
   const [valueRespRate, setValueRespRate] = React.useState();
@@ -81,7 +81,7 @@ const DataTableAgeGroup = (props) => {
       if (!lastId) 
       {
         lastId = tableData[0].id;
-        setSelectionModel([tableData[0].id]);
+        setRowSelectionModel([tableData[0].id]);
         setValueID(tableData[0].id);
         setValueTitle(tableData[0].title);
         setValueNameRus(tableData[0].name_rus);
@@ -248,7 +248,8 @@ const DataTableAgeGroup = (props) => {
        setValueExtCloudInitial(valueExtCloud);
        setValueExtGroundInitial(valueExtGround);         
      }
-    reloadData();     
+    reloadData();   
+  
    }
   }
  };
@@ -301,9 +302,8 @@ const DataTableAgeGroup = (props) => {
     } finally {
       setIsLoading(false);
       reloadData();
-      setSelectionModel([lastId]);
-      //Refresh initial state
-      //console.log('addRec Refresh initial '+valueTitle+' '+valueNameRus);
+      setRowSelectionModel([lastId]);
+      scrollToIndexRef.current = lastId;  
       setValueTitle(valueTitle);
       setValueNameRus(valueNameRus);
       setValueNameEng(valueNameEng);
@@ -355,7 +355,7 @@ const DataTableAgeGroup = (props) => {
         alertText = await response.text();
         setOpenAlert(true); 
         reloadData();
-        setSelectionModel([tableData[0].id ]);  
+        setRowSelectionModel([tableData[0].id ]);  
         setValueID(tableData[0].id);
         setValueTitle(tableData[0].title);
         setValueNameRus(tableData[0].name_rus);
@@ -523,7 +523,7 @@ const DataTableAgeGroup = (props) => {
   const [openAlert, setOpenAlert] = React.useState(false, '');
   const handleCancelClick = () => 
   {
-    const selectedIDs = new Set(selectionModel);
+    const selectedIDs = new Set(rowSelectionModel);
     //console.log(selectedIDs);
     const selectedRowData = tableData.filter((row) => selectedIDs.has(row.id));
     //console.log(selectedRowData);
@@ -553,9 +553,47 @@ const DataTableAgeGroup = (props) => {
       setValueExtGroundInitial(selectedRowData[0].ext_ground );
     }
   }
+  // Scrolling and positionning
+ const [paginationModel, setPaginationModel] = React.useState({
+  pageSize: 25,
+  page: 0,
+});
+
+useEffect(() => {
+  console.log(paginationModel.page);
+}, [paginationModel]);
+
+
+const handleScrollToRow = React.useCallback((v_id) => {
+  const sortedRowIds = apiRef.current.getSortedRowIds(); //получаем список отсортированных строк грида
+  const index = sortedRowIds.indexOf(parseInt(v_id));    //ищем в нем номер нужной записи
+  if (index !== -1) {
+    const pageSize = paginationModel.pageSize; // определяем текущую страницу и индекс строки в этой странице
+    const currentPage = paginationModel.page;
+    const rowPageIndex = Math.floor(index / pageSize);
+    if (currentPage !== rowPageIndex) { // проверяем, нужно ли изменять страницу
+      apiRef.current.setPage(rowPageIndex);
+    }
+    setRowSelectionModel([v_id]); //это устанавливает фокус на выбранной строке (подсветка)
+    setTimeout(function() {       //делаем таймаут в 0.1 секунды, иначе скроллинг тупит
+      apiRef.current.scrollToIndexes({ rowIndex: index, colIndex: 0 });
+    }, 100);
+  }
+}, [apiRef, paginationModel, setRowSelectionModel]);
+
+const scrollToIndexRef = React.useRef(null); //тут хранится значение (айди) добавленной записи
+
+useEffect(() => {
+  //событие, которое вызовет скроллинг грида после изменения данных в tableData
+  if (!scrollToIndexRef.current) return; //если значение не указано, то ничего не делаем
+  if (scrollToIndexRef.current===-1) return;
+  // console.log('scrollToIndex index '+ scrollToIndexRef.current);
+  handleScrollToRow(scrollToIndexRef.current);
+  scrollToIndexRef.current = null; //обнуляем значение
+}, [tableData, handleScrollToRow]);
 
   function CustomToolbar1() {
-    const apiRef = useGridApiContext();
+   //const apiRef = useGridApiRef(); // init DataGrid API for scrolling
     const handleExport = (options) =>
       apiRef.current.exportDataAsCsv(options);
 
@@ -588,16 +626,19 @@ const DataTableAgeGroup = (props) => {
 
       <DataGrid
         components={{ Toolbar: CustomToolbar1 }}
+        apiRef={apiRef}
         hideFooterSelectedRowCount={true}
         localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
         rowHeight={25}
         rows={tableData}
         loading={isLoading}
         columns={columns}
-        onSelectionModelChange={(newSelectionModel) => {
-          setSelectionModel(newSelectionModel);
+        paginationModel={paginationModel}
+        onPaginationModelChange={setPaginationModel}
+        onRowSelectionModelChange={(newRowSelectionModel) => {
+          setRowSelectionModel(newRowSelectionModel);
         }}
-        selectionModel={selectionModel}        
+        rowSelectionModel={rowSelectionModel}    
         initialState={{
           columns: {
             columnVisibilityModel: {
