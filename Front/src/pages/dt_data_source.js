@@ -639,8 +639,9 @@ const DataTableDataSource = (props) => {
     </DialogTitle>
     <DialogContent>
         <DialogContentText>
-            В запись таблицы "{table_names[props.table_name]}"{/*  с кодом <b>{valueId}</b> */} внесены изменения.<p></p>
-            {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p></p>
+        {valueId?
+          `В запись таблицы "${table_names[props.table_name]}" внесены изменения.`:
+          `В таблицу "${table_names[props.table_name]}" внесена новая несохраненная запись.`} 
             <p></p>Вы желаете сохранить указанную запись?
         </DialogContentText>
     </DialogContent>
@@ -656,7 +657,9 @@ const DataTableDataSource = (props) => {
     </DialogTitle>
     <DialogContent>
         <DialogContentText>
-            В запись таблицы {table_names[props.table_name]} {/* с кодом <b>{valueId}</b>  */}внесены изменения.<p></p>
+        {valueId?
+          `В запись таблицы "${table_names[props.table_name]}" внесены изменения.`:
+          `В таблицу "${table_names[props.table_name]}" внесена новая несохраненная запись.`}          
             {/* {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p></p> */}
             <p></p>Вы желаете сохранить указанную запись?
         </DialogContentText>

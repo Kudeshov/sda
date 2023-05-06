@@ -985,7 +985,7 @@ const DataTableCriterion= (props) => {
     <DialogContent>
         <DialogContentText>
           {valueId?
-          `В запись таблицы "${table_names[props.table_name]}" /* с кодом ${valueId} */ внесены изменения.`:
+          `В запись таблицы "${table_names[props.table_name]}" внесены изменения.`:
           `В таблицу "${table_names[props.table_name]}" внесена новая несохраненная запись.`}
 {/*             {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p></p>
             {valueParentID === valueParentIDInitial ? '' : 'Родительский класс: '+valueParentID+'; ' }<p></p>
@@ -1009,7 +1009,7 @@ const DataTableCriterion= (props) => {
     <DialogContent>
     <DialogContentText>
           {valueId?
-          `В запись таблицы "${table_names[props.table_name]}" /* с кодом ${valueId} */ внесены изменения.`:
+          `В запись таблицы "${table_names[props.table_name]}" внесены изменения.`:
           `В таблицу "${table_names[props.table_name]}" внесена новая несохраненная запись.`}
        {/*      {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p></p>
             {valueParentID === valueParentIDInitial ? '' : 'Родительский класс: '+valueParentID+'; ' }<p></p>

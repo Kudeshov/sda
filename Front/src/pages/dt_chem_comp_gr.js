@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
@@ -20,6 +20,8 @@ import { ReactComponent as TrashLightIcon } from "./../icons/trash.svg";
 import { ReactComponent as RepeatLightIcon } from "./../icons/repeat.svg";
 import { ReactComponent as CollapseIcon } from "./../icons/chevron-double-right.svg";
 import { ReactComponent as ExpandIcon } from "./../icons/chevron-double-down.svg";
+import { ReactComponent as SearchIcon } from "./../icons/search.svg";
+import { ReactComponent as TimesCircleIcon } from "./../icons/times-circle.svg";
 import TreeView from "@material-ui/lab/TreeView";
 import TreeItem from "@material-ui/lab/TreeItem";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
@@ -32,7 +34,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import { ExportToCsv } from 'export-to-csv-fix-source-map';
 import { table_names } from './sda_types';
 import Backdrop from '@mui/material/Backdrop';
-//import Autocomplete from '@mui/material/Autocomplete';
+import { InputAdornment } from "@material-ui/core";
 
 var alertText = "Сообщение";
 var alertSeverity = "info";
@@ -722,17 +724,36 @@ const DataTableChemCompGr = (props) => {
     useTextFile: false,
     useBom: true,
     useKeysAsHeaders: false,
-    headers: [],
-    // headers: ['Column 1', 'Column 2', etc...] <-- Won't work with useKeysAsHeaders present!
-  };
+    headers: ['Обозначение','Название (рус. яз)','Название (англ. яз)','Формула','Химический элемент','Комментарий (рус. яз)','Комментарий (англ. яз)']
+  }; 
 
-  const exportdDataCSV = async () => {
-    //console.log('export csv');
+  const exportDataCSV = async () => {
     const csvExporter = new ExportToCsv(optionsCSV);
-    csvExporter.generateCsv(tableData);   
+    const updatedData = tableData.map((item) => ({
+      ...item,
+      parent_title: tableData.find((parentItem) => parentItem.id === item.parent_id)?.title || "",
+    }));
+    const filteredData = updatedData.filter(item => item.id > 1000000 && item.title.includes(treeFilterString));
+    const newData = filteredData.map(({ title, name_rus, name_eng, formula, parent_title, descr_rus, descr_eng }) => ({
+      title,
+      name_rus,
+      name_eng,
+      formula,
+      parent_title,
+      descr_rus,
+      descr_eng
+    }));
+
+    const noNullData = newData.map((item) => {
+      return Object.fromEntries(
+        Object.entries(item).map(([key, value]) => [key, value === null ? "" : value])
+      );
+    });
+
+    csvExporter.generateCsv(noNullData);  
   } 
 
-  const onFilterKeyUp = (e) => { 
+/*   const onFilterKeyUp = (e) => { 
     const value = e.target.value;
     const filter = value.trim();
     setTreeFilterString(filter);
@@ -751,7 +772,39 @@ const DataTableChemCompGr = (props) => {
     if (expanded.length)
       expandedNew=[]; 
     setExpanded(expandedNew);
-  };
+  }; */
+
+  const setTreeFilter = (e) => { 
+    const value = e;
+    const filter = value.trim();
+    setTreeFilterString(filter);
+  }  
+
+  const [filter, setFilter] = useState(""); //значение фильтра
+  const [filterApplied, setFilterApplied] = useState(false); //состояние применен фильтр или нет
+
+  const clearFilter = useCallback(() => {
+    setFilter("");
+    setFilterApplied(false);
+    setTreeFilter("");
+  }, []);
+
+  const applyFilter = useCallback(() => {
+    if (filter.trim() === "") return;
+    setFilterApplied(true);
+    setTreeFilter(filter);
+  }, [filter]);
+
+  const expandTree = useCallback(() => { //развернуть дерево
+    const hasChild = [];
+    tableData.forEach((item) => {
+      if (item.parent_id && !hasChild.includes(item.parent_id.toString())) {
+        hasChild.push(item.parent_id.toString());
+      }
+    });
+    const expandedNew = expanded.length ? [] : hasChild;
+    setExpanded(expandedNew);
+  }, [expanded, tableData]);
   const formRef = React.useRef();
   return (
     <div style={{ height: 650, width: 1500 }}>
@@ -771,11 +824,25 @@ const DataTableChemCompGr = (props) => {
           <SvgIcon fontSize="small" component={UndoLightIcon} inheritViewBox /></IconButton>
         <IconButton onClick={()=>handleClickReload()} color="primary" size="small" title="Обновить данные">
           <SvgIcon fontSize="small" component={RepeatLightIcon} inheritViewBox /></IconButton>
-        <IconButton onClick={()=> exportdDataCSV()} color="primary" size="small" title="Сохранить в формате CSV">
+        <IconButton onClick={()=>exportDataCSV()} color="primary" size="small" title="Сохранить в формате CSV">
           <SvgIcon fontSize="small" component={DownloadLightIcon} inheritViewBox /></IconButton>
-        <IconButton onClick={()=> handleExpandClick()} color="primary" size="small" title={expanded.length !== 0?"Свернуть все":"Развернуть все"} >
+        <IconButton onClick={()=>expandTree()} color="primary" size="small" title={expanded.length !== 0?"Свернуть все":"Развернуть все"} >
           <SvgIcon fontSize="small" component={expanded.length !== 0?CollapseIcon:ExpandIcon} inheritViewBox /></IconButton>
-        <br/><TextField label="Фильтр ..." size = "small" variant="standard" onKeyUp={onFilterKeyUp} />
+          <br/><TextField label="Фильтр ..." size = "small" variant="standard" value={filter}
+                onChange={(e) => setFilter(e.target.value)} 
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton onClick={applyFilter} edge="end" size="small" color="primary" disabled={!filter} title="Применить фильтр">
+                        <SvgIcon fontSize="small" component={SearchIcon} inheritViewBox />
+                      </IconButton>
+                      <IconButton onClick={clearFilter} edge="end" size="small" color="primary" disabled={!filter && !filterApplied} title={filterApplied ? "Сбросить фильтр" : "Очистить поле ввода"}>
+                        <SvgIcon fontSize="small" component={TimesCircleIcon} inheritViewBox />
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+        />
         <Box sx={{ height: 415, overflowY: 'false' }}>
 
           {(isLoading==="true") && 
@@ -931,7 +998,7 @@ const DataTableChemCompGr = (props) => {
     <DialogContent>
         <DialogContentText>
           {valueId?
-          `В запись таблицы "${table_names[props.table_name]}" /* с кодом ${valueId} */ внесены изменения.`:
+          `В запись таблицы "${table_names[props.table_name]}" внесены изменения.`:
           `В таблицу "${table_names[props.table_name]}" внесена новая несохраненная запись.`}
         {/*     {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p></p>
             {valueParentID === valueParentIDInitial ? '' : 'Родительский класс: '+valueParentID+'; ' }<p></p>

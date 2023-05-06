@@ -954,7 +954,9 @@ function CustomToolbar1() {
     </DialogTitle>
     <DialogContent>
         <DialogContentText>
-            В запись таблицы {table_names[props.table_name]}{/*  с кодом <b>{valueId}</b> */} внесены изменения.
+        {valueId?
+          `В запись таблицы "${table_names[props.table_name]}" внесены изменения.`:
+          `В таблицу "${table_names[props.table_name]}" внесена новая несохраненная запись.`} 
 {/*             {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p></p>
             {valueAtomicNum === valueAtomicNumInitial ? '' : 'Атомный номер: '+valueAtomicNum+'; ' }<p></p>
             {valueNameRus === valueNameRusInitial ? '' : 'Название (рус. яз): '+valueNameRus+'; ' }<p></p>
@@ -974,7 +976,9 @@ function CustomToolbar1() {
     </DialogTitle>
     <DialogContent>
         <DialogContentText>
-            В запись таблицы {table_names[props.table_name]} {/* с кодом <b>{valueId}</b> */} внесены изменения.
+        {valueId?
+          `В запись таблицы "${table_names[props.table_name]}" внесены изменения.`:
+          `В таблицу "${table_names[props.table_name]}" внесена новая несохраненная запись.`} 
       {/*       {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p></p>
             {valueAtomicNum === valueAtomicNumInitial ? '' : 'Атомный номер: '+valueAtomicNum+'; ' }<p></p>
             {valueNameRus === valueNameRusInitial ? '' : 'Название (рус. яз): '+valueNameRus+'; ' }<p></p>

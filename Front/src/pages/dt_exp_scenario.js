@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
@@ -20,6 +20,8 @@ import { ReactComponent as TrashLightIcon } from "./../icons/trash.svg";
 import { ReactComponent as RepeatLightIcon } from "./../icons/repeat.svg";
 import { ReactComponent as CollapseIcon } from "./../icons/chevron-double-right.svg";
 import { ReactComponent as ExpandIcon } from "./../icons/chevron-double-down.svg";
+import { ReactComponent as SearchIcon } from "./../icons/search.svg";
+import { ReactComponent as TimesCircleIcon } from "./../icons/times-circle.svg";
 import TreeView from "@material-ui/lab/TreeView";
 import TreeItem from "@material-ui/lab/TreeItem";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
@@ -32,6 +34,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import { ExportToCsv } from 'export-to-csv-fix-source-map';
 import { table_names } from './sda_types';
 import Backdrop from '@mui/material/Backdrop';
+import { InputAdornment } from "@material-ui/core";
 
 var alertText = "Сообщение";
 var alertSeverity = "info";
@@ -736,31 +739,43 @@ const DataTableExpScenario = (props) => {
   }
 
   const exportdDataCSV = async () => {
-    //console.log('export csv');
     const csvExporter = new ExportToCsv(optionsCSV);
-    csvExporter.generateCsv(getTableDataForExcel(tableData));   
+    const filteredData = tableData.filter(item => item.title.includes(treeFilterString));
+    csvExporter.generateCsv(getTableDataForExcel(filteredData));   
   } 
 
-  const onFilterKeyUp = (e) => { 
-    const value = e.target.value;
+  const setTreeFilter = (e) => { 
+    const value = e;
     const filter = value.trim();
     setTreeFilterString(filter);
   }  
 
-  const handleExpandClick = () => {
-    var hasChild = [], i;
-    for (i = 0; i < tableData.length; i += 1) {
-      if (tableData[i].parent_id) 
-      {
-        if (hasChild.indexOf(tableData[i].parent_id)=== -1)
-          hasChild.push(tableData[i].parent_id.toString()); 
+  const [filter, setFilter] = useState(""); //значение фильтра
+  const [filterApplied, setFilterApplied] = useState(false); //состояние применен фильтр или нет
+
+  const clearFilter = useCallback(() => {
+    setFilter("");
+    setFilterApplied(false);
+    setTreeFilter("");
+  }, []);
+
+  const applyFilter = useCallback(() => {
+    if (filter.trim() === "") return;
+    setFilterApplied(true);
+    setTreeFilter(filter);
+  }, [filter]);
+
+  const expandTree = useCallback(() => { //развернуть дерево
+    const hasChild = [];
+    tableData.forEach((item) => {
+      if (item.parent_id && !hasChild.includes(item.parent_id.toString())) {
+        hasChild.push(item.parent_id.toString());
       }
-    }
-    var expandedNew = hasChild;
-    if (expanded.length)
-      expandedNew=[]; 
+    });
+    const expandedNew = expanded.length ? [] : hasChild;
     setExpanded(expandedNew);
-  };
+  }, [expanded, tableData]);
+
   const formRef = React.useRef();
   return (
 
@@ -782,11 +797,25 @@ const DataTableExpScenario = (props) => {
           <SvgIcon fontSize="small" component={UndoLightIcon} inheritViewBox /></IconButton>
         <IconButton onClick={()=>handleClickReload()} color="primary" size="small" title="Обновить данные">
           <SvgIcon fontSize="small" component={RepeatLightIcon} inheritViewBox /></IconButton>
-        <IconButton onClick={()=> exportdDataCSV()} color="primary" size="small" title="Сохранить в формате CSV">
+        <IconButton onClick={()=>exportdDataCSV()} color="primary" size="small" title="Сохранить в формате CSV">
           <SvgIcon fontSize="small" component={DownloadLightIcon} inheritViewBox /></IconButton>
-        <IconButton onClick={()=> handleExpandClick()} color="primary" size="small" title={expanded.length !== 0?"Свернуть все":"Развернуть все"} >
+        <IconButton onClick={()=>expandTree()} color="primary" size="small" title={expanded.length !== 0?"Свернуть все":"Развернуть все"} >
           <SvgIcon fontSize="small" component={expanded.length !== 0?CollapseIcon:ExpandIcon} inheritViewBox /></IconButton>
-        <br/><TextField label="Фильтр ..." size = "small" variant="standard" onKeyUp={onFilterKeyUp} />
+        <br/><TextField label="Фильтр ..." size = "small" variant="standard" value={filter}
+                onChange={(e) => setFilter(e.target.value)} 
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton onClick={applyFilter} edge="end" size="small" color="primary" disabled={!filter} title="Применить фильтр">
+                        <SvgIcon fontSize="small" component={SearchIcon} inheritViewBox />
+                      </IconButton>
+                      <IconButton onClick={clearFilter} edge="end" size="small" color="primary" disabled={!filter && !filterApplied} title={filterApplied ? "Сбросить фильтр" : "Очистить поле ввода"}>
+                        <SvgIcon fontSize="small" component={TimesCircleIcon} inheritViewBox />
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+        />
         <Box sx={{ height: 415, overflowY: 'false' }}>
           {(isLoading==="true") && 
           <Backdrop sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }} open={true}>
@@ -909,7 +938,7 @@ const DataTableExpScenario = (props) => {
     <DialogContent>
         <DialogContentText>
           {valueId?
-          `В запись таблицы "${table_names[props.table_name]}"/*  с кодом ${valueId} */ внесены изменения.`:
+          `В запись таблицы "${table_names[props.table_name]}" внесены изменения.`:
           `В таблицу "${table_names[props.table_name]}" внесена новая несохраненная запись.`}
 {/*             {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p></p>
             {valueParentID === valueParentIDInitial ? '' : 'Родительский класс: '+valueParentID+'; ' }<p></p>
@@ -933,7 +962,7 @@ const DataTableExpScenario = (props) => {
     <DialogContent>
     <DialogContentText>
           {valueId?
-          `В запись таблицы "${table_names[props.table_name]}"   /* с кодом ${valueId}  */  внесены изменения.`:
+          `В запись таблицы "${table_names[props.table_name]}" внесены изменения.`:
           `В таблицу "${table_names[props.table_name]}" внесена новая несохраненная запись.`}
 {/*             {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p></p>
             {valueParentID === valueParentIDInitial ? '' : 'Родительский класс: '+valueParentID+'; ' }<p></p>
