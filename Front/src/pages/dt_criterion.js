@@ -835,7 +835,11 @@ const DataTableCriterion= (props) => {
           <SvgIcon fontSize="small" component={DownloadLightIcon} inheritViewBox /></IconButton>
         <IconButton onClick={()=> handleExpandClick()} color="primary" size="small" title={expanded.length !== 0?"Свернуть все":"Развернуть все"} >
           <SvgIcon fontSize="small" component={expanded.length !== 0?CollapseIcon:ExpandIcon} inheritViewBox /></IconButton>
+        
+        
         <br/><TextField label="Фильтр ..." size = "small" variant="standard" onKeyUp={onFilterKeyUp} />
+
+
         <Box sx={{ height: 415, overflowY: 'false' }}>
           {(isLoading==="true") && 
           <Backdrop sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }} open={true}>

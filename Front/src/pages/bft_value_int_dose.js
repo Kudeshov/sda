@@ -603,7 +603,7 @@ const BigTableValueIntDose = (props) => {
               </li>
             )}
             renderInput={(params) => (
-              <TextField {...params} label="Источники данных" placeholder="Источники данных" />
+              <TextField {...params} label="Источники данных" placeholder="Источники данных" required/>
             )}
             />
           </td>
@@ -630,17 +630,17 @@ const BigTableValueIntDose = (props) => {
             options={ tableDoseRatioFiltered.filter((row) => [1, 2, 8].includes(row.id)) }
             getOptionLabel={(option) => option.title?option.title:''} //?option.title:'Выбор отсутствует'
             renderInput={(params) => (
-              <TextField {...params} label="Параметр" placeholder="Параметр" />
+              <TextField {...params} label="Параметр" placeholder="Параметр" required/>
             )}
           />
-          </td>
-          <td>
+           </td>
+{/*          <td>
             &nbsp;&nbsp;
           </td>
           <td>        
             <IconButton onClick={()=>setSelDoseRatioValue(tableDoseRatioFiltered.filter((row) => [1, 2, 8].includes(row.id)))} color="primary" size="small" title="Выбрать все">
             <SvgIcon fontSize="small" component={CheckDoubleIcon} inheritViewBox /></IconButton>
-          </td>
+          </td> */}
           <td>
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
           </td>
@@ -741,17 +741,17 @@ const BigTableValueIntDose = (props) => {
             options={tableIrradiationFiltered.filter((row) => [2,6, 30319, 30316].includes(row.id)) }
             getOptionLabel={(option) => option.name_rus?option.name_rus:''}  
             renderInput={(params) => (
-              <TextField {...params} label="Тип облучения" placeholder="Тип облучения" />
+              <TextField {...params} label="Тип облучения" placeholder="Тип облучения" required/>
             )}
           />          
           </td>
-          <td>
+{/*           <td>
             &nbsp;&nbsp;
           </td>
           <td>        
             <IconButton onClick={()=>setSelIrradiationValue(tableIrradiationFiltered.filter((row) => [2,6, 30319, 30316].includes(row.id)))} color="primary" size="small" title="Выбрать все">
             <SvgIcon fontSize="small" component={CheckDoubleIcon} inheritViewBox /></IconButton>
-          </td>
+          </td> */}
           <td>
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
           </td>
@@ -894,7 +894,7 @@ const BigTableValueIntDose = (props) => {
               </li>
             )}
             renderInput={(params) => (
-              <TextField {...params} label="Типы облучаемых лиц" placeholder="Типы облучаемых лиц" />
+              <TextField {...params} label="Типы облучаемых лиц" placeholder="Типы облучаемых лиц" required/>
             )}
             />          
             </td>
