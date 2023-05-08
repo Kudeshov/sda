@@ -754,7 +754,7 @@ function CustomToolbar1() {
   }
 }, [isLoading, tableNuclide]); 
 
-   const formRef = React.useRef();
+  const formRef = React.useRef();
   return (
     <div style={{ height: 640, width: 1500 }}>
 

@@ -92,10 +92,10 @@ const BigTableValueIntDose = (props) => {
   // значения, выбранные в автокомплитах
   const [selDataSourceValues, setSelDataSourceValues] = useState([]);
   const [selOrganValues, setSelOrganValues] = useState([]);
-  const [selIrradiationValue, setSelIrradiationValue] = useState(null);
+  const [selIrradiationValue, setselIrradiationValue] = useState(null);
   const [selIsotopeValues, setSelIsotopeValues] = useState([]);
   const [selIntegralPeriodValues, setSelIntegralPeriodValues] = useState([]);
-  const [selDoseRatioValue, setSelDoseRatioValue] = useState(null);
+  const [selDoseRatioValue, setselDoseRatioValue] = useState(null);
   const [selLetLevelValues, setSelLetLevelValues] = useState([]);
   const [selAgeGroupValues, setSelAgeGroupValues] = useState([]);
   const [selSubstFormValues, setSelSubstFormValues] = useState([]);
@@ -105,35 +105,95 @@ const BigTableValueIntDose = (props) => {
   const [selPeopleClassValues, setSelPeopleClassValues] = useState([]);
 
   //массивы, содержащие данные для автокомплитов
+
   const [tableDataSource, setTableDataSource] = useState([]); 
   const [tableOrgan, setTableOrgan] = useState([]);
-  
-  const [tableIrradiation, setTableIrradiation] = useState([]);  
-  const [tableIrradiationFiltered, setTableIrradiationFiltered] = useState([]);  
+  // eslint-disable-next-line no-unused-vars
+  const [tableOrganFiltered, settableOrganFiltered] = useState([]);
+  // eslint-disable-next-line no-unused-vars
+  const [tableIrradiation, setTableIrradiation] = useState([]);
+  // eslint-disable-next-line no-unused-vars  
+  const [tableIrradiationFiltered, settableIrradiationFiltered] = useState([]);  
   
   const [tableIsotope, setTableIsotope] = useState([]);
-  const [tableIsotopeFiltered, setTableIsotopeFiltered] = useState([]);
+  // eslint-disable-next-line no-unused-vars
+  const [tableIsotopeFiltered, settableIsotopeFiltered] = useState([]);
 
   const [tableIntegralPeriod, setTableIntegralPeriod] = useState([]);
+  // eslint-disable-next-line no-unused-vars
+  const [tableIntegralPeriodFiltered, settableIntegralPeriodFiltered] = useState([]);
+  // eslint-disable-next-line no-unused-vars
   const [tableDoseRatio, setTableDoseRatio] = useState([]);
-  const [tableDoseRatioFiltered, setTableDoseRatioFiltered] = useState([]);
+  // eslint-disable-next-line no-unused-vars
+  const [tableDoseRatioFiltered, settableDoseRatioFiltered] = useState([]);
+  // eslint-disable-next-line no-unused-vars
+  const [tableAgeGroup, setTableAgeGroup] = useState([]); //возрастные группы населения
+  // eslint-disable-next-line no-unused-vars  
+  const [tableAgeGroupFiltered, settableAgeGroupFiltered] = useState([]);
+  // eslint-disable-next-line no-unused-vars
+  const [tableSubstForm, setTableSubstForm] = useState([]); //формы вещества
+  // eslint-disable-next-line no-unused-vars  
+  const [tableSubstFormFiltered, settableSubstFormFiltered] = useState([]);
+  // eslint-disable-next-line no-unused-vars  
+  const [tableAerosolSol, setTableAerosolSol] = useState([]);  
+  // eslint-disable-next-line no-unused-vars  
+  const [tableAerosolSolFiltered, settableAerosolSolFiltered] = useState([]);  
+  // eslint-disable-next-line no-unused-vars  
   const [tableLetLevel, setTableLetLevel] = useState([]); //уровни ЛПЭ
-  const [tableAgeGroup, setTableAgeGroup] = useState([]);   
-  const [tableSubstForm, setTableSubstForm] = useState([]); //формы вещества  
-  const [tableAerosolSol, setTableAerosolSol] = useState([]);   
+  // eslint-disable-next-line no-unused-vars  
+  const [tableLetLevelFiltered, settableLetLevelFiltered] = useState([]); //уровни ЛПЭ
+  // eslint-disable-next-line no-unused-vars  
   const [tableAerosolAMAD, setTableAerosolAMAD] = useState([]); //АМАД аэрозолей
+  // eslint-disable-next-line no-unused-vars  
+  const [tableAerosolAMADFiltered, settableAerosolAMADFiltered] = useState([]); //АМАД аэрозолей
+  // eslint-disable-next-line no-unused-vars  
   const [tableExpScenario, setTableExpScenario] = useState([]); //Сценарии поступления
+  // eslint-disable-next-line no-unused-vars  
+  const [tableExpScenarioFiltered, settableExpScenarioFiltered] = useState([]); //Сценарии поступления
+  // eslint-disable-next-line no-unused-vars  
   const [tablePeopleClass, setTablePeopleClass] = useState([]); //Типы облучаемых лиц
-  const [tablePeopleClassFiltered, setTablePeopleClassFiltered] = useState([]); //Типы облучаемых лиц - фильтр по
+  // eslint-disable-next-line no-unused-vars  
+  const [tablePeopleClassFiltered, settablePeopleClassFiltered] = useState([]); //Типы облучаемых лиц  
+
   const [tableValueIntDose, setTableValueIntDose] = useState([]); 
   const [selectionModel, setSelectionModel] = React.useState([]);
   const [tableDataSourceClass, setTableDataSourceClass] = useState([]);
-  //const [tableDataSourceClassFiltered, setTableDataSourceClassFiltered] = useState([]);
-
+  
   const handleChangeDataSource = (event, value) => {
     setSelDataSourceValues(value);
   };
-  
+
+  useEffect(() => {
+    let ids = selDataSourceValues.map(item => item.id);
+    const filters = [
+        {table: 'dose_ratio', source: 'tableDoseRatio', filter: 'tableDoseRatioFiltered', item: 'selDoseRatioValue'},
+        {table: 'irradiation', source: 'tableIrradiation', filter: 'tableIrradiationFiltered', item: 'selIrradiationValue'},
+        {table: 'subst_form', source: 'tableSubstForm', filter: 'tableSubstFormFiltered', item: null},
+        {table: 'integral_period', source: 'tableIntegralPeriod', filter: 'tableIntegralPeriodFiltered', item: null},
+        {table: 'people_class', source: 'tablePeopleClass', filter: 'tablePeopleClassFiltered', item: null},
+        {table: 'agegroup', source: 'tableAgeGroup', filter: 'tableAgeGroupFiltered', item: null},
+        {table: 'organ', source: 'tableOrgan', filter: 'tableOrganFiltered', item: null},
+        {table: 'isotope', source: 'tableIsotope', filter: 'tableIsotopeFiltered', item: null},
+        {table: 'aerosol_sol', source: 'tableAerosolSol', filter: 'tableAerosolSolFiltered', item: null},
+        {table: 'let_level', source: 'tableLetLevel', filter: 'tableLetLevelFiltered', item: null},
+        {table: 'aerosol_amad', source: 'tableAerosolAMAD', filter: 'tableAerosolAMADFiltered', item: null},
+        {table: 'exp_scenario', source: 'tableExpScenario', filter: 'tableExpScenarioFiltered', item: null},
+    ];
+
+    filters.forEach(filter => {
+        let ids_table = tableDataSourceClass.filter(item => ((item.table_name === filter.table )&&(ids.includes(item.data_source_id))) ).map(item => item.rec_id);
+        /* eslint-disable no-eval */
+        let filteredTable = eval(filter.source).filter(item => ((ids_table.includes(item.id))) );
+        if (filter.item && filteredTable && eval(filter.item) && !filteredTable.some(item => item.id === eval(filter.item).id)) {
+            eval(`set${filter.item}(null)`);
+        }
+        eval(`set${filter.filter}(filteredTable)`); 
+        /* eslint-enable no-eval */
+    });
+}, [selDataSourceValues, tableDataSourceClass]);
+
+  /* 
+  //фильтрация списков фильтров в зависимости от выбранного источника (источников) данных
   useEffect(() => {
     //взяли айди выбранных источников данных
     let ids = selDataSourceValues.map(item => item.id);
@@ -149,23 +209,63 @@ const BigTableValueIntDose = (props) => {
     let ids_irradiation = tableDataSourceClass.filter(item => ((item.table_name === 'irradiation' )&&(ids.includes(item.data_source_id))) ).map(item => item.rec_id);
     let filteredIrradiation = tableIrradiation.filter(item => ((ids_irradiation.includes(item.id))) );
     setTableIrradiationFiltered( filteredIrradiation ); 
-    if ((filteredIrradiation&&selIrradiationValue)&&(!filteredIrradiation.some(item => item.id === selIrradiationValue.id) )) setSelIrradiationValue(null);
+    if ((filteredIrradiation&&selIrradiationValue)&&(!filteredIrradiation.some(item => item.id === selIrradiationValue.id) )) 
+      setSelIrradiationValue(null);
+
+    let ids_subst_form = tableDataSourceClass.filter(item => ((item.table_name === 'subst_form' )&&(ids.includes(item.data_source_id))) ).map(item => item.rec_id);
+    let filteredSubstForm = tableSubstForm.filter(item => ((ids_subst_form.includes(item.id))) );
+    setTableSubstFormFiltered( filteredSubstForm ); 
+      
+    let ids_integral_period = tableDataSourceClass.filter(item => ((item.table_name === 'integral_period' )&&(ids.includes(item.data_source_id))) ).map(item => item.rec_id);
+    let filteredIntegralPeriod = tableIntegralPeriod.filter(item => ((ids_integral_period.includes(item.id))) );
+    setTableIntegralPeriodFiltered( filteredIntegralPeriod );       
 
     let ids_people_class = tableDataSourceClass.filter(item => ((item.table_name === 'people_class' )&&(ids.includes(item.data_source_id))) ).map(item => item.rec_id);
     let filteredPeopleClass = tablePeopleClass.filter(item => ((ids_people_class.includes(item.id))) );
     setTablePeopleClassFiltered( filteredPeopleClass ); 
 
+    let ids_agegroup = tableDataSourceClass.filter(item => ((item.table_name === 'agegroup' )&&(ids.includes(item.data_source_id))) ).map(item => item.rec_id);
+    let filteredAgeGroup = tableAgeGroup.filter(item => ((ids_agegroup.includes(item.id))) );
+    setTableAgeGroupFiltered( filteredAgeGroup ); 
+
+    let ids_organ = tableDataSourceClass.filter(item => ((item.table_name === 'organ' )&&(ids.includes(item.data_source_id))) ).map(item => item.rec_id);
+    let filteredOrgan = tableOrgan.filter(item => ((ids_organ.includes(item.id))) );
+    setTableOrganFiltered( filteredOrgan );     
+    
     let ids_isotope = tableDataSourceClass.filter(item => ((item.table_name === 'isotope' )&&(ids.includes(item.data_source_id))) ).map(item => item.rec_id);
     let filteredIsotope = tableIsotope.filter(item => ((ids_isotope.includes(item.id))) );
     setTableIsotopeFiltered( filteredIsotope ); 
 
+    let ids_aerosol_sol = tableDataSourceClass.filter(item => ((item.table_name === 'aerosol_sol' )&&(ids.includes(item.data_source_id))) ).map(item => item.rec_id);
+    let filteredAerosolSol = tableAerosolSol.filter(item => ((ids_aerosol_sol.includes(item.id))) );
+    setTableAerosolSolFiltered( filteredAerosolSol ); 
+
+    let ids_let_level = tableDataSourceClass.filter(item => ((item.table_name === 'let_level' )&&(ids.includes(item.data_source_id))) ).map(item => item.rec_id);
+    let filteredLetLevel = tableLetLevel.filter(item => ((ids_let_level.includes(item.id))) );
+    setTableLetLevelFiltered( filteredLetLevel ); 
+
+    let ids_aerosol_amad = tableDataSourceClass.filter(item => ((item.table_name === 'aerosol_amad' )&&(ids.includes(item.data_source_id))) ).map(item => item.rec_id);
+    let filteredAerosolAmad = tableAerosolAMAD.filter(item => ((ids_aerosol_amad.includes(item.id))) );
+    setTableAerosolAMADFiltered( filteredAerosolAmad ); 
+
+    let ids_exp_scenario = tableDataSourceClass.filter(item => ((item.table_name === 'exp_scenario' )&&(ids.includes(item.data_source_id))) ).map(item => item.rec_id);
+    let filteredExpScenario = tableExpScenario.filter(item => ((ids_exp_scenario.includes(item.id))) );
+    setTableExpScenarioFiltered( filteredExpScenario ); 
   }, [selDataSourceValues, tableDataSourceClass, 
       tableDoseRatio, selDoseRatioValue, 
       tableIrradiation, selIrradiationValue,
-      tableIsotope, //selIsotopeValues,
-      tablePeopleClass 
+      tableIntegralPeriod,  
+      tableIsotope, 
+      tableSubstForm,
+      tablePeopleClass,
+      tableAgeGroup,
+      tableOrgan,
+      tableAerosolSol,
+      tableLetLevel,
+      tableAerosolAMAD,
+      tableExpScenario
     ]);
-
+ */
   useEffect(() => {
     setSelPeopleClassValues((prevValues) => {
       // Фильтруем значения в prevValues, чтобы оставить только те,
@@ -177,9 +277,9 @@ const BigTableValueIntDose = (props) => {
   }, [tablePeopleClassFiltered]);      
 
   //обработчики автокомплитов
-  const handleChangeDoseRatio = (event, value) => { setSelDoseRatioValue(value); };
+  const handleChangeDoseRatio = (event, value) => { setselDoseRatioValue(value); };
   const handleChangeOrgan = (event, value) => { setSelOrganValues(value); };
-  const handleChangeIrradiation = (event, value) => { setSelIrradiationValue(value); };
+  const handleChangeIrradiation = (event, value) => { setselIrradiationValue(value); };
   const handleChangeIsotope = (event, value) => { setSelIsotopeValues(value); };
   const handleChangeIntegralPeriod = (event, value) => { setSelIntegralPeriodValues(value); };
   const handleChangeLetLevel = (event, value) => { setSelLetLevelValues(value); };
@@ -578,7 +678,7 @@ const BigTableValueIntDose = (props) => {
       {/* аккордеон по страницам */} 
       <Accordion expanded={isFilterExpanded} onChange={() => setIsFilterExpanded(!isFilterExpanded)}>
         <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1a-content" id="panel1a-header">
-          <Typography>Фильтры {GetFilterCaption()}</Typography> 
+          <Typography variant="body2">Фильтр {GetFilterCaption()}</Typography> 
         </AccordionSummary>
 
         <AccordionDetails>
@@ -655,7 +755,7 @@ const BigTableValueIntDose = (props) => {
             onChange={handleChangeOrgan}
             multiple
             id="autocomplete-organ"
-            options={tableOrgan}
+            options={tableOrganFiltered}
             getOptionLabel={(option) => option.name_rus}
             disableCloseOnSelect
             renderOption={(props, option, { selected }) => (
@@ -677,7 +777,7 @@ const BigTableValueIntDose = (props) => {
           )}
           {!((!selDataSourceValues.length)||(!selDoseRatioValue)||(![2, 8].includes(selDoseRatioValue.id)))&&(    
             <td>        
-              <IconButton onClick={()=>setSelOrganValues(tableOrgan)} color="primary" size="small" title="Выбрать все">
+              <IconButton onClick={()=>setSelOrganValues(tableOrganFiltered)} color="primary" size="small" title="Выбрать все">
               <SvgIcon fontSize="small" component={CheckDoubleIcon} inheritViewBox /></IconButton>
             </td>
           )}
@@ -697,7 +797,7 @@ const BigTableValueIntDose = (props) => {
             onChange={handleChangeLetLevel}
             multiple
             id="autocomplete-let_level"
-            options={tableLetLevel}
+            options={tableLetLevelFiltered}
             getOptionLabel={(option) => option.name_rus}
             disableCloseOnSelect
             renderOption={(props, option, { selected }) => (
@@ -720,7 +820,7 @@ const BigTableValueIntDose = (props) => {
           )}
           {!((!selDataSourceValues.length)||(!selDoseRatioValue)||(![8].includes(selDoseRatioValue.id)) ) && (
             <td>        
-              <IconButton onClick={()=>setSelLetLevelValues(tableLetLevel)} color="primary" size="small" title="Выбрать все">
+              <IconButton onClick={()=>setSelLetLevelValues(tableLetLevelFiltered)} color="primary" size="small" title="Выбрать все">
               <SvgIcon fontSize="small" component={CheckDoubleIcon} inheritViewBox /></IconButton>
             </td>
           )}
@@ -767,7 +867,7 @@ const BigTableValueIntDose = (props) => {
               onChange={handleChangeSubstForm}
               multiple
               id="autocomplete-subst_form"
-              options={tableSubstForm}
+              options={tableSubstFormFiltered}
               disabled={  (!selDataSourceValues.length) || (!selIrradiationValue) || (selIrradiationValue.id!==2)}          
               getOptionLabel={(option) => option.name_rus}
               disableCloseOnSelect
@@ -786,7 +886,7 @@ const BigTableValueIntDose = (props) => {
               &nbsp;&nbsp;
             </td>
             <td>        
-              <IconButton onClick={()=>setSelSubstFormValues(tableSubstForm)} color="primary" size="small" title="Выбрать все">
+              <IconButton onClick={()=>setSelSubstFormValues(tableSubstFormFiltered)} color="primary" size="small" title="Выбрать все">
               <SvgIcon fontSize="small" component={CheckDoubleIcon} inheritViewBox /></IconButton>
             </td>
             <td>
@@ -803,7 +903,7 @@ const BigTableValueIntDose = (props) => {
             onChange={handleChangeAerosolSol}
             multiple
             id="autocomplete-aerosol_sol"
-            options={tableAerosolSol}
+            options={tableAerosolSolFiltered}
             disabled={  (!selDataSourceValues.length) ||  
                 ((selSubstFormValues.filter((row) => [162].includes(row.id))).length===0) 
             }          
@@ -815,16 +915,23 @@ const BigTableValueIntDose = (props) => {
                 {option.name_rus}
               </li>
             )}
+/*             renderInput={(params) => {
+              const inputProps = {
+                ...params.inputProps,
+                value: selAerosolSolValues.length === 0 ? "Выбор отсутствует" : params.inputProps.value,
+              };
+              return <TextField {...params} inputProps={inputProps} label="Типы растворимости аэрозолей" placeholder="Типы растворимости аэрозолей" />;
+            }} */
             renderInput={(params) => (
-              <TextField {...params} label="Типы растворимости аэрозолей" placeholder="Типы растворимости аэрозолей" />
-            )}
+              <TextField {...params} placeholder= "Типы растворимости аэрозолей" label="Типы растворимости аэрозолей" />
+            )} 
             />
           </td>
           <td>
             &nbsp;&nbsp;
           </td>
           <td>        
-            <IconButton onClick={()=>setSelAerosolSolValues(tableAerosolSol)} color="primary" size="small" title="Выбрать все">
+            <IconButton onClick={()=>setSelAerosolSolValues(tableAerosolSolFiltered)} color="primary" size="small" title="Выбрать все">
             <SvgIcon fontSize="small" component={CheckDoubleIcon} inheritViewBox /></IconButton>
           </td>
           <td>
@@ -839,7 +946,7 @@ const BigTableValueIntDose = (props) => {
             onChange={handleChangeAerosolAMAD}
             multiple
             id="autocomplete-aerosol_amad"
-            options={tableAerosolAMAD}
+            options={tableAerosolAMADFiltered}
             disabled={  (!selDataSourceValues.length) ||  
                 ((selSubstFormValues.filter((row) => [162].includes(row.id))).length===0) 
             }          
@@ -860,7 +967,7 @@ const BigTableValueIntDose = (props) => {
             &nbsp;&nbsp;
           </td>
           <td> 
-            <IconButton onClick={()=>setSelAerosolAMADValues(tableAerosolAMAD)} color="primary" size="small" title="Выбрать все">
+            <IconButton onClick={()=>setSelAerosolAMADValues(tableAerosolAMADFiltered)} color="primary" size="small" title="Выбрать все">
             <SvgIcon fontSize="small" component={CheckDoubleIcon} inheritViewBox /></IconButton>
           </td>
 
@@ -920,7 +1027,7 @@ const BigTableValueIntDose = (props) => {
             multiple
             id="autocomplete-age_group"
             disabled={(!selDataSourceValues.length) || ((selPeopleClassValues.filter((row) => [1].includes(row.id))).length===0) }              
-            options={tableAgeGroup}
+            options={tableAgeGroupFiltered}
             getOptionLabel ={(option) => option.name_rus}
             disableCloseOnSelect
             renderOption={(props, option, { selected }) => (
@@ -956,7 +1063,7 @@ const BigTableValueIntDose = (props) => {
             onChange={handleChangeExpScenario}
             multiple
             id="autocomplete-aerosol_amad"
-            options={tableExpScenario}
+            options={tableExpScenarioFiltered}
             disabled={ (!selDataSourceValues.length) || ((selPeopleClassValues.filter((row) => [3,4].includes(row.id))).length===0) }              
             getOptionLabel ={(option) => option.name_rus}
             disableCloseOnSelect
@@ -981,7 +1088,7 @@ const BigTableValueIntDose = (props) => {
           
           {!((!selDataSourceValues.length) ||  ((selPeopleClassValues.filter((row) => [3,4].includes(row.id))).length===0)  ) && (   
           <td>     
-            <IconButton onClick={()=>setSelExpScenarioValues(tableExpScenario)} color="primary" size="small" title="Выбрать все">
+            <IconButton onClick={()=>setSelExpScenarioValues(tableExpScenarioFiltered)} color="primary" size="small" title="Выбрать все">
             <SvgIcon fontSize="small" component={CheckDoubleIcon} inheritViewBox /></IconButton>
           </td>
           )}
@@ -1036,7 +1143,7 @@ const BigTableValueIntDose = (props) => {
             multiple
             limitTags={7}
             id="autocomplete-integral"
-            options={tableIntegralPeriod}
+            options={tableIntegralPeriodFiltered}
             getOptionLabel={(option) => option.name_rus}
             disableCloseOnSelect
             renderOption={(props, option, { selected }) => (
@@ -1062,7 +1169,10 @@ const BigTableValueIntDose = (props) => {
         </table>
         <p></p>  
 
-        <IconButton onClick={()=>reloadDataHandler()} color="primary" size="small" title="Получить данные">
+        <IconButton onClick={()=>reloadDataHandler()} color="primary" size="small" 
+          disabled={ (!selDataSourceValues.length/* ||!selDoseRatioValue||!selIrradiationValue||!selPeopleClassValues.length */) } 
+          title="Получить данные">
+
           <SvgIcon fontSize="small" component={ArrowAltDownIcon} inheritViewBox /></IconButton>
 
         </AccordionDetails>
