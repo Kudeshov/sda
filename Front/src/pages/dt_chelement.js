@@ -782,7 +782,6 @@ function CustomToolbar1() {
           columns: {
             columnVisibilityModel: {
               name_eng: false,
-              atomic_num: false,
               descr_eng: false,
             },
           },

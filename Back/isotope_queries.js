@@ -109,8 +109,8 @@ const getIsotopeEdges = (request, response ) => {
 
 const updateIsotope = (request, response) => {
   const id = parseInt(request.params.id);
-  const { title, nuclide_id, n_index,  half_life_value, half_life_period,  decayconst } = request.body;
-
+  let { title, nuclide_id, n_index,  half_life_value, half_life_period,  decayconst } = request.body;
+  if (half_life_value==='') {half_life_value=null}
   pool.query(  
     'UPDATE nucl.isotope SET title = $1, nuclide_id = $2, n_index = $3, half_life_value = $4, half_life_period = $5, decayconst = $6 where id = $7',
     [title, nuclide_id, n_index,  half_life_value, half_life_period,  decayconst, id ],
