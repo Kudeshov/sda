@@ -16,7 +16,7 @@ function ValueIntDose() {
     <table>
       <tbody>
     <tr>
-      <td width="60">
+      <td width="10">
         &nbsp;
       </td>
       <td width="1600">

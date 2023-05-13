@@ -114,7 +114,8 @@ const getValueIntDose = (request, response ) => {
     (((data_source_id||organ_id||irradiation_id||isotope_id||integral_period_id||dose_ratio_id||let_level_id||agegroup_id||subst_form_id||aerosol_sol_id||aerosol_amad_id||exp_scenario_id)&&people_class_id)?`and `:((people_class_id)?`where `:` `)) +    
     (people_class_id?`vid.people_class_id in (${people_class_id}) `:'')+
     `order by id `+
-    `limit ${pagesize} offset (${page}-1)*${pagesize}`;
+    `limit 1000 offset (${page}-1)*${pagesize}`;
+    //`limit ${pagesize} offset (${page}-1)*${pagesize}`;
 
   console.log(s_query);
   pool.query( s_query, (error, results) => {
