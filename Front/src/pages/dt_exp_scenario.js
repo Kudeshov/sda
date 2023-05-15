@@ -738,11 +738,14 @@ const DataTableExpScenario = (props) => {
     return(arr_excel);
   }
 
-  const exportdDataCSV = async () => {
+  const exportDataCSV = async () => {
     const csvExporter = new ExportToCsv(optionsCSV);
-    const filteredData = tableData.filter(item => item.title.includes(treeFilterString));
-    csvExporter.generateCsv(getTableDataForExcel(filteredData));   
-  } 
+    console.log(treeFilterString);
+    const filteredData = tableData.filter(item =>
+      item.title.toLowerCase().includes(treeFilterString.toLowerCase())
+    );
+    csvExporter.generateCsv(getTableDataForExcel(filteredData));
+  }
 
   const setTreeFilter = (e) => { 
     const value = e;
@@ -797,7 +800,7 @@ const DataTableExpScenario = (props) => {
           <SvgIcon fontSize="small" component={UndoLightIcon} inheritViewBox /></IconButton>
         <IconButton onClick={()=>handleClickReload()} color="primary" size="small" title="Обновить данные">
           <SvgIcon fontSize="small" component={RepeatLightIcon} inheritViewBox /></IconButton>
-        <IconButton onClick={()=>exportdDataCSV()} color="primary" size="small" title="Сохранить в формате CSV">
+        <IconButton onClick={()=>exportDataCSV()} color="primary" size="small" title="Сохранить в формате CSV">
           <SvgIcon fontSize="small" component={DownloadLightIcon} inheritViewBox /></IconButton>
         <IconButton onClick={()=>expandTree()} color="primary" size="small" title={expanded.length !== 0?"Свернуть все":"Развернуть все"} >
           <SvgIcon fontSize="small" component={expanded.length !== 0?CollapseIcon:ExpandIcon} inheritViewBox /></IconButton>
