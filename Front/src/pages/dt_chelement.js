@@ -55,6 +55,8 @@ const DataTableChelement = (props) => {
   const [isEmpty, setIsEmpty] = useState([false]);
   const [valueNuclideId, setValueNuclideID] = React.useState();
 
+  const [reportValid, setReportValid] = React.useState([true]);
+
   useEffect(() => {
     setIsEmpty((''===valueTitle)&&(''===valueNameRus)&&(''===valueNameEng)&&(''===valueAtomicNum)&&(''===valueMassNumber));
     }, [ valueTitle, valueNameRus, valueNameEng, valueAtomicNum, valueMassNumber]); 
@@ -62,6 +64,9 @@ const DataTableChelement = (props) => {
   useEffect(() => {
     setEditStarted((valueTitleInitial!==valueTitle)||(valueNameRusInitial!==valueNameRus)||(valueNameEngInitial!==valueNameEng)
       ||(valueAtomicNumInitial!==valueAtomicNum));
+
+      setReportValid(formRef.current.reportValidity());
+
     }, [valueTitleInitial, valueTitle, valueNameRusInitial, valueNameRus, valueNameEngInitial, valueNameEng, 
        valueAtomicNumInitial, valueAtomicNum]); 
 
@@ -782,7 +787,7 @@ function CustomToolbar1() {
           columns: {
             columnVisibilityModel: {
               name_eng: false,
-              descr_eng: false,
+               descr_eng: false,   
             },
           },
           
@@ -953,19 +958,30 @@ function CustomToolbar1() {
     </DialogTitle>
     <DialogContent>
         <DialogContentText>
-        {valueId?
-          `В запись таблицы "${table_names[props.table_name]}" внесены изменения.`:
-          `В таблицу "${table_names[props.table_name]}" внесена новая несохраненная запись.`} 
-{/*             {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p></p>
-            {valueAtomicNum === valueAtomicNumInitial ? '' : 'Атомный номер: '+valueAtomicNum+'; ' }<p></p>
-            {valueNameRus === valueNameRusInitial ? '' : 'Название (рус. яз): '+valueNameRus+'; ' }<p></p>
-            {valueNameEng === valueNameEngInitial ? '' : 'Название (англ. яз): '+valueNameEng+'; ' }<p></p> */}
-            <br/>Вы желаете сохранить указанную запись?
+          {reportValid ? (
+          <>
+            {valueId ? (
+              `В запись таблицы "${table_names[props.table_name]}" внесены изменения.`
+            ) : (
+              `В таблицу "${table_names[props.table_name]}" внесена новая несохраненная запись.`
+            )}
+            <br />Вы желаете сохранить указанную запись?
+          </>
+           ) : (
+          "Не заданы обязательные поля, изменения не сохранены"
+          )
+          }
         </DialogContentText>
     </DialogContent>
     <DialogActions>
-        <Button variant="outlined" onClick={handleCloseSaveNo} autoFocus>Нет</Button>
-        <Button variant="outlined" onClick={handleCloseSaveYes} >Да</Button>
+       {!reportValid && (
+          <Button variant="outlined" onClick={handleCloseSaveNo} autoFocus>Закрыть</Button>
+        )}
+       {reportValid && (
+        <>
+          <Button variant="outlined" onClick={handleCloseSaveNo} autoFocus>Нет</Button>
+          <Button variant="outlined" onClick={handleCloseSaveYes} >Да</Button></>
+        )}
     </DialogActions>
   </Dialog>
 
@@ -974,20 +990,31 @@ function CustomToolbar1() {
         Внимание
     </DialogTitle>
     <DialogContent>
-        <DialogContentText>
-        {valueId?
-          `В запись таблицы "${table_names[props.table_name]}" внесены изменения.`:
-          `В таблицу "${table_names[props.table_name]}" внесена новая несохраненная запись.`} 
-      {/*       {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p></p>
-            {valueAtomicNum === valueAtomicNumInitial ? '' : 'Атомный номер: '+valueAtomicNum+'; ' }<p></p>
-            {valueNameRus === valueNameRusInitial ? '' : 'Название (рус. яз): '+valueNameRus+'; ' }<p></p>
-            {valueNameEng === valueNameEngInitial ? '' : 'Название (англ. яз): '+valueNameEng+'; ' }<p></p> */}
-            <br/>Вы желаете сохранить указанную запись?
-        </DialogContentText>
+      <DialogContentText>
+        {reportValid ? (
+          <>
+            {valueId ? (
+              `В запись таблицы "${table_names[props.table_name]}" внесены изменения.`
+            ) : (
+              `В таблицу "${table_names[props.table_name]}" внесена новая несохраненная запись.`
+            )}
+            <br />Вы желаете сохранить указанную запись?
+          </>
+           ) : (
+          "Не заданы обязательные поля, изменения не сохранены"
+          )
+        }
+      </DialogContentText>
     </DialogContent>
     <DialogActions>
-        <Button variant="outlined" onClick={handleCloseSaveWhenNewNo} autoFocus>Нет</Button>
-        <Button variant="outlined" onClick={handleCloseSaveWhenNewYes} >Да</Button>
+     {!reportValid && (
+          <Button variant="outlined" onClick={handleCloseSaveWhenNewNo} autoFocus>Закрыть</Button>
+        )}
+       {reportValid && (
+        <>
+          <Button variant="outlined" onClick={handleCloseSaveWhenNewNo} autoFocus>Нет</Button>
+          <Button variant="outlined" onClick={handleCloseSaveWhenNewYes} >Да</Button></>
+        )}
     </DialogActions>
   </Dialog>
 

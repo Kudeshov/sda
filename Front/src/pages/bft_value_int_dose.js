@@ -81,6 +81,7 @@ const BigTableValueIntDose = (props) => {
     { field: 'aerosol_sol_name_rus', headerName: 'Тип растворимости аэрозолей', width: 200 },
     { field: 'aerosol_amad_name_rus', headerName: 'AMAD аэрозолей', width: 200 },
     { field: 'exp_scenario_name_rus', headerName: 'Сценарии поступления', width: 200 },
+    { field: 'chem_comp_gr_name_rus', headerName: 'Химические соединения (группа)', width: 200 },    
    ]
 
   //состояние загрузки таблицы для отображения крутилки
@@ -1159,6 +1160,7 @@ const BigTableValueIntDose = (props) => {
             <tr>
               <td style={{ /* height: 840, */ verticalAlign: 'top' }}>
               <div style={{ height: 390 }} > 
+              
               <DataGrid
                   style={{  width: 1500 }}
                   components={{ Toolbar: CustomToolbar1 }}
@@ -1166,23 +1168,30 @@ const BigTableValueIntDose = (props) => {
                   localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
                   rowHeight={25}
                   loading={isLoading}
-                  rows={tableValueIntDose}
+                  rows={tableValueIntDose} //
                   columns={columnsValueIntDose}
+ 
                   onSelectionModelChange={(newSelectionModel) => {
                     setselectionModel(newSelectionModel);
                   }}
                   selectionModel={selectionModel}        
                   initialState={{
                     columns: {
-                      columnVisibilityModel: {
+                      //data_source_title: { hidden: true },
+                       columnVisibilityModel: {
                         updatetime: false,
                         external_ds: false,
                         descr: false,
                       },
                     },
-                  }}        
+                  }}    
+                  columnVisibilityModel={{
+                    // Hide columns status and traderName, the other columns will remain visible
+                    data_source_title: selDataSourceValues.length!==1 ,
+                  }}
+
                   onRowClick={handleRowClick} {...tableValueIntDose} 
-                  />
+                />
                 </div>    
               </td>
             </tr>
