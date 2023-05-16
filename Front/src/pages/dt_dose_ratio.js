@@ -89,9 +89,9 @@ const DataTableDoseRatio = (props) => {
   const [isEmpty, setIsEmpty] = useState([false]);
 
   const valuesDrTypeList = [
-    { label: 'внешнего облучения', value: 'e' },
-    { label: 'внутреннего облучения', value: 'i' },
-    { label: 'поглощения в ЖКТ', value: 'f' } ];
+    { label: 'e - внешнее облучение', value: 'e' },
+    { label: 'i - внутреннее облучениея', value: 'i' },
+    { label: 'f - поглощение в ЖКТ', value: 'f' } ];
 
 /*     const valuesDrTypeList = [
       { label: 'e', value: 'e' },

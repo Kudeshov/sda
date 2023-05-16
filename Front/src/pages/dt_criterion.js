@@ -782,12 +782,39 @@ const DataTableCriterion= (props) => {
     headers: [],
     // headers: ['Column 1', 'Column 2', etc...] <-- Won't work with useKeysAsHeaders present!
   };
+  function getTableDataForExcel( t ) 
+  {
+    function replacer(i, val) {
+      if ( val === null ) 
+      { 
+         return ""; // change null to empty string
+      } else {
+         return val; // return unchanged
+      }
+     }
 
-  const exportdDataCSV = async () => {
-    //console.log('export csv');
+    var arr_excel = [];
+    
+    if (props.table_name==='criterion_gr')  
+      arr_excel= t.map(({title, name_rus, name_eng, descr_rus, descr_eng, parent_name, normativ_title}) => ({title, name_rus, name_eng, normativ_title, parent_name, descr_rus, descr_eng}))
+    else
+      arr_excel= t.map(({title, name_rus, name_eng, descr_rus, descr_eng, parent_name}) => ({title, name_rus, name_eng, parent_name, descr_rus, descr_eng}));
+
+    //arr_excel = JSON.parse(JSON.stringify(arr_excel).replace(/\:null/gi, "\:\"\"")); 
+    arr_excel = JSON.parse( JSON.stringify(arr_excel, replacer) );
+
+    return(arr_excel);
+  }
+
+  const exportDataCSV = async () => {
     const csvExporter = new ExportToCsv(optionsCSV);
-    csvExporter.generateCsv(tableData);   
-  } 
+    console.log(treeFilterString);
+    const filteredData = tableData.filter(item =>
+      item.title.toLowerCase().includes(treeFilterString.toLowerCase())
+    );
+    csvExporter.generateCsv(getTableDataForExcel(filteredData));
+  }
+
 
   const onFilterKeyUp = (e) => { 
     const value = e.target.value;
@@ -831,7 +858,7 @@ const DataTableCriterion= (props) => {
           <SvgIcon fontSize="small" component={UndoLightIcon} inheritViewBox /></IconButton>
         <IconButton onClick={()=>handleClickReload()} color="primary" size="small" title="Обновить данные">
           <SvgIcon fontSize="small" component={RepeatLightIcon} inheritViewBox /></IconButton>
-        <IconButton onClick={()=> exportdDataCSV()} color="primary" size="small" title="Сохранить в формате CSV">
+        <IconButton onClick={()=> exportDataCSV()} color="primary" size="small" title="Сохранить в формате CSV">
           <SvgIcon fontSize="small" component={DownloadLightIcon} inheritViewBox /></IconButton>
         <IconButton onClick={()=> handleExpandClick()} color="primary" size="small" title={expanded.length !== 0?"Свернуть все":"Развернуть все"} >
           <SvgIcon fontSize="small" component={expanded.length !== 0?CollapseIcon:ExpandIcon} inheritViewBox /></IconButton>
