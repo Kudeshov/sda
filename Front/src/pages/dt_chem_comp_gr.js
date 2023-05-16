@@ -733,7 +733,7 @@ const DataTableChemCompGr = (props) => {
       ...item,
       parent_title: tableData.find((parentItem) => parentItem.id === item.parent_id)?.title || "",
     }));
-    const filteredData = updatedData.filter(item => item.id > 1000000 && item.title.includes(treeFilterString));
+    const filteredData = updatedData.filter(item => item.id > 1000000 && item.title.toLowerCase().includes(treeFilterString.toLowerCase()));
     const newData = filteredData.map(({ title, name_rus, name_eng, formula, parent_title, descr_rus, descr_eng }) => ({
       title,
       name_rus,

@@ -90,7 +90,7 @@ const DataTableDoseRatio = (props) => {
 
   const valuesDrTypeList = [
     { label: 'e - внешнее облучение', value: 'e' },
-    { label: 'i - внутреннее облучениея', value: 'i' },
+    { label: 'i - внутреннее облучение', value: 'i' },
     { label: 'f - поглощение в ЖКТ', value: 'f' } ];
 
 /*     const valuesDrTypeList = [
