@@ -1,6 +1,15 @@
 import { DataTableDoseRatio } from './dt_dose_ratio';
+import { table_names } from './sda_types';
+import { useEffect } from 'react';
+
+const useDocumentTitle = (title) => {
+  useEffect(() => {
+     document.title = title
+  }, [title])
+}
 
 function CalcFunction() {
+  useDocumentTitle(table_names['calcfunction']);
   return (
     <div className="App">
     <h3>&nbsp;&nbsp;Функции</h3>
