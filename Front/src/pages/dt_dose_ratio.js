@@ -736,7 +736,7 @@ const handleCloseDSInfo = () => {
 
 
   function CustomToolbar1() {
-    const apiRef = useGridApiRef(); // init DataGrid API for scrolling
+    //const apiRef = useGridApiRef(); // init DataGrid API for scrolling
     const handleExport = (options) =>
       apiRef.current.exportDataAsCsv(options);
 
