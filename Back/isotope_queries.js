@@ -25,7 +25,6 @@ const getIsotope = (request, response ) => {
     if(error) {
         return console.error('error running query', error);
     }
-/*     console.log(results.rows); */
     response.status(200).json(results.rows)
     });
 }
@@ -33,12 +32,9 @@ const getIsotope = (request, response ) => {
 const getIsotopeTree = (request, response ) => {
   const isotope_id = parseInt(request.params.id||0);
   console.log('getIsotopeTree');  
-/*   console.log('getIsotopeTree');
-  console.log(request.params); */
   pool.query(
     'WITH RECURSIVE subordinates AS ( '+
     'select ist.id, null parent_id, 0 decay_prob, ist.title, ist.half_life_value, ist.half_life_period, NULL children from nucl.isotope ist where ist.id = $1 ' +
-//    'select i_d.id aa, i_d.parent_id id, null parent_id, i_d.decay_prob, i.title, NULL children from nucl.isotope_decay i_d join nucl.isotope i on i.id = i_d.parent_id where i_d.parent_id = $1 '+
     'union '+ 
     'select i_d.child_id id, i_d.parent_id, i_d.decay_prob, i.title, i.half_life_value, i.half_life_period, NULL children from nucl.isotope_decay i_d join nucl.isotope i on i.id = i_d.child_id where i_d.parent_id = $1 '+
     'union '+ 
@@ -48,27 +44,21 @@ const getIsotopeTree = (request, response ) => {
     if(error) {
        return console.error('error running query', error);
     }
-   //console.log(res.rows);
     response.status(200).json(res.rows);
   });  
 } 
 
 const getIsotopeNodes = (request, response ) => {
   console.log('getIsotopeNodes'); 
-  //const isotope_id = parseInt(request.params.id||0);  
-
   var isotope_id = 0;
   if (request.params.id) 
     isotope_id = parseInt(request.params.id);
   isotope_id = isotope_id || 0;  
-/*   console.log('getIsotopeTree');
-  console.log(request.params); */
   pool.query(
     "WITH RECURSIVE subordinates AS ( "+
-    "select ist.id, ist.title || '\n'  || ist.half_life_value || ist.half_life_period as " + //|| '\n' || ist.half_life_value || ' ' || ist.half_life_period as "+
+    "select ist.id, ist.title || '\n'  || ist.half_life_value || ist.half_life_period as " +
     '"label", ist.half_life_value, ist.half_life_period, NULL children from nucl.isotope ist where ist.id = $1 ' +
-//    'select i_d.id aa, i_d.parent_id id, null parent_id, i_d.decay_prob, i.title, NULL children from nucl.isotope_decay i_d join nucl.isotope i on i.id = i_d.parent_id where i_d.parent_id = $1 '+
-    'union '+ //|| '\n' || i.half_life_value || ' ' || i.half_life_period
+    'union '+
     "select i_d.child_id id, i.title || '\n' || i.half_life_value || i.half_life_period as "+
     '"label", i.half_life_value, i.half_life_period, NULL children from nucl.isotope_decay i_d join nucl.isotope i on i.id = i_d.child_id where i_d.parent_id = $1 '+
     'union '+ 
@@ -80,7 +70,6 @@ const getIsotopeNodes = (request, response ) => {
     if(error) {
        return console.error('error running query', error);
     }
-   //console.log(res.rows);
     response.status(200).json(res.rows);
   });  
 } 
@@ -102,7 +91,6 @@ const getIsotopeEdges = (request, response ) => {
     if(error) {
        return console.error('error running query', error);
     }
-   //console.log(res.rows);
     response.status(200).json(res.rows);
   });  
 } 
@@ -129,8 +117,10 @@ const updateIsotope = (request, response) => {
 
 const createIsotope = (request, response) => {
   console.log( request.body );
-  const { title, nuclide_id, n_index,  half_life_value, half_life_period,  decayconst } = request.body;
-  pool.query('INSERT INTO nucl.isotope (title, nuclide_id, n_index,  half_life_value, half_life_period,  decayconst) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id',
+  let { title, nuclide_id, n_index,  half_life_value, half_life_period,  decayconst } = request.body;
+  if (half_life_value==='') {half_life_value=null}
+
+  pool.query('INSERT INTO nucl.isotope (title, nuclide_id, n_index, half_life_value, half_life_period, decayconst) VALUES ($1, $2, $3, $4, $5, $6) RETURNING id',
   [title, nuclide_id, n_index,  half_life_value, half_life_period,  decayconst], 
   (error, results) => {
     if (error) {
