@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
@@ -20,6 +20,8 @@ import { ReactComponent as TrashLightIcon } from "./../icons/trash.svg";
 import { ReactComponent as RepeatLightIcon } from "./../icons/repeat.svg";
 import { ReactComponent as CollapseIcon } from "./../icons/chevron-double-right.svg";
 import { ReactComponent as ExpandIcon } from "./../icons/chevron-double-down.svg";
+import { ReactComponent as SearchIcon } from "./../icons/search.svg";
+import { ReactComponent as TimesCircleIcon } from "./../icons/times-circle.svg";
 import TreeView from "@material-ui/lab/TreeView";
 import TreeItem from "@material-ui/lab/TreeItem";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
@@ -32,7 +34,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import { ExportToCsv } from 'export-to-csv-fix-source-map';
 import { table_names } from './sda_types';
 import Backdrop from '@mui/material/Backdrop';
-import Autocomplete from '@mui/material/Autocomplete';
+import { InputAdornment } from "@material-ui/core";
 
 var alertText = "Сообщение";
 var alertSeverity = "info";
@@ -40,7 +42,7 @@ var lastId = 0;
 var clickedId = 0;
 var clickAfterReload = false;
 
-const DataTableCriterion= (props) => {
+const DataTableCriterion = (props) => {
   const [valueId, setValueID] = React.useState();
   const [valueTitle, setValueTitle] = React.useState();
   const [valueTitleInitial, setValueTitleInitial] = React.useState();
@@ -58,21 +60,17 @@ const DataTableCriterion= (props) => {
   const [valueNormativInitial, setValueNormativInitial] = React.useState();
   const [isLoading, setIsLoading] = React.useState("false");
   const [tableData, setTableData] = useState([]); 
-  const [tableDataPlus, setTableDataPlus] = useState([]); //для списка - с нулл-значением для выбора "Не задано". Значение id= 0?
   const [tableNormativ, setNormativ] = useState([]); 
   const [treeData, setTreeData] = useState([]); 
   const [editStarted, setEditStarted] = useState([false]);
   const [isEmpty, setIsEmpty] = useState([false]);
-
-
-
+  const [valueCrit, setValueCrit] = React.useState();
 
   useEffect(() => {
     setIsEmpty((''===valueTitle)&&(''===valueNameRus)&&(''===valueNameEng)&&(''===valueDescrEng)&&(''===valueDescrRus)   
       &&(''===valueParentID)&&(''===valueNormativ));
     }, [ valueTitle, valueNameRus, valueNameEng, valueDescrEng, valueDescrRus, 
       valueParentID, valueNormativ]); 
-      
 
   useEffect(() => {
     //console.log('setEditStarted valueTitleInitial='+valueTitleInitial+' valueTitle = '+ valueTitle);    
@@ -106,27 +104,6 @@ const DataTableCriterion= (props) => {
     }, [ isLoading, tableData] );
 
     useEffect(() => {
-      const emptyParentItem1 = {
-        "id": -1,
-        "title": "Не задан",
-        "normativ_id": 0,
-        "parent_id": 0,
-        "name_rus": "",
-        "name_eng": "",
-        "descr_rus": "",
-        "descr_eng": "",
-        "children": []
-    };
-      function addNondefValue( arr ) {
-        if (!arr) 
-          return;
-        if (arr.length===0)
-          return;
-          var array1 = [emptyParentItem1];
-          //console.log(array1);
-          const array2 = array1.concat(arr);
-        return(array2);
-      }
       function updateCurrentRec (id)  {
               if (id)
                 lastId = id;
@@ -157,8 +134,6 @@ const DataTableCriterion= (props) => {
           if (lastId!==0)
             updateCurrentRec(lastId); 
       }
-
-      setTableDataPlus(addNondefValue(tableData));
     }, [ tableData] );
 
     const getTreeItemsFromData = treeItems => {
@@ -246,23 +221,8 @@ const DataTableCriterion= (props) => {
       setValueDescrEngInitial(res[0].descr_eng);
       setValueParentIDInitial(res[0].parent_id||-1); 
       setValueNormativInitial(res[0].normativ_id);
-
-       var res2 = tableData.filter(function(item) {
-        return item.id === res[0].parent_id;
-      });
-       setValueAC(res2[0]);
-/* 
-      setValueAC({
-        "id": 32178,
-        "title": "rrr",
-        "normativ_id": 1,
-        "parent_id": 30377,
-        "name_rus": "wqer",
-        "name_eng": "wqer",
-        "descr_rus": "wqer",
-        "descr_eng": "wqer",
-        "children": []
-      }); */
+      console.log(res[0].crit);
+      setValueCrit(res[0].crit);
     }   
   }; 
 
@@ -279,42 +239,16 @@ const DataTableCriterion= (props) => {
       setValueNameEng(``);
       setValueDescrRus(``);
       setValueDescrEng(``);
-      setValueParentID(valueParentID); //-1
+      setValueParentID(valueId); //-1
       setValueNormativ(``);
     }
   }; 
 
-/*   const emptyParentItem = {
-    "id": -1,
-    "title": "Не задан",
-    "normativ_id": 0,
-    "parent_id": 0,
-    "name_rus": "",
-    "name_eng": "",
-    "descr_rus": "",
-    "descr_eng": "",
-    "children": []
-}; */
-
-
- 
   useEffect(() => {
     fetch(`/${props.table_name}`)
       .then((data) => data.json())
-/*       .then((data) => {data.push( {
-        "id": -1,
-        "title": "Не задано",
-        "normativ_id": 0,
-        "parent_id": 0,
-        "name_rus": "",
-        "name_eng": "",
-        "descr_rus": "",
-        "descr_eng": "",
-        "children": []
-    })}) */
       .then((data) => setTableData(data))
-     // .then((data) => setTableDataPlus(data))
-      .then((data) => { console.log(data); //lastId = data[0].id||0; clickAfterReload = true; console.log( 'setSelected ');  //console.log( tableData[0].id||0 ); 
+      .then((data) => {  //lastId = data[0].id||0; clickAfterReload = true; console.log( 'setSelected ');  //console.log( tableData[0].id||0 ); 
           } ); 
   }, [props.table_name])
 
@@ -342,11 +276,7 @@ const DataTableCriterion= (props) => {
       setValueDescrRusInitial(res[0].descr_rus);
       setValueDescrEngInitial(res[0].descr_eng);
       setValueParentIDInitial(res[0].parent_id||-1); 
-      setValueNormativInitial(res[0].normativ_id);  
-      var res2 = tableData.filter(function(item) {
-        return item.id === res[0].parent_id;
-      });
-       setValueAC(res2[0]);
+      setValueNormativInitial(res[0].normativ_id);      
     }; 
 
     //console.log( 'selected = ' + selected + ' tableData.length ' + tableData.length );
@@ -436,6 +366,7 @@ const DataTableCriterion= (props) => {
 
     if (formRef.current.reportValidity() )
     {
+
 
     let myParentID;
     myParentID = valueParentID === -1 ? null : valueParentID;  
@@ -702,11 +633,7 @@ const DataTableCriterion= (props) => {
     setValueDescrRusInitial(res[0].descr_rus);
     setValueDescrEngInitial(res[0].descr_eng);
     setValueParentIDInitial(res[0].parent_id||-1); 
-    setValueNormativInitial(res[0].normativ_id);  
-    var res2 = tableData.filter(function(item) {
-      return item.id === res[0].parent_id;
-    });
-     setValueAC(res2[0]);  
+    setValueNormativInitial(res[0].normativ_id);      
   }; 
 
   const handleCloseSaveNo = () => {
@@ -762,12 +689,19 @@ const DataTableCriterion= (props) => {
       setValueParentIDInitial(selectedRowData[0].parent_id||-1);
       setValueNormativ(selectedRowData[0].normativ_id);
       setValueNormativInitial(selectedRowData[0].normativ_id);
+      
 
-      var res2 = tableData.filter(function(item) {
-        return item.id === selectedRowData[0].parent_id;
-      });
-       setValueAC(res2[0]);
     }
+  }
+
+  function getHeaders(atable)
+  {
+    if (atable==='criterion_gr') 
+      return ['Обозначение','Название(рус.яз)','Название(англ.яз)','Нормативная база','Родительский класс','Комментарий(рус.яз)','Комментарий(англ.яз)'];
+    if (atable==='organ') 
+      return ['Обозначение','Название(рус.яз)','Название(англ.яз)','Родительский класс','Комментарий(рус.яз)','Комментарий(англ.яз)'];
+    if (atable==='exp_scenario') 
+      return ['Обозначение','Название(рус.яз)','Название(англ.яз)','Родительский класс','Комментарий(рус.яз)','Комментарий(англ.яз)'];
   }
 
   const optionsCSV = {
@@ -779,9 +713,12 @@ const DataTableCriterion= (props) => {
     useTextFile: false,
     useBom: true,
     useKeysAsHeaders: false,
-    headers: [],
+    headers: getHeaders(props.table_name)
     // headers: ['Column 1', 'Column 2', etc...] <-- Won't work with useKeysAsHeaders present!
   };
+
+
+
   function getTableDataForExcel( t ) 
   {
     function replacer(i, val) {
@@ -815,34 +752,44 @@ const DataTableCriterion= (props) => {
     csvExporter.generateCsv(getTableDataForExcel(filteredData));
   }
 
-
-  const onFilterKeyUp = (e) => { 
-    const value = e.target.value;
+  const setTreeFilter = (e) => { 
+    const value = e;
     const filter = value.trim();
     setTreeFilterString(filter);
   }  
 
-  const handleExpandClick = () => {
-    var hasChild = [], i;
-    for (i = 0; i < tableData.length; i += 1) {
-      if (tableData[i].parent_id) 
-      {
-        if (hasChild.indexOf(tableData[i].parent_id)=== -1)
-          hasChild.push(tableData[i].parent_id.toString()); 
-      }
-    }
-/*     var expandedNew = hasChild;
-    if (expanded.length)
-      expandedNew=[];  */
-  };
+  const [filter, setFilter] = useState(""); //значение фильтра
+  const [filterApplied, setFilterApplied] = useState(false); //состояние применен фильтр или нет
 
-  const [valueAC, setValueAC] = React.useState(tableData[0]);/* tableData[0]) */
+  const clearFilter = useCallback(() => {
+    setFilter("");
+    setFilterApplied(false);
+    setTreeFilter("");
+  }, []);
+
+  const applyFilter = useCallback(() => {
+    if (filter.trim() === "") return;
+    setFilterApplied(true);
+    setTreeFilter(filter);
+  }, [filter]);
+
+  const expandTree = useCallback(() => { //развернуть дерево
+    const hasChild = [];
+    tableData.forEach((item) => {
+      if (item.parent_id && !hasChild.includes(item.parent_id.toString())) {
+        hasChild.push(item.parent_id.toString());
+      }
+    });
+    const expandedNew = expanded.length ? [] : hasChild;
+    setExpanded(expandedNew);
+  }, [expanded, tableData]);
 
   const formRef = React.useRef();
-
   return (
-    <form ref={formRef}>  
+
     <div style={{ height: 650, width: 1500 }}>
+    <form ref={formRef}>  
+
     <table border = "0" style={{ height: 650, width: 1500 }} ><tbody>
     <tr>
       <td style={{ height: 550, width: 600, verticalAlign: 'top' }}>
@@ -858,15 +805,25 @@ const DataTableCriterion= (props) => {
           <SvgIcon fontSize="small" component={UndoLightIcon} inheritViewBox /></IconButton>
         <IconButton onClick={()=>handleClickReload()} color="primary" size="small" title="Обновить данные">
           <SvgIcon fontSize="small" component={RepeatLightIcon} inheritViewBox /></IconButton>
-        <IconButton onClick={()=> exportDataCSV()} color="primary" size="small" title="Сохранить в формате CSV">
+        <IconButton onClick={()=>exportDataCSV()} color="primary" size="small" title="Сохранить в формате CSV">
           <SvgIcon fontSize="small" component={DownloadLightIcon} inheritViewBox /></IconButton>
-        <IconButton onClick={()=> handleExpandClick()} color="primary" size="small" title={expanded.length !== 0?"Свернуть все":"Развернуть все"} >
+        <IconButton onClick={()=>expandTree()} color="primary" size="small" title={expanded.length !== 0?"Свернуть все":"Развернуть все"} >
           <SvgIcon fontSize="small" component={expanded.length !== 0?CollapseIcon:ExpandIcon} inheritViewBox /></IconButton>
-        
-        
-        <br/><TextField label="Фильтр ..." size = "small" variant="standard" onKeyUp={onFilterKeyUp} />
-
-
+        <br/><TextField label="Фильтр ..." size = "small" variant="standard" value={filter}
+                onChange={(e) => setFilter(e.target.value)} 
+                InputProps={{
+                  endAdornment: (
+                    <InputAdornment position="end">
+                      <IconButton onClick={applyFilter} edge="end" size="small" color="primary" disabled={!filter} title="Применить фильтр">
+                        <SvgIcon fontSize="small" component={SearchIcon} inheritViewBox />
+                      </IconButton>
+                      <IconButton onClick={clearFilter} edge="end" size="small" color="primary" disabled={!filter && !filterApplied} title={filterApplied ? "Сбросить фильтр" : "Очистить поле ввода"}>
+                        <SvgIcon fontSize="small" component={TimesCircleIcon} inheritViewBox />
+                      </IconButton>
+                    </InputAdornment>
+                  ),
+                }}
+        />
         <Box sx={{ height: 415, overflowY: 'false' }}>
           {(isLoading==="true") && 
           <Backdrop sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }} open={true}>
@@ -903,38 +860,13 @@ const DataTableCriterion= (props) => {
       
       </td>
       <td style={{ height: 550, width: 900, verticalAlign: 'top' }}>
+      {( valueCrit === 1) &&
+      <>
       <TextField  id="ch_id" disabled={true} label="Код" sx={{ width: '12ch' }} variant="outlined" value={ valueId ||''} size="small" /* onChange={e => setValueID(e.target.value)} *//>
-      &nbsp;&nbsp;&nbsp;
-      <TextField  id="ch_name" sx={{ width: '40ch' }} label="Обозначение" size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
-      <p></p>
-      <Autocomplete
-        size="small"
-        disablePortal
-        id="combo-box-demo"
-        value={ valueAC|| {
-          "id": -1,
-          "title": "Не задан",
-          "normativ_id": 0,
-          "parent_id": 0,
-          "name_rus": "",
-          "name_eng": "",
-          "descr_rus": "",
-          "descr_eng": "",
-          "children": []
-      } }
-        isOptionEqualToValue={(option, value) => (option.id === value.id)||((!value.id)) } //&&(!option.id)
-        //isOptionEqualToValue={(option, value) => value.id  === option.id }
-        onChange={(event, newValueAC) => { console.log(newValueAC?newValueAC.id:-1); setValueAC(newValueAC);  setValueParentID(newValueAC?newValueAC.id:-1) } }
-
-        //value={valueParentID || "" } 
-        options={tableDataPlus||tableData||[]}
-        sx={{ width: 300 }}
-        getOptionLabel={option => option?option.title:""}
-        renderInput={(params) => <TextField {...params} label="Родительский класс" />}
-      />      
-      <p></p>
-
-{/*       <FormControl sx={{ width: '30ch' }} size="small">
+      &nbsp;&nbsp;&nbsp;&nbsp;
+      <TextField  id="ch_name" sx={{ width: '40ch' }} label="Обозначение" required size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
+      &nbsp;&nbsp;&nbsp;&nbsp;
+      <FormControl sx={{ width: '30ch' }} size="small">
         <InputLabel id="ch_parent_id">Родительский класс</InputLabel>
           <Select labelId="ch_parent_id" id="ch_parent_id1" label="Родительский класс" value={valueParentID  || "" } onChange={e => setValueParentID(e.target.value)} >
           <MenuItem key={-1} value={-1}>
@@ -948,7 +880,7 @@ const DataTableCriterion= (props) => {
                   );
                 })}
         </Select>
-      </FormControl>   */}
+      </FormControl>  
 
       <p></p> 
       <div>
@@ -957,8 +889,8 @@ const DataTableCriterion= (props) => {
           return (
             <div>
               <FormControl sx={{ width: '30ch' }} size="small">
-                <InputLabel id="ch_normativ_id">Нормативная база</InputLabel>
-                  <Select labelId="ch_normativ_id" id="ch_normativ_id1" label="Нормативная база" value={valueNormativ  || "" } onChange={e => setValueNormativ(e.target.value)} >
+                <InputLabel id="ch_normativ_id"required>Нормативная база</InputLabel>
+                  <Select labelId="ch_normativ_id" id="ch_normativ_id1" label="Нормативная база" required value={valueNormativ  || "" } onChange={e => setValueNormativ(e.target.value)} >
                           {tableNormativ?.map(option => {
                           return (
                           <MenuItem key={option.id} value={option.id}>
@@ -976,7 +908,7 @@ const DataTableCriterion= (props) => {
 
       <p></p> 
       <TextField  id="ch_name_rus" sx={{ width: '49ch' }}  size="small" label="Название (рус.яз)"  variant="outlined"  value={valueNameRus || ''} onChange={e => setValueNameRus(e.target.value)} />
-      &nbsp;&nbsp;&nbsp;
+      &nbsp;&nbsp;&nbsp;&nbsp;
       <TextField  id="ch_name_eng" sx={{ width: '49ch' }} size="small" label="Название (англ.яз)"  variant="outlined" value={valueNameEng || ''} onChange={e => setValueNameEng(e.target.value)}/>
       <p></p>
       <TextField  id="ch_descr_rus" sx={{ width: '100ch' }} label="Комментарий (рус.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrRus || ''} onChange={e => setValueDescrRus(e.target.value)}/>
@@ -984,16 +916,17 @@ const DataTableCriterion= (props) => {
       <TextField  id="ch_descr_rus" sx={{ width: '100ch' }} label="Комментарий (англ.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrEng || ''} onChange={e => setValueDescrEng(e.target.value)}/>
       <p></p>
       <div style={{ height: 300, width: 800 }}>
-      <td>Источники данных<br/>
+  {/*       <td>Источники данных<br/>
         <DataTableDataSourceClass table_name={props.table_name} rec_id={valueId||0} />
-        </td>
+        </td> */}
       </div>
+      </>}
     </td>
   </tr>
   </tbody>
   </table>
 
-  <Dialog open={openDel} onClose={handleCloseDelNo} fullWidth={true}>
+  <Dialog open={openDel}  onClose={handleCloseDelNo} fullWidth={true}>
       <DialogTitle>
           Внимание
       </DialogTitle>
@@ -1042,7 +975,7 @@ const DataTableCriterion= (props) => {
           {valueId?
           `В запись таблицы "${table_names[props.table_name]}" внесены изменения.`:
           `В таблицу "${table_names[props.table_name]}" внесена новая несохраненная запись.`}
-       {/*      {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p></p>
+{/*             {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p></p>
             {valueParentID === valueParentIDInitial ? '' : 'Родительский класс: '+valueParentID+'; ' }<p></p>
             {valueNameRus === valueNameRusInitial ? '' : 'Название (рус. яз): '+valueNameRus+'; ' }<p></p>
             {valueNameEng === valueNameEngInitial ? '' : 'Название (англ. яз): '+valueNameEng+'; ' }<p></p>
@@ -1056,8 +989,8 @@ const DataTableCriterion= (props) => {
         <Button variant="outlined" onClick={handleCloseSaveWhenNewYes} >Да</Button>
     </DialogActions>
   </Dialog>
- </div>  
- </form>   
+  </form>
+ </div>     
   )
 }
 

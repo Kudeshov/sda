@@ -20,7 +20,7 @@ function Criterion() {
         &nbsp;
       </td>
       <td width="1600">
-        <DataTableCriterion table_name="criterion_gr"/>
+        <DataTableCriterion table_name="criterion"/>
       </td>
     </tr>
     </tbody>

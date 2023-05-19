@@ -32,6 +32,7 @@ const no_q = require('./normativ_queries');
 const ccg_q = require('./chem_comp_gr_queries');
 const pcm_q = require('./phchform_chelem_queries');
 const nuc_q = require('./nuclide_queries');
+const cr_q = require('./criterion_queries');
 const cg_q = require('./criterion_gr_queries');
 const id_q = require('./isotope_decay_queries');
 const i_q = require('./isotope_queries');
@@ -223,21 +224,17 @@ app.post('/isotope', (req, res) => {gn_q.createIsotope(req, res, 'isotope')});  
 app.put('/isotope/:id', (req, res) => {gn_q.updateIsotope(req, res, 'isotope')});       //update
 app.delete('/isotope/:id', (req, res) => {gn_q.deleteIsotope(req, res, 'isotope')});    //delete */
 
-app.get('/criterion', function(req, resp){
-      pool.query('SELECT * FROM nucl.criterion', (error, res) => {
-        if(error) {
-           return console.error('error running query', error);
-        }
-       //console.log(res.rows);
-       resp.json(res.rows);
-       });
-});
 
 //QUERIES on nuclide 
 app.get('/nuclide/:id', (req, res) => {nuc_q.getNuclideByChelement(req, res, 'nuclide')});    //select by chelement_id
 app.post('/nuclide', (req, res) => {nuc_q.createNuclide(req, res, 'nuclide')});          //create
 app.delete('/nuclide/:id', (req, res) => {nuc_q.deleteNuclide(req, res, 'nuclide')});   //delete
 app.put('/nuclide/:id', (req, res) => {nuc_q.updateNuclide(req, res, 'nuclide')});          //update
+
+
+//QUERIES on criterion 
+app.get('/criterion', (req, res) => {cr_q.getCriterion(req, res, 'criterion')});    //list all
+
 
 //QUERIES on isotope_decay 
 app.get('/isotope_decay/:id', (req, res) => {id_q.getIsotopeDecayByIsotope(req, res, 'isotope_decay')});    //select by isotope_id
