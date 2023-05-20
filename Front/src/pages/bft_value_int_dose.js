@@ -141,51 +141,30 @@ const BigTableValueIntDose = (props) => {
 
   const [tableDataSource, setTableDataSource] = useState([]); 
   const [tableOrgan, setTableOrgan] = useState([]);
-  // eslint-disable-next-line no-unused-vars
   const [tableOrganFiltered, settableOrganFiltered] = useState([]);
-  // eslint-disable-next-line no-unused-vars
   const [tableIrradiation, setTableIrradiation] = useState([]);
-  // eslint-disable-next-line no-unused-vars  
   const [tableIrradiationFiltered, settableIrradiationFiltered] = useState([]);  
   
   const [tableIsotope, setTableIsotope] = useState([]);
-  // eslint-disable-next-line no-unused-vars
   const [tableIsotopeFiltered, settableIsotopeFiltered] = useState([]);
 
   const [tableIntegralPeriod, setTableIntegralPeriod] = useState([]);
-  // eslint-disable-next-line no-unused-vars
   const [tableIntegralPeriodFiltered, settableIntegralPeriodFiltered] = useState([]);
-  // eslint-disable-next-line no-unused-vars
   const [tableDoseRatio, setTableDoseRatio] = useState([]);
-  // eslint-disable-next-line no-unused-vars
   const [tableDoseRatioFiltered, settableDoseRatioFiltered] = useState([]);
-  // eslint-disable-next-line no-unused-vars
   const [tableAgeGroup, setTableAgeGroup] = useState([]); //возрастные группы населения
-  // eslint-disable-next-line no-unused-vars  
   const [tableAgeGroupFiltered, settableAgeGroupFiltered] = useState([]);
-  // eslint-disable-next-line no-unused-vars
   const [tableSubstForm, setTableSubstForm] = useState([]); //формы вещества
-  // eslint-disable-next-line no-unused-vars  
   const [tableSubstFormFiltered, settableSubstFormFiltered] = useState([]);
-  // eslint-disable-next-line no-unused-vars  
   const [tableAerosolSol, setTableAerosolSol] = useState([]);  
-  // eslint-disable-next-line no-unused-vars  
   const [tableAerosolSolFiltered, settableAerosolSolFiltered] = useState([]);  
-  // eslint-disable-next-line no-unused-vars  
   const [tableLetLevel, setTableLetLevel] = useState([]); //уровни ЛПЭ
-  // eslint-disable-next-line no-unused-vars  
   const [tableLetLevelFiltered, settableLetLevelFiltered] = useState([]); //уровни ЛПЭ
-  // eslint-disable-next-line no-unused-vars  
   const [tableAerosolAMAD, setTableAerosolAMAD] = useState([]); //АМАД аэрозолей
-  // eslint-disable-next-line no-unused-vars  
   const [tableAerosolAMADFiltered, settableAerosolAMADFiltered] = useState([]); //АМАД аэрозолей
-  // eslint-disable-next-line no-unused-vars  
   const [tableExpScenario, setTableExpScenario] = useState([]); //Сценарии поступления
-  // eslint-disable-next-line no-unused-vars  
   const [tableExpScenarioFiltered, settableExpScenarioFiltered] = useState([]); //Сценарии поступления
-  // eslint-disable-next-line no-unused-vars  
   const [tablePeopleClass, setTablePeopleClass] = useState([]); //Типы облучаемых лиц
-  // eslint-disable-next-line no-unused-vars  
   const [tablePeopleClassFiltered, settablePeopleClassFiltered] = useState([]); //Типы облучаемых лиц  
 
   const [tableValueIntDose, setTableValueIntDose] = useState([]); 
@@ -1275,8 +1254,20 @@ const BigTableValueIntDose = (props) => {
                   columnVisibilityModel={{
                     // Hide columns, the other columns will remain visible
                     data_source_title: applFlt.selDataSourceValues.length!==1,
+                    dose_ratio_title: false,
+                    irradiation_name_rus: false,
                     people_class_name_rus: applFlt.selPeopleClassValues.length!==1,
-                    isotope_title: applFlt.selIsotopeValues.length!==1
+                    organ_name_rus: applFlt.selOrganValues.length!==1,
+                    agegroup_name_rus: applFlt.selAgeGroupValues.length!==1,
+                    let_level_name_rus: applFlt.selLetLevelValues.length!==1,
+                    subst_form_name_rus: applFlt.selSubstFormValues.length!==1,
+                    aerosol_sol_name_rus: applFlt.selAerosolSolValues.length!==1,
+                    aerosol_amad_name_rus: applFlt.selAerosolAMADValues.length!==1,
+                    exp_scenario_name_rus: applFlt.selExpScenarioValues.length!==1,
+                    chem_comp_gr_name_rus: true, //applFlt.selExpScenarioValues.length!==1,
+                    isotope_title: applFlt.selIsotopeValues.length!==1,
+                    integral_period_name_rus: applFlt.selIntegralPeriodValues.length!==1,
+                    
                   }}
 
                   onRowClick={handleRowClick} {...tableValueIntDose} 
