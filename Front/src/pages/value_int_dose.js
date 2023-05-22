@@ -12,7 +12,7 @@ function ValueIntDose() {
   useDocumentTitle(table_names['value_int_dose']);
   return (
     <div className="App">
-    <h3>&nbsp;&nbsp;{table_names['value_int_dose']}</h3>
+   {/*  <h3>&nbsp;&nbsp;{table_names['value_int_dose']}</h3> */}
     <table>
       <tbody>
     <tr>

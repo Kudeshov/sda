@@ -4,8 +4,8 @@ import {
   DataGrid, 
   ruRU,
   GridToolbarContainer,
-  //useGridApiContext,
-  //gridFilteredSortedRowIdsSelector,
+  useGridApiRef,
+  gridFilteredSortedRowIdsSelector,
 } from '@mui/x-data-grid';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
@@ -24,8 +24,8 @@ import { ReactComponent as TrashLightIcon } from "./../icons/trash.svg";
 import { ReactComponent as RepeatLightIcon } from "./../icons/repeat.svg";
 import { ReactComponent as CheckDoubleIcon } from "./../icons/check-double.svg";
 import { ReactComponent as ArrowAltDownIcon } from "./../icons/arrow-alt-down.svg";
-import CircularProgress from '@material-ui/core/CircularProgress';
-import Backdrop from '@mui/material/Backdrop';
+/* import CircularProgress from '@material-ui/core/CircularProgress';
+import Backdrop from '@mui/material/Backdrop'; */
 import Autocomplete from '@mui/material/Autocomplete';
 import Checkbox from '@mui/material/Checkbox';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
@@ -35,15 +35,15 @@ import AccordionDetails from '@mui/material/AccordionDetails';
 import AccordionSummary from '@mui/material/AccordionSummary';
 import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import { table_names } from './sda_types';
 //import ServerPaginationGrid from './sp_datagrid';
 //import DialogContentText from '@mui/material/DialogContentTecxt';
 //import { FormControl } from "@mui/material";
 //import { InputLabel } from "@mui/material";
 //import { Select } from "@mui/material";
 //import { ReactComponent as SaveLightIcon } from "./../icons/save.svg";
-//import { ReactComponent as DownloadLightIcon } from "./../icons/download.svg";
-/* import { table_names } from './sda_types';
-import { FormControl } from "@mui/material";
+import { ReactComponent as DownloadLightIcon } from "./../icons/download.svg";
+/* import { FormControl } from "@mui/material";
 import { InputLabel } from "@mui/material";
 import { Select } from "@mui/material";
 import { MenuItem } from "@mui/material"; */
@@ -55,6 +55,8 @@ let alertText = "Сообщение";
 let alertSeverity = "info";
 
 const BigTableValueIntDose = (props) => {
+  const apiRef = useGridApiRef(); // init DataGrid API for scrolling
+
    const [pageState/* , setPageState */] = useState({
     page: 0,
     pageSize: 10,
@@ -71,17 +73,32 @@ const BigTableValueIntDose = (props) => {
     { field: 'integral_period_name_rus', headerName: 'Период интегрирования', width: 200 },
     { field: 'organ_name_rus', headerName: 'Орган', width: 200 },
     { field: 'agegroup_name_rus', headerName: 'Возрастная группа населения', width: 200 },
-    { field: 'dr_value', headerName: 'Значение', width: 180 },
-    { field: 'updatetime', headerName: 'Время последнего измерения', width: 280 },
-    { field: 'data_source_title', headerName: 'Источник данных', width: 200 },
-    { field: 'irradiation_name_rus', headerName: 'Тип облучения', width: 200 },
-    { field: 'dose_ratio_title', headerName: 'Параметр', width: 200 },
-    { field: 'let_level_name_rus', headerName: 'Уровень ЛПЭ', width: 200 },
+    { field: 'exp_scenario_name_rus', headerName: 'Сценарий поступления', width: 200 },
     { field: 'subst_form_name_rus', headerName: 'Форма вещества', width: 200 },    
+    { field: 'chem_comp_gr_name_rus', headerName: 'Химическое соединение (группа)', width: 200 },    
     { field: 'aerosol_sol_name_rus', headerName: 'Тип растворимости аэрозолей', width: 200 },
     { field: 'aerosol_amad_name_rus', headerName: 'AMAD аэрозолей', width: 200 },
-    { field: 'exp_scenario_name_rus', headerName: 'Сценарии поступления', width: 200 },
-    { field: 'chem_comp_gr_name_rus', headerName: 'Химические соединения (группа)', width: 200 },    
+    { field: 'let_level_name_rus', headerName: 'Уровень ЛПЭ', width: 200 },
+    { field: 'data_source_title', headerName: 'Источник данных', width: 200 },
+    { field: 'dr_value', headerName: 'Значение', width: 180 },
+    { 
+      field: 'updatetime', 
+      headerName: 'Время последнего измерения', 
+      width: 280,
+      valueGetter: (params) => {
+        const date = new Date(params.value);
+        const day = date.getDate().toString().padStart(2, '0');
+        const month = (date.getMonth() + 1).toString().padStart(2, '0');
+        const year = date.getFullYear().toString();
+        const hours = date.getHours().toString().padStart(2, '0');
+        const minutes = date.getMinutes().toString().padStart(2, '0');
+        const formattedDate = `${day}.${month}.${year} ${hours}:${minutes}`;
+        return formattedDate;
+      }
+    },
+   /*  { field: 'updatetime', headerName: 'Время последнего измерения', width: 280 }, */
+    { field: 'irradiation_name_rus', headerName: 'Тип облучения', width: 200 },
+    { field: 'dose_ratio_title', headerName: 'Параметр', width: 200 },
    ]
 
   //состояние загрузки таблицы для отображения крутилки
@@ -180,6 +197,8 @@ const BigTableValueIntDose = (props) => {
   //фильтрация списков фильтров в зависимости от выбранного источника (источников) данных
   useEffect(() => {
     //взяли айди выбранных источников данных
+    //return;
+
     let ids = currFlt.selDataSourceValues.map(item => item.id);
     //отфильтровали dose_ratio.id для выбранных источников данных, чтобы отфильтровать его автокомплит
     let ids_dose_ratio = tableDataSourceClass.filter(item => ((item.table_name === 'dose_ratio' )&&(ids.includes(item.data_source_id))) ).map(item => item.rec_id);
@@ -461,69 +480,85 @@ const BigTableValueIntDose = (props) => {
 
   }
 
-  const reloadDataHandler =  async () => {
-    alertSeverity = "info";
-    alertText =  'Данные успешно обновлены';
-    applyFilter();
-    try 
-    {
+    //загрузка данных в основную таблицу
+    const reloadData = React.useCallback(async () =>  {
+      setIsLoading(true);
+      try {
+        const  idsDS =  applFlt.selDataSourceValues.map(item => item.id).join(','); //список ids
+        const  idsOrgan =  applFlt.selOrganValues.map(item => item.id).join(',');
+        const  idsIrradiation = applFlt.selIrradiationValue?[applFlt.selIrradiationValue.id]:[]; //одно значение - поэтому приводим его к массиву []
+        const  idsDoseRatio =  applFlt.selDoseRatioValue?[applFlt.selDoseRatioValue.id]:[]; 
+        const  idsIsotope =  applFlt.selIsotopeValues.map(item => item.id).join(',');
+        const  idsIntegralPeriod =  applFlt.selIntegralPeriodValues.map(item => item.id).join(',');
+        const  idsLetLevel =  applFlt.selLetLevelValues.map(item => item.id).join(',');
+        const  idsAgeGroup =  applFlt.selAgeGroupValues.map(item => item.id).join(',');
+        const  idsSubstForm =  applFlt.selSubstFormValues.map(item => item.id).join(',');
+        const  idsAerosolSol =  applFlt.selAerosolSolValues.map(item => item.id).join(',');
+        const  idsAerosolAMAD =  applFlt.selAerosolAMADValues.map(item => item.id).join(',');
+        const  idsExpScenario =  applFlt.selExpScenarioValues.map(item => item.id).join(',');
+        const  idsPeopleClass =  applFlt.selPeopleClassValues.map(item => item.id).join(',');
+  
+        const response = await fetch(`/value_int_dose?data_source_id=`+idsDS+`&organ_id=`+idsOrgan+
+        `&irradiation_id=`+idsIrradiation+`&isotope_id=`+idsIsotope+
+        `&integral_period_id=`+idsIntegralPeriod+`&dose_ratio_id=`+idsDoseRatio+
+        `&let_level_id=`+idsLetLevel+`&agegroup_id=`+idsAgeGroup+`&subst_form_id=`+idsSubstForm+
+        `&aerosol_sol_id=`+idsAerosolSol+`&aerosol_amad_id=`+idsAerosolAMAD+`&exp_scenario_id=`+idsExpScenario+
+        `&people_class_id=`+idsPeopleClass+
+        `&page=`+(pageState.page + 1)+`&pagesize=`+pageState.pageSize
+        );   
+        if (!response.ok) {
+          alertText = `Ошибка при обновлении данных: ${response.status}`;
+          alertSeverity = "false";
+          const error = response.status + ' (' +response.statusText+')';  
+          throw new Error(`${error}`);
+        }
+        else
+        {  
+          const result = await response.json();
+          setTableValueIntDose(result);
+        }
+      } catch (err) {
+        throw err;
+      } finally {
+        setIsLoading(false);
+      }
+    }, [applFlt, pageState]);
+
+  // Создаем эффект для вызова reloadData() при изменении состояния фильтра
+useEffect(() => {
+  const fetchData = async () => {
+    try {
       await reloadData();
-    } catch(e)
-    {
-      alertSeverity = "error";
-      alertText =  'Ошибка при обновлении данных: '+e.message;      
       setOpenAlert(true);
-      return;
+      setIsTableExpanded(true);
+    } catch (e) {
+      alertSeverity = "error";
+      alertText = 'Ошибка при обновлении данных: ' + e.message;
+      setOpenAlert(true);
     }
-    setOpenAlert(true);
-    setIsTableExpanded(true);
-    setIsFilterExpanded(false);
-    setFilters();
   }
 
-  //загрузка данных в основную таблицу
-  const reloadData = async () => {
-    setIsLoading(true);
-    try {
-      const  idsDS =  applFlt.selDataSourceValues.map(item => item.id).join(','); //список ids
-      const  idsOrgan =  applFlt.selOrganValues.map(item => item.id).join(',');
-      const  idsIrradiation = applFlt.selIrradiationValue?[applFlt.selIrradiationValue.id]:[]; //одно значение - поэтому приводим его к массиву []
-      const  idsDoseRatio =  applFlt.selDoseRatioValue?[applFlt.selDoseRatioValue.id]:[]; 
-      const  idsIsotope =  applFlt.selIsotopeValues.map(item => item.id).join(',');
-      const  idsIntegralPeriod =  applFlt.selIntegralPeriodValues.map(item => item.id).join(',');
-      const  idsLetLevel =  applFlt.selLetLevelValues.map(item => item.id).join(',');
-      const  idsAgeGroup =  applFlt.selAgeGroupValues.map(item => item.id).join(',');
-      const  idsSubstForm =  applFlt.selSubstFormValues.map(item => item.id).join(',');
-      const  idsAerosolSol =  applFlt.selAerosolSolValues.map(item => item.id).join(',');
-      const  idsAerosolAMAD =  applFlt.selAerosolAMADValues.map(item => item.id).join(',');
-      const  idsExpScenario =  applFlt.selExpScenarioValues.map(item => item.id).join(',');
-      const  idsPeopleClass =  applFlt.selPeopleClassValues.map(item => item.id).join(',');
+  fetchData();
+}, [applFlt, reloadData]); // Зависимость от состояния фильтра 
 
-      const response = await fetch(`/value_int_dose?data_source_id=`+idsDS+`&organ_id=`+idsOrgan+
-      `&irradiation_id=`+idsIrradiation+`&isotope_id=`+idsIsotope+
-      `&integral_period_id=`+idsIntegralPeriod+`&dose_ratio_id=`+idsDoseRatio+
-      `&let_level_id=`+idsLetLevel+`&agegroup_id=`+idsAgeGroup+`&subst_form_id=`+idsSubstForm+
-      `&aerosol_sol_id=`+idsAerosolSol+`&aerosol_amad_id=`+idsAerosolAMAD+`&exp_scenario_id=`+idsExpScenario+
-      `&people_class_id=`+idsPeopleClass+
-      `&page=`+(pageState.page + 1)+`&pagesize=`+pageState.pageSize
-      );   
-      if (!response.ok) {
-        alertText = `Ошибка при обновлении данных: ${response.status}`;
-        alertSeverity = "false";
-        const error = response.status + ' (' +response.statusText+')';  
-        throw new Error(`${error}`);
-      }
-      else
-      {  
-        const result = await response.json();
-        setTableValueIntDose(result);
-      }
-    } catch (err) {
-      throw err;
-    } finally {
-      setIsLoading(false);
-    }
-  };
+const reloadDataHandler = async () => {
+  alertSeverity = "info";
+  alertText = 'Данные успешно обновлены';
+
+  try {
+    await applyFilter();
+  } catch (e) {
+    alertSeverity = "error";
+    alertText = 'Ошибка при обновлении данных: ' + e.message;
+    setOpenAlert(true);
+    return;
+  }
+  
+  setIsFilterExpanded(false);
+  setFilters();
+}
+
+
 
   //pagination - динамическая подгрузка страниц, пока не используем, оставим на будущее
 /*   useEffect(() => {
@@ -588,27 +623,88 @@ const BigTableValueIntDose = (props) => {
 
   //////////////////////////////////////////////////////// ACTIONS ///////////////////////////////
   function CustomToolbar1() {
-/*   const apiRef = useGridApiContext();
-     const handleExport = (options) =>
-      apiRef.current.exportDataAsCsv(options); */
+    
+    
+/*     const handleExport = (options) =>
+    {     
+      console.log(options); 
+      apiRef.current.exportDataAsCsv(options);
+    } */
+ 
+    const handleExport = (options) => {
+
+      const { delimiter, utf8WithBom, getRowsToExport } = options;
+      const rows = gridFilteredSortedRowIdsSelector(apiRef);//getRowsToExport();
+
+      console.log(rows);
+      
+      if (!Array.isArray(rows) || rows.length === 0) {
+        console.error('No rows to export.');
+        return;
+      }
+    
+      const customText = "Русский текст"; // Add your custom text here
+
+      //tableValueIntDose
+        const dataToExport = rows.map((row) => {
+        const rowData = tableValueIntDose.find((item) => item.id === row);
+        console.log(rowData);
+
+        if (rowData) {
+          return Object.values(rowData).map((cell) => `"${cell}"`).join(delimiter);
+        }
+        return '';
+      });
+
+      const csvContent = [customText, ...dataToExport].join('\n');
+
+      const blob = new Blob(["\uFEFF"+csvContent], { type: 'text/csv;charset=utf-8-with-bom;' }); //;charset=utf-8
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', 'export.csv');
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    };
+    
+
     return(
       <GridToolbarContainer>
         <IconButton /* onClick={()=>handleClearClick()}  */ color="primary" size="small" title="Создать запись">
           <SvgIcon fontSize="small" component={PlusLightIcon} inheritViewBox /></IconButton>
 
         <IconButton onClick={()=>handleClickEdit()} color="primary" size="small" title="Редактировать запись">
-          <SvgIcon fontSize="small" component={EditLightIcon} inheritViewBox /></IconButton>          
+          <SvgIcon fontSize="small" component={EditLightIcon} inheritViewBox /></IconButton> 
+
 {/*         <IconButton  color="primary" size="small" title="Сохранить запись в БД">
           <SvgIcon fontSize="small" component={SaveLightIcon} inheritViewBox/></IconButton> */}
         <IconButton /* onClick={()=>handleClickDelete()} */  color="primary" size="small" title="Удалить запись">
           <SvgIcon fontSize="small" component={TrashLightIcon} inheritViewBox /></IconButton>
 {/*         <IconButton   color="primary" size="small" title="Отменить редактирование">
           <SvgIcon fontSize="small" component={UndoLightIcon} inheritViewBox /></IconButton> */}
-        <IconButton /* onClick={()=>reloadDataAlert()} */ color="primary" size="small" title="Обновить данные">
+        <IconButton onClick={()=>reloadData()} color="primary" size="small" title="Обновить данные">
           <SvgIcon fontSize="small" component={RepeatLightIcon} inheritViewBox /></IconButton>
-{/*         <IconButton onClick={()=>handleExport({ delimiter: ';', utf8WithBom: true, getRowsToExport: () => gridFilteredSortedRowIdsSelector(apiRef) })} color="primary" 
+
+{/*          <IconButton onClick={()=>handleExport({ delimiter: ';', getRowsToExport: () => gridFilteredSortedRowIdsSelector(apiRef) })} color="primary" 
             size="small" title="Сохранить в формате CSV">
-          <SvgIcon fontSize="small" component={DownloadLightIcon} inheritViewBox /></IconButton>  */}
+          <SvgIcon fontSize="small" component={DownloadLightIcon} inheritViewBox /></IconButton>   
+ */}
+          <IconButton
+            onClick={() =>
+              handleExport({
+                delimiter: ';',
+                //utf8WithBom: true,
+                getRowsToExport: () => gridFilteredSortedRowIdsSelector(apiRef),
+              })
+            }
+            color="primary"
+            size="small"
+            title="Сохранить в формате CSV"
+          >
+            <SvgIcon fontSize="small" component={DownloadLightIcon} inheritViewBox />
+          </IconButton>          
       </GridToolbarContainer>
     );
   }
@@ -665,7 +761,7 @@ const BigTableValueIntDose = (props) => {
       {/* аккордеон по страницам */} 
       <Accordion expanded={isFilterExpanded} onChange={() => setIsFilterExpanded(!isFilterExpanded)}>
         <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1a-content" id="panel1a-header">
-          <Typography variant="body2">Фильтр</Typography>
+          <Typography variant="body2">{table_names['value_int_dose']}. Фильтр</Typography>
         </AccordionSummary>
 
         <AccordionDetails>
@@ -1218,7 +1314,7 @@ const BigTableValueIntDose = (props) => {
 
       <Accordion expanded={isTableExpanded}  onChange={() => {setIsTableExpanded(!isTableExpanded); }}>
         <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel2a-content" id="panel2a-header">
-          <Typography variant="body2">Таблица значений {GetFilterCaption()}</Typography>
+          <Typography variant="body2">Таблица значений<br/> {GetFilterCaption()}</Typography>
         </AccordionSummary>
         <AccordionDetails>
           <table border = "0" style={{  height: 410,  width: 1500 }} >
@@ -1234,9 +1330,9 @@ const BigTableValueIntDose = (props) => {
                   localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
                   rowHeight={25}
                   loading={isLoading}
-                  rows={tableValueIntDose} //
+                  rows={tableValueIntDose}
                   columns={columnsValueIntDose}
- 
+                  apiRef={apiRef}
                   onSelectionModelChange={(newSelectionModel) => {
                     setselectionModel(newSelectionModel);
                   }}
@@ -1267,6 +1363,7 @@ const BigTableValueIntDose = (props) => {
                     chem_comp_gr_name_rus: true, //applFlt.selExpScenarioValues.length!==1,
                     isotope_title: applFlt.selIsotopeValues.length!==1,
                     integral_period_name_rus: applFlt.selIntegralPeriodValues.length!==1,
+                    updatetime: false,
                     
                   }}
 
@@ -1314,13 +1411,13 @@ const BigTableValueIntDose = (props) => {
           </tr>
         </tbody>
         </table>
-        {(isLoading) && 
+{/*         {(isLoading) && 
         <Backdrop
           sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
           open={isLoading}
         >
           <CircularProgress color="inherit" />
-        </Backdrop> } 
+        </Backdrop> }  */}
 
         </AccordionDetails>
       </Accordion>
