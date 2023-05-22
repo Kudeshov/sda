@@ -70,7 +70,7 @@ const getValueIntDose = (request, response ) => {
     'in2.name as "irradiation_name_rus", i.title as "isotope_title", ip.name as "integral_period_name_rus", '+
     'dr.title  as "dose_ratio_title", lln."name" as "let_level_name_rus", an.name as "agegroup_name_rus",  '+
     'sfn."name" as "subst_form_name_rus", asn."name" as "aerosol_sol_name_rus", aan."name" as "aerosol_amad_name_rus", '+
-    'esn."name" as "exp_scenario_name_rus", pcn."name" as "people_class_name_rus" ';
+    'esn."name" as "exp_scenario_name_rus", pcn."name" as "people_class_name_rus", ccgn."name" as "chem_comp_group_name_rus"';
   //var select_count = 'select count (vid.id) ';
   var s_query = select_fields +  
     'from nucl.value_int_dose vid '+
@@ -87,6 +87,7 @@ const getValueIntDose = (request, response ) => {
     'left join nucl.aerosol_amad_nls aan on aan.aerosol_amad_id = vid.aerosol_amad_id and aan.lang_id = 1 ' +
     'left join nucl.exp_scenario_nls esn on esn.exp_scenario_id = vid.exp_scenario_id and esn.lang_id = 1 ' +
     'left join nucl.people_class_nls pcn on pcn.people_class_id = vid.people_class_id and pcn.lang_id = 1 ' +
+    'left join nucl.chem_comp_gr_nls ccgn on ccgn.chem_comp_gr_id = vid.chem_comp_gr_id and ccgn.lang_id =1 ' +
     ((data_source_id)?`where `:` `) +
     (data_source_id?`vid.data_source_id in (${data_source_id}) `:'')+
     ((data_source_id&&organ_id)?`and `:((organ_id)?`where `:` `)) +
