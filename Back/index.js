@@ -32,7 +32,7 @@ const no_q = require('./normativ_queries');
 const ccg_q = require('./chem_comp_gr_queries');
 const pcm_q = require('./phchform_chelem_queries');
 const nuc_q = require('./nuclide_queries');
-const cr_q = require('./criterion_queries');
+//const cr_q = require('./criterion_queries');
 const cg_q = require('./criterion_gr_queries');
 const id_q = require('./isotope_decay_queries');
 const i_q = require('./isotope_queries');
@@ -233,7 +233,7 @@ app.put('/nuclide/:id', (req, res) => {nuc_q.updateNuclide(req, res, 'nuclide')}
 
 
 //QUERIES on criterion 
-app.get('/criterion', (req, res) => {cr_q.getCriterion(req, res, 'criterion')});    //list all
+//app.get('/criterion', (req, res) => {cr_q.getCriterion(req, res, 'criterion')});    //list all
 
 
 //QUERIES on isotope_decay 

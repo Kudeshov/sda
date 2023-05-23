@@ -7,6 +7,7 @@ import {
   useGridApiRef,
   gridFilteredSortedRowIdsSelector,
 } from '@mui/x-data-grid';
+//import { renderToString } from 'react-dom/server';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
@@ -75,7 +76,7 @@ const BigTableValueIntDose = (props) => {
     { field: 'agegroup_name_rus', headerName: 'Возрастная группа населения', width: 200 },
     { field: 'exp_scenario_name_rus', headerName: 'Сценарий поступления', width: 200 },
     { field: 'subst_form_name_rus', headerName: 'Форма вещества', width: 200 },    
-    { field: 'chem_comp_gr_name_rus', headerName: 'Химическое соединение (группа)', width: 200 },    
+    { field: 'chem_comp_group_name_rus', headerName: 'Химическое соединение (группа)', width: 250 },    
     { field: 'aerosol_sol_name_rus', headerName: 'Тип растворимости аэрозолей', width: 200 },
     { field: 'aerosol_amad_name_rus', headerName: 'AMAD аэрозолей', width: 200 },
     { field: 'let_level_name_rus', headerName: 'Уровень ЛПЭ', width: 200 },
@@ -187,6 +188,45 @@ const BigTableValueIntDose = (props) => {
   const [tableValueIntDose, setTableValueIntDose] = useState([]); 
   const [selectionModel, setselectionModel] = React.useState([]);
   const [tableDataSourceClass, setTableDataSourceClass] = useState([]);
+
+  const [organ_name_rus_visible, set_organ_name_rus_visible] = useState(true);
+  const [let_level_name_rus_visible, set_let_level_name_rus_visible] = useState(true);
+  const [people_class_name_rus_visible, set_people_class_name_rus_visible] = useState(true);
+  const [subst_form_name_rus_visible, set_subst_form_name_rus_visible] = useState(true);
+  const [aerosol_sol_name_rus_visible, set_aerosol_sol_name_rus_visible] = useState(true);
+  const [aerosol_amad_name_rus_visible, set_aerosol_amad_name_rus_visible] = useState(true);
+  const [agegroup_name_rus_visible, set_agegroup_name_rus_visible] = useState(true);
+  const [exp_scenario_name_rus_visible, set_exp_scenario_name_rus_visible] = useState(true);
+  const [isotope_title_visible, set_isotope_title_visible] = useState(true);
+  const [integral_period_name_rus_visible, set_integral_period_name_rus_visible] = useState(true);
+
+//  { field: 'isotope_title', headerName: 'Нуклид', width: 100 },
+//  { field: 'integral_period_name_rus', headerName: 'Период интегрирования', width: 200 },
+
+  useEffect(() => {
+      set_organ_name_rus_visible( applFlt.selOrganValues.length!==1 && applFlt.selDoseRatioValue && [2, 8].includes(applFlt.selDoseRatioValue.id) ); 
+      set_let_level_name_rus_visible( applFlt.selLetLevelValues.length!==1 && applFlt.selDoseRatioValue && [8].includes(applFlt.selDoseRatioValue.id) ); 
+      set_people_class_name_rus_visible( applFlt.selPeopleClassValues.length!==1 ); 
+      set_subst_form_name_rus_visible( applFlt.selSubstFormValues.length!==1 && applFlt.selIrradiationValue && applFlt.selIrradiationValue.id===2 );
+      set_aerosol_sol_name_rus_visible( applFlt.selAerosolSolValues.length!==1 && applFlt.selIrradiationValue && applFlt.selIrradiationValue.id===2 &&
+        applFlt.selSubstFormValues &&  [162].includes(applFlt.selSubstFormValues.id) ); 
+      set_aerosol_amad_name_rus_visible( applFlt.selAerosolAMADValues.length!==1 && applFlt.selIrradiationValue && applFlt.selIrradiationValue.id===2 &&
+        applFlt.selSubstFormValues &&  [162].includes(applFlt.selSubstFormValues.id) ); 
+
+/*       console.log('applFlt.selAgeGroupValues.length' +applFlt.selAgeGroupValues.length);
+      console.log('applFlt.selPeopleClassValues');
+      console.log( applFlt.selPeopleClassValues );
+      console.log( applFlt.selAgeGroupValues.length!==1 && applFlt.selPeopleClassValues && [1].includes(applFlt.selPeopleClassValues.id) ); */
+      set_agegroup_name_rus_visible( applFlt.selAgeGroupValues.length!==1 && applFlt.selPeopleClassValues &&
+        applFlt.selPeopleClassValues.some((row) => row.id === 1) 
+        
+        /* && [1].includes(applFlt.selPeopleClassValues.id) */ );
+      set_exp_scenario_name_rus_visible( applFlt.selExpScenarioValues.length!==1 && applFlt.selPeopleClassValues && [3,4].includes(applFlt.selPeopleClassValues.id) );
+      set_isotope_title_visible( applFlt.selIsotopeValues.length!==1 ); 
+      set_integral_period_name_rus_visible( applFlt.selIntegralPeriodValues.length!==1 ); 
+        
+        
+  }, [applFlt])
   
   const handleChangeDataSource = (event, value) => {
     updateCurrentFilter({ selDataSourceValues: value });
@@ -623,42 +663,124 @@ const reloadDataHandler = async () => {
 
   //////////////////////////////////////////////////////// ACTIONS ///////////////////////////////
   function CustomToolbar1() {
+
+    function formatFilterCaption(filterCaption) {
+      let result = '';
+      let isFirst = true;
     
+      filterCaption.props.children.forEach((child) => {
+        if (typeof child === 'string') {
+          const text = child.trim();
+          if (text !== '') {
+            if (!isFirst) {
+              result += '\n';
+            }
+            result += text;
+            isFirst = false;
+          }
+        } else if (child.props && child.props.children) {
+          const text = getTextFromComponent(child.props.children);
+          if (text.trim() !== '') {
+            if (!isFirst) {
+              result += '\n';
+            }
+            result += text;
+            isFirst = false;
+          }
+        }
+      });
     
-/*     const handleExport = (options) =>
-    {     
-      console.log(options); 
-      apiRef.current.exportDataAsCsv(options);
-    } */
- 
+      return result;
+    }
+    
+    function getTextFromComponent(component) {
+      if (typeof component === 'string') {
+        return component;
+      }
+    
+      if (Array.isArray(component)) {
+        let text = component.map(getTextFromComponent).join('');
+        text = text.replace(/\s+/g, ' ').trim(); // Replace multiple spaces with a single space and trim
+        return text;
+      }
+    
+      if (component.props && component.props.children) {
+        return getTextFromComponent(component.props.children);
+      }
+    
+      return '';
+    }
+    
+
     const handleExport = (options) => {
-
       const { delimiter, utf8WithBom, getRowsToExport } = options;
-      const rows = gridFilteredSortedRowIdsSelector(apiRef);//getRowsToExport();
-
-      console.log(rows);
+      const rows = getRowsToExport();//gridFilteredSortedRowIdsSelector(apiRef);
+      //const visibleColumns = apiRef.current.getAllColumns().filter((column) => column.isVisible());
       
+      /* const visibleColumns = apiRef.current.getAllColumns().filter(
+        (column) => apiRef.current.getColumnState(column.field).hide !== true
+      ); */
+      const visibleColumns = apiRef.current.getVisibleColumns();
+      const columnNames = visibleColumns.map((column) => column.headerName);
+      const columnHeaders = columnNames.map((name) => `"${name}"`).join(delimiter);
+    
       if (!Array.isArray(rows) || rows.length === 0) {
         console.error('No rows to export.');
         return;
       }
-    
-      const customText = "Русский текст"; // Add your custom text here
-
-      //tableValueIntDose
-        const dataToExport = rows.map((row) => {
+      
+      const filterCaption = GetFilterCaption();
+      console.log(filterCaption);
+      const csvFilterCaption = formatFilterCaption(filterCaption);
+      console.log(csvFilterCaption);
+      const customText = csvFilterCaption; //filterCaption ? renderToString(filterCaption) : ''; //csvFilterCaption; // Add your custom text here
+      
+      const dataToExport = rows.map((row) => {
         const rowData = tableValueIntDose.find((item) => item.id === row);
-        console.log(rowData);
+        if (rowData) {
+          const valuesToExport = visibleColumns.map((column) => rowData[column.field]);
+          const sanitizedValues = valuesToExport.map((cell) => {
+            return cell !== null && cell !== undefined ? `"${cell}"` : '""';
+          });
+          return sanitizedValues.join(delimiter);
+        }
+        return '';
+      });
+      
+      const csvContent = [customText, columnHeaders, ...dataToExport].join('\n');
+      const csvData = utf8WithBom ? '\uFEFF' + csvContent : csvContent;
+      
+      const blob = new Blob([csvData], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      
+      const link = document.createElement('a');
+      link.setAttribute('href', url);
+      link.setAttribute('download', table_names[props.table_name]+'.csv'); //filename: table_names[props.table_name],
+      link.style.visibility = 'hidden';
+      
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    };
 
+/*     const handleExport = (options) => {
+      const { delimiter, utf8WithBom, getRowsToExport } = options;
+      const rows = gridFilteredSortedRowIdsSelector(apiRef); 
+      console.log(rows);
+      if (!Array.isArray(rows) || rows.length === 0) {
+        console.error('No rows to export.');
+        return;
+      }
+      const customText = "Русский текст"; // Add your custom text here
+      const dataToExport = rows.map((row) => {
+      const rowData = tableValueIntDose.find((item) => item.id === row);
         if (rowData) {
           return Object.values(rowData).map((cell) => `"${cell}"`).join(delimiter);
         }
         return '';
       });
-
       const csvContent = [customText, ...dataToExport].join('\n');
-
-      const blob = new Blob(["\uFEFF"+csvContent], { type: 'text/csv;charset=utf-8-with-bom;' }); //;charset=utf-8
+      const blob = new Blob(["\uFEFF"+csvContent], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.setAttribute('href', url);
@@ -668,7 +790,7 @@ const reloadDataHandler = async () => {
       link.click();
       document.body.removeChild(link);
     };
-    
+     */
 
     return(
       <GridToolbarContainer>
@@ -695,7 +817,7 @@ const reloadDataHandler = async () => {
             onClick={() =>
               handleExport({
                 delimiter: ';',
-                //utf8WithBom: true,
+                utf8WithBom: true,
                 getRowsToExport: () => gridFilteredSortedRowIdsSelector(apiRef),
               })
             }
@@ -710,14 +832,32 @@ const reloadDataHandler = async () => {
   }
 
   function GetFilterCaption() { //формирование заголовка выбранных фильтров для использования в аккордеоне
+    const dataSourceValues = applFlt.selDataSourceValues.slice(0, 7); // Extract the first 7 records
+    const hasMoreRowsDataSource = applFlt.selDataSourceValues.length > 7;
+    const isotopeValues = applFlt.selIsotopeValues.slice(0, 7); 
+    const hasMoreRowsIsotope = applFlt.selIsotopeValues.length > 7;
+    const organValues = applFlt.selOrganValues.slice(0, 7); 
+    const hasMoreRowsOrgan = applFlt.selOrganValues.length > 7;
+
     return (
       <>
-        {applFlt.selDataSourceValues.length > 0 ? (<>Источники данных: {applFlt.selDataSourceValues.map(value => value.title).join(', ')}<br /></>) : ''}
+        {dataSourceValues.length > 0 && (
+          <>
+            Источники данных: {dataSourceValues.map((value) => value.title).join(", ")}
+            {hasMoreRowsDataSource && "..."}
+            <br />
+          </>
+        )}
 
-        {applFlt.selDoseRatioValue&&applFlt.selDoseRatioValue.title? (<>Параметр: {applFlt.selDoseRatioValue.title}<br /></>) : '' }
-
-        {!((!applFlt.selDataSourceValues.length)||(!applFlt.selDoseRatioValue)||(![2, 8].includes(applFlt.selDoseRatioValue.id)))&&(applFlt.selOrganValues.length > 0) ? 
-          (<>Органы и ткани: {applFlt.selOrganValues.map(value => value.name_rus).join(', ')}<br /></>) : ''}
+{/*         {applFlt.selDoseRatioValue&&applFlt.selDoseRatioValue.title? (<>Параметр: {applFlt.selDoseRatioValue.title}<br /></>) : '' }
+ */}
+        {organValues.length > 0 && [2, 8].includes(applFlt.selDoseRatioValue.id) && applFlt.selDataSourceValues.length && (
+          <>
+            Органы и ткани: {organValues.map((value) => value.name_rus).join(", ")}
+            {hasMoreRowsOrgan && "..."}
+            <br />
+          </>
+        )}
 
         {!((!applFlt.selDataSourceValues.length)||(!applFlt.selDoseRatioValue)||(![8].includes(applFlt.selDoseRatioValue.id)))&&(applFlt.selLetLevelValues.length > 0) ? 
           (<>Уровни ЛПЭ: {applFlt.selLetLevelValues.map(value => value.name_rus).join(', ')}<br /></>) : ''}
@@ -745,8 +885,14 @@ const reloadDataHandler = async () => {
         {!( (!applFlt.selDataSourceValues.length) || ((applFlt.selPeopleClassValues.filter((row) => [3,4].includes(row.id))).length===0) )&&
         (applFlt.selExpScenarioValues.length > 0)? (<>Сценарии поступления: {applFlt.selExpScenarioValues.map(value => value.name_rus).join(', ')}<br /></>) : '' }
 
-        {applFlt.selIsotopeValues.length > 0? (<>Нуклиды: {applFlt.selIsotopeValues.map(value => value.title).join(', ')}<br /></>) : '' }
- 
+        {isotopeValues.length > 0 && (
+          <>
+            Нуклиды: {isotopeValues.map((value) => value.title).join(", ")}
+            {hasMoreRowsIsotope && "..."}
+            <br />
+          </>
+        )}
+
         {applFlt.selIntegralPeriodValues.length > 0? (<>Периоды интегрирования: {applFlt.selIntegralPeriodValues.map(value => value.name_rus).join(', ')}<br /></>) : '' }
       </>  
     );
@@ -818,7 +964,7 @@ const reloadDataHandler = async () => {
                 ...params.inputProps,
                 value: tableDoseRatioFiltered.length===0 ? "Выбор отсутствует" : params.inputProps.value,
               };
-              return <TextField {...params} inputProps={inputProps} label="Параметр" placeholder="Параметр" />;
+              return <TextField {...params} inputProps={inputProps} label="Параметр" placeholder="Параметр" required/>;
             }}            
           />
           </td>
@@ -938,7 +1084,7 @@ const reloadDataHandler = async () => {
                 ...params.inputProps,
                 value: tableIrradiationFiltered.length===0 ? "Выбор отсутствует" : params.inputProps.value,
               };
-              return <TextField {...params} inputProps={inputProps} label="Тип облучения" placeholder="Тип облучения" />;
+              return <TextField {...params} inputProps={inputProps} label="Тип облучения" placeholder="Тип облучения" required/>;
             }}                 
           />          
           </td>
@@ -1352,19 +1498,18 @@ const reloadDataHandler = async () => {
                     data_source_title: applFlt.selDataSourceValues.length!==1,
                     dose_ratio_title: false,
                     irradiation_name_rus: false,
-                    people_class_name_rus: applFlt.selPeopleClassValues.length!==1,
-                    organ_name_rus: applFlt.selOrganValues.length!==1,
-                    agegroup_name_rus: applFlt.selAgeGroupValues.length!==1,
-                    let_level_name_rus: applFlt.selLetLevelValues.length!==1,
-                    subst_form_name_rus: applFlt.selSubstFormValues.length!==1,
-                    aerosol_sol_name_rus: applFlt.selAerosolSolValues.length!==1,
-                    aerosol_amad_name_rus: applFlt.selAerosolAMADValues.length!==1,
-                    exp_scenario_name_rus: applFlt.selExpScenarioValues.length!==1,
-                    chem_comp_gr_name_rus: true, //applFlt.selExpScenarioValues.length!==1,
-                    isotope_title: applFlt.selIsotopeValues.length!==1,
-                    integral_period_name_rus: applFlt.selIntegralPeriodValues.length!==1,
+                    people_class_name_rus: people_class_name_rus_visible, // applFlt.selPeopleClassValues.length!==1,
+                    organ_name_rus: organ_name_rus_visible, //applFlt.selOrganValues.length!==1, //) && ([2, 8].includes(applFlt.selDoseRatioValue.id)),
+                    agegroup_name_rus: agegroup_name_rus_visible, //applFlt.selAgeGroupValues.length!==1,
+                    let_level_name_rus: let_level_name_rus_visible, //applFlt.selLetLevelValues.length!==1,
+                    subst_form_name_rus: subst_form_name_rus_visible, //applFlt.selSubstFormValues.length!==1,
+                    aerosol_sol_name_rus: aerosol_sol_name_rus_visible, //applFlt.selAerosolSolValues.length!==1,
+                    aerosol_amad_name_rus: aerosol_amad_name_rus_visible, //applFlt.selAerosolAMADValues.length!==1,
+                    exp_scenario_name_rus: exp_scenario_name_rus_visible,//applFlt.selExpScenarioValues.length!==1,
+                    chem_comp_group_name_rus: true, //applFlt.selExpScenarioValues.length!==1,
+                    isotope_title: isotope_title_visible,//: applFlt.selIsotopeValues.length!==1,
+                    integral_period_name_rus: integral_period_name_rus_visible, //applFlt.selIntegralPeriodValues.length!==1,
                     updatetime: false,
-                    
                   }}
 
                   onRowClick={handleRowClick} {...tableValueIntDose} 
