@@ -204,32 +204,39 @@ const BigTableValueIntDose = (props) => {
 //  { field: 'integral_period_name_rus', headerName: 'Период интегрирования', width: 200 },
 
   useEffect(() => {
-      set_organ_name_rus_visible( applFlt.selOrganValues.length!==1 && applFlt.selDoseRatioValue && [2, 8].includes(applFlt.selDoseRatioValue.id) ); 
-      set_let_level_name_rus_visible( applFlt.selLetLevelValues.length!==1 && applFlt.selDoseRatioValue && [8].includes(applFlt.selDoseRatioValue.id) ); 
-      set_people_class_name_rus_visible( applFlt.selPeopleClassValues.length!==1 ); 
-      set_subst_form_name_rus_visible( applFlt.selSubstFormValues.length!==1 && applFlt.selIrradiationValue && applFlt.selIrradiationValue.id===2 );
-      set_aerosol_sol_name_rus_visible( applFlt.selAerosolSolValues.length!==1 && applFlt.selIrradiationValue && applFlt.selIrradiationValue.id===2 &&
-        applFlt.selSubstFormValues &&  [162].includes(applFlt.selSubstFormValues.id) ); 
-      set_aerosol_amad_name_rus_visible( applFlt.selAerosolAMADValues.length!==1 && applFlt.selIrradiationValue && applFlt.selIrradiationValue.id===2 &&
-        applFlt.selSubstFormValues &&  [162].includes(applFlt.selSubstFormValues.id) ); 
+    console.log('applFlt');
+    set_organ_name_rus_visible( applFlt.selOrganValues.length!==1 && applFlt.selDoseRatioValue && [2, 8].includes(applFlt.selDoseRatioValue.id) ); 
+    set_let_level_name_rus_visible( applFlt.selLetLevelValues.length!==1 && applFlt.selDoseRatioValue && [8].includes(applFlt.selDoseRatioValue.id) ); 
+    set_people_class_name_rus_visible( applFlt.selPeopleClassValues.length!==1 ); 
+    set_subst_form_name_rus_visible( applFlt.selSubstFormValues.length!==1 && applFlt.selIrradiationValue && applFlt.selIrradiationValue.id===2 );
+    set_aerosol_sol_name_rus_visible( applFlt.selAerosolSolValues.length!==1 && applFlt.selIrradiationValue && applFlt.selIrradiationValue.id===2 &&
+      applFlt.selSubstFormValues &&  [162].includes(applFlt.selSubstFormValues.id) ); 
+    set_aerosol_amad_name_rus_visible( applFlt.selAerosolAMADValues.length!==1 && applFlt.selIrradiationValue && applFlt.selIrradiationValue.id===2 &&
+      applFlt.selSubstFormValues &&  [162].includes(applFlt.selSubstFormValues.id) ); 
 
 /*       console.log('applFlt.selAgeGroupValues.length' +applFlt.selAgeGroupValues.length);
       console.log('applFlt.selPeopleClassValues');
       console.log( applFlt.selPeopleClassValues );
       console.log( applFlt.selAgeGroupValues.length!==1 && applFlt.selPeopleClassValues && [1].includes(applFlt.selPeopleClassValues.id) ); */
-      set_agegroup_name_rus_visible( applFlt.selAgeGroupValues.length!==1 && applFlt.selPeopleClassValues &&
-        applFlt.selPeopleClassValues.some((row) => row.id === 1) 
-        
-        /* && [1].includes(applFlt.selPeopleClassValues.id) */ );
-      set_exp_scenario_name_rus_visible( applFlt.selExpScenarioValues.length!==1 && applFlt.selPeopleClassValues && [3,4].includes(applFlt.selPeopleClassValues.id) );
-      set_isotope_title_visible( applFlt.selIsotopeValues.length!==1 ); 
-      set_integral_period_name_rus_visible( applFlt.selIntegralPeriodValues.length!==1 ); 
+    set_agegroup_name_rus_visible( applFlt.selAgeGroupValues.length!==1 && applFlt.selPeopleClassValues &&
+      applFlt.selPeopleClassValues.some((row) => row.id === 1) 
+      
+      /* && [1].includes(applFlt.selPeopleClassValues.id) */ );
+    set_exp_scenario_name_rus_visible( applFlt.selExpScenarioValues.length!==1 && applFlt.selPeopleClassValues && [3,4].includes(applFlt.selPeopleClassValues.id) );
+    set_isotope_title_visible( applFlt.selIsotopeValues.length!==1 ); 
+    set_integral_period_name_rus_visible( applFlt.selIntegralPeriodValues.length!==1 ); 
         
         
   }, [applFlt])
   
   const handleChangeDataSource = (event, value) => {
+  // Обновление значения компонента Autocomplete
+    //handleChange(event, values);    
+
     updateCurrentFilter({ selDataSourceValues: value });
+
+    //const isValid = value && value.length > 0;
+    //formRef.current.reportValidity();
     //setselDataSourceValues(value);
   };
 
@@ -456,11 +463,11 @@ const BigTableValueIntDose = (props) => {
       .then((data) => setTableIsotope(data)); 
   }, [props.table_name])
 
-  useEffect(() => {
+/*   useEffect(() => {
     fetch(`/value_int_dose/`)
       .then((data) => data.json())
       .then((data) => setTableValueIntDose(data)); 
-  }, [props.table_name])
+  }, [props.table_name]) */
 
   useEffect(() => {
     fetch(`/integral_period/`)
@@ -522,6 +529,12 @@ const BigTableValueIntDose = (props) => {
 
     //загрузка данных в основную таблицу
     const reloadData = React.useCallback(async () =>  {
+      if ((!applFlt.selDataSourceValues)|| (applFlt.selDataSourceValues.length===0))
+      {
+        setTableValueIntDose([]);
+        return;
+      }
+
       setIsLoading(true);
       try {
         const  idsDS =  applFlt.selDataSourceValues.map(item => item.id).join(','); //список ids
@@ -582,23 +595,22 @@ useEffect(() => {
 }, [applFlt, reloadData]); // Зависимость от состояния фильтра 
 
 const reloadDataHandler = async () => {
-  alertSeverity = "info";
-  alertText = 'Данные успешно обновлены';
-
-  try {
-    await applyFilter();
-  } catch (e) {
-    alertSeverity = "error";
-    alertText = 'Ошибка при обновлении данных: ' + e.message;
-    setOpenAlert(true);
-    return;
+  if (formRef.current.reportValidity() )
+  {  
+    alertSeverity = "info";
+    alertText = 'Данные успешно обновлены';
+      try {
+      await applyFilter();
+    } catch (e) {
+      alertSeverity = "error";
+      alertText = 'Ошибка при обновлении данных: ' + e.message;
+      setOpenAlert(true);
+      return;
+    }
+    setIsFilterExpanded(false);
+    setFilters();
   }
-  
-  setIsFilterExpanded(false);
-  setFilters();
 }
-
-
 
   //pagination - динамическая подгрузка страниц, пока не используем, оставим на будущее
 /*   useEffect(() => {
@@ -707,10 +719,8 @@ const reloadDataHandler = async () => {
       if (component.props && component.props.children) {
         return getTextFromComponent(component.props.children);
       }
-    
       return '';
     }
-    
 
     const handleExport = (options) => {
       const { delimiter, utf8WithBom, getRowsToExport } = options;
@@ -931,9 +941,26 @@ const reloadDataHandler = async () => {
                 {option.title}
               </li>
             )}
+
             renderInput={(params) => (
-              <TextField {...params} label="Источники данных" placeholder="Источники данных" required/>
-            )}
+              <TextField
+                {...params}
+                inputProps={{
+                  ...params.inputProps,
+                  required: currFlt.selDataSourceValues.length === 0
+                }}
+                label="Источники данных"
+                placeholder="Источники данных"
+                required 
+              />
+            )}            
+            
+/*             renderInput={(params) => {
+              const inputProps = {
+                ...params.inputProps,
+              };
+              return <TextField {...params} inputProps={inputProps} label="Источники данных" placeholder="Источники данных" required />;
+            }}   */           
             />
           </td>
           <td>
@@ -955,6 +982,7 @@ const reloadDataHandler = async () => {
           <Autocomplete
             size="small"  
             value={currFlt.selDoseRatioValue}
+            //multiple
             onChange={handleChangeDoseRatio}
             id="autocomplete-dose_ratio"
             options={ tableDoseRatioFiltered.filter((row) => [1, 2, 8].includes(row.id)) }
@@ -1075,7 +1103,6 @@ const reloadDataHandler = async () => {
             size="small"
             value={currFlt.selIrradiationValue}
             onChange={handleChangeIrradiation}
-            //multiple
             id="autocomplete-irradiation"
             options={tableIrradiationFiltered.filter((row) => [2,6, 30319, 30316].includes(row.id)) }
             getOptionLabel={(option) => option.name_rus?option.name_rus:''}
@@ -1225,7 +1252,37 @@ const reloadDataHandler = async () => {
         <table border = "0" cellSpacing="0" cellPadding="0"><tbody>
           <tr>      
           <td width={348}>
-            <Autocomplete
+          <Autocomplete
+            size="small"
+            value={currFlt.selPeopleClassValues}
+            isOptionEqualToValue={(option, value) => option.id === value.id}
+            onChange={handleChangePeopleClass}
+            multiple
+            id="autocomplete-people_class"
+            options={tablePeopleClassFiltered}
+            getOptionLabel={(option) => option.name_rus}
+            disableCloseOnSelect
+            renderOption={(props, option, { selected }) => (
+              <li {...props}>
+                <Checkbox size="small" icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected}/>
+                {option.name_rus}
+              </li>
+            )}
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                inputProps={{
+                  ...params.inputProps,
+                  required: currFlt.selPeopleClassValues.length === 0
+                }}
+                label="Типы облучаемых лиц"
+                placeholder="Типы облучаемых лиц"
+                required // Добавление атрибута required
+              />
+            )}
+          />
+
+{/*             <Autocomplete
             size="small"
             value={currFlt.selPeopleClassValues}
             isOptionEqualToValue={(option, value) => option.id === value.id}
@@ -1246,9 +1303,9 @@ const reloadDataHandler = async () => {
                 ...params.inputProps,
                 value: tablePeopleClassFiltered.length===0 ? "Выбор отсутствует" : params.inputProps.value,
               };
-              return <TextField {...params} inputProps={inputProps} label="Типы облучаемых лиц" placeholder="Типы облучаемых лиц" />;
+              return <TextField {...params} inputProps={inputProps} label="Типы облучаемых лиц" placeholder="Типы облучаемых лиц" required/>;
             }}             
-            />          
+            />  */}         
             </td>
             <td>
               &nbsp;&nbsp;
@@ -1450,9 +1507,8 @@ const reloadDataHandler = async () => {
         <p></p>  
 
         <IconButton onClick={()=>reloadDataHandler()} color="primary" size="small" 
-          disabled={ (!currFlt.selDataSourceValues.length/* ||!selDoseRatioValue||!currFlt.selIrradiationValue||!selPeopleClassValues.length */) } 
+          //disabled={ ( /* ! currFlt.selDataSourceValues.length */  /* ||!selDoseRatioValue||!currFlt.selIrradiationValue||!selPeopleClassValues.length */) } 
           title="Получить данные">
-
           <SvgIcon fontSize="small" component={ArrowAltDownIcon} inheritViewBox /></IconButton>
 
         </AccordionDetails>
@@ -1568,14 +1624,16 @@ const reloadDataHandler = async () => {
       </Accordion>
 
       <Dialog open={openEdit} onClose={handleCloseEditNo} fullWidth={false} maxWidth="800px">
-      <DialogTitle>Редактировать запись {valueID}</DialogTitle>  
+      <DialogTitle>Редактировать запись, id {valueID}</DialogTitle>  
         <DialogContent style={{height:'480px', width: '700px'}}>
            <p></p>
           <table border = "0" cellSpacing="0" cellPadding="0"><tbody><tr>
           <td>
-          <div style={{width: '320px'}}><Autocomplete
+          <div style={{width: '320px'}}>
+          <Autocomplete
+            disabled={true}
             size="small"
-            disabled={ (!currFlt.selDataSourceValues.length) }
+            //disabled={ (!currFlt.selDataSourceValues.length) }
             value={tableDoseRatio.find((option) => option.id === valueDoseRatioID)  }
             onChange={(event, newValueAC) => {  console.log('aaa '+newValueAC?newValueAC.id:-1); setValueDoseRatioID(newValueAC?newValueAC.id:-1) } }
             id="autocomplete-dose_ratio_edit"

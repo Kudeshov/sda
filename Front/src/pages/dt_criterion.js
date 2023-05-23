@@ -10,7 +10,7 @@ import { Box, IconButton } from '@mui/material';
 import Alert from '@mui/material/Alert';
 import Collapse from '@mui/material/Collapse';
 import CloseIcon from '@mui/icons-material/Close';
-import { DataTableDataSourceClass } from './dt_data_source_class';
+//import { DataTableDataSourceClass } from './dt_data_source_class';
 import SvgIcon from '@mui/material/SvgIcon';
 import { ReactComponent as SaveLightIcon } from "./../icons/save.svg";
 import { ReactComponent as PlusLightIcon } from "./../icons/plus.svg";
@@ -46,11 +46,12 @@ var clickAfterReload = false;
 
 const DataTableCriterion = (props) => {
   const [tableCalcfunction, settableCalcfunction] = useState([]); 
-  const [tableCrvalue, settableCrvalue] = useState([]); 
+  const [tableCriterionGr, settableCriterionGr] = useState([]); 
+  // const [tableCrvalue, settableCrvalue] = useState([0,1,2,3,4,5,6]); 
   const [valueCalcfunctionID, setValueCalcfunctionID] = useState(); 
   const [valueCalcfunctionIDInitial, setValueCalcfunctionIDInitial] = useState(); 
-  const [valueCrvalueID, setValueCrvalueID] = useState(); 
-  const [valueCrvalueIDInitial, setValueCrvalueIDInitial] = useState(); 
+  const [valueCrValue, setValueCrValue] = useState(); 
+  const [valueCrValueInitial, setValueCrValueInitial] = useState(); 
   const [valueId, setValueID] = React.useState();
   const [valueTitle, setValueTitle] = React.useState();
   const [valueTitleInitial, setValueTitleInitial] = React.useState();
@@ -231,8 +232,8 @@ const DataTableCriterion = (props) => {
       setValueNormativInitial(res[0].normativ_id);
       setValueCalcfunctionID(res[0].calcfunction_id);
       setValueCalcfunctionIDInitial(res[0].calcfunction_id);
-      setValueCrvalueID(res[0].cr_value);
-      setValueCrvalueIDInitial(res[0].cr_value);
+      setValueCrValue(res[0].cr_value);
+      setValueCrValueInitial(res[0].cr_value);
       console.log(res[0].crit);
       setValueCrit(res[0].crit);
     }   
@@ -313,16 +314,23 @@ const DataTableCriterion = (props) => {
     fetch(`/calcfunction`)
       .then((data) => data.json())
       .then((data) => settableCalcfunction(data))
-      .then((data) => { /* console.log('fetch PhysParam ok'); console.log(data);  */ lastId = 0;} ); 
+      .then((data) => { lastId = 0;} ); 
   }, [])
 
   useEffect(() => {
+    fetch(`/criterion_gr`)
+      .then((data) => data.json())
+      .then((data) => settableCriterionGr(data))
+      .then((data) => {  lastId = 0;} ); 
+  }, [])
+
+/*   useEffect(() => {
     fetch(`/cr_value`)
       .then((data) => data.json())
       .then((data) => settableCrvalue(data))
-      .then((data) => { /* console.log('fetch PhysParam ok'); console.log(data);  */ lastId = 0;} ); 
+      .then((data) => {  lastId = 0;} ); 
   }, [])
-
+ */
 
 
 ///////////////////////////////////////////////////////////////////  Tree load functions and hook  /////////////////////
@@ -968,21 +976,26 @@ const DataTableCriterion = (props) => {
             </li>
           )}
         />
+     <p></p>
+     <TextField  id="ch_name" sx={{ width: '40ch' }} label="Значение" required size="small" variant="outlined" 
+       value={valueCrValue || ''} onChange={e => setValueCrValue(e.target.value)}/>
+      &nbsp;&nbsp;&nbsp;&nbsp;
 
 
-<Autocomplete
+
+  <Autocomplete
           fullWidth
           sx={{ width: '60ch' }}
           size="small"
           disablePortal
-          id="combo-box-child-isotope"
-          value={tableCrvalue.find((option) => option.id === valueCrvalueID) || ''}
+          id="combo-box-criterion-gr"
+          value={tableCriterionGr.find((option) => option.id === valueParentID) || ''}
           disableClearable
           isOptionEqualToValue={(option, value) => option.id === value.id}
-          onChange={(event, newValueAC) => { setValueCrvalueID(newValueAC ? newValueAC.id : -1) }}
-          options={tableCrvalue}
+          onChange={(event, newValueAC) => { setValueParentID(newValueAC ? newValueAC.id : -1) }}
+          options={tableCriterionGr}
           getOptionLabel={option => option ? option.title : ""}
-          renderInput={(params) => <TextField {...params} label="Значение" required />}
+          renderInput={(params) => <TextField {...params} label="Группа критериев" required />}
           renderOption={(props, option) => (
             <li {...props}>
               <Tooltip title={option.name_rus}>
@@ -993,7 +1006,7 @@ const DataTableCriterion = (props) => {
               </Tooltip>
             </li>
           )}
-        />
+        />  
 
 
 
