@@ -35,6 +35,8 @@ import { ExportToCsv } from 'export-to-csv-fix-source-map';
 import { table_names } from './sda_types';
 import Backdrop from '@mui/material/Backdrop';
 import { InputAdornment } from "@material-ui/core";
+import Autocomplete from '@mui/material/Autocomplete';
+import Tooltip from '@mui/material/Tooltip';
 
 var alertText = "Сообщение";
 var alertSeverity = "info";
@@ -43,6 +45,12 @@ var clickedId = 0;
 var clickAfterReload = false;
 
 const DataTableCriterion = (props) => {
+  const [tableCalcfunction, settableCalcfunction] = useState([]); 
+  const [tableCrvalue, settableCrvalue] = useState([]); 
+  const [valueCalcfunctionID, setValueCalcfunctionID] = useState(); 
+  const [valueCalcfunctionIDInitial, setValueCalcfunctionIDInitial] = useState(); 
+  const [valueCrvalueID, setValueCrvalueID] = useState(); 
+  const [valueCrvalueIDInitial, setValueCrvalueIDInitial] = useState(); 
   const [valueId, setValueID] = React.useState();
   const [valueTitle, setValueTitle] = React.useState();
   const [valueTitleInitial, setValueTitleInitial] = React.useState();
@@ -221,6 +229,10 @@ const DataTableCriterion = (props) => {
       setValueDescrEngInitial(res[0].descr_eng);
       setValueParentIDInitial(res[0].parent_id||-1); 
       setValueNormativInitial(res[0].normativ_id);
+      setValueCalcfunctionID(res[0].calcfunction_id);
+      setValueCalcfunctionIDInitial(res[0].calcfunction_id);
+      setValueCrvalueID(res[0].cr_value);
+      setValueCrvalueIDInitial(res[0].cr_value);
       console.log(res[0].crit);
       setValueCrit(res[0].crit);
     }   
@@ -295,6 +307,22 @@ const DataTableCriterion = (props) => {
       .then((data) => setNormativ(data))
       .then((data) => { /* lastId = 0; */} ); 
   }, [valueNormativ])
+
+
+  useEffect(() => {
+    fetch(`/calcfunction`)
+      .then((data) => data.json())
+      .then((data) => settableCalcfunction(data))
+      .then((data) => { /* console.log('fetch PhysParam ok'); console.log(data);  */ lastId = 0;} ); 
+  }, [])
+
+  useEffect(() => {
+    fetch(`/cr_value`)
+      .then((data) => data.json())
+      .then((data) => settableCrvalue(data))
+      .then((data) => { /* console.log('fetch PhysParam ok'); console.log(data);  */ lastId = 0;} ); 
+  }, [])
+
 
 
 ///////////////////////////////////////////////////////////////////  Tree load functions and hook  /////////////////////
@@ -915,6 +943,61 @@ const DataTableCriterion = (props) => {
       <p></p> 
       <TextField  id="ch_descr_rus" sx={{ width: '100ch' }} label="Комментарий (англ.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrEng || ''} onChange={e => setValueDescrEng(e.target.value)}/>
       <p></p>
+
+      <Autocomplete
+          fullWidth
+          sx={{ width: '60ch' }}
+          size="small"
+          disablePortal
+          id="combo-box-child-isotope"
+          value={tableCalcfunction.find((option) => option.id === valueCalcfunctionID) || ''}
+          disableClearable
+          isOptionEqualToValue={(option, value) => option.id === value.id}
+          onChange={(event, newValueAC) => { setValueCalcfunctionID(newValueAC ? newValueAC.id : -1) }}
+          options={tableCalcfunction}
+          getOptionLabel={option => option ? option.title : ""}
+          renderInput={(params) => <TextField {...params} label="Функция" required />}
+          renderOption={(props, option) => (
+            <li {...props}>
+              <Tooltip title={option.name_rus}>
+                <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
+                  <span>{option.title}</span>
+                  <span></span>
+                </div>
+              </Tooltip>
+            </li>
+          )}
+        />
+
+
+<Autocomplete
+          fullWidth
+          sx={{ width: '60ch' }}
+          size="small"
+          disablePortal
+          id="combo-box-child-isotope"
+          value={tableCrvalue.find((option) => option.id === valueCrvalueID) || ''}
+          disableClearable
+          isOptionEqualToValue={(option, value) => option.id === value.id}
+          onChange={(event, newValueAC) => { setValueCrvalueID(newValueAC ? newValueAC.id : -1) }}
+          options={tableCrvalue}
+          getOptionLabel={option => option ? option.title : ""}
+          renderInput={(params) => <TextField {...params} label="Значение" required />}
+          renderOption={(props, option) => (
+            <li {...props}>
+              <Tooltip title={option.name_rus}>
+                <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
+                  <span>{option.title}</span>
+                  <span></span>
+                </div>
+              </Tooltip>
+            </li>
+          )}
+        />
+
+
+
+
       <div style={{ height: 300, width: 800 }}>
   {/*       <td>Источники данных<br/>
         <DataTableDataSourceClass table_name={props.table_name} rec_id={valueId||0} />
@@ -923,6 +1006,7 @@ const DataTableCriterion = (props) => {
       </>}
     </td>
   </tr>
+
   </tbody>
   </table>
 
