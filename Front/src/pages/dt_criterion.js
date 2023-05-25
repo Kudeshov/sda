@@ -47,11 +47,23 @@ var clickAfterReload = false;
 const DataTableCriterion = (props) => {
   const [tableCalcfunction, settableCalcfunction] = useState([]); 
   const [tableCriterionGr, settableCriterionGr] = useState([]); 
+  const [tableActionLevel, settableActionLevel] = useState([]); 
+  const [tableIrradiation, settableIrradiation] = useState([]); 
+  const [tablePeopleClass, settablePeopleClass] = useState([]); 
+  const [tableAgegroup, settableAgegroup] = useState([]); 
+  const [tableIntegralPeriod, settableIntegralPeriod] = useState([]); 
+  const [tableOrgan, settableOrgan] = useState([]);
+  const [tableIsotope, settableIsotope] = useState([]); 
+  const [tableSubstForm, settableSubstForm] = useState([]);
+  const [tableAerosolSol, settableAerosolSol] = useState([]);
+  const [tableChemCompGr, settableChemCompGr] = useState([]);
+  const [tableAerosolAmad, settableAerosolAmad] = useState([]);
+  const [tableDataSource, settableDataSource] = useState([]);
+  const [tableExpScenario, settableExpScenario] = useState([]); 
   // const [tableCrvalue, settableCrvalue] = useState([0,1,2,3,4,5,6]); 
   const [valueCalcfunctionID, setValueCalcfunctionID] = useState(); 
-  const [valueCalcfunctionIDInitial, setValueCalcfunctionIDInitial] = useState(); 
   const [valueCrValue, setValueCrValue] = useState(); 
-  const [valueCrValueInitial, setValueCrValueInitial] = useState(); 
+  const [valueTimeend, setValueTimeend] = useState(); 
   const [valueId, setValueID] = React.useState();
   const [valueTitle, setValueTitle] = React.useState();
   const [valueTitleInitial, setValueTitleInitial] = React.useState();
@@ -64,9 +76,25 @@ const DataTableCriterion = (props) => {
   const [valueDescrRus, setValueDescrRus] = React.useState();
   const [valueDescrRusInitial, setValueDescrRusInitial] = React.useState();
   const [valueParentID, setValueParentID] = React.useState();
+  const [valuePeopleClass, setValuePeopleClass] = React.useState();
+
+  const [valueActionLevel, setValueActionLevel] = React.useState();
+  const [valueIrradiation, setValueIrradiation] = React.useState();
+  const [valueAgegroup, setValueAgegroup] = React.useState();
+  const [valueExpScenario, setValueExpScenario] = React.useState();
+  const [valueIntegralPeriod, setValueIntegralPeriod] = React.useState();
+  const [valueOrgan, setValueOrgan] = React.useState();
+  
+  const [valueDataSource, setValueDataSource] = React.useState();
+  const [valueChemCompGr, setValueChemCompGr] = React.useState();
+  const [valueAerosolSol, setValueAerosolSol] = React.useState();
+  const [valueAerosolAmad, setValueAerosolAmad] = React.useState();
+  const [valueSubstForm, setValueSubstForm] = React.useState();
+  const [valueIsotope, setValueIsotope] = React.useState();
   const [valueParentIDInitial, setValueParentIDInitial] = React.useState();
   const [valueNormativ, setValueNormativ] = React.useState();
   const [valueNormativInitial, setValueNormativInitial] = React.useState();
+
   const [isLoading, setIsLoading] = React.useState("false");
   const [tableData, setTableData] = useState([]); 
   const [tableNormativ, setNormativ] = useState([]); 
@@ -231,9 +259,22 @@ const DataTableCriterion = (props) => {
       setValueParentIDInitial(res[0].parent_id||-1); 
       setValueNormativInitial(res[0].normativ_id);
       setValueCalcfunctionID(res[0].calcfunction_id);
-      setValueCalcfunctionIDInitial(res[0].calcfunction_id);
+      setValueIrradiation(res[0].irradiation_id);
+      setValueAgegroup(res[0].agegroup_id);
+      setValueExpScenario(res[0].exp_scenario_id);
+      setValueIntegralPeriod(res[0].integral_period_id);
+      setValueOrgan(res[0].organ_id);
+      setValueDataSource(res[0].data_source_id);
+      setValueAerosolAmad(res[0].aerosol_amad_id);
+      setValueAerosolSol(res[0].aerosol_sol_id);
+      setValueChemCompGr(res[0].chem_comp_gr_id);
+      setValueSubstForm(res[0].subst_form_id);
+      setValueIsotope(res[0].isotope_id);
+      setValueActionLevel(res[0].action_level_id);
+      setValuePeopleClass(res[0].people_class_id);
       setValueCrValue(res[0].cr_value);
-      setValueCrValueInitial(res[0].cr_value);
+      setValueTimeend(res[0].timeend);
+      
       console.log(res[0].crit);
       setValueCrit(res[0].crit);
     }   
@@ -324,9 +365,107 @@ const DataTableCriterion = (props) => {
       .then((data) => {  lastId = 0;} ); 
   }, [])
 
+  useEffect(() => {
+    fetch(`/action_level`)
+      .then((data) => data.json())
+      .then((data) => settableActionLevel(data))
+      .then((data) => {  lastId = 0;} ); 
+  }, [])
+
+  useEffect(() => {
+    fetch(`/irradiation`)
+      .then((data) => data.json())
+      .then((data) => settableIrradiation(data))
+      .then((data) => {  lastId = 0;} ); 
+  }, [])
+
+  useEffect(() => {
+    fetch(`/people_class`)
+      .then((data) => data.json())
+      .then((data) => settablePeopleClass(data))
+      .then((data) => {  lastId = 0;} ); 
+  }, [])
+
+  useEffect(() => {
+    fetch(`/agegroup`)
+      .then((data) => data.json())
+      .then((data) => settableAgegroup(data))
+      .then((data) => {  lastId = 0;} ); 
+  }, [])
+
+  
+  useEffect(() => {
+    fetch(`/agegroup`)
+      .then((data) => data.json())
+      .then((data) => settableExpScenario(data))
+      .then((data) => {  lastId = 0;} ); 
+  }, [])
+
+   
+  useEffect(() => {
+    fetch(`/integral_period`)
+      .then((data) => data.json())
+      .then((data) => settableIntegralPeriod(data))
+      .then((data) => {  lastId = 0;} ); 
+  }, [])
+
+  useEffect(() => {
+    fetch(`/organ`)
+      .then((data) => data.json())
+      .then((data) => settableOrgan(data))
+      .then((data) => {  lastId = 0;} ); 
+  }, [])
+
+  useEffect(() => {
+    fetch(`/isotope`)
+      .then((data) => data.json())
+      .then((data) => settableIsotope(data))
+      .then((data) => {  lastId = 0;} ); 
+  }, [])
+
+  useEffect(() => {
+    fetch(`/subst_form`)
+      .then((data) => data.json())
+      .then((data) => settableSubstForm(data))
+      .then((data) => {  lastId = 0;} ); 
+  }, [])
+
+  
+  useEffect(() => {
+    fetch(`/aerosol_sol`)
+      .then((data) => data.json())
+      .then((data) => settableAerosolSol(data))
+      .then((data) => {  lastId = 0;} ); 
+  }, [])
+
+  useEffect(() => {
+    fetch(`/chem_comp_gr`)
+      .then((data) => data.json())
+      .then((data) => settableChemCompGr(data))
+      .then((data) => {  lastId = 0;} ); 
+  }, [])
+
+
+  useEffect(() => {
+    fetch(`/aerosol_amad`)
+      .then((data) => data.json())
+      .then((data) => settableAerosolAmad(data))
+      .then((data) => {  lastId = 0;} ); 
+  }, [])
+
+  
+  useEffect(() => {
+    fetch(`/data_source`)
+      .then((data) => data.json())
+      .then((data) => settableDataSource(data))
+      .then((data) => {  lastId = 0;} ); 
+  }, [])
+
+
+
 /*   useEffect(() => {
     fetch(`/cr_value`)
-      .then((data) => data.json())
+      .then((data) => data.json())SubstForm
       .then((data) => settableCrvalue(data))
       .then((data) => {  lastId = 0;} ); 
   }, [])
@@ -981,7 +1120,10 @@ const DataTableCriterion = (props) => {
        value={valueCrValue || ''} onChange={e => setValueCrValue(e.target.value)}/>
       &nbsp;&nbsp;&nbsp;&nbsp;
 
+      <p></p>
 
+
+    
 
   <Autocomplete
           fullWidth
@@ -1007,6 +1149,389 @@ const DataTableCriterion = (props) => {
             </li>
           )}
         />  
+
+      <p></p>
+
+     
+     <TextField  id="timeend" sx={{ width: '40ch' }} label="Время облучения, сек"  size="small" variant="outlined" 
+       value={valueTimeend || ''} onChange={e => setValueTimeend(e.target.value)}/>
+      &nbsp;&nbsp;&nbsp;&nbsp;
+
+      <p></p>
+
+    <Autocomplete
+          fullWidth
+          sx={{ width: '60ch' }}
+          size="small"
+          disablePortal
+          id="combo-box-action-level"
+          value={tableActionLevel.find((option) => option.id === valueActionLevel) || ''}
+          disableClearable
+          isOptionEqualToValue={(option, value) => option.id === value.id}
+          onChange={(event, newValueAC) => { setValueActionLevel(newValueAC ? newValueAC.id : -1) }}
+          options={tableActionLevel}
+          getOptionLabel={option => option ? option.title : ""}
+          renderInput={(params) => <TextField {...params} label="Уровень вмешательства"  />}
+          renderOption={(props, option) => (
+            <li {...props}>
+              <Tooltip title={option.name_rus}>
+                <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
+                  <span>{option.title}</span>
+                  <span></span>
+                </div>
+              </Tooltip>
+            </li>
+          )}
+        />  
+
+
+<p></p>
+
+
+<Autocomplete
+          fullWidth
+          sx={{ width: '60ch' }}
+          size="small"
+          disablePortal
+          id="combo-box-irradiation"
+          value={tableIrradiation.find((option) => option.id === valueIrradiation) || ''}
+          disableClearable
+          isOptionEqualToValue={(option, value) => option.id === value.id}
+          onChange={(event, newValueAC) => { setValueIrradiation(newValueAC ? newValueAC.id : -1) }}
+          options={tableIrradiation}
+          getOptionLabel={option => option ? option.title : ""}
+          renderInput={(params) => <TextField {...params} label="Тип облучения"  />}
+          renderOption={(props, option) => (
+            <li {...props}>
+              <Tooltip title={option.name_rus}>
+                <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
+                  <span>{option.title}</span>
+                  <span></span>
+                </div>
+              </Tooltip>
+            </li>
+          )}
+        />  
+
+
+<p></p>
+
+
+<Autocomplete
+          fullWidth
+          sx={{ width: '60ch' }}
+          size="small"
+          disablePortal
+          id="combo-box-people-class"
+          value={tablePeopleClass.find((option) => option.id === valuePeopleClass) || ''}
+          disableClearable
+          isOptionEqualToValue={(option, value) => option.id === value.id}
+          onChange={(event, newValueAC) => { setValuePeopleClass(newValueAC ? newValueAC.id : -1) }}
+          options={tablePeopleClass}
+          getOptionLabel={option => option ? option.title : ""}
+          renderInput={(params) => <TextField {...params} label="Тип облучаемых лиц"  />}
+          renderOption={(props, option) => (
+            <li {...props}>
+              <Tooltip title={option.name_rus}>
+                <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
+                  <span>{option.title}</span>
+                  <span></span>
+                </div>
+              </Tooltip>
+            </li>
+          )}
+        />  
+
+<p></p>
+
+
+<Autocomplete
+          fullWidth
+          sx={{ width: '60ch' }}
+          size="small"
+          disablePortal
+          id="combo-box-agegroup"
+          value={tableAgegroup.find((option) => option.id === valueAgegroup) || ''}
+          disableClearable
+          isOptionEqualToValue={(option, value) => option.id === value.id}
+          onChange={(event, newValueAC) => { setValueAgegroup(newValueAC ? newValueAC.id : -1) }}
+          options={tableAgegroup}
+          getOptionLabel={option => option ? option.title : ""}
+          renderInput={(params) => <TextField {...params} label="Возрастная группа населения"  />}
+          renderOption={(props, option) => (
+            <li {...props}>
+              <Tooltip title={option.name_rus}>
+                <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
+                  <span>{option.title}</span>
+                  <span></span>
+                </div>
+              </Tooltip>
+            </li>
+          )}
+        />  
+
+<p></p>
+
+
+<Autocomplete
+          fullWidth
+          sx={{ width: '60ch' }}
+          size="small"
+          disablePortal
+          id="combo-box-exp-scenario"
+          value={tableExpScenario.find((option) => option.id === valueExpScenario) || ''}
+          disableClearable
+          isOptionEqualToValue={(option, value) => option.id === value.id}
+          onChange={(event, newValueAC) => { setValueExpScenario(newValueAC ? newValueAC.id : -1) }}
+          options={tableExpScenario}
+          getOptionLabel={option => option ? option.title : ""}
+          renderInput={(params) => <TextField {...params} label="Сценарий поступления"  />}
+          renderOption={(props, option) => (
+            <li {...props}>
+              <Tooltip title={option.name_rus}>
+                <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
+                  <span>{option.title}</span>
+                  <span></span>
+                </div>
+              </Tooltip>
+            </li>
+          )}
+        />  
+
+<p></p>
+
+
+<Autocomplete
+          fullWidth
+          sx={{ width: '60ch' }}
+          size="small"
+          disablePortal
+          id="combo-box-integral-period"
+          value={tableIntegralPeriod.find((option) => option.id === valueIntegralPeriod) || ''}
+          disableClearable
+          isOptionEqualToValue={(option, value) => option.id === value.id}
+          onChange={(event, newValueAC) => { setValueIntegralPeriod(newValueAC ? newValueAC.id : -1) }}
+          options={tableIntegralPeriod}
+          getOptionLabel={option => option ? option.title : ""}
+          renderInput={(params) => <TextField {...params} label="Период интегрирования"  />}
+          renderOption={(props, option) => (
+            <li {...props}>
+              <Tooltip title={option.name_rus}>
+                <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
+                  <span>{option.title}</span>
+                  <span></span>
+                </div>
+              </Tooltip>
+            </li>
+          )}
+        />  
+
+<p></p>
+
+
+<Autocomplete
+          fullWidth
+          sx={{ width: '60ch' }}
+          size="small"
+          disablePortal
+          id="combo-box-organ"
+          value={tableOrgan.find((option) => option.id === valueOrgan) || ''}
+          disableClearable
+          isOptionEqualToValue={(option, value) => option.id === value.id}
+          onChange={(event, newValueAC) => { setValueOrgan(newValueAC ? newValueAC.id : -1) }}
+          options={tableOrgan}
+          getOptionLabel={option => option ? option.title : ""}
+          renderInput={(params) => <TextField {...params} label="Орган / ткань"  />}
+          renderOption={(props, option) => (
+            <li {...props}>
+              <Tooltip title={option.name_rus}>
+                <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
+                  <span>{option.title}</span>
+                  <span></span>
+                </div>
+              </Tooltip>
+            </li>
+          )}
+        />  
+
+<p></p>
+
+
+<Autocomplete
+          fullWidth
+          sx={{ width: '60ch' }}
+          size="small"
+          disablePortal
+          id="combo-box-isotope"
+          value={tableIsotope.find((option) => option.id === valueIsotope) || ''}
+          disableClearable
+          isOptionEqualToValue={(option, value) => option.id === value.id}
+          onChange={(event, newValueAC) => { setValueIsotope(newValueAC ? newValueAC.id : -1) }}
+          options={tableIsotope}
+          getOptionLabel={option => option ? option.title : ""}
+          renderInput={(params) => <TextField {...params} label="Нуклид"  />}
+          renderOption={(props, option) => (
+            <li {...props}>
+              <Tooltip title={option.name_rus}>
+                <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
+                  <span>{option.title}</span>
+                  <span></span>
+                </div>
+              </Tooltip>
+            </li>
+          )}
+        />  
+
+<p></p>
+
+
+
+<Autocomplete
+          fullWidth
+          sx={{ width: '60ch' }}
+          size="small"
+          disablePortal
+          id="combo-box-subst-form"
+          value={tableSubstForm.find((option) => option.id === valueSubstForm) || ''}
+          disableClearable
+          isOptionEqualToValue={(option, value) => option.id === value.id}
+          onChange={(event, newValueAC) => { setValueSubstForm(newValueAC ? newValueAC.id : -1) }}
+          options={tableSubstForm}
+          getOptionLabel={option => option ? option.title : ""}
+          renderInput={(params) => <TextField {...params} label="Форма вещества"  />}
+          renderOption={(props, option) => (
+            <li {...props}>
+              <Tooltip title={option.name_rus}>
+                <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
+                  <span>{option.title}</span>
+                  <span></span>
+                </div>
+              </Tooltip>
+            </li>
+          )}
+        />  
+
+
+
+<p></p>
+
+
+
+<Autocomplete
+          fullWidth
+          sx={{ width: '60ch' }}
+          size="small"
+          disablePortal
+          id="combo-box-chem-comp-gr"
+          value={tableChemCompGr.find((option) => option.id === valueChemCompGr) || ''}
+          disableClearable
+          isOptionEqualToValue={(option, value) => option.id === value.id}
+          onChange={(event, newValueAC) => { setValueChemCompGr(newValueAC ? newValueAC.id : -1) }}
+          options={tableChemCompGr}
+          getOptionLabel={option => option ? option.title : ""}
+          renderInput={(params) => <TextField {...params} label="Химические соединения (группа)"  />}
+          renderOption={(props, option) => (
+            <li {...props}>
+              <Tooltip title={option.name_rus}>
+                <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
+                  <span>{option.title}</span>
+                  <span></span>
+                </div>
+              </Tooltip>
+            </li>
+          )}
+        />  
+
+
+
+
+<p></p>
+
+
+
+<Autocomplete
+          fullWidth
+          sx={{ width: '60ch' }}
+          size="small"
+          disablePortal
+          id="combo-box-aerosol-sol"
+          value={tableAerosolSol.find((option) => option.id === valueAerosolSol) || ''}
+          disableClearable
+          isOptionEqualToValue={(option, value) => option.id === value.id}
+          onChange={(event, newValueAC) => { setValueAerosolSol(newValueAC ? newValueAC.id : -1) }}
+          options={tableAerosolSol}
+          getOptionLabel={option => option ? option.title : ""}
+          renderInput={(params) => <TextField {...params} label="Тип растворимости"  />}
+          renderOption={(props, option) => (
+            <li {...props}>
+              <Tooltip title={option.name_rus}>
+                <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
+                  <span>{option.title}</span>
+                  <span></span>
+                </div>
+              </Tooltip>
+            </li>
+          )}
+        />  
+
+<p></p>
+
+
+        
+<Autocomplete
+          fullWidth
+          sx={{ width: '60ch' }}
+          size="small"
+          disablePortal
+          id="combo-box-aerosol-amad"
+          value={tableAerosolAmad.find((option) => option.id === valueAerosolAmad) || ''}
+          disableClearable
+          isOptionEqualToValue={(option, value) => option.id === value.id}
+          onChange={(event, newValueAC) => { setValueAerosolAmad(newValueAC ? newValueAC.id : -1) }}
+          options={tableAerosolAmad}
+          getOptionLabel={option => option ? option.title : ""}
+          renderInput={(params) => <TextField {...params} label="AMAD"  />}
+          renderOption={(props, option) => (
+            <li {...props}>
+              <Tooltip title={option.name_rus}>
+                <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
+                  <span>{option.title}</span>
+                  <span></span>
+                </div>
+              </Tooltip>
+            </li>
+          )}
+        />  
+
+<p></p>
+
+        
+<Autocomplete
+          fullWidth
+          sx={{ width: '60ch' }}
+          size="small"
+          disablePortal
+          id="combo-box-data-source"
+          value={tableDataSource.find((option) => option.id === valueDataSource) || ''}
+          disableClearable
+          isOptionEqualToValue={(option, value) => option.id === value.id}
+          onChange={(event, newValueAC) => { setValueDataSource(newValueAC ? newValueAC.id : -1) }}
+          options={tableDataSource}
+          getOptionLabel={option => option ? option.title : ""}
+          renderInput={(params) => <TextField {...params} label="Источник данных" required  />}
+          renderOption={(props, option) => (
+            <li {...props}>
+              <Tooltip title={option.name_rus}>
+                <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
+                  <span>{option.title}</span>
+                  <span></span>
+                </div>
+              </Tooltip>
+            </li>
+          )}
+        />  
+
+
 
 
 
