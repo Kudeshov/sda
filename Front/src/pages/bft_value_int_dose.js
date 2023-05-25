@@ -125,7 +125,7 @@ const BigTableValueIntDose = (props) => {
     selExpScenarioValues: [],
   });
 
-  //примененный фильтр
+  //примененный setApplFlt
   const [applFlt, setApplFlt] = useState({
     selDataSourceValues: [],
     selDoseRatioValue: null,
@@ -579,8 +579,14 @@ const BigTableValueIntDose = (props) => {
 
   // Создаем эффект для вызова reloadData() при изменении состояния фильтра
 useEffect(() => {
+  if ((!applFlt.selDataSourceValues)|| (applFlt.selDataSourceValues.length===0))
+  {
+    setTableValueIntDose([]);
+    return;
+  }  
   const fetchData = async () => {
     try {
+      console.log('reload data');
       await reloadData();
       setOpenAlert(true);
       setIsTableExpanded(true);
@@ -597,6 +603,7 @@ useEffect(() => {
 const reloadDataHandler = async () => {
   if (formRef.current.reportValidity() )
   {  
+    console.log('reloadDataHandler');
     alertSeverity = "info";
     alertText = 'Данные успешно обновлены';
       try {
@@ -1626,14 +1633,133 @@ const reloadDataHandler = async () => {
       <Dialog open={openEdit} onClose={handleCloseEditNo} fullWidth={false} maxWidth="800px">
       <DialogTitle>Редактировать запись, id {valueID}</DialogTitle>  
         <DialogContent style={{height:'480px', width: '700px'}}>
-           <p></p>
+        <p></p>
+        <table border = "0" cellSpacing="0" cellPadding="0"><tbody>
+          <tr>      
+          <td width={348}>      
+          <Autocomplete
+            disabled={true}
+            size="small"  
+            value={tableDoseRatio.find((option) => option.id === valueDoseRatioID)  }
+            onChange={handleChangeDoseRatio}
+            id="autocomplete-dose_ratio"
+            options={ tableDoseRatioFiltered.filter((row) => [1, 2, 8].includes(row.id)) }
+            getOptionLabel={(option) => option.title?option.title:''} 
+            renderInput={(params) => {
+              const inputProps = {
+                ...params.inputProps,
+                value: tableDoseRatioFiltered.length===0 ? "Выбор отсутствует" : params.inputProps.value,
+              };
+              return <TextField {...params} inputProps={inputProps} label="Параметр" placeholder="Параметр" required/>;
+            }}            
+          />
+          </td>
+          <td>
+            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+          </td>
+
+          {
+          
+          !((!currFlt.selDataSourceValues.length)||(!currFlt.selDoseRatioValue)||(![2, 8].includes(currFlt.selDoseRatioValue.id)))
+          &&
+          (    
+            <td width={548}>      
+            <Autocomplete
+            size="small"
+            limitTags={7}
+            value={currFlt.selOrganValues}
+            isOptionEqualToValue={(option, value) => option.id === value.id}
+            onChange={handleChangeOrgan}
+            multiple
+            id="autocomplete-organ"
+            options={tableOrganFiltered}
+            getOptionLabel={(option) => option.name_rus}
+            disableCloseOnSelect
+            renderOption={(props, option, { selected }) => (
+              <li {...props}>
+                <Checkbox size="small" icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected}/>
+                {option.name_rus}
+              </li>
+            )}
+            renderInput={(params) => {
+              const inputProps = {
+                ...params.inputProps,
+                value: tableOrganFiltered.length===0 ? "Выбор отсутствует" : params.inputProps.value,
+              };
+              return <TextField {...params} inputProps={inputProps} label="Органы и ткани" placeholder="Органы и ткани" />;
+            }}            
+            /> 
+            </td>
+          )}
+          {!((!currFlt.selDataSourceValues.length)||(!currFlt.selDoseRatioValue)||(![2, 8].includes(currFlt.selDoseRatioValue.id)))&&(    
+            <td>
+              &nbsp;&nbsp;
+            </td>
+          )}
+          {!((!currFlt.selDataSourceValues.length)||(!currFlt.selDoseRatioValue)||(![2, 8].includes(currFlt.selDoseRatioValue.id)))&&(    
+            <td>        
+              <IconButton onClick={()=>updateCurrentFilter({ selOrganValues: tableOrganFiltered }) } color="primary" size="small" title="Выбрать все">
+              <SvgIcon fontSize="small" component={CheckDoubleIcon} inheritViewBox /></IconButton>
+            </td>
+          )}
+          {!((!currFlt.selDataSourceValues.length)||(!currFlt.selDoseRatioValue)||(![2, 8].includes(currFlt.selDoseRatioValue.id)))&&(    
+            <td>
+              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            </td>
+          )}
+ 
+          {!((!currFlt.selDataSourceValues.length)||(!currFlt.selDoseRatioValue)||(![8].includes(currFlt.selDoseRatioValue.id)) ) && (
+            <td width={348}> 
+            <Autocomplete
+            size="small"
+            limitTags={7}
+            value={currFlt.selLetLevelValues}
+            isOptionEqualToValue={(option, value) => option.id === value.id}
+            onChange={handleChangeLetLevel}
+            multiple
+            id="autocomplete-let_level"
+            options={tableLetLevelFiltered}
+            getOptionLabel={(option) => option.name_rus}
+            disableCloseOnSelect
+            renderOption={(props, option, { selected }) => (
+              <li {...props}>
+                <Checkbox size="small" icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected}/>
+                {option.name_rus}
+              </li>
+            )}
+            renderInput={(params) => {
+              const inputProps = {
+                ...params.inputProps,
+                value: tableLetLevelFiltered.length===0 ? "Выбор отсутствует" : params.inputProps.value,
+              };
+              return <TextField {...params} inputProps={inputProps} label="Уровни ЛПЭ" placeholder="Уровни ЛПЭ" />;
+            }}                 
+            />  
+            </td>
+          )}
+
+          {!((!currFlt.selDataSourceValues.length)||(!currFlt.selDoseRatioValue)||(![8].includes(currFlt.selDoseRatioValue.id)) ) && (
+            <td>
+              &nbsp;&nbsp;
+            </td>
+          )}
+          {!((!currFlt.selDataSourceValues.length)||(!currFlt.selDoseRatioValue)||(![8].includes(currFlt.selDoseRatioValue.id)) ) && (
+            <td>        
+              <IconButton onClick={()=>updateCurrentFilter({ selLetLevelValues: tableLetLevelFiltered }) } color="primary" size="small" title="Выбрать все">
+              <SvgIcon fontSize="small" component={CheckDoubleIcon} inheritViewBox /></IconButton>
+            </td>
+          )}
+          </tr>
+        </tbody></table>  
+
+
+{/*            <p></p>
           <table border = "0" cellSpacing="0" cellPadding="0"><tbody><tr>
           <td>
           <div style={{width: '320px'}}>
           <Autocomplete
             disabled={true}
             size="small"
-            //disabled={ (!currFlt.selDataSourceValues.length) }
             value={tableDoseRatio.find((option) => option.id === valueDoseRatioID)  }
             onChange={(event, newValueAC) => {  console.log('aaa '+newValueAC?newValueAC.id:-1); setValueDoseRatioID(newValueAC?newValueAC.id:-1) } }
             id="autocomplete-dose_ratio_edit"
@@ -1658,7 +1784,25 @@ const reloadDataHandler = async () => {
             )}
           /></div>
           </td>
-          </tr></tbody></table>
+          </tr></tbody></table> */}
+          <p></p>
+          <Autocomplete
+            size="small"
+            disabled={true}
+            value={currFlt.selIrradiationValue}
+            onChange={handleChangeIrradiation}
+            id="autocomplete-irradiation_edit"
+            options={tableIrradiationFiltered.filter((row) => [2,6, 30319, 30316].includes(row.id)) }
+            getOptionLabel={(option) => option.name_rus?option.name_rus:''}
+            renderInput={(params) => {
+              const inputProps = {
+                ...params.inputProps,
+                value: tableIrradiationFiltered.length===0 ? "Выбор отсутствует" : params.inputProps.value,
+              };
+              return <TextField {...params} inputProps={inputProps} label="Тип облучения" placeholder="Тип облучения" required/>;
+            }}                 
+          />          
+
           <p></p>
           <Autocomplete
             size="small"
