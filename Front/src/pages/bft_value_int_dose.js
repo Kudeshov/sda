@@ -48,6 +48,7 @@ import { ReactComponent as DownloadLightIcon } from "./../icons/download.svg";
 import { InputLabel } from "@mui/material";
 import { Select } from "@mui/material";
 import { MenuItem } from "@mui/material"; */
+import Grid from '@mui/material/Grid';
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
@@ -184,6 +185,9 @@ const BigTableValueIntDose = (props) => {
   const [tableExpScenarioFiltered, settableExpScenarioFiltered] = useState([]); //Сценарии поступления
   const [tablePeopleClass, setTablePeopleClass] = useState([]); //Типы облучаемых лиц
   const [tablePeopleClassFiltered, settablePeopleClassFiltered] = useState([]); //Типы облучаемых лиц  
+  //это только для добавления в автокомплит
+  const [tableChemCompGr, setTableChemCompGr] = useState([]);  
+  const [tableChemCompGrFiltered, settableChemCompGrFiltered] = useState([]);  
 
   const [tableValueIntDose, setTableValueIntDose] = useState([]); 
   const [selectionModel, setselectionModel] = React.useState([]);
@@ -210,9 +214,14 @@ const BigTableValueIntDose = (props) => {
     set_people_class_name_rus_visible( applFlt.selPeopleClassValues.length!==1 ); 
     set_subst_form_name_rus_visible( applFlt.selSubstFormValues.length!==1 && applFlt.selIrradiationValue && applFlt.selIrradiationValue.id===2 );
     set_aerosol_sol_name_rus_visible( applFlt.selAerosolSolValues.length!==1 && applFlt.selIrradiationValue && applFlt.selIrradiationValue.id===2 &&
-      applFlt.selSubstFormValues &&  [162].includes(applFlt.selSubstFormValues.id) ); 
-    set_aerosol_amad_name_rus_visible( applFlt.selAerosolAMADValues.length!==1 && applFlt.selIrradiationValue && applFlt.selIrradiationValue.id===2 &&
-      applFlt.selSubstFormValues &&  [162].includes(applFlt.selSubstFormValues.id) ); 
+      applFlt.selSubstFormValues && (applFlt.selSubstFormValues.some(item => item.id === 162)) ); 
+
+/*     console.log('applFlt.selSubstFormValues ');  
+    console.log(applFlt.selSubstFormValues);  
+    console.log([162].includes(applFlt.selSubstFormValues.id));
+    console.log(applFlt.selSubstFormValues.some(item => item.id === 162));  */
+    set_aerosol_amad_name_rus_visible( applFlt.selAerosolAMADValues.length!==1 && applFlt.selIrradiationValue && applFlt.selIrradiationValue.id===2  &&
+      applFlt.selSubstFormValues && (applFlt.selSubstFormValues.some(item => item.id === 162)) ); 
 
 /*       console.log('applFlt.selAgeGroupValues.length' +applFlt.selAgeGroupValues.length);
       console.log('applFlt.selPeopleClassValues');
@@ -303,6 +312,11 @@ const BigTableValueIntDose = (props) => {
     let ids_exp_scenario = tableDataSourceClass.filter(item => ((item.table_name === 'exp_scenario' )&&(ids.includes(item.data_source_id))) ).map(item => item.rec_id);
     let filteredExpScenario = tableExpScenario.filter(item => ((ids_exp_scenario.includes(item.id))) );
     settableExpScenarioFiltered( filteredExpScenario ); 
+
+    let ids_chem_comp_gr = tableDataSourceClass.filter(item => ((item.table_name === 'chem_comp_gr' )&&(ids.includes(item.data_source_id))) ).map(item => item.rec_id);
+    let filteredChemCompGr = tableExpScenario.filter(item => ((ids_chem_comp_gr.includes(item.id))) );
+    settableChemCompGrFiltered( filteredChemCompGr ); 
+
   }, [currFlt.selDataSourceValues, 
       currFlt.selDoseRatioValue, 
       currFlt.selIrradiationValue, 
@@ -354,9 +368,17 @@ const BigTableValueIntDose = (props) => {
   const [valueIsotopeID, setValueIsotopeID] = React.useState();
   const [valueIntegralPeriodID, setValueIntegralPeriodID] = React.useState();
   const [valueOrganID, setValueOrganID] = React.useState();
+  const [valueLetLevelID, setValueLetLevelID] = React.useState();
+
   const [valueAgeGroupID, setValueAgeGroupID] = React.useState();
+  const [valueExpScenarioID, setValueExpScenarioID] = React.useState();
   const [valueDataSourceID, setValueDataSourceID] = React.useState();
   const [valueDrValue, setValueDrValue] = React.useState();
+  const [valueChemCompGrID, setValueChemCompGrID] = React.useState();
+  const [valueSubstFormID, setValueSubstFormID] = React.useState();
+  const [valueAerosolSolID, setValueAerosolSolID] = React.useState();
+  const [valueAerosolAMADID, setValueAerosolAMADID] = React.useState();
+  const [valueUpdateTime, setValueUpdateTime] = React.useState();
 
   const handleRowClick = (params) => {
       setValueID(params.row.id);
@@ -365,9 +387,31 @@ const BigTableValueIntDose = (props) => {
       setValueIsotopeID(params.row.isotope_id);
       setValueIntegralPeriodID(params.row.integral_period_id);
       setValueOrganID(params.row.organ_id);
+      setValueLetLevelID(params.row.let_level_id);
       setValueAgeGroupID(params.row.agegroup_id);
       setValueDataSourceID(params.row.data_source_id);
       setValueDrValue(params.row.dr_value);
+      setValueChemCompGrID(params.row.chem_comp_gr_id);
+      setValueSubstFormID(params.row.subst_form_id);
+      setValueAerosolSolID(params.row.aerosol_sol_id);
+      setValueAerosolAMADID(params.row.aerosol_amad_id);
+      setValueExpScenarioID(params.row.exp_scenario_id);
+
+      let dateStr = params.row.updatetime;
+      let date = new Date(dateStr);
+  
+      let day = String(date.getUTCDate()).padStart(2, '0');
+      let month = String(date.getUTCMonth() + 1).padStart(2, '0'); // Months are 0-based in JavaScript
+      let year = date.getUTCFullYear();
+  
+      let hours = String(date.getUTCHours()).padStart(2, '0');
+      let minutes = String(date.getUTCMinutes()).padStart(2, '0');
+      let seconds = String(date.getUTCSeconds()).padStart(2, '0');
+  
+      let formattedDate = `${day}.${month}.${year} ${hours}:${minutes}:${seconds}`;
+  
+      setValueUpdateTime(formattedDate);      
+      //setValueUpdateTime(params.row.updatetime);
   }; 
 
   // состояния Accordion-а
@@ -521,6 +565,12 @@ const BigTableValueIntDose = (props) => {
     fetch(`/people_class/`)
       .then((data) => data.json())
       .then((data) => setTablePeopleClass(data)); 
+  }, [props.table_name])
+
+  useEffect(() => {
+    fetch(`/chem_comp_gr_min/`)
+      .then((data) => data.json())
+      .then((data) => setTableChemCompGr(data)); 
   }, [props.table_name])
 
   const setFilters = async () => {
@@ -1550,7 +1600,7 @@ const reloadDataHandler = async () => {
                     columns: {
                       //data_source_title: { hidden: true },
                        columnVisibilityModel: {
-                        updatetime: false,
+                        //updatetime: false,
                         external_ds: false,
                         descr: false,
                       },
@@ -1572,7 +1622,7 @@ const reloadDataHandler = async () => {
                     chem_comp_group_name_rus: true, //applFlt.selExpScenarioValues.length!==1,
                     isotope_title: isotope_title_visible,//: applFlt.selIsotopeValues.length!==1,
                     integral_period_name_rus: integral_period_name_rus_visible, //applFlt.selIntegralPeriodValues.length!==1,
-                    updatetime: false,
+                    //updatetime: false,
                   }}
 
                   onRowClick={handleRowClick} {...tableValueIntDose} 
@@ -1632,7 +1682,25 @@ const reloadDataHandler = async () => {
 
       <Dialog open={openEdit} onClose={handleCloseEditNo} fullWidth={false} maxWidth="800px">
       <DialogTitle>Редактировать запись, id {valueID}</DialogTitle>  
-        <DialogContent style={{height:'480px', width: '700px'}}>
+        <DialogContent style={{height:'480px', width: '800px'}}>
+
+{/*         <Grid container spacing={2}>
+      <Grid item xs={12} md={6}>
+        <TextField label="First Name" variant="outlined" fullWidth />
+      </Grid>
+      <Grid item xs={12} md={6}>
+        <TextField label="Last Name" variant="outlined" fullWidth />
+      </Grid>
+      <Grid item xs={12} md={6}>
+        <TextField label="Email" variant="outlined" fullWidth />
+      </Grid>
+      <Grid item xs={12} md={6}>
+        <TextField label="Phone Number" variant="outlined" fullWidth />
+      </Grid>
+      <Grid item xs={12}>
+        <Button variant="contained" color="primary">Save Changes</Button>
+      </Grid>
+    </Grid> */}
         <p></p>
         <table border = "0" cellSpacing="0" cellPadding="0"><tbody>
           <tr>      
@@ -1655,137 +1723,62 @@ const reloadDataHandler = async () => {
           />
           </td>
           <td>
-            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+            &nbsp;&nbsp;&nbsp;&nbsp;
           </td>
 
           {
-          
           !((!currFlt.selDataSourceValues.length)||(!currFlt.selDoseRatioValue)||(![2, 8].includes(currFlt.selDoseRatioValue.id)))
           &&
-          (    
-            <td width={548}>      
+          ( 
+            <>   
+            <td width={548}>    
             <Autocomplete
             size="small"
-            limitTags={7}
-            value={currFlt.selOrganValues}
-            isOptionEqualToValue={(option, value) => option.id === value.id}
-            onChange={handleChangeOrgan}
-            multiple
-            id="autocomplete-organ"
+            value={tableOrganFiltered.find((option) => option.id === valueOrganID)  }
+            id="autocomplete-organ_edit"
             options={tableOrganFiltered}
-            getOptionLabel={(option) => option.name_rus}
-            disableCloseOnSelect
-            renderOption={(props, option, { selected }) => (
-              <li {...props}>
-                <Checkbox size="small" icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected}/>
-                {option.name_rus}
-              </li>
-            )}
+            getOptionLabel={(option) => option.name_rus?option.name_rus:''}
             renderInput={(params) => {
               const inputProps = {
                 ...params.inputProps,
                 value: tableOrganFiltered.length===0 ? "Выбор отсутствует" : params.inputProps.value,
               };
-              return <TextField {...params} inputProps={inputProps} label="Органы и ткани" placeholder="Органы и ткани" />;
-            }}            
-            /> 
+              return <TextField {...params} inputProps={inputProps} label="Органы и ткани" placeholder="Органы и ткани"/>;
+            }}                 
+            />        
             </td>
-          )}
-          {!((!currFlt.selDataSourceValues.length)||(!currFlt.selDoseRatioValue)||(![2, 8].includes(currFlt.selDoseRatioValue.id)))&&(    
             <td>
-              &nbsp;&nbsp;
+            &nbsp;&nbsp;&nbsp;&nbsp;
             </td>
+            </>            
           )}
-          {!((!currFlt.selDataSourceValues.length)||(!currFlt.selDoseRatioValue)||(![2, 8].includes(currFlt.selDoseRatioValue.id)))&&(    
-            <td>        
-              <IconButton onClick={()=>updateCurrentFilter({ selOrganValues: tableOrganFiltered }) } color="primary" size="small" title="Выбрать все">
-              <SvgIcon fontSize="small" component={CheckDoubleIcon} inheritViewBox /></IconButton>
-            </td>
-          )}
-          {!((!currFlt.selDataSourceValues.length)||(!currFlt.selDoseRatioValue)||(![2, 8].includes(currFlt.selDoseRatioValue.id)))&&(    
-            <td>
-              &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
-            </td>
-          )}
- 
+
           {!((!currFlt.selDataSourceValues.length)||(!currFlt.selDoseRatioValue)||(![8].includes(currFlt.selDoseRatioValue.id)) ) && (
             <td width={348}> 
             <Autocomplete
             size="small"
-            limitTags={7}
-            value={currFlt.selLetLevelValues}
-            isOptionEqualToValue={(option, value) => option.id === value.id}
-            onChange={handleChangeLetLevel}
-            multiple
-            id="autocomplete-let_level"
+            value={tableLetLevelFiltered.find((option) => option.id === valueLetLevelID)  }
+            id="autocomplete-let_level_edit"
             options={tableLetLevelFiltered}
-            getOptionLabel={(option) => option.name_rus}
-            disableCloseOnSelect
-            renderOption={(props, option, { selected }) => (
-              <li {...props}>
-                <Checkbox size="small" icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected}/>
-                {option.name_rus}
-              </li>
-            )}
+            getOptionLabel={(option) => option.name_rus?option.name_rus:''}
             renderInput={(params) => {
               const inputProps = {
                 ...params.inputProps,
                 value: tableLetLevelFiltered.length===0 ? "Выбор отсутствует" : params.inputProps.value,
               };
-              return <TextField {...params} inputProps={inputProps} label="Уровни ЛПЭ" placeholder="Уровни ЛПЭ" />;
+              return <TextField {...params} inputProps={inputProps} label="Уровни ЛПЭ" placeholder="Уровни ЛПЭ"/>;
             }}                 
-            />  
-            </td>
-          )}
-
-          {!((!currFlt.selDataSourceValues.length)||(!currFlt.selDoseRatioValue)||(![8].includes(currFlt.selDoseRatioValue.id)) ) && (
-            <td>
-              &nbsp;&nbsp;
-            </td>
-          )}
-          {!((!currFlt.selDataSourceValues.length)||(!currFlt.selDoseRatioValue)||(![8].includes(currFlt.selDoseRatioValue.id)) ) && (
-            <td>        
-              <IconButton onClick={()=>updateCurrentFilter({ selLetLevelValues: tableLetLevelFiltered }) } color="primary" size="small" title="Выбрать все">
-              <SvgIcon fontSize="small" component={CheckDoubleIcon} inheritViewBox /></IconButton>
+            />    
             </td>
           )}
           </tr>
-        </tbody></table>  
+         </tbody></table>  
 
-
-{/*            <p></p>
-          <table border = "0" cellSpacing="0" cellPadding="0"><tbody><tr>
-          <td>
-          <div style={{width: '320px'}}>
-          <Autocomplete
-            disabled={true}
-            size="small"
-            value={tableDoseRatio.find((option) => option.id === valueDoseRatioID)  }
-            onChange={(event, newValueAC) => {  console.log('aaa '+newValueAC?newValueAC.id:-1); setValueDoseRatioID(newValueAC?newValueAC.id:-1) } }
-            id="autocomplete-dose_ratio_edit"
-            options={ tableDoseRatio.filter((row) => [1, 2, 8].includes(row.id)) }
-            getOptionLabel={(option) => option.title}
-            renderInput={(params) => (
-              <TextField {...params} label="Параметр" placeholder="Параметр" />
-            )}
-          /></div>
-          </td><td>&nbsp;&nbsp;&nbsp;
-          </td><td>
-          <div style={{width: '320px'}}><Autocomplete
-            size="small"
-            disabled={ (!currFlt.selDataSourceValues.length) }
-            value={tablePeopleClass.find((option) => option.id === valuePeopleClassID)  }
-            onChange={(event, newValueAC) => { console.log('aaa '+newValueAC?newValueAC.id:-1); setValuePeopleClassID(newValueAC?newValueAC.id:-1) } }
-            id="autocomplete-people_class_edit"
-            options={ tablePeopleClass }
-            getOptionLabel={(option) => option.name_rus}
-            renderInput={(params) => (
-              <TextField {...params} label="Тип облучаемых лиц" placeholder="Тип облучаемых лиц" />
-            )}
-          /></div>
-          </td>
-          </tr></tbody></table> */}
           <p></p>
+
+          <table border = "0" cellSpacing="0" cellPadding="0"><tbody>
+          <tr>      
+          <td width={300}>            
           <Autocomplete
             size="small"
             disabled={true}
@@ -1801,48 +1794,114 @@ const reloadDataHandler = async () => {
               };
               return <TextField {...params} inputProps={inputProps} label="Тип облучения" placeholder="Тип облучения" required/>;
             }}                 
-          />          
+          />    
+          </td>
+          <td>
+            &nbsp;&nbsp;&nbsp;&nbsp;
+          </td>
+          <td width={300}>            
+          <Autocomplete
+            size="small"
+            //disabled={true}
+            value={tableSubstFormFiltered.find((option) => option.id === valueSubstFormID)  }
+            //onChange={handleChangeIrradiation}
+            id="autocomplete-subst_form_edit"
+            options={tableSubstFormFiltered}
+            getOptionLabel={(option) => option.name_rus?option.name_rus:''}
+            renderInput={(params) => {
+              const inputProps = {
+                ...params.inputProps,
+                value: tableSubstFormFiltered.length===0 ? "Выбор отсутствует" : params.inputProps.value,
+              };
+              return <TextField {...params} inputProps={inputProps} label="Формы вещества" placeholder="Тип облучения" required/>;
+            }}                 
+          />   
+          </td>
+          <td>
+            &nbsp;&nbsp;&nbsp;&nbsp;
+          </td>
+          <td width={300}>            
+            <Autocomplete
+              size="small"
+              disabled={ (!currFlt.selDataSourceValues.length) }
+              value={tableChemCompGr.find((option) => option.id === valueChemCompGrID) }
+              onChange={(event, newValueAC) => { console.log('chem_comp_gr_dialog '+newValueAC?newValueAC.id:-1); 
+                setValueChemCompGrID(newValueAC?newValueAC.id:-1) } }
+              id="autocomplete-chem_comp_gr_dialog"
+              options={ tableChemCompGr }
+              getOptionLabel={(option) => option.name_rus}
+              renderInput={(params) => (
+                <TextField {...params} label="Химические соединения (группа)" placeholder="Химические соединения (группа)" />
+              )}
+            />
+          </td>
+        </tr>
+        </tbody></table>  
+        <p></p>
 
-          <p></p>
+        <table border = "0" cellSpacing="0" cellPadding="0"><tbody>
+          <tr>      
+          <td width={400}> 
           <Autocomplete
             size="small"
-            disabled={ (!currFlt.selDataSourceValues.length) }
-            value={tableIsotopeFiltered.find((option) => option.id === valueIsotopeID)  }
-            onChange={(event, newValueAC) => { console.log('aaa '+newValueAC?newValueAC.id:-1); setValueIsotopeID(newValueAC?newValueAC.id:-1) } }
-            id="autocomplete-nuclide_edit"
-            options={ tableIsotope }
-            getOptionLabel={(option) => option.title}
-            renderInput={(params) => (
-              <TextField {...params} label="Нуклид" placeholder="Нуклид" />
-            )}
-          />
-          <p></p>
+            value={tableAerosolSolFiltered.find((option) => option.id === valueAerosolSolID)  }
+            id="autocomplete-aerosol_sol_edit"
+            options={tableAerosolSolFiltered}
+            getOptionLabel={(option) => option.name_rus?option.name_rus:''}
+            renderInput={(params) => {
+              const inputProps = {
+                ...params.inputProps,
+                value: tableAerosolSolFiltered.length===0 ? "Выбор отсутствует" : params.inputProps.value,
+              };
+              return <TextField {...params} inputProps={inputProps} label="Типы растворимости аэрозолей" placeholder="Типы растворимости аэрозолей" required/>;
+            }}                 
+          />        
+          </td>
+          <td>
+            &nbsp;&nbsp;&nbsp;&nbsp;
+          </td>
+          <td width={400}>       
           <Autocomplete
             size="small"
-            disabled={ (!currFlt.selDataSourceValues.length) }
-            value={tableIntegralPeriod.find((option) => option.id === valueIntegralPeriodID)  }
-            onChange={(event, newValueAC) => { console.log('aaa '+newValueAC?newValueAC.id:-1); setValueIntegralPeriodID(newValueAC?newValueAC.id:-1) } }
-            id="autocomplete-integral_period_edit"
-            options={ tableIntegralPeriod }
+            value={tableAerosolAMADFiltered.find((option) => option.id === valueAerosolAMADID)  }
+            id="autocomplete-aerosol_amad_edit"
+            options={tableAerosolAMADFiltered}
+            getOptionLabel={(option) => option.name_rus?option.name_rus:''}
+            renderInput={(params) => {
+              const inputProps = {
+                ...params.inputProps,
+                value: tableAerosolAMADFiltered.length===0 ? "Выбор отсутствует" : params.inputProps.value,
+              };
+              return <TextField {...params} inputProps={inputProps} label="AMAD аэрозолей" placeholder="AMAD аэрозолей" required/>;
+            }}                 
+          />        
+          </td>
+        </tr>
+        </tbody></table>  
+        <p></p>
+
+
+        <table border = "0" cellSpacing="0" cellPadding="0"><tbody>
+          <tr>      
+          <td width={400}> 
+
+        <Autocomplete
+            size="small"
+            //disabled={ (!currFlt.selDataSourceValues.length) }
+            value={tablePeopleClassFiltered.find((option) => option.id === valuePeopleClassID)  }
+            onChange={(event, newValueAC) => { console.log('aaa '+newValueAC?newValueAC.id:-1); setValuePeopleClassID(newValueAC?newValueAC.id:-1) } }
+            id="autocomplete-people_class_edit"
+            options={ tablePeopleClass }
             getOptionLabel={(option) => option.name_rus}
             renderInput={(params) => (
-              <TextField {...params} label="Период интегрирования" placeholder="Период интегрирования" />
+              <TextField {...params} label="Тип облучаемых лиц" placeholder="Тип облучаемых лиц" />
             )}
           />
-          <p></p>
-          <Autocomplete
-            size="small"
-            disabled={ (!currFlt.selDataSourceValues.length) }
-            value={tableOrgan.find((option) => option.id === valueOrganID)  }
-            onChange={(event, newValueAC) => { console.log('aaa '+newValueAC?newValueAC.id:-1); setValueIsotopeID(newValueAC?newValueAC.id:-1) } }
-            id="autocomplete-nuclide_edit"
-            options={ tableOrgan }
-            getOptionLabel={(option) => option.name_rus}
-            renderInput={(params) => (
-              <TextField {...params} label="Орган / ткань" placeholder="Орган / ткань" />
-            )}
-          />
-          <p></p>
+          </td>
+          <td>
+            &nbsp;&nbsp;&nbsp;&nbsp;
+          </td>
+          <td width={400}>  
           <Autocomplete
             size="small"
             disabled={ (!currFlt.selDataSourceValues.length) }
@@ -1855,7 +1914,29 @@ const reloadDataHandler = async () => {
               <TextField {...params} label="Возрастная группа населения" placeholder="Возрастная группа населения" />
             )}
           />
-          <p></p>
+          </td>
+          <td>
+            &nbsp;&nbsp;&nbsp;&nbsp;
+          </td>
+          <td width={400}>          
+          <Autocomplete
+            size="small"
+            value={tableExpScenarioFiltered.find((option) => option.id === valueExpScenarioID)  }
+            onChange={(event, newValueAC) => { console.log('aaa '+newValueAC?newValueAC.id:-1); setValueExpScenarioID(newValueAC?newValueAC.id:-1) } }
+            id="autocomplete-exp_scenario_edit"
+            options={ tableExpScenarioFiltered }
+            getOptionLabel={(option) => option.name_rus}
+            renderInput={(params) => (
+              <TextField {...params} label="Сценарий поступления" placeholder="Сценарий поступления" />
+            )}
+          />
+          </td>
+        </tr>
+        </tbody></table>  
+        <p></p>
+        <table border = "0" cellSpacing="0" cellPadding="0"><tbody>
+          <tr>      
+          <td width={400}> 
           <Autocomplete
             size="small"
             disabled={ (!currFlt.selDataSourceValues.length) }
@@ -1868,16 +1949,61 @@ const reloadDataHandler = async () => {
               <TextField {...params} label="Источник данных" placeholder="Источник данных" />
             )}
           />
+          </td>
+          <td>
+            &nbsp;&nbsp;&nbsp;&nbsp;
+          </td>
+          <td width={400}>
+            <Autocomplete
+            size="small"
+            disabled={ (!currFlt.selDataSourceValues.length) }
+            value={tableIntegralPeriod.find((option) => option.id === valueIntegralPeriodID)  }
+            onChange={(event, newValueAC) => { console.log('aaa '+newValueAC?newValueAC.id:-1); setValueIntegralPeriodID(newValueAC?newValueAC.id:-1) } }
+            id="autocomplete-integral_period_edit"
+            options={ tableIntegralPeriod }
+            getOptionLabel={(option) => option.name_rus}
+            renderInput={(params) => (
+              <TextField {...params} label="Период интегрирования" placeholder="Период интегрирования" />
+            )}
+          />
+          </td>
+        </tr>
+        </tbody></table>  
+
+          <p></p>
+          <Autocomplete
+            size="small"
+            //disabled={ (!currFlt.selDataSourceValues.length) }
+            value={tableIsotope.find((option) => option.id === valueIsotopeID)  }
+            onChange={(event, newValueAC) => { console.log('aaa '+newValueAC?newValueAC.id:-1); setValueIsotopeID(newValueAC?newValueAC.id:-1) } }
+            id="autocomplete-isotope_edit"
+            options={ tableIsotopeFiltered }
+            getOptionLabel={(option) => option.title}
+            renderInput={(params) => (
+              <TextField {...params} label="Нуклид" placeholder="Нуклид" />
+            )}
+          />
           <p></p>
           <TextField
             size="small"
             variant="outlined"
-            id="name_src"
+            id="dr_value_edit"
             label="Значение"
             value={valueDrValue || ''}
             fullWidth
             onChange={e => setValueDrValue(e.target.value)}
-          />          
+          />  
+          <p></p>
+          <TextField
+            size="small"
+            disabled={true}
+            variant="outlined"
+            id="updatetime_edit"
+            label="Дата и время обновления"
+            value={valueUpdateTime || ''}
+            fullWidth
+            onChange={e => setValueUpdateTime(e.target.value)}
+          />                    
           </DialogContent>
         <DialogActions>
           <Button variant="outlined" onClick={handleCloseEditNo}>Отмена</Button>

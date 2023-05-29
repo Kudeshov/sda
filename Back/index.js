@@ -195,6 +195,7 @@ app.get('/chem_comp_gr', (req, res) => {ccg_q.getChemCompGr(req, res, 'chem_comp
 app.put('/chem_comp_gr/:id', (req, res) => {ccg_q.updateChemCompGr(req, res, 'chem_comp_gr')});     //update
 app.post('/chem_comp_gr', (req, res) => {ccg_q.createChemCompGr(req, res, 'chem_comp_gr')});        //create
 app.delete('/chem_comp_gr/:id', (req, res) => {ccg_q.deleteChemCompGr(req, res, 'chem_comp_gr')});  //delete
+app.get('/chem_comp_gr_min', (req, res) => {ccg_q.getChemCompGrMin(req, res, 'chem_comp_gr_min')});            //list for autocomplete
 
 //GENERIC QUERIES on phchform_chelem 
 app.get('/phchform_chelem', (req, res) => {pcm_q.getPhchFormChelem(req, res, 'phchform_chelem')});  //list all

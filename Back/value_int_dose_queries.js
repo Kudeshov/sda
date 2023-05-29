@@ -162,7 +162,7 @@ const updateValueIntDose = (request, response, table_name ) => {
     console.log('dose_ratio_id='+dose_ratio_id);
     client.query(`BEGIN`, err => {
       //if (shouldAbort(err, response)) return;
-      client.query(`UPDATE nucl.value_int_dose SET dose_ratio_id = $1, dr_value=$2 WHERE id = $3`, [dose_ratio_id, dr_value, id], (err, res) => {
+      client.query(`UPDATE nucl.value_int_dose SET dose_ratio_id = $1, dr_value=$2, updatetime = NOW() WHERE id = $3`, [dose_ratio_id, dr_value, id], (err, res) => {
         //if (shouldAbort(err, response)) return;      
         // const { id } = res.rows[0];
         //console.log(`Id = `+id);
