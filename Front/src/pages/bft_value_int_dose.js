@@ -48,7 +48,7 @@ import { ReactComponent as DownloadLightIcon } from "./../icons/download.svg";
 import { InputLabel } from "@mui/material";
 import { Select } from "@mui/material";
 import { MenuItem } from "@mui/material"; */
-import Grid from '@mui/material/Grid';
+//import Grid from '@mui/material/Grid';
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
@@ -159,8 +159,10 @@ const BigTableValueIntDose = (props) => {
   //массивы, содержащие данные для автокомплитов
 
   const [tableDataSource, setTableDataSource] = useState([]); 
+  const [tableDataSourceFilteredEdit, settableDataSourceFilteredEdit] = useState([]); 
   const [tableOrgan, setTableOrgan] = useState([]);
   const [tableOrganFiltered, settableOrganFiltered] = useState([]);
+  const [tableOrganFilteredEdit, settableOrganFilteredEdit] = useState([]); //список органов в окне редактирования записи
   const [tableIrradiation, setTableIrradiation] = useState([]);
   const [tableIrradiationFiltered, settableIrradiationFiltered] = useState([]);  
   
@@ -314,7 +316,7 @@ const BigTableValueIntDose = (props) => {
     settableExpScenarioFiltered( filteredExpScenario ); 
 
     let ids_chem_comp_gr = tableDataSourceClass.filter(item => ((item.table_name === 'chem_comp_gr' )&&(ids.includes(item.data_source_id))) ).map(item => item.rec_id);
-    let filteredChemCompGr = tableExpScenario.filter(item => ((ids_chem_comp_gr.includes(item.id))) );
+    let filteredChemCompGr = tableChemCompGr.filter(item => ((ids_chem_comp_gr.includes(item.id))) );
     settableChemCompGrFiltered( filteredChemCompGr ); 
 
   }, [currFlt.selDataSourceValues, 
@@ -332,7 +334,8 @@ const BigTableValueIntDose = (props) => {
       tableAerosolSol,
       tableLetLevel,
       tableAerosolAMAD,
-      tableExpScenario
+      tableExpScenario,
+      tableChemCompGr
     ]);
  
   //обработчики автокомплитов
@@ -376,6 +379,7 @@ const BigTableValueIntDose = (props) => {
   const [valueDrValue, setValueDrValue] = React.useState();
   const [valueChemCompGrID, setValueChemCompGrID] = React.useState();
   const [valueSubstFormID, setValueSubstFormID] = React.useState();
+  const [valueIrradiationID, setValueIrradiationID] = React.useState();
   const [valueAerosolSolID, setValueAerosolSolID] = React.useState();
   const [valueAerosolAMADID, setValueAerosolAMADID] = React.useState();
   const [valueUpdateTime, setValueUpdateTime] = React.useState();
@@ -396,17 +400,20 @@ const BigTableValueIntDose = (props) => {
       setValueAerosolSolID(params.row.aerosol_sol_id);
       setValueAerosolAMADID(params.row.aerosol_amad_id);
       setValueExpScenarioID(params.row.exp_scenario_id);
+      setValueIrradiationID(params.row.irradiation_id);
+
+      console.log(params.row.irradiation_id);
 
       let dateStr = params.row.updatetime;
       let date = new Date(dateStr);
   
-      let day = String(date.getUTCDate()).padStart(2, '0');
-      let month = String(date.getUTCMonth() + 1).padStart(2, '0'); // Months are 0-based in JavaScript
-      let year = date.getUTCFullYear();
+      let day = String(date.getDate()).padStart(2, '0');
+      let month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based in JavaScript
+      let year = date.getFullYear();
   
-      let hours = String(date.getUTCHours()).padStart(2, '0');
-      let minutes = String(date.getUTCMinutes()).padStart(2, '0');
-      let seconds = String(date.getUTCSeconds()).padStart(2, '0');
+      let hours = String(date.getHours()).padStart(2, '0');
+      let minutes = String(date.getMinutes()).padStart(2, '0');
+      let seconds = String(date.getSeconds()).padStart(2, '0');
   
       let formattedDate = `${day}.${month}.${year} ${hours}:${minutes}:${seconds}`;
   
@@ -425,7 +432,8 @@ const BigTableValueIntDose = (props) => {
     {
     const js = JSON.stringify({
       dose_ratio_id: valueDoseRatioID,
-      dr_value: valueDrValue    
+      dr_value: valueDrValue,
+      chem_comp_gr_id: valueChemCompGrID    
     });
     /*     if (!valueId) {
       addRec();
@@ -649,6 +657,48 @@ useEffect(() => {
 
   fetchData();
 }, [applFlt, reloadData]); // Зависимость от состояния фильтра 
+
+// фильтрация источников данных для окна редактирования 
+// требование спецификации:
+// Список для выбора ограничен значениями, которые имеют связь с выбранным типом облучения irradiation  в таблице data_source_class
+useEffect(() => {
+  if (!valueIrradiationID) 
+    return;
+  const filteredDataSourceClass = tableDataSourceClass.filter(item => item.table_name === 'irradiation' && item.rec_id === valueIrradiationID)
+  const filteredDataSource = tableDataSource.filter(dataSourceItem => filteredDataSourceClass.some(filteredItem => filteredItem.data_source_id === dataSourceItem.id) );
+  settableDataSourceFilteredEdit( filteredDataSource ); 
+
+  //отфильтровать таблицу органов tableOrgan
+/*   console.log(tableOrgan);
+  //let ids_organ = tableDataSourceClass.filter(item => ((item.table_name === 'organ' )&&(filteredDataSource.includes(item.data_source_id))) ).map(item => item.rec_id);
+  //let filteredOrgan = tableOrgan.filter(item => ((ids_organ.includes(item.id))) );
+  const filteredTableOrgan = tableOrgan.filter(organItem => 
+    tableDataSourceClass.some(dataSourceClassItem => 
+      dataSourceClassItem.table_name === 'organ' &&
+      dataSourceClassItem.rec_id === organItem.id && 
+      filteredDataSource.some(filteredItem => filteredItem.id === dataSourceClassItem.data_source_id)
+    )
+  );
+  settableOrganFilteredEdit( filteredTableOrgan );    */  
+
+}, [valueIrradiationID, tableDataSource, tableDataSourceClass, tableOrgan]);
+
+
+useEffect(() => {
+  if (!valueDataSourceID) 
+    return;
+  //отфильтровать таблицу органов tableOrgan
+  const filteredTableOrgan = tableOrgan.filter(organItem => 
+    tableDataSourceClass.some(dataSourceClassItem => 
+      dataSourceClassItem.table_name === 'organ' &&
+      dataSourceClassItem.rec_id === organItem.id && 
+      dataSourceClassItem.data_source_id === valueDataSourceID
+    )
+  );
+  settableOrganFilteredEdit( filteredTableOrgan );     
+}, [valueDataSourceID, tableDataSourceClass, tableOrgan]);
+ 
+ 
 
 const reloadDataHandler = async () => {
   if (formRef.current.reportValidity() )
@@ -1734,14 +1784,14 @@ const reloadDataHandler = async () => {
             <td width={548}>    
             <Autocomplete
             size="small"
-            value={tableOrganFiltered.find((option) => option.id === valueOrganID)  }
+            value={tableOrganFilteredEdit.find((option) => option.id === valueOrganID)  }
             id="autocomplete-organ_edit"
-            options={tableOrganFiltered}
+            options={tableOrganFilteredEdit}
             getOptionLabel={(option) => option.name_rus?option.name_rus:''}
             renderInput={(params) => {
               const inputProps = {
                 ...params.inputProps,
-                value: tableOrganFiltered.length===0 ? "Выбор отсутствует" : params.inputProps.value,
+                value: tableOrganFilteredEdit.length===0 ? "Выбор отсутствует" : params.inputProps.value,
               };
               return <TextField {...params} inputProps={inputProps} label="Органы и ткани" placeholder="Органы и ткани"/>;
             }}                 
@@ -1782,8 +1832,8 @@ const reloadDataHandler = async () => {
           <Autocomplete
             size="small"
             disabled={true}
-            value={currFlt.selIrradiationValue}
-            onChange={handleChangeIrradiation}
+            value={tableIrradiation.find((option) => option.id === valueIrradiationID) }
+            onChange={(event, newValueAC) => { setValueIrradiationID(newValueAC?newValueAC.id:-1) } }
             id="autocomplete-irradiation_edit"
             options={tableIrradiationFiltered.filter((row) => [2,6, 30319, 30316].includes(row.id)) }
             getOptionLabel={(option) => option.name_rus?option.name_rus:''}
@@ -1803,7 +1853,7 @@ const reloadDataHandler = async () => {
           <Autocomplete
             size="small"
             //disabled={true}
-            value={tableSubstFormFiltered.find((option) => option.id === valueSubstFormID)  }
+            value={tableSubstFormFiltered.find((option) => option.id === valueSubstFormID) }
             //onChange={handleChangeIrradiation}
             id="autocomplete-subst_form_edit"
             options={tableSubstFormFiltered}
@@ -1813,7 +1863,7 @@ const reloadDataHandler = async () => {
                 ...params.inputProps,
                 value: tableSubstFormFiltered.length===0 ? "Выбор отсутствует" : params.inputProps.value,
               };
-              return <TextField {...params} inputProps={inputProps} label="Формы вещества" placeholder="Тип облучения" required/>;
+              return <TextField {...params} inputProps={inputProps} label="Формы вещества" placeholder="Формы вещества" required/>;
             }}                 
           />   
           </td>
@@ -1824,11 +1874,11 @@ const reloadDataHandler = async () => {
             <Autocomplete
               size="small"
               disabled={ (!currFlt.selDataSourceValues.length) }
-              value={tableChemCompGr.find((option) => option.id === valueChemCompGrID) }
+              value={tableChemCompGrFiltered.find((option) => option.id === valueChemCompGrID) }
               onChange={(event, newValueAC) => { console.log('chem_comp_gr_dialog '+newValueAC?newValueAC.id:-1); 
                 setValueChemCompGrID(newValueAC?newValueAC.id:-1) } }
               id="autocomplete-chem_comp_gr_dialog"
-              options={ tableChemCompGr }
+              options={ tableChemCompGrFiltered }
               getOptionLabel={(option) => option.name_rus}
               renderInput={(params) => (
                 <TextField {...params} label="Химические соединения (группа)" placeholder="Химические соединения (группа)" />
@@ -1940,10 +1990,10 @@ const reloadDataHandler = async () => {
           <Autocomplete
             size="small"
             disabled={ (!currFlt.selDataSourceValues.length) }
-            value={tableDataSource.find((option) => option.id === valueDataSourceID) }
+            value={tableDataSourceFilteredEdit.find((option) => option.id === valueDataSourceID) }
             onChange={(event, newValueAC) => { console.log('data_source_edit '+newValueAC?newValueAC.id:-1); setValueDataSourceID(newValueAC?newValueAC.id:-1) } }
             id="autocomplete-data_source_edit"
-            options={ tableDataSource }
+            options={ tableDataSourceFilteredEdit }
             getOptionLabel={(option) => option.title}
             renderInput={(params) => (
               <TextField {...params} label="Источник данных" placeholder="Источник данных" />
@@ -1958,7 +2008,7 @@ const reloadDataHandler = async () => {
             size="small"
             disabled={ (!currFlt.selDataSourceValues.length) }
             value={tableIntegralPeriod.find((option) => option.id === valueIntegralPeriodID)  }
-            onChange={(event, newValueAC) => { console.log('aaa '+newValueAC?newValueAC.id:-1); setValueIntegralPeriodID(newValueAC?newValueAC.id:-1) } }
+            onChange={(event, newValueAC) => { setValueIntegralPeriodID(newValueAC?newValueAC.id:-1) } }
             id="autocomplete-integral_period_edit"
             options={ tableIntegralPeriod }
             getOptionLabel={(option) => option.name_rus}
@@ -1975,7 +2025,7 @@ const reloadDataHandler = async () => {
             size="small"
             //disabled={ (!currFlt.selDataSourceValues.length) }
             value={tableIsotope.find((option) => option.id === valueIsotopeID)  }
-            onChange={(event, newValueAC) => { console.log('aaa '+newValueAC?newValueAC.id:-1); setValueIsotopeID(newValueAC?newValueAC.id:-1) } }
+            onChange={(event, newValueAC) => { setValueIsotopeID(newValueAC?newValueAC.id:-1) } }
             id="autocomplete-isotope_edit"
             options={ tableIsotopeFiltered }
             getOptionLabel={(option) => option.title}
