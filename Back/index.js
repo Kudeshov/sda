@@ -234,6 +234,9 @@ app.put('/nuclide/:id', (req, res) => {nuc_q.updateNuclide(req, res, 'nuclide')}
 
 //QUERIES on criterion 
 app.get('/criterion', (req, res) => {cr_q.getCriterion(req, res, 'criterion')});    //list all
+app.post('/criterion', (req, res) => {cr_q.createCriterion(req, res, 'criterion')});       //create
+app.put('/criterion/:id', (req, res) => {cr_q.updateCriterion(req, res, 'criterion')}); //update
+app.delete('/criterion/:id', (req, res) => {cr_q.deleteCriterion(req, res, 'criterion')});  //delete 
 
 
 //QUERIES on isotope_decay 
