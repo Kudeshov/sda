@@ -39,6 +39,21 @@ const getChemCompGr = (request, response ) => {
   })
 }
 
+const getChemCompGrMin = (request, response ) => {
+  pool.query(` SELECT ccg.id as id,  
+  ccgn1.name name_rus 
+  FROM nucl.chem_comp_gr ccg  
+  left join nucl.chem_comp_gr_nls ccgn1 on ccg.id=ccgn1.chem_comp_gr_id and ccgn1.lang_id=1  
+  left join nucl.chem_comp_gr_nls ccgn2 on ccg.id=ccgn2.chem_comp_gr_id and ccgn2.lang_id=2 
+  order by name_rus `, (error, results) => {
+    if (error) {
+      throw error
+    }
+    response.status(200).json(results.rows)
+  })
+}
+
+
 
 const createChemCompGr = (request, response, table_name )=> {
   pool.connect((err, client, done) => {
@@ -247,5 +262,6 @@ module.exports = {
   getChemCompGr,
   updateChemCompGr,
   createChemCompGr,
-  deleteChemCompGr
+  deleteChemCompGr,
+  getChemCompGrMin
 }

@@ -157,12 +157,15 @@ const updateValueIntDose = (request, response, table_name ) => {
     } */
     //id
     const id = parseInt(request.params.id);
-    const { dose_ratio_id, dr_value } = request.body;
+    const { dose_ratio_id, dr_value, chem_comp_gr_id } = request.body;
     console.log('dr_value='+dr_value);
     console.log('dose_ratio_id='+dose_ratio_id);
+    console.log('chem_comp_gr_id='+chem_comp_gr_id);
+    
     client.query(`BEGIN`, err => {
       //if (shouldAbort(err, response)) return;
-      client.query(`UPDATE nucl.value_int_dose SET dose_ratio_id = $1, dr_value=$2 WHERE id = $3`, [dose_ratio_id, dr_value, id], (err, res) => {
+      client.query(`UPDATE nucl.value_int_dose SET dose_ratio_id = $1, dr_value=$2, updatetime = NOW(),
+        chem_comp_gr_id=$3 WHERE id = $4`, [dose_ratio_id, dr_value, chem_comp_gr_id, id], (err, res) => {
         //if (shouldAbort(err, response)) return;      
         // const { id } = res.rows[0];
         //console.log(`Id = `+id);
