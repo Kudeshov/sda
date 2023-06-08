@@ -731,7 +731,7 @@ function CustomToolbar1() {
             columnVisibilityModel: {
               //half_life_value: false,
               //decayconst: false,
-              half_life_period: false,
+              half_life_period: true,
             },
           },
         }}        
