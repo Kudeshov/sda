@@ -922,12 +922,12 @@ const handleCloseDSInfo = () => {
             <table border = "0" cellSpacing={0} cellPadding={0} style={{ height: 110, width: 886, verticalAlign: 'top' }}><tbody><tr>
             <td style={{ height: 110, width: 787, verticalAlign: 'top' }}>
 
-            <TextField  id="ch_parameters" sx={{ width: '100ch' }} label="Параметры функции"  size="small" multiline rows={4} variant="outlined" value={valueParameters || ''} onChange={e => setValueParameters(e.target.value)}/>
+            <TextField  id="ch_parameters" sx={{ width: '100ch' }} label="Параметры функции"  size="small" multiline rows={4} variant="outlined" value={valueParameters || ''} onChange={e => setValueParameters(e.target.value)}   disabled/>
             </td>
             <td style={{ height: 110, width: 100, verticalAlign: 'top' }}>
 
             &nbsp;<input accept="text/xml" id="icon-button-file" type="file" style={{ display: 'none' }} onChange={handleFileChange}/>
-            <label htmlFor="icon-button-file">
+           {/*  <label htmlFor="icon-button-file">
               <IconButton color="primary" aria-label="upload xml file" component="span" size="small" title="Поиск и загрузка файла *.xml">
                 <SvgIcon fontSize="small" component={FileImportLightIcon} inheritViewBox/>
               </IconButton>
@@ -937,7 +937,7 @@ const handleCloseDSInfo = () => {
             <IconButton onClick={()=>{setValueParameters("")}} color="primary" size="small" title="Очистить">
               <SvgIcon fontSize="small" component={EraserLightIcon} inheritViewBox /></IconButton>
             </label>
-            <br/>
+            <br/> */}
             &nbsp;<label htmlFor="icon-button-file1">
             <IconButton onClick={()=>{handleClickView()}} color="primary" size="small" title="Информация">
               <SvgIcon fontSize="small" component={DownloadLightIcon} inheritViewBox /></IconButton>
