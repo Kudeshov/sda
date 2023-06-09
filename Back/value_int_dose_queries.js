@@ -18,8 +18,8 @@ pool.on(`error`, function (err, client) {
 });
 
 const getValueIntDose = (request, response ) => {
-  console.log('getValueIntDose');
-  console.log(request.query);
+  //console.log('getValueIntDose');
+  //console.log(request.query);
   var page = request.query.page || 1;
   var pagesize = request.query.pagesize || 100;
   var data_source_id = "";
@@ -64,8 +64,8 @@ const getValueIntDose = (request, response ) => {
   people_class_id = people_class_id || "";
 
   //console.log(data_source_id+ ' ' + organ_id);
-  console.log( ' page = ' + page); 
-  console.log( ' page = ' + page); 
+  //console.log( ' page = ' + page); 
+  //console.log( ' page = ' + page); 
   var select_fields = 'select vid.*, ds.title as "data_source_title", o_nls.name as "organ_name_rus", '+
     'in2.name as "irradiation_name_rus", i.title as "isotope_title", ip.name as "integral_period_name_rus", '+
     'dr.title  as "dose_ratio_title", lln."name" as "let_level_name_rus", an.name as "agegroup_name_rus",  '+
@@ -118,7 +118,7 @@ const getValueIntDose = (request, response ) => {
     `limit 1000 offset (${page}-1)*${pagesize}`;
     //`limit ${pagesize} offset (${page}-1)*${pagesize}`;
 
-  console.log(s_query);
+  //console.log(s_query);
   pool.query( s_query, (error, results) => {
     if(error) {
         return console.error('error running query', error);
@@ -158,9 +158,9 @@ const updateValueIntDose = (request, response, table_name ) => {
     //id
     const id = parseInt(request.params.id);
     const { dose_ratio_id, dr_value, chem_comp_gr_id } = request.body;
-    console.log('dr_value='+dr_value);
-    console.log('dose_ratio_id='+dose_ratio_id);
-    console.log('chem_comp_gr_id='+chem_comp_gr_id);
+    //console.log('dr_value='+dr_value);
+    //console.log('dose_ratio_id='+dose_ratio_id);
+    //console.log('chem_comp_gr_id='+chem_comp_gr_id);
     
     client.query(`BEGIN`, err => {
       //if (shouldAbort(err, response)) return;
@@ -198,8 +198,89 @@ const updateValueIntDose = (request, response, table_name ) => {
   })
 }
 
+const createValueIntDose = (request, response, table_name )=> {
+  pool.connect((err, client, done) => {
+    const shouldAbort = (err, response) => {
+      if (err) {
+        console.error(`Ошибка создания записи`, err.message)
+        const { errormsg } = err.message;
+        console.error(`Rollback`)
+        client.query(`ROLLBACK`, err => {
+          console.error(`Rollback прошел`)
+          if (err) {
+            console.error(`Ошибка при откате транзакции`)
+            response.status(400).send(`Ошибка при откате транзакции`);
+            return;
+          }
+          else {
+            console.error(`Транзакция отменена`)
+          }
+        })
+        response.status(400).send(`Ошибка: ` + err.message);
+        // release the client back to the pool
+        done()
+      }
+      return !!err
+    }
+
+    const { dose_ratio_id, dr_value, chem_comp_gr_id, people_class_id, isotope_id, integral_period_id, organ_id, 
+      let_level_id, agegroup_id, data_source_id, subst_form_id, aerosol_sol_id, aerosol_amad_id, exp_scenario_id, 
+      irradiation_id } = request.body;
+
+    console.log(request.body);
+
+    client.query(`BEGIN`, err => {
+      if (shouldAbort(err, response)) return;
+
+      client.query(`INSERT INTO nucl.value_int_dose (dose_ratio_id, dr_value, chem_comp_gr_id, people_class_id, 
+         isotope_id, integral_period_id, organ_id, let_level_id, agegroup_id, data_source_id, subst_form_id, 
+         aerosol_sol_id, aerosol_amad_id, exp_scenario_id, irradiation_id) 
+         VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15) RETURNING id`, 
+         [dose_ratio_id, dr_value, chem_comp_gr_id, people_class_id, isotope_id, integral_period_id, organ_id, 
+          let_level_id, agegroup_id, data_source_id, subst_form_id, aerosol_sol_id, aerosol_amad_id, exp_scenario_id, 
+          irradiation_id], (err, res) => {
+ 
+      //client.query(`INSERT INTO public.${table_name}( title ) VALUES ($1) RETURNING id`, [title], (err, res) => {
+        if (shouldAbort(err, response)) return;      
+        //const { id } = res.rows[0];
+        //console.log(`Id = `+id);
+        const { id } = -1;
+        if (res.rows.length > 0) {
+          const { id } = res.rows[0];
+          console.log(`Id = ` + id);
+           
+        } else {
+          console.log('Ошибка: Пустой результат запроса.');
+        }
+/*        client.query(`INSERT INTO public.${table_name}_nls( name, fullname, ${table_name}_id, lang_id ) `+
+                  `VALUES ($1, $2, $3, 1)`, [name_rus, id], (err, res) => {
+          if (shouldAbort(err, response)) return;
+          client.query(`INSERT INTO public.${table_name}_nls( name, fullname, ${table_name}_id, lang_id ) `+
+          `VALUES ($1, $2, $3, 2)`, [name_eng, id], (err, res) => {
+            if (shouldAbort(err, response)) return;
+            console.log(`начинаем Commit`);     */ 
+            client.query(`COMMIT`, err => {
+              if (err) {
+                console.error(`Ошибка при подтверждении транзакции`, err.stack);
+                response.status(400).send(`Ошибка при подтверждении транзакции`, err.stack);
+              }
+              else {
+                console.log(`Запись с кодом ${id} добавлена`); 
+                //response.status(201).send(`Запись с кодом ${id} добавлена`);
+                response.status(201).json({id: `${id}`}); 
+              }
+              done()
+            })
+/*           }); 
+        }); */
+      })
+    })
+  })
+}
+
 
 module.exports = {
   getValueIntDose,
-  updateValueIntDose
+  updateValueIntDose,
+  createValueIntDose
 }
