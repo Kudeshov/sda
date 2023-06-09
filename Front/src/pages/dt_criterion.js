@@ -331,6 +331,22 @@ const DataTableCriterion = (props) => {
       setValueDescrEngInitial(res[0].descr_eng);
       setValueParentIDInitial(res[0].parent_id||-1); 
       setValueNormativInitial(res[0].normativ_id);      
+      setValueCalcfunctionID(res[0].calcfunction_id);
+      setValueIrradiation(res[0].irradiation_id);
+      setValueAgegroup(res[0].agegroup_id);
+      setValueExpScenario(res[0].exp_scenario_id);
+      setValueIntegralPeriod(res[0].integral_period_id);
+      setValueOrgan(res[0].organ_id);
+      setValueDataSource(res[0].data_source_id);
+      setValueAerosolAmad(res[0].aerosol_amad_id);
+      setValueAerosolSol(res[0].aerosol_sol_id);
+      setValueChemCompGr(res[0].chem_comp_gr_id);
+      setValueSubstForm(res[0].subst_form_id);
+      setValueIsotope(res[0].isotope_id);
+      setValueActionLevel(res[0].action_level_id);
+      setValuePeopleClass(res[0].people_class_id);
+      setValueCrValue(res[0].cr_value);
+      setValueTimeend(res[0].timeend);
     }; 
 
     //console.log( 'selected = ' + selected + ' tableData.length ' + tableData.length );
@@ -542,9 +558,8 @@ const DataTableCriterion = (props) => {
     if (formRef.current.reportValidity() )
     {
 
+    console.log('valueParentID = ' + valueParentID)
 
-    let myParentID;
-    myParentID = valueParentID === -1 ? null : valueParentID;  
     const js = JSON.stringify({
       id: valueId,
       title: valueTitle,
@@ -552,8 +567,23 @@ const DataTableCriterion = (props) => {
       name_eng: valueNameEng,
       descr_rus: valueDescrRus,
       descr_eng: valueDescrEng,
-      parent_id: myParentID,    
-      normativ_id: valueNormativ     
+      criterion_gr_id: valueParentID, 
+      calcfunction_id: valueCalcfunctionID,
+      irradiation_id: valueIrradiation,
+      agegroup_id: valueAgegroup,
+      exp_scenario_id: valueExpScenario,
+      integral_period_id: valueIntegralPeriod,
+      organ_id: valueOrgan,
+      data_source_id: valueDataSource,
+      aerosol_amad_id: valueAerosolAmad,
+      aerosol_sol_id: valueAerosolSol,
+      chem_comp_gr_id: valueChemCompGr,
+      subst_form_id: valueSubstForm,
+      isotope_id: valueIsotope,
+      action_level_id: valueActionLevel,
+      people_class_id: valuePeopleClass,
+      cr_value: valueCrValue,
+      timeend: valueTimeend
     });
 
     if (!valueId) {
@@ -597,6 +627,7 @@ const DataTableCriterion = (props) => {
        setValueDescrEngInitial(valueDescrEng);    
        setValueParentIDInitial(valueParentID);
        setValueNormativInitial(valueNormativ);
+
      }
     reloadData();     
    }
@@ -613,8 +644,23 @@ const DataTableCriterion = (props) => {
       name_eng: valueNameEng,
       descr_rus: valueDescrRus,
       descr_eng: valueDescrEng,
-      parent_id: myParentID,
-      normativ_id: valueNormativ        
+      criterion_gr_id: valueParentID,   
+      calcfunction_id: valueCalcfunctionID,
+      irradiation_id: valueIrradiation,
+      agegroup_id: valueAgegroup,
+      exp_scenario_id: valueExpScenario,
+      integral_period_id: valueIntegralPeriod,
+      organ_id: valueOrgan,
+      data_source_id: valueDataSource,
+      aerosol_amad_id: valueAerosolAmad,
+      aerosol_sol_id: valueAerosolSol,
+      chem_comp_gr_id: valueChemCompGr,
+      subst_form_id: valueSubstForm,
+      isotope_id: valueIsotope,
+      action_level_id: valueActionLevel,
+      people_class_id: valuePeopleClass,
+      cr_value: valueCrValue,
+      timeend: valueTimeend 
     });
     setIsLoading("true");
     try {
@@ -655,7 +701,24 @@ const DataTableCriterion = (props) => {
         setValueDescrRusInitial(valueDescrRus);
         setValueDescrEngInitial(valueDescrEng);    
         setValueParentIDInitial(valueParentID);
-        setValueNormativInitial(valueNormativ);        
+        setValueNormativInitial(valueNormativ);     
+        setValueCalcfunctionID(valueCalcfunctionID);
+        setValueIrradiation(valueIrradiation);
+        setValueAgegroup(valueAgegroup);
+        setValueExpScenario(valueExpScenario);
+        setValueIntegralPeriod(valueIntegralPeriod);
+        setValueOrgan(valueOrgan);
+        setValueDataSource(valueDataSource);
+        setValueAerosolAmad(valueAerosolAmad);
+        setValueAerosolSol(valueAerosolSol);
+        setValueChemCompGr(valueChemCompGr);
+        setValueSubstForm(valueSubstForm);
+        setValueIsotope(valueIsotope);
+        setValueActionLevel(valueActionLevel);
+        setValuePeopleClass(valuePeopleClass);
+        setValueCrValue(valueCrValue);
+        setValueTimeend(valueTimeend);
+           
         setOpenAlert(true);  
       }
     } catch (err) {
@@ -713,6 +776,22 @@ const DataTableCriterion = (props) => {
         setValueParentIDInitial(tableData[0].parent_id||-1);
         setValueNormativ(tableData[0].normativ_id);
         setValueNormativInitial(tableData[0].normativ_id);
+        setValueCalcfunctionID(tableData[0].calcfunction_id);
+        setValueIrradiation(tableData[0].irradiation_id);
+        setValueAgegroup(tableData[0].agegroup_id);
+        setValueExpScenario(tableData[0].exp_scenario_id);
+        setValueIntegralPeriod(tableData[0].integral_period_id);
+        setValueOrgan(tableData[0].organ_id);
+        setValueDataSource(tableData[0].data_source_id);
+        setValueAerosolAmad(tableData[0].aerosol_amad_id);
+        setValueAerosolSol(tableData[0].aerosol_sol_id);
+        setValueChemCompGr(tableData[0].chem_comp_gr_id);
+        setValueSubstForm(tableData[0].subst_form_id);
+        setValueIsotope(tableData[0].isotope_id);
+        setValueActionLevel(tableData[0].action_level_id);
+        setValuePeopleClass(tableData[0].people_class_id);
+        setValueCrValue(tableData[0].cr_value);
+        setValueTimeend(tableData[0].timeend);
       }
     } catch (err) {
       alertText = err.message;
@@ -808,7 +887,25 @@ const DataTableCriterion = (props) => {
     setValueDescrRusInitial(res[0].descr_rus);
     setValueDescrEngInitial(res[0].descr_eng);
     setValueParentIDInitial(res[0].parent_id||-1); 
-    setValueNormativInitial(res[0].normativ_id);      
+    setValueNormativInitial(res[0].normativ_id);     
+    setValueCalcfunctionID(res[0].calcfunction_id);
+    setValueIrradiation(res[0].irradiation_id);
+    setValueAgegroup(res[0].agegroup_id);
+    setValueExpScenario(res[0].exp_scenario_id);
+    setValueIntegralPeriod(res[0].integral_period_id);
+    setValueOrgan(res[0].organ_id);
+    setValueDataSource(res[0].data_source_id);
+    setValueAerosolAmad(res[0].aerosol_amad_id);
+    setValueAerosolSol(res[0].aerosol_sol_id);
+    setValueChemCompGr(res[0].chem_comp_gr_id);
+    setValueSubstForm(res[0].subst_form_id);
+    setValueIsotope(res[0].isotope_id);
+    setValueActionLevel(res[0].action_level_id);
+    setValuePeopleClass(res[0].people_class_id);
+    setValueCrValue(res[0].cr_value);
+    setValueTimeend(res[0].timeend);
+    
+     
   }; 
 
   const handleCloseSaveNo = () => {
@@ -864,6 +961,23 @@ const DataTableCriterion = (props) => {
       setValueParentIDInitial(selectedRowData[0].parent_id||-1);
       setValueNormativ(selectedRowData[0].normativ_id);
       setValueNormativInitial(selectedRowData[0].normativ_id);
+
+      setValueCalcfunctionID(selectedRowData[0].calcfunction_id);
+      setValueIrradiation(selectedRowData[0].irradiation_id);
+      setValueAgegroup(selectedRowData[0].agegroup_id);
+      setValueExpScenario(selectedRowData[0].exp_scenario_id);
+      setValueIntegralPeriod(selectedRowData[0].integral_period_id);
+      setValueOrgan(selectedRowData[0].organ_id);
+      setValueDataSource(selectedRowData[0].data_source_id);
+      setValueAerosolAmad(selectedRowData[0].aerosol_amad_id);
+      setValueAerosolSol(selectedRowData[0].aerosol_sol_id);
+      setValueChemCompGr(selectedRowData[0].chem_comp_gr_id);
+      setValueSubstForm(selectedRowData[0].subst_form_id);
+      setValueIsotope(selectedRowData[0].isotope_id);
+      setValueActionLevel(selectedRowData[0].action_level_id);
+      setValuePeopleClass(selectedRowData[0].people_class_id);
+      setValueCrValue(selectedRowData[0].cr_value);
+      setValueTimeend(selectedRowData[0].timeend);
       
 
     }

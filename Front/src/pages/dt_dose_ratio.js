@@ -36,6 +36,8 @@ import { ReactComponent as EditLightIcon } from "./../icons/edit.svg";
 import { table_names } from './sda_types';
 import Autocomplete from '@mui/material/Autocomplete';
 import { ReactComponent as InfoLightIcon } from "./../icons/info.svg";
+import Link from '@mui/material/Link';
+import { saveAs } from 'file-saver';
 
 var alertText = "Сообщение";
 var alertSeverity = "info";
@@ -559,20 +561,49 @@ const handleCloseDSInfo = () => {
   const [openDel, setOpenDel] = React.useState(false); 
   const [openSave, setOpenSave] = React.useState(false); 
   const [openSaveWhenNew, setOpenSaveWhenNew] = React.useState(false); 
-  const [openEdit, setOpenEdit] = React.useState(false);
+  const [openEdit, setOpenView] = React.useState(false);
     
-  const handleClickEdit = () => {
+/*   const handleClickView = () => {
     setValueParametersDialog(valueParameters);
-    setOpenEdit(true);
+    setOpenView(true);
+  }; */
+
+  const handleClickView = () => {
+    const xmlContent = valueParameters; // Переменная с содержимым файла XML
+    //const xmlData = encodeURIComponent(xmlContent); // Кодируем содержимое файла
+  
+    const blob = new Blob([xmlContent], { type: 'text/xml;charset=utf-8' });
+    saveAs(blob, 'file.xml');
   };
 
-  const handleClickEditYes = () => {
+  const xmlContent = valueParameters; // Переменная с содержимым файла XML
+  const xmlData = encodeURIComponent(xmlContent); // Кодируем содержимое файла
+
+  const fileUrl = `data:text/xml;charset=utf-8,${xmlData}`;
+
+/*   const insertXmlLink = (xmlContent) => {
+    const xmlData = encodeURIComponent(xmlContent); // Кодируем содержимое файла
+  
+    const fileUrl = `data:text/xml;charset=utf-8,${xmlData}`;
+  
+    const link = document.createElement('a');
+    link.href = fileUrl;
+    link.innerText = 'Открыть файл XML';
+    link.target = '_blank';
+  
+    const parentElement = document.getElementById('parentElementId'); // Замените 'parentElementId' на идентификатор родительского элемента
+  
+    // Вставляем ссылку на файл XML перед TextField
+    parentElement.insertBefore(link, parentElement.firstChild);
+  }; */
+
+  const handleClickViewYes = () => {
     setValueParameters(valueParametersDialog);
-    setOpenEdit(false);
+    setOpenView(false);
   };
 
-  const handleClickEditNo = () => {
-    setOpenEdit(false);
+  const handleClickViewNo = () => {
+    setOpenView(false);
   };
 
   const handleClickDelete = () => {
@@ -890,12 +921,13 @@ const handleCloseDSInfo = () => {
 
             <table border = "0" cellSpacing={0} cellPadding={0} style={{ height: 110, width: 886, verticalAlign: 'top' }}><tbody><tr>
             <td style={{ height: 110, width: 787, verticalAlign: 'top' }}>
-            <TextField  id="ch_parameters" sx={{ width: '100ch' }} label="Параметры функции"  size="small" multiline rows={4} variant="outlined" value={valueParameters || ''} onChange={e => setValueParameters(e.target.value)}/>
+
+            <TextField  id="ch_parameters" sx={{ width: '100ch' }} label="Параметры функции"  size="small" multiline rows={4} variant="outlined" value={valueParameters || ''} onChange={e => setValueParameters(e.target.value)}   disabled/>
             </td>
             <td style={{ height: 110, width: 100, verticalAlign: 'top' }}>
 
             &nbsp;<input accept="text/xml" id="icon-button-file" type="file" style={{ display: 'none' }} onChange={handleFileChange}/>
-            <label htmlFor="icon-button-file">
+           {/*  <label htmlFor="icon-button-file">
               <IconButton color="primary" aria-label="upload xml file" component="span" size="small" title="Поиск и загрузка файла *.xml">
                 <SvgIcon fontSize="small" component={FileImportLightIcon} inheritViewBox/>
               </IconButton>
@@ -905,13 +937,16 @@ const handleCloseDSInfo = () => {
             <IconButton onClick={()=>{setValueParameters("")}} color="primary" size="small" title="Очистить">
               <SvgIcon fontSize="small" component={EraserLightIcon} inheritViewBox /></IconButton>
             </label>
-            <br/>
+            <br/> */}
             &nbsp;<label htmlFor="icon-button-file1">
-            <IconButton onClick={()=>{handleClickEdit()}} color="primary" size="small" title="Редактировать">
-              <SvgIcon fontSize="small" component={EditLightIcon} inheritViewBox /></IconButton>
+            <IconButton onClick={()=>{handleClickView()}} color="primary" size="small" title="Информация">
+              <SvgIcon fontSize="small" component={DownloadLightIcon} inheritViewBox /></IconButton>
             </label></td></tr>
             </tbody></table>
             <p></p>
+             
+
+
             <FormControl sx={{ width: '40ch' }} size="small">
             <InputLabel id="type"  >Используется расчетным модулем</InputLabel>
               <Select labelId="type" id="type1"  label="Используется расчетным модулем"  defaultValue={true}  value={valueUsed} onChange={e => setValueUsed(e.target.value)}>
@@ -930,6 +965,8 @@ const handleCloseDSInfo = () => {
         } 
       })()}
       </div>
+
+          
 
       <table border = "0" cellSpacing={0} cellPadding={0}><tbody>
       <tr>
@@ -1009,7 +1046,7 @@ const handleCloseDSInfo = () => {
       </DialogActions>
   </Dialog>
 
-  <Dialog open={openEdit} onClose={handleClickEditNo} maxWidth="700">
+  <Dialog open={openEdit} onClose={handleClickViewNo} maxWidth="700">
       <DialogTitle>
           Параметры функции
       </DialogTitle>
@@ -1019,8 +1056,8 @@ const handleCloseDSInfo = () => {
           </DialogContentText>
       </DialogContent>
       <DialogActions>
-          <Button variant="outlined" onClick={handleClickEditNo} autoFocus>Нет</Button>
-          <Button variant="outlined" onClick={handleClickEditYes} >Да</Button>
+          <Button variant="outlined" onClick={handleClickViewNo} autoFocus>Нет</Button>
+          <Button variant="outlined" onClick={handleClickViewYes} >Да</Button>
       </DialogActions>
   </Dialog>  
  
