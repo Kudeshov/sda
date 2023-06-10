@@ -251,8 +251,7 @@ app.get('/nuclide', (req, res) => {nuc_q.getNuclide(req, res, 'nuclide')});
 app.get('/value_int_dose', (req, res) => {vid_q.getValueIntDose(req, res, 'value_int_dose')}); 
 app.put('/value_int_dose/:id', (req, res) => {vid_q.updateValueIntDose(req, res, 'value_int_dose')}); //update
 app.post('/value_int_dose', (req, res) => {vid_q.createValueIntDose(req, res, 'value_int_dose')});    //create
-
-
+app.delete('/value_int_dose/:id', (req, res) => {vid_q.deleteValueIntDose(req, res, 'value_int_dose')});  //delete 
 
 /* var allowCrossDomain = function(req, res, next) {
     res.header('Access-Control-Allow-Origin', "*");

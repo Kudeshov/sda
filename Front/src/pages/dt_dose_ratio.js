@@ -30,14 +30,15 @@ import { Select } from "@mui/material";
 import { MenuItem } from "@mui/material";
 import { FormControl } from "@mui/material";
 import { InputLabel } from "@mui/material";
-import { ReactComponent as FileImportLightIcon } from "./../icons/file-import.svg";
+/* import { ReactComponent as FileImportLightIcon } from "./../icons/file-import.svg";
 import { ReactComponent as EraserLightIcon } from "./../icons/eraser.svg";
 import { ReactComponent as EditLightIcon } from "./../icons/edit.svg";
+ */
 import { table_names } from './sda_types';
 import Autocomplete from '@mui/material/Autocomplete';
 import { ReactComponent as InfoLightIcon } from "./../icons/info.svg";
-import Link from '@mui/material/Link';
-import { saveAs } from 'file-saver';
+//import Link from '@mui/material/Link';
+//import { saveAs } from 'file-saver';
 
 var alertText = "Сообщение";
 var alertSeverity = "info";
@@ -568,18 +569,30 @@ const handleCloseDSInfo = () => {
     setOpenView(true);
   }; */
 
-  const handleClickView = () => {
+/*   const handleClickView = () => {
     const xmlContent = valueParameters; // Переменная с содержимым файла XML
     //const xmlData = encodeURIComponent(xmlContent); // Кодируем содержимое файла
   
     const blob = new Blob([xmlContent], { type: 'text/xml;charset=utf-8' });
     saveAs(blob, 'file.xml');
+  }; */
+
+  const handleClickView = () => {
+    const xmlContent = valueParameters; // Переменная с содержимым файла XML
+  
+    const blob = new Blob([xmlContent], { type: 'text/xml;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+  
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', '.xml');
+    link.style.visibility = 'hidden';
+  
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
-  const xmlContent = valueParameters; // Переменная с содержимым файла XML
-  const xmlData = encodeURIComponent(xmlContent); // Кодируем содержимое файла
-
-  const fileUrl = `data:text/xml;charset=utf-8,${xmlData}`;
 
 /*   const insertXmlLink = (xmlContent) => {
     const xmlData = encodeURIComponent(xmlContent); // Кодируем содержимое файла

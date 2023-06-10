@@ -501,10 +501,6 @@ const DataTableDataSource = (props) => {
         <IconButton onClick={()=>handleExport({ delimiter: ';', utf8WithBom: true, getRowsToExport: () => gridFilteredSortedRowIdsSelector(apiRef) })} color="primary" 
             size="small" title="Сохранить в формате CSV">
           <SvgIcon fontSize="small" component={DownloadLightIcon} inheritViewBox /></IconButton>
-{/*     <IconButton onClick={()=>handleScrollToRow(valueId)} color="primary" size="small" title="Переместиться на строку 1">
-          <SvgIcon fontSize="small" component={RepeatLightIcon} inheritViewBox /></IconButton> 
-        <IconButton onClick={()=>handleScrollToRow(valueId)} color="primary" size="small" title="Переместиться на строку 0">
-          <SvgIcon fontSize="small" component={RepeatLightIcon} inheritViewBox /></IconButton>*/}
       </GridToolbarContainer>
     );
   }

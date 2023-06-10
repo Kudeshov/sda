@@ -13,6 +13,7 @@ import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
+import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { Box, IconButton } from '@mui/material';
 import Alert from '@mui/material/Alert';
@@ -60,6 +61,48 @@ let alertSeverity = "info";
 
 const BigTableValueIntDose = (props) => {
   const apiRef = useGridApiRef(); // init DataGrid API for scrolling
+  const [tableValueIntDose, setTableValueIntDose] = useState([]); 
+  const [rowSelectionModel, setRowSelectionModel] = React.useState([]);
+
+  // Scrolling and positionning
+  const [paginationModel, setPaginationModel] = React.useState({
+    pageSize: 25,
+    page: 0,
+  });
+
+/*   useEffect(() => {
+    console.log(paginationModel.page);
+  }, [paginationModel]); */
+
+  const handleScrollToRow = React.useCallback((v_id) => {
+    const sortedRowIds = apiRef.current.getSortedRowIds(); //получаем список отсортированных строк грида
+    const index = sortedRowIds.indexOf(parseInt(v_id));    //ищем в нем номер нужной записи
+    if (index !== -1) {
+      const pageSize = paginationModel.pageSize; // определяем текущую страницу и индекс строки в этой странице
+      const currentPage = paginationModel.page;
+      const rowPageIndex = Math.floor(index / pageSize);
+      if (currentPage !== rowPageIndex) { // проверяем, нужно ли изменять страницу
+        apiRef.current.setPage(rowPageIndex);
+      }
+      setRowSelectionModel([v_id]); //это устанавливает фокус на выбранной строке (подсветка)
+      setTimeout(function() {       //делаем таймаут в 0.1 секунды, иначе скроллинг тупит
+        apiRef.current.scrollToIndexes({ rowIndex: index, colIndex: 0 });
+      }, 100);
+    }
+  }, [apiRef, paginationModel, setRowSelectionModel]);
+
+  const scrollToIndexRef = React.useRef(null); //тут хранится значение (айди) добавленной записи
+  useEffect(() => {
+    //событие, которое вызовет скроллинг грида после изменения данных в tableValueIntDose
+    if (!scrollToIndexRef.current) return; //если значение не указано, то ничего не делаем
+    if (scrollToIndexRef.current===-1) return;
+    if (!isRecordAdded) return;
+    // console.log('scrollToIndex index '+ scrollToIndexRef.current);
+    handleScrollToRow(scrollToIndexRef.current);
+    handleRowClick({ row: tableValueIntDose.find(row => row.id === scrollToIndexRef.current) });
+    scrollToIndexRef.current = null; //обнуляем значение
+    setRecordAdded(false); // Сбрасываем флаг после использования
+  }, [tableValueIntDose, handleScrollToRow]);
 
    const [pageState/* , setPageState */] = useState({
     page: 0,
@@ -198,8 +241,8 @@ const BigTableValueIntDose = (props) => {
       {  
         newState.selExpScenarioValues = [];
       }
-      console.log('Newstate');
-      console.log(newState);
+/*       console.log('Newstate');
+      console.log(newState); */
 
       // Возвращаем новый объект, который будет новым состоянием
       return newState;
@@ -242,7 +285,8 @@ const BigTableValueIntDose = (props) => {
   const [tableChemCompGr, setTableChemCompGr] = useState([]);  
   //const [tableChemCompGrFiltered, settableChemCompGrFiltered] = useState([]);  
 
-  const [tableValueIntDose, setTableValueIntDose] = useState([]); 
+
+
   const [selectionModel, setselectionModel] = React.useState([]);
   const [tableDataSourceClass, setTableDataSourceClass] = useState([]);
 
@@ -257,11 +301,34 @@ const BigTableValueIntDose = (props) => {
   const [isotope_title_visible, set_isotope_title_visible] = useState(true);
   const [integral_period_name_rus_visible, set_integral_period_name_rus_visible] = useState(true);
 
+  const [isRecordAdded, setRecordAdded] = useState(false);
+
+/*   useEffect(() => {
+    if (isRecordAdded && tableValueIntDose && tableValueIntDose.length > 0) {
+      scrollToIndexRef.current = Math.max(...tableValueIntDose.map(item => item.id));
+      console.log('scrollToIndexRef.current');
+      console.log(scrollToIndexRef.current);
+      setRecordAdded(false); // Сбрасываем флаг после использования
+    }
+  }, [isRecordAdded, tableValueIntDose]); */
+
 //  { field: 'isotope_title', headerName: 'Нуклид', width: 100 },
 //  { field: 'integral_period_name_rus', headerName: 'Период интегрирования', width: 200 },
 
+useEffect(() => { //для перемещения на нужную позицию после загрузки грида
+  if ((!isLoading) && (tableValueIntDose) && (tableValueIntDose.length)) {
+    if (!scrollToIndexRef) 
+    {
+      scrollToIndexRef.current = tableValueIntDose[0].id;
+/*       console.log('setRowSelectionModel scrollToIndexRef.current = '+tableValueIntDose[0].id); */
+      setRowSelectionModel([tableValueIntDose[0].id]);
+      handleRowClick({ row: tableValueIntDose.find(row => row.id === scrollToIndexRef.current) });
+      //setValueID(tableValueIntDose[0].id);
+    }
+  }
+  }, [ isLoading, tableValueIntDose] );
+
   useEffect(() => {
-    console.log('applFlt');
     set_organ_name_rus_visible( applFlt.selOrganValues.length!==1 && applFlt.selDoseRatioValue && [2, 8].includes(applFlt.selDoseRatioValue.id) ); 
     set_let_level_name_rus_visible( applFlt.selLetLevelValues.length!==1 && applFlt.selDoseRatioValue && [8].includes(applFlt.selDoseRatioValue.id) ); 
     set_people_class_name_rus_visible( applFlt.selPeopleClassValues.length!==1 ); 
@@ -384,7 +451,7 @@ const BigTableValueIntDose = (props) => {
       filteredExpScenario.some((filteredValue) => filteredValue.id === value.id));
     updateCurrentFilter({ selExpScenarioValues: newExpScenarioValues });
  
-
+// eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currFlt.selDataSourceValues, 
       currFlt.selDoseRatioValue, 
       currFlt.selIrradiationValue,
@@ -423,6 +490,7 @@ const BigTableValueIntDose = (props) => {
 
   // переменные, относящиеся к редактированию данных в таблице
   const [openEdit, setOpenEdit] = React.useState(false);
+  const [openDel, setOpenDel] = React.useState(false); 
 
   const handleClickEditNew = () => {
     setValueID(null);
@@ -437,16 +505,33 @@ const BigTableValueIntDose = (props) => {
     setOpenEdit(true);
   };
   const handleCloseEditYes = () => {
-    setOpenEdit(false);
-    saveRec();
+    if (formRefDialog.current.reportValidity() )
+    {    
+      saveRec();
+      setOpenEdit(false);
+    }
   };
   const handleCloseEditNo = () => {
     if (valueIDInitial)
     {
-      const originalRow = tableValueIntDose.find(row => row.id === valueIDInitial);
-      handleRowClick({ row: originalRow });
+      handleRowClick({ row: tableValueIntDose.find(row => row.id === valueIDInitial) });
+      //const originalRow = tableValueIntDose.find(row => row.id === valueIDInitial);
+      //handleRowClick({ row: originalRow });
     }
     setOpenEdit(false);
+  };
+
+  const handleClickDelete = () => {
+    setOpenDel(true);
+  };
+
+  const handleCloseDelNo = () => {
+    setOpenDel(false);
+  };
+
+  const handleCloseDelYes = () => {
+    setOpenDel(false);
+    delRec();
   };
 
   const [valueID, setValueID] = React.useState();
@@ -469,6 +554,18 @@ const BigTableValueIntDose = (props) => {
   const [valueAerosolAMADID, setValueAerosolAMADID] = React.useState();
   const [valueUpdateTime, setValueUpdateTime] = React.useState();
 
+
+  const formatDate = (dateStr) => {
+    let date = new Date(dateStr);
+    let day = String(date.getDate()).padStart(2, '0');
+    let month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based in JavaScript
+    let year = date.getFullYear();
+    let hours = String(date.getHours()).padStart(2, '0');
+    let minutes = String(date.getMinutes()).padStart(2, '0');
+    let seconds = String(date.getSeconds()).padStart(2, '0');
+    return `${day}.${month}.${year} ${hours}:${minutes}:${seconds}`;
+  }
+
   const handleRowClick = (params) => {
       setValueID(params.row.id);
       setValueIDInitial(params.row.id);
@@ -489,22 +586,7 @@ const BigTableValueIntDose = (props) => {
       setValueIrradiationID(params.row.irradiation_id);
 
       console.log(params.row.irradiation_id);
-
-      let dateStr = params.row.updatetime;
-      let date = new Date(dateStr);
-  
-      let day = String(date.getDate()).padStart(2, '0');
-      let month = String(date.getMonth() + 1).padStart(2, '0'); // Months are 0-based in JavaScript
-      let year = date.getFullYear();
-  
-      let hours = String(date.getHours()).padStart(2, '0');
-      let minutes = String(date.getMinutes()).padStart(2, '0');
-      let seconds = String(date.getSeconds()).padStart(2, '0');
-  
-      let formattedDate = `${day}.${month}.${year} ${hours}:${minutes}:${seconds}`;
-  
-      setValueUpdateTime(formattedDate);      
-      //setValueUpdateTime(params.row.updatetime);
+      setValueUpdateTime( formatDate(params.row.updatetime) );//formattedDate);      
   }; 
 
   // состояния Accordion-а
@@ -514,7 +596,7 @@ const BigTableValueIntDose = (props) => {
   ///////////////////////////////////////////////////////////////////  SAVE  /////////////////////
   const saveRec = async ( fromToolbar ) => {
 
-    if (formRef.current.reportValidity() )
+    if (formRefDialog.current.reportValidity() )
     {
     const js = JSON.stringify({
       dose_ratio_id: valueDoseRatioID,
@@ -597,10 +679,11 @@ const addRec = async ()  => {
     else
     {
       alertSeverity = "success";
-      const { id } = await response.json();
-      alertText = `Добавлена запись с кодом ${id}`;
+      //const { id } = await response.json();
+      alertText = `Запись добавлена`;//`Добавлена запись с кодом ${scrollToIndexRef.current}`; //
       //lastId = id;          
       //setValueID(lastId);
+      setRecordAdded(true);
       setOpenAlert(true);  
     }
   } catch (err) {
@@ -610,10 +693,13 @@ const addRec = async ()  => {
   } finally {
     setIsLoading(false);
     reloadData();
-    //setRowSelectionModel([lastId]);
-    //scrollToIndexRef.current = lastId;  
-    //setValueTitle(valueTitle);
-
+   // setRecordAdded(true);
+/*     if (tableValueIntDose && tableValueIntDose.length > 0) {
+      scrollToIndexRef.current = Math.max(...tableValueIntDose.map(item => item.id));
+      console.log('scrollToIndexRef.current');
+      console.log(scrollToIndexRef.current);
+    }
+    console.log('---------scrollToIndexRef'); */
     if (valueIDInitial)
     {
       const originalRow = tableValueIntDose.find(row => row.id === valueIDInitial);
@@ -649,6 +735,8 @@ const delRec =  async () => {
       alertText = await response.text();
       setOpenAlert(true); 
       reloadData();
+      if (tableValueIntDose && tableValueIntDose.length > 0) 
+        handleRowClick({ row: tableValueIntDose.find(row => row.id === tableValueIntDose[0].id) });
       //setRowSelectionModel([tableData[0].id ]);  
     }
   } catch (err) {
@@ -659,7 +747,6 @@ const delRec =  async () => {
     setIsLoading(false);
   }
 };  
-
 
   // загрузка справочников   
   useEffect( () => {
@@ -817,6 +904,11 @@ const delRec =  async () => {
         {  
           const result = await response.json();
           setTableValueIntDose(result);
+          if (result && result.length > 0) {
+            scrollToIndexRef.current = Math.max(...result.map(item => item.id));
+            console.log('result scrollToIndexRef.current');
+            console.log(scrollToIndexRef.current);
+          }
         }
       } catch (err) {
         throw err;
@@ -858,6 +950,7 @@ useEffect(() => {
   const filteredDataSource = tableDataSource.filter(dataSourceItem => filteredDataSourceClass.some(filteredItem => filteredItem.data_source_id === dataSourceItem.id) );
   settableDataSourceFilteredEdit( filteredDataSource ); 
 }, [valueIrradiationID, tableDataSource, tableDataSourceClass, tableOrgan]);
+
 
 
 /* useEffect(() => {
@@ -940,12 +1033,14 @@ const reloadDataHandler = async () => {
     //try {
       console.log('reloadDataHandler');
       alertSeverity = "info";
-      alertText = 'Данные успешно обновлены';
-        try {
+      alertText = 'Данные успешно загружены';
+      try {
         await applyFilter();
-      } catch (e) {
+        
+      } 
+      catch (e) {
         alertSeverity = "error";
-        alertText = 'Ошибка при обновлении данных: ' + e.message;
+        alertText = 'Ошибка при загрузке данных данных: ' + e.message;
         setOpenAlert(true);
         return;
       }
@@ -1072,38 +1167,36 @@ const reloadDataHandler = async () => {
     const handleExport = (options) => {
       const { delimiter, utf8WithBom, getRowsToExport } = options;
       const rows = getRowsToExport();//gridFilteredSortedRowIdsSelector(apiRef);
-      //const visibleColumns = apiRef.current.getAllColumns().filter((column) => column.isVisible());
-      
-      /* const visibleColumns = apiRef.current.getAllColumns().filter(
-        (column) => apiRef.current.getColumnState(column.field).hide !== true
-      ); */
       const visibleColumns = apiRef.current.getVisibleColumns();
       const columnNames = visibleColumns.map((column) => column.headerName);
       const columnHeaders = columnNames.map((name) => `"${name}"`).join(delimiter);
-    
+
       if (!Array.isArray(rows) || rows.length === 0) {
         console.error('No rows to export.');
         return;
       }
-      
       const filterCaption = GetFilterCaption();
-      console.log(filterCaption);
       const csvFilterCaption = formatFilterCaption(filterCaption);
-      console.log(csvFilterCaption);
-      const customText = csvFilterCaption; //filterCaption ? renderToString(filterCaption) : ''; //csvFilterCaption; // Add your custom text here
-      
+      const customText = csvFilterCaption; 
       const dataToExport = rows.map((row) => {
         const rowData = tableValueIntDose.find((item) => item.id === row);
         if (rowData) {
-          const valuesToExport = visibleColumns.map((column) => rowData[column.field]);
-          const sanitizedValues = valuesToExport.map((cell) => {
-            return cell !== null && cell !== undefined ? `"${cell}"` : '""';
-          });
-          return sanitizedValues.join(delimiter);
+            const valuesToExport = visibleColumns.map((column) => {
+                let cell = rowData[column.field];
+                // If the column is 'updatetime' and the cell is not null or undefined, format the date.
+                if (column.field === 'updatetime' && cell !== null && cell !== undefined) {
+                    cell = formatDate(cell);
+                }
+                return cell;
+            });
+            const sanitizedValues = valuesToExport.map((cell) => {
+                return cell !== null && cell !== undefined ? `"${cell}"` : '""';
+            });
+            return sanitizedValues.join(delimiter);
         }
         return '';
-      });
-      
+      });      
+
       const csvContent = [customText, columnHeaders, ...dataToExport].join('\n');
       const csvData = utf8WithBom ? '\uFEFF' + csvContent : csvContent;
       
@@ -1112,7 +1205,7 @@ const reloadDataHandler = async () => {
       
       const link = document.createElement('a');
       link.setAttribute('href', url);
-      link.setAttribute('download', table_names[props.table_name]+'.csv'); //filename: table_names[props.table_name],
+      link.setAttribute('download', table_names[props.table_name]+'.csv'); 
       link.style.visibility = 'hidden';
       
       document.body.appendChild(link);
@@ -1123,38 +1216,32 @@ const reloadDataHandler = async () => {
 
     return(
       <GridToolbarContainer>
-        <IconButton onClick={()=>handleClickEditNew()} color="primary" size="small" title="Создать запись">
+        <IconButton onClick={()=>handleClickEditNew()} disabled={(!valueID || !tableValueIntDose || tableValueIntDose.length === 0 )} color="primary" size="small" title="Создать запись">
           <SvgIcon fontSize="small" component={PlusLightIcon} inheritViewBox /></IconButton>
 
-        <IconButton onClick={()=>handleClickEdit()} color="primary" size="small" title="Редактировать запись">
+        <IconButton onClick={()=>handleClickEdit()} disabled={(!valueID || !tableValueIntDose || tableValueIntDose.length === 0 )} color="primary" size="small" title="Редактировать запись">
           <SvgIcon fontSize="small" component={EditLightIcon} inheritViewBox /></IconButton> 
 
-{/*         <IconButton  color="primary" size="small" title="Сохранить запись в БД">
-          <SvgIcon fontSize="small" component={SaveLightIcon} inheritViewBox/></IconButton> */}
-        <IconButton /* onClick={()=>handleClickDelete()} */  color="primary" size="small" title="Удалить запись">
+        <IconButton onClick={()=>handleClickDelete()} disabled={(!valueID || !tableValueIntDose || tableValueIntDose.length === 0 )} color="primary" size="small" title="Удалить запись">
           <SvgIcon fontSize="small" component={TrashLightIcon} inheritViewBox /></IconButton>
-{/*         <IconButton   color="primary" size="small" title="Отменить редактирование">
-          <SvgIcon fontSize="small" component={UndoLightIcon} inheritViewBox /></IconButton> */}
-        <IconButton onClick={()=>reloadData()} color="primary" size="small" title="Обновить данные">
-          <SvgIcon fontSize="small" component={RepeatLightIcon} inheritViewBox /></IconButton>
 
-{/*          <IconButton onClick={()=>handleExport({ delimiter: ';', getRowsToExport: () => gridFilteredSortedRowIdsSelector(apiRef) })} color="primary" 
-            size="small" title="Сохранить в формате CSV">
-          <SvgIcon fontSize="small" component={DownloadLightIcon} inheritViewBox /></IconButton>   
- */}
-          <IconButton
-            onClick={() =>
-              handleExport({
-                delimiter: ';',
-                utf8WithBom: true,
-                getRowsToExport: () => gridFilteredSortedRowIdsSelector(apiRef),
-              })
-            }
-            color="primary"
-            size="small"
-            title="Сохранить в формате CSV"
-          >
-            <SvgIcon fontSize="small" component={DownloadLightIcon} inheritViewBox />
+        <IconButton onClick={()=>reloadDataHandler()} color="primary" size="small" title="Обновить данные">
+          <SvgIcon fontSize="small" component={RepeatLightIcon} inheritViewBox /></IconButton>
+        {/* тут кастомное сохранение в CSV - добавлен заголовок */}
+        <IconButton
+          onClick={() =>
+            handleExport({
+              delimiter: ';',
+              utf8WithBom: true,
+              getRowsToExport: () => gridFilteredSortedRowIdsSelector(apiRef),
+            })
+          }
+          color="primary"
+          size="small"
+          disabled={( !tableValueIntDose || tableValueIntDose.length === 0 )}
+          title="Сохранить в формате CSV"
+        >
+          <SvgIcon fontSize="small" component={DownloadLightIcon} inheritViewBox />
           </IconButton>          
       </GridToolbarContainer>
     );
@@ -1228,6 +1315,7 @@ const reloadDataHandler = async () => {
   }
 
   const formRef = React.useRef();
+  const formRefDialog = React.useRef();
 
   // основной генератор страницы
   return (
@@ -1950,10 +2038,16 @@ const reloadDataHandler = async () => {
                   rows={tableValueIntDose}
                   columns={columnsValueIntDose}
                   apiRef={apiRef}
+                  paginationModel={paginationModel}
+                  onPaginationModelChange={setPaginationModel}
                   onSelectionModelChange={(newSelectionModel) => {
                     setselectionModel(newSelectionModel);
                   }}
-                  selectionModel={selectionModel}        
+                  selectionModel={selectionModel}     
+                  onRowSelectionModelChange={(newRowSelectionModel) => {
+                    setRowSelectionModel(newRowSelectionModel);
+                  }}
+                  rowSelectionModel={rowSelectionModel}
                   initialState={{
                     columns: {
                       //data_source_title: { hidden: true },
@@ -2036,6 +2130,8 @@ const reloadDataHandler = async () => {
       <DialogTitle>{valueID !== null ? `Редактировать запись, id ${valueID}` : "Добавить запись"}</DialogTitle>
       <Divider />
         <DialogContent style={{height:'480px', width: '940px'}}>
+
+        <form ref={formRefDialog}> 
         <table border = "0" cellSpacing="0" cellPadding="0"><tbody>
           <tr>      
           <td style={{ width: '290px'}}>      
@@ -2173,7 +2269,7 @@ const reloadDataHandler = async () => {
                   ...params.inputProps,
                   value: tableSubstFormFilteredEdit.length===0 ? "Выбор отсутствует" : params.inputProps.value,
                 };
-                return <TextField {...params} inputProps={inputProps} label="Химическое соединение (группа)" placeholder="Химическое соединение (группа)" required/>;
+                return <TextField {...params} inputProps={inputProps} label="Химическое соединение (группа)" placeholder="Химическое соединение (группа)" />;
               }}                  
             />
           </td>
@@ -2375,6 +2471,7 @@ const reloadDataHandler = async () => {
             variant="outlined"
             id="dr_value_edit"
             label="Значение"
+            required
             value={valueDrValue || ''}
             fullWidth
             onChange={e => setValueDrValue(e.target.value)}
@@ -2396,7 +2493,8 @@ const reloadDataHandler = async () => {
           />
         </td>
         </tr>
-        </tbody></table>                      
+        </tbody></table>
+        </form>                      
           </DialogContent>
         <DialogActions>
           <Button variant="outlined" onClick={handleCloseEditNo}>Отмена</Button>
@@ -2404,13 +2502,13 @@ const reloadDataHandler = async () => {
         </DialogActions>
       </Dialog>
 
- {/* <Dialog open={openDel} onClose={handleCloseDelNo} fullWidth={true}>
+  <Dialog open={openDel} onClose={handleCloseDelNo} fullWidth={true}>
       <DialogTitle>
           Внимание
       </DialogTitle>
       <DialogContent>
           <DialogContentText>
-          В таблице "{table_names[props.table_name]}" предложена к удалению следующая запись:<p></p><b>{valueTitle}</b>; Код в БД = <b>{valueId}</b><p></p>
+          В таблице "{table_names[props.table_name]}" предложена к удалению  запись:<p></p>Код в БД = <b>{valueID}</b><p></p>
           Вы желаете удалить указанную запись?
           </DialogContentText>
       </DialogContent>
@@ -2419,7 +2517,7 @@ const reloadDataHandler = async () => {
           <Button variant="outlined" onClick={handleCloseDelYes} >Да</Button>
       </DialogActions>
   </Dialog>
- 
+  {/*
    <Dialog open={openSave} onClose={handleCloseSaveNo} fullWidth={true}>
     <DialogTitle>
         Внимание
