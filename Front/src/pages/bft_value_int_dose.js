@@ -1,4 +1,9 @@
-// Big f....g table VALUE_INT_DOSE
+/**
+ * Модуль, предоставляющий интерфейс пользователя для работы с данными о дозах внутреннего облучения.
+ * 
+ * Этот модуль подразумевает использование API, реализованное в value_int_dose_queries.
+ */
+
 import React, { useState, useEffect } from 'react';
 import {
   DataGrid, 
@@ -7,7 +12,7 @@ import {
   useGridApiRef,
   gridFilteredSortedRowIdsSelector,
 } from '@mui/x-data-grid';
-//import { renderToString } from 'react-dom/server';
+
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
@@ -28,6 +33,7 @@ import { ReactComponent as CheckDoubleIcon } from "./../icons/check-double.svg";
 import { ReactComponent as ArrowAltDownIcon } from "./../icons/arrow-alt-down.svg";
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Backdrop from '@mui/material/Backdrop';
+
 import Autocomplete from '@mui/material/Autocomplete';
 import Checkbox from '@mui/material/Checkbox';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
@@ -38,20 +44,8 @@ import AccordionSummary from '@mui/material/AccordionSummary';
 import Typography from '@mui/material/Typography';
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import { table_names } from './sda_types';
-//import ServerPaginationGrid from './sp_datagrid';
-//import DialogContentText from '@mui/material/DialogContentTecxt';
-//import { FormControl } from "@mui/material";
-//import { InputLabel } from "@mui/material";
-//import { Select } from "@mui/material";
-//import { ReactComponent as SaveLightIcon } from "./../icons/save.svg";
 import { ReactComponent as DownloadLightIcon } from "./../icons/download.svg";
-/* import { FormControl } from "@mui/material";
-import { InputLabel } from "@mui/material";
-import { Select } from "@mui/material";
-import { MenuItem } from "@mui/material"; */
-//import Grid from '@mui/material/Grid';
 import Divider from '@mui/material/Divider';
-//import ValueIntDose from './value_int_dose';
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
@@ -66,13 +60,56 @@ const BigTableValueIntDose = (props) => {
 
   // Scrolling and positionning
   const [paginationModel, setPaginationModel] = React.useState({
-    pageSize: 25,
+    pageSize: 100,
     page: 0,
   });
 
-/*   useEffect(() => {
-    console.log(paginationModel.page);
-  }, [paginationModel]); */
+  const [valueID, setValueID] = React.useState();
+  const [valueIDInitial, setValueIDInitial] = React.useState();
+  const [valueDoseRatioID, setValueDoseRatioID] = React.useState();
+  const [valuePeopleClassID, setValuePeopleClassID] = React.useState();
+  const [valueIsotopeID, setValueIsotopeID] = React.useState();
+  const [valueIntegralPeriodID, setValueIntegralPeriodID] = React.useState();
+  const [valueOrganID, setValueOrganID] = React.useState();
+  const [valueLetLevelID, setValueLetLevelID] = React.useState();
+
+  const [valueAgeGroupID, setValueAgeGroupID] = React.useState();
+  const [valueExpScenarioID, setValueExpScenarioID] = React.useState();
+  const [valueDataSourceID, setValueDataSourceID] = React.useState();
+  const [valueDrValue, setValueDrValue] = React.useState();
+  const [valueChemCompGrID, setValueChemCompGrID] = React.useState(null);
+  const [valueSubstFormID, setValueSubstFormID] = React.useState();
+  const [valueIrradiationID, setValueIrradiationID] = React.useState();
+  const [valueAerosolSolID, setValueAerosolSolID] = React.useState();
+  const [valueAerosolAMADID, setValueAerosolAMADID] = React.useState();
+  const [valueUpdateTime, setValueUpdateTime] = React.useState();
+
+  const [isRecordAdded, setRecordAdded] = useState(false);
+
+
+  const handleRowClick = React.useCallback((params) => {
+    setValueID(params.row.id);
+    setValueIDInitial(params.row.id);
+    setValueDoseRatioID(params.row.dose_ratio_id);
+    setValuePeopleClassID(params.row.people_class_id);
+    setValueIsotopeID(params.row.isotope_id);
+    setValueIntegralPeriodID(params.row.integral_period_id);
+    setValueOrganID(params.row.organ_id);
+    setValueLetLevelID(params.row.let_level_id);
+    setValueAgeGroupID(params.row.agegroup_id);
+    setValueDataSourceID(params.row.data_source_id);
+    setValueDrValue(params.row.dr_value);
+    setValueChemCompGrID(params.row.chem_comp_gr_id);
+    setValueSubstFormID(params.row.subst_form_id);
+    setValueAerosolSolID(params.row.aerosol_sol_id);
+    setValueAerosolAMADID(params.row.aerosol_amad_id);
+    setValueExpScenarioID(params.row.exp_scenario_id);
+    setValueIrradiationID(params.row.irradiation_id);
+    setValueUpdateTime( formatDate(params.row.updatetime) );       
+  }, [setValueID, setValueIDInitial, setValueDoseRatioID, setValuePeopleClassID, setValueIsotopeID, 
+    setValueIntegralPeriodID, setValueOrganID, setValueLetLevelID, setValueAgeGroupID, 
+    setValueDataSourceID, setValueDrValue, setValueChemCompGrID, setValueSubstFormID, setValueAerosolSolID, 
+    setValueAerosolAMADID, setValueExpScenarioID, setValueIrradiationID, setValueUpdateTime]); 
 
   const handleScrollToRow = React.useCallback((v_id) => {
     const sortedRowIds = apiRef.current.getSortedRowIds(); //получаем список отсортированных строк грида
@@ -102,7 +139,7 @@ const BigTableValueIntDose = (props) => {
     handleRowClick({ row: tableValueIntDose.find(row => row.id === scrollToIndexRef.current) });
     scrollToIndexRef.current = null; //обнуляем значение
     setRecordAdded(false); // Сбрасываем флаг после использования
-  }, [tableValueIntDose, handleScrollToRow]);
+  }, [tableValueIntDose, handleScrollToRow, handleRowClick, setRecordAdded, isRecordAdded]);
 
    const [pageState/* , setPageState */] = useState({
     page: 0,
@@ -148,7 +185,7 @@ const BigTableValueIntDose = (props) => {
     { field: 'dose_ratio_title', headerName: 'Параметр', width: 200 },
    ]
 
-  //состояние загрузки таблицы для отображения крутилки
+  //состояние загрузки таблицы для отображения крутилки - прогресса
   const [isLoading, setIsLoading] = React.useState(false);
 
   //состояние открытой панельки алерта-уведомления
@@ -241,9 +278,6 @@ const BigTableValueIntDose = (props) => {
       {  
         newState.selExpScenarioValues = [];
       }
-/*       console.log('Newstate');
-      console.log(newState); */
-
       // Возвращаем новый объект, который будет новым состоянием
       return newState;
     });
@@ -251,18 +285,14 @@ const BigTableValueIntDose = (props) => {
   };
 
   //массивы, содержащие данные для автокомплитов
-
   const [tableDataSource, setTableDataSource] = useState([]); 
   const [tableDataSourceFilteredEdit, settableDataSourceFilteredEdit] = useState([]); 
   const [tableOrgan, setTableOrgan] = useState([]);
   const [tableOrganFiltered, settableOrganFiltered] = useState([]);
-
   const [tableIrradiation, setTableIrradiation] = useState([]);
   const [tableIrradiationFiltered, settableIrradiationFiltered] = useState([]);  
-  
   const [tableIsotope, setTableIsotope] = useState([]);
   const [tableIsotopeFiltered, settableIsotopeFiltered] = useState([]);
-
   const [tableIntegralPeriod, setTableIntegralPeriod] = useState([]);
   const [tableIntegralPeriodFiltered, settableIntegralPeriodFiltered] = useState([]);
   const [tableDoseRatio, setTableDoseRatio] = useState([]);
@@ -283,9 +313,6 @@ const BigTableValueIntDose = (props) => {
   const [tablePeopleClassFiltered, settablePeopleClassFiltered] = useState([]); //Типы облучаемых лиц  
   //это только для добавления в автокомплит
   const [tableChemCompGr, setTableChemCompGr] = useState([]);  
-  //const [tableChemCompGrFiltered, settableChemCompGrFiltered] = useState([]);  
-
-
 
   const [selectionModel, setselectionModel] = React.useState([]);
   const [tableDataSourceClass, setTableDataSourceClass] = useState([]);
@@ -301,32 +328,17 @@ const BigTableValueIntDose = (props) => {
   const [isotope_title_visible, set_isotope_title_visible] = useState(true);
   const [integral_period_name_rus_visible, set_integral_period_name_rus_visible] = useState(true);
 
-  const [isRecordAdded, setRecordAdded] = useState(false);
-
-/*   useEffect(() => {
-    if (isRecordAdded && tableValueIntDose && tableValueIntDose.length > 0) {
-      scrollToIndexRef.current = Math.max(...tableValueIntDose.map(item => item.id));
-      console.log('scrollToIndexRef.current');
-      console.log(scrollToIndexRef.current);
-      setRecordAdded(false); // Сбрасываем флаг после использования
-    }
-  }, [isRecordAdded, tableValueIntDose]); */
-
-//  { field: 'isotope_title', headerName: 'Нуклид', width: 100 },
-//  { field: 'integral_period_name_rus', headerName: 'Период интегрирования', width: 200 },
 
 useEffect(() => { //для перемещения на нужную позицию после загрузки грида
   if ((!isLoading) && (tableValueIntDose) && (tableValueIntDose.length)) {
     if (!scrollToIndexRef) 
     {
       scrollToIndexRef.current = tableValueIntDose[0].id;
-/*       console.log('setRowSelectionModel scrollToIndexRef.current = '+tableValueIntDose[0].id); */
       setRowSelectionModel([tableValueIntDose[0].id]);
       handleRowClick({ row: tableValueIntDose.find(row => row.id === scrollToIndexRef.current) });
-      //setValueID(tableValueIntDose[0].id);
     }
   }
-  }, [ isLoading, tableValueIntDose] );
+  }, [ isLoading, tableValueIntDose, handleRowClick] );
 
   useEffect(() => {
     set_organ_name_rus_visible( applFlt.selOrganValues.length!==1 && applFlt.selDoseRatioValue && [2, 8].includes(applFlt.selDoseRatioValue.id) ); 
@@ -335,10 +347,8 @@ useEffect(() => { //для перемещения на нужную позици
     set_subst_form_name_rus_visible( applFlt.selSubstFormValues.length!==1 && applFlt.selIrradiationValue && applFlt.selIrradiationValue.id===2 );
     set_aerosol_sol_name_rus_visible( applFlt.selAerosolSolValues.length!==1 && applFlt.selIrradiationValue && applFlt.selIrradiationValue.id===2 &&
       applFlt.selSubstFormValues && (applFlt.selSubstFormValues.some(item => item.id === 162)) ); 
-
     set_aerosol_amad_name_rus_visible( applFlt.selAerosolAMADValues.length!==1 && applFlt.selIrradiationValue && applFlt.selIrradiationValue.id===2  &&
       applFlt.selSubstFormValues && (applFlt.selSubstFormValues.some(item => item.id === 162)) ); 
-
     set_agegroup_name_rus_visible( applFlt.selAgeGroupValues.length!==1 && applFlt.selPeopleClassValues &&  applFlt.selPeopleClassValues.some((row) => row.id === 1) );
     set_exp_scenario_name_rus_visible( applFlt.selExpScenarioValues.length!==1 && applFlt.selPeopleClassValues && [3,4].includes(applFlt.selPeopleClassValues.id) );
     set_isotope_title_visible( applFlt.selIsotopeValues.length!==1 ); 
@@ -349,7 +359,6 @@ useEffect(() => { //для перемещения на нужную позици
   // Обновление значения компонента Autocomplete
     updateCurrentFilter({ selDataSourceValues: value });
   };
-
   
   //фильтрация списков фильтров в зависимости от выбранного источника (источников) данных
   useEffect(() => {
@@ -534,25 +543,6 @@ useEffect(() => { //для перемещения на нужную позици
     delRec();
   };
 
-  const [valueID, setValueID] = React.useState();
-  const [valueIDInitial, setValueIDInitial] = React.useState();
-  const [valueDoseRatioID, setValueDoseRatioID] = React.useState();
-  const [valuePeopleClassID, setValuePeopleClassID] = React.useState();
-  const [valueIsotopeID, setValueIsotopeID] = React.useState();
-  const [valueIntegralPeriodID, setValueIntegralPeriodID] = React.useState();
-  const [valueOrganID, setValueOrganID] = React.useState();
-  const [valueLetLevelID, setValueLetLevelID] = React.useState();
-
-  const [valueAgeGroupID, setValueAgeGroupID] = React.useState();
-  const [valueExpScenarioID, setValueExpScenarioID] = React.useState();
-  const [valueDataSourceID, setValueDataSourceID] = React.useState();
-  const [valueDrValue, setValueDrValue] = React.useState();
-  const [valueChemCompGrID, setValueChemCompGrID] = React.useState(null);
-  const [valueSubstFormID, setValueSubstFormID] = React.useState();
-  const [valueIrradiationID, setValueIrradiationID] = React.useState();
-  const [valueAerosolSolID, setValueAerosolSolID] = React.useState();
-  const [valueAerosolAMADID, setValueAerosolAMADID] = React.useState();
-  const [valueUpdateTime, setValueUpdateTime] = React.useState();
 
 
   const formatDate = (dateStr) => {
@@ -566,7 +556,7 @@ useEffect(() => { //для перемещения на нужную позици
     return `${day}.${month}.${year} ${hours}:${minutes}:${seconds}`;
   }
 
-  const handleRowClick = (params) => {
+/*   const handleRowClick = (params) => {
       setValueID(params.row.id);
       setValueIDInitial(params.row.id);
       setValueDoseRatioID(params.row.dose_ratio_id);
@@ -588,7 +578,10 @@ useEffect(() => { //для перемещения на нужную позици
       console.log(params.row.irradiation_id);
       setValueUpdateTime( formatDate(params.row.updatetime) );//formattedDate);      
   }; 
+ */
 
+
+  
   // состояния Accordion-а
   const [isTableExpanded, setIsTableExpanded] = useState(false);
   const [isFilterExpanded, setIsFilterExpanded] = useState(true);
@@ -951,31 +944,6 @@ useEffect(() => {
   settableDataSourceFilteredEdit( filteredDataSource ); 
 }, [valueIrradiationID, tableDataSource, tableDataSourceClass, tableOrgan]);
 
-
-
-/* useEffect(() => {
-  if (!valueDataSourceID) 
-    return;
-  //отфильтровать таблицу органов tableOrgan
-  const filteredTableOrgan = tableOrgan.filter(organItem => 
-    tableDataSourceClass.some(dataSourceClassItem => 
-      dataSourceClassItem.table_name === 'organ' &&
-      dataSourceClassItem.rec_id === organItem.id && 
-      dataSourceClassItem.data_source_id === valueDataSourceID
-    )
-  );
-  const filteredTableLetLevel = tableLetLevel.filter(letLevelItem => 
-    tableDataSourceClass.some(dataSourceClassItem => 
-      dataSourceClassItem.table_name === 'let_level' &&
-      dataSourceClassItem.rec_id === letLevelItem.id && 
-      dataSourceClassItem.data_source_id === valueDataSourceID
-    )
-  );  
-  settableOrganFilteredEdit( filteredTableOrgan );
-  settableLetLevelFilteredEdit( filteredTableLetLevel );       
-}, [valueDataSourceID, tableDataSourceClass, tableOrgan, tableLetLevel]);
-  */
-
 const [tableSubstFormFilteredEdit, settableSubstFormFilteredEdit] = useState([]);
 const [tableAerosolSolFilteredEdit, settableAerosolSolFilteredEdit] = useState([]);
 const [tableAerosolAMADFilteredEdit, settableAerosolAMADFilteredEdit] = useState([]);
@@ -986,7 +954,6 @@ const [tableIntegralPeriodFilteredEdit, settableIntegralPeriodFilteredEdit] = us
 const [tableChemCompGrFilteredEdit, settableChemCompGrFilteredEdit] = useState([]);
 const [tableOrganFilteredEdit, settableOrganFilteredEdit] = useState([]); //список органов в окне редактирования записи
 const [tableLetLevelFilteredEdit, settableLetLevelFilteredEdit] = useState([]); //уровни ЛПЭ в окне редактирования записи
-
 
 useEffect(() => {
   if (!valueDataSourceID) 
@@ -1006,7 +973,8 @@ useEffect(() => {
   const filteredTableAerosolSol = filterTable('aerosol_sol', tableAerosolSol);
   const filteredTableAerosolAMAD = filterTable('aerosol_amad', tableAerosolAMAD);
   const filteredTablePeopleClass = filterTable('people_class', tablePeopleClass);
-  const filteredTableAgeGroup = filterTable('age_group', tableAgeGroup);
+  const filteredTableAgeGroup = filterTable('agegroup', tableAgeGroup);
+
   const filteredTableExpScenario = filterTable('exp_scenario', tableExpScenario);
   const filteredTableIntegralPeriod = filterTable('integral_period', tableIntegralPeriod);
   const filteredTableChemCompGr = filterTable('chem_comp_gr', tableChemCompGr);
@@ -1022,7 +990,7 @@ useEffect(() => {
   settableIntegralPeriodFilteredEdit(filteredTableIntegralPeriod);
   settableChemCompGrFilteredEdit(filteredTableChemCompGr);
      
-}, [valueDataSourceID, tableDataSourceClass, tableOrgan, tableLetLevel, tableSubstForm, tableAerosolSol, tableAerosolAMAD, tablePeopleClass, tableAgeGroup, tableExpScenario, tableIntegralPeriod, tableChemCompGr]);
+}, [valueID, valueDataSourceID, tableDataSourceClass, tableOrgan, tableLetLevel, tableSubstForm, tableAerosolSol, tableAerosolAMAD, tablePeopleClass, tableAgeGroup, tableExpScenario, tableIntegralPeriod, tableChemCompGr]);
 
  
 
@@ -2352,7 +2320,7 @@ const reloadDataHandler = async () => {
           <Autocomplete
             size="small"
             disabled={(valueID !== null)/* ||(!currFlt.selDataSourceValues.length) */}
-            value={tableAgeGroupFilteredEdit.find((option) => option.id === valueAgeGroupID)  }
+            value={tableAgeGroupFilteredEdit.find((option) => option.id === valueAgeGroupID) }
             onChange={(event, newValueAC) => { console.log('aaa '+newValueAC?newValueAC.id:-1); setValueAgeGroupID(newValueAC?newValueAC.id:-1) } }
             id="autocomplete-agegroup_edit"
             options={ tableAgeGroupFilteredEdit }
@@ -2361,6 +2329,11 @@ const reloadDataHandler = async () => {
               <TextField {...params} label="Возрастная группа населения" placeholder="Возрастная группа населения" />
             )}
           />
+{/* /////////////
+
+/////////////
+ */}
+
           </td>
           <td style={{ width: '16px'}}>  
             &nbsp;

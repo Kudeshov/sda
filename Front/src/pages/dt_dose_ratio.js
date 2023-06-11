@@ -585,7 +585,7 @@ const handleCloseDSInfo = () => {
   
     const link = document.createElement('a');
     link.setAttribute('href', url);
-    link.setAttribute('download', '.xml');
+    link.setAttribute('download', 'parameters.xml');
     link.style.visibility = 'hidden';
   
     document.body.appendChild(link);
@@ -952,7 +952,7 @@ const handleCloseDSInfo = () => {
             </label>
             <br/> */}
             &nbsp;<label htmlFor="icon-button-file1">
-            <IconButton onClick={()=>{handleClickView()}} color="primary" size="small" title="Информация">
+            <IconButton onClick={()=>{handleClickView()}} color="primary" size="small" title="Сохранить в формате XML">
               <SvgIcon fontSize="small" component={DownloadLightIcon} inheritViewBox /></IconButton>
             </label></td></tr>
             </tbody></table>
