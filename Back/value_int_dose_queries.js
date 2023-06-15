@@ -1,5 +1,6 @@
 /**
  * Модуль, предоставляющий функции для работы с данными о дозах внутреннего облучения в базе данных PostgreSQL.
+ * Обслуживает теблицу БД: value_int_dose
  * Включает в себя следующие функции:
  * 
  * getValueIntDose - получение данных о дозах внутреннего облучения на основе переданных параметров.
@@ -24,6 +25,16 @@ const pool = new Pool(config);
 pool.on('error', (err) => {
   console.error('idle client error', err.message, err.stack);
 });
+
+const getValueRelation = (request, response, table_name) => {
+  //const source_table = 'value_int_dose';
+  pool.query(` SELECT * from nucl.value_relation_mv where source_table = $1`, [table_name], (error, results) => {
+    if (error) {
+      throw error
+    }
+    response.status(200).json(results.rows)
+  })
+}
 
 const getValueIntDose = (request, response) => {
   // Список параметров, которые могут быть использованы в SQL-запросе
@@ -184,5 +195,6 @@ module.exports = {
   getValueIntDose,
   updateValueIntDose,
   createValueIntDose,
-  deleteValueIntDose
+  deleteValueIntDose,
+  getValueRelation
 }

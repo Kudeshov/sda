@@ -1,24 +1,38 @@
-var express = require(`express`);
-var app = express();
-var PORT = 3001;
 
-const bodyParser = require(`body-parser`)
-app.use(bodyParser.json())
-app.use(
-  bodyParser.urlencoded({
-    extended: true,
-  })
-)
+/**
+ * Модуль, предоставляющий функции для работы с данными о возрастных группах населения в базе данных PostgreSQL.
+ * Обслуживает таблицу БД: AgeGroup
+ * Включает в себя следующие функции:
+ * 
+ * getAgeGroup - получение данных о возрастных группах населения на основе переданных параметров.
+ * getAgeGroupById - получение данных о возрастной группе по ее уникальному идентификатору.
+ * createAgeGroup - добавление новых данных о возрастных группах населения в базу данных.
+ * deleteAgeGroup - удаление данных о возрастной группе из базы данных.
+ * updateAgeGroup - обновление данных о возрастной группе в базе данных.
+ * 
+ * Этот модуль подразумевает использование веб-сервера Express и клиента базы данных node-postgres.
+ */
 
-const { Pool } = require(`pg`);
-const e = require(`express`);
+// Импорт необходимых модулей
+const express = require('express');  // Express для обработки маршрутизации и серверной функциональности
+const bodyParser = require('body-parser');  // Body parser для обработки JSON и url-encoded данных
+const { Pool } = require('pg');  // Клиент PostgreSQL для взаимодействия с базой данных
+const config = require('./config.json');  // Конфигурация для клиента PostgreSQL
+const c_c = require('./common_queries');  // Файл, содержащий общие запросы к базе данных
 
-var config = require(`./config.json`);
-const c_c = require('./common_queries');
+// Создание приложения express
+const app = express();
 
+// Включение обработки JSON и URL-encoded тела для POST-запросов
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({ extended: true }));
+
+// Создание пула клиентов PostgreSQL с использованием предоставленной конфигурации
 const pool = new Pool(config);
-pool.on(`error`, function (err, client) {
-    console.error(`idle client error`, err.message, err.stack);
+
+// Обработчик ошибок для неактивных клиентов в пуле
+pool.on('error', (err) => {
+  console.error('Ошибка неактивного клиента', err.message, err.stack);
 });
 
 const getAgeGroup = (request, response, table_name ) => {
@@ -46,7 +60,7 @@ const getAgeGroupById = (request, response, table_name ) => {
   })
 }
 
-
+/* 
 const createAgeGroup = (request, response, table_name )=> {
   pool.connect((err, client, done) => {
     const shouldAbort = (err, response) => {
@@ -72,7 +86,7 @@ const createAgeGroup = (request, response, table_name )=> {
       return !!err
     }
 
-    var { title, name_rus, name_eng, descr_rus, descr_eng, resp_rate, resp_year, indoor/* , ext_cloud, ext_ground */ } = request.body;
+    var { title, name_rus, name_eng, descr_rus, descr_eng, resp_rate, resp_year, indoor } = request.body;
     if (indoor==="") indoor=1
     if (resp_year==="") resp_year=null
     if (resp_rate==="") resp_rate=null    
@@ -103,7 +117,68 @@ const createAgeGroup = (request, response, table_name )=> {
       })
     })
   })
-}
+} */
+
+const createAgeGroup = (request, response, table_name) => {
+  pool.connect((err, client, done) => {
+    if (err) throw err;
+
+    // Объявление функции для отмены транзакции и обработки ошибок
+    const shouldAbort = (err, response) => {
+      if (err) {
+        console.error('Ошибка создания записи', err.message);
+        response.status(400).send('Ошибка: ' + err.message);
+        client.query('ROLLBACK', err => {
+          if (err) {
+            console.error('Ошибка при откате транзакции');
+            response.status(400).send('Ошибка при откате транзакции');
+          } else {
+            console.error('Транзакция отменена');
+          }
+          done();
+        });
+      }
+      return !!err;
+    };
+
+    // Извлекаем данные из тела запроса
+    const { title, name_rus, name_eng, descr_rus, descr_eng, resp_rate, resp_year, indoor } = request.body;
+
+    client.query('BEGIN', err => {
+      if (shouldAbort(err, response)) return;
+      const query = `INSERT INTO nucl.${table_name}(title, resp_rate, resp_year, indoor) VALUES ($1,$2,$3,$4) RETURNING id`;
+      const values = [title, resp_rate || null, resp_year || null, indoor || 1];
+      client.query(query, values, (err, res) => {
+        if (shouldAbort(err, response)) return;
+
+        const { id } = res.rows[0];
+        console.log('Id = ' + id);
+
+        client.query(c_c.getNLSQuery(name_rus || '', descr_rus || '', id, 1, table_name), (err, res) => {
+          if (shouldAbort(err, response)) return;
+
+          client.query(c_c.getNLSQuery(name_eng || '', descr_eng || '', id, 2, table_name), (err, res) => {
+            if (shouldAbort(err, response)) return;
+
+            console.log('начинаем Commit');
+
+            client.query('COMMIT', err => {
+              if (err) {
+                console.error('Ошибка при подтверждении транзакции', err.stack);
+                response.status(400).send('Ошибка при подтверждении транзакции');
+              } else {
+                console.log('Запись добавлена, код: ' + id);
+                response.status(201).json({ id: `${id}` });
+              }
+              done();
+            });
+          });
+        });
+      });
+    });
+  });
+};
+
 
 const deleteAgeGroup = (request, response, table_name ) => {
   pool.connect((err, client, done) => {
