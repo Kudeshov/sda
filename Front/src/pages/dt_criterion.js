@@ -37,6 +37,7 @@ import Backdrop from '@mui/material/Backdrop';
 import { InputAdornment } from "@material-ui/core";
 import Autocomplete from '@mui/material/Autocomplete';
 import Tooltip from '@mui/material/Tooltip';
+import { DataTableActionCriterion } from './dt_action_criterion';
 
 var alertText = "Сообщение";
 var alertSeverity = "info";
@@ -157,6 +158,10 @@ const DataTableCriterion = (props) => {
               setValueDescrEng(res[0].descr_eng);    
               setValueParentID(res[0].parent_id||-1);    
               setValueNormativ(res[0].normativ_id);      
+
+
+
+
               setValueTitleInitial(res[0].title);
               setValueNameRusInitial(res[0].name_rus);
               setValueNameEngInitial(res[0].name_eng);
@@ -164,6 +169,23 @@ const DataTableCriterion = (props) => {
               setValueDescrEngInitial(res[0].descr_eng);
               setValueParentIDInitial(res[0].parent_id||-1); 
               setValueNormativInitial(res[0].normativ_id);      
+              setValueCalcfunctionID(res[0].calcfunction_id);
+      setValueIrradiation(res[0].irradiation_id);
+      setValueAgegroup(res[0].agegroup_id);
+      setValueExpScenario(res[0].exp_scenario_id);
+      setValueIntegralPeriod(res[0].integral_period_id);
+      setValueOrgan(res[0].organ_id);
+      setValueDataSource(res[0].data_source_id);
+      setValueAerosolAmad(res[0].aerosol_amad_id);
+      setValueAerosolSol(res[0].aerosol_sol_id);
+      setValueChemCompGr(res[0].chem_comp_gr_id);
+      setValueSubstForm(res[0].subst_form_id);
+      setValueIsotope(res[0].isotope_id);
+      setValueActionLevel(res[0].action_level_id);
+      setValuePeopleClass(res[0].people_class_id);
+      setValueCrValue(res[0].cr_value);
+      setValueTimeend(res[0].timeend);
+              
           }; 
         
       if (clickAfterReload) {
@@ -295,6 +317,23 @@ const DataTableCriterion = (props) => {
       setValueDescrEng(``);
       setValueParentID(valueId); //-1
       setValueNormativ(``);
+      setValueCalcfunctionID(``);
+      setValueIrradiation(``);
+      setValueAgegroup(``);
+      setValueExpScenario(``);
+      setValueIntegralPeriod(``);
+      setValueOrgan(``);
+      setValueDataSource(``);
+      setValueAerosolAmad(``);
+      setValueAerosolSol(``);
+      setValueChemCompGr(``);
+      setValueSubstForm(``);
+      setValueIsotope(``);
+      setValueActionLevel(``);
+      setValuePeopleClass(``);
+      setValueCrValue(``);
+      setValueTimeend(``);
+      
     }
   }; 
 
@@ -627,7 +666,31 @@ const DataTableCriterion = (props) => {
        setValueDescrEngInitial(valueDescrEng);    
        setValueParentIDInitial(valueParentID);
        setValueNormativInitial(valueNormativ);
-
+       setValueTitleInitial(valueTitle);       
+        setValueNameRusInitial(valueNameRus); 
+        setValueNameEngInitial(valueNameEng);
+        setValueDescrRusInitial(valueDescrRus);
+        setValueDescrEngInitial(valueDescrEng);    
+        setValueParentIDInitial(valueParentID);
+        setValueNormativInitial(valueNormativ);     
+        setValueCalcfunctionID(valueCalcfunctionID);
+        setValueIrradiation(valueIrradiation);
+        setValueAgegroup(valueAgegroup);
+        setValueExpScenario(valueExpScenario);
+        setValueIntegralPeriod(valueIntegralPeriod);
+        setValueOrgan(valueOrgan);
+        setValueDataSource(valueDataSource);
+        setValueAerosolAmad(valueAerosolAmad);
+        setValueAerosolSol(valueAerosolSol);
+        setValueChemCompGr(valueChemCompGr);
+        setValueSubstForm(valueSubstForm);
+        setValueIsotope(valueIsotope);
+        setValueActionLevel(valueActionLevel);
+        setValuePeopleClass(valuePeopleClass);
+        setValueCrValue(valueCrValue);
+        setValueTimeend(valueTimeend);
+           
+       
      }
     reloadData();     
    }
@@ -1156,8 +1219,8 @@ const DataTableCriterion = (props) => {
       <TextField  id="ch_name" sx={{ width: '40ch' }} label="Обозначение" required size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
       &nbsp;&nbsp;&nbsp;&nbsp;
       <FormControl sx={{ width: '30ch' }} size="small">
-        <InputLabel id="ch_parent_id">Родительский класс</InputLabel>
-          <Select labelId="ch_parent_id" id="ch_parent_id1" label="Родительский класс" value={valueParentID  || "" } onChange={e => setValueParentID(e.target.value)} >
+        <InputLabel id="ch_parent_id"required>Группа критериев</InputLabel>
+          <Select labelId="ch_parent_id" id="ch_parent_id1" label="Группа критериев"  value={valueParentID  || ""  }  onChange={e => setValueParentID(e.target.value) }  >
           <MenuItem key={-1} value={-1}>
                     {'Не задан'}
                   </MenuItem>
@@ -1238,34 +1301,6 @@ const DataTableCriterion = (props) => {
 
 
     
-
-  <Autocomplete
-          fullWidth
-          sx={{ width: '60ch' }}
-          size="small"
-          disablePortal
-          id="combo-box-criterion-gr"
-          value={tableCriterionGr.find((option) => option.id === valueParentID) || ''}
-          disableClearable
-          isOptionEqualToValue={(option, value) => option.id === value.id}
-          onChange={(event, newValueAC) => { setValueParentID(newValueAC ? newValueAC.id : -1) }}
-          options={tableCriterionGr}
-          getOptionLabel={option => option ? option.title : ""}
-          renderInput={(params) => <TextField {...params} label="Группа критериев" required />}
-          renderOption={(props, option) => (
-            <li {...props}>
-              <Tooltip title={option.name_rus}>
-                <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
-                  <span>{option.title}</span>
-                  <span></span>
-                </div>
-              </Tooltip>
-            </li>
-          )}
-        />  
-
-      <p></p>
-
      
      <TextField  id="timeend" sx={{ width: '40ch' }} label="Время облучения, сек"  size="small" variant="outlined" 
        value={valueTimeend || ''} onChange={e => setValueTimeend(e.target.value)}/>
@@ -1647,14 +1682,12 @@ const DataTableCriterion = (props) => {
 
 
 
-
-
-
       <div style={{ height: 300, width: 800 }}>
-  {/*       <td>Источники данных<br/>
-        <DataTableDataSourceClass table_name={props.table_name} rec_id={valueId||0} />
-        </td> */}
+        <td>Действия критерия<br/>
+          <DataTableActionCriterion table_name={props.table_name} rec_id={valueId} />
+        </td>
       </div>
+
       </>}
     </td>
   </tr>

@@ -37,6 +37,7 @@ const cg_q = require('./criterion_gr_queries');
 const id_q = require('./isotope_decay_queries');
 const i_q = require('./isotope_queries');
 const vid_q = require('./value_int_dose_queries');
+const ac_q = require('./action_criterion_queries')
 
 const { Pool } = require('pg');
 //var msg = 'a';
@@ -165,6 +166,13 @@ app.get('/data_source_class_min', dsc_q.getDataSourceClassMin);    //list all wi
 app.post('/data_source_class', dsc_q.createDataSourceClass);       //create
 app.put('/data_source_class/:id', dsc_q.updateDataSourceClass);    //update
 app.delete('/data_source_class/:id', dsc_q.deleteDataSourceClass); //delete 
+
+app.get('/action_criterion', ac_q.getActionCriterion);           //list all
+app.get('/action_criterion_min', ac_q.getActionCriterionMin);    //list all withoud additional fields
+app.post('/action_criterion', ac_q.createActionCriterion);       //create
+app.put('/action_criterion/:id', ac_q.updateActionCriterion);    //update
+app.delete('/action_criterion/:id', ac_q.deleteActionCriterion); //delete 
+
 
 //GENERIC QUERIES on calcfunction
 app.get('/calcfunction', (req, res) => {cf_q.getCalcFunction(req, res, 'calcfunction')});           //list all
