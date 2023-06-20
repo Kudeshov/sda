@@ -30,14 +30,15 @@ import { Select } from "@mui/material";
 import { MenuItem } from "@mui/material";
 import { FormControl } from "@mui/material";
 import { InputLabel } from "@mui/material";
-import { ReactComponent as FileImportLightIcon } from "./../icons/file-import.svg";
+/* import { ReactComponent as FileImportLightIcon } from "./../icons/file-import.svg";
 import { ReactComponent as EraserLightIcon } from "./../icons/eraser.svg";
 import { ReactComponent as EditLightIcon } from "./../icons/edit.svg";
+ */
 import { table_names } from './sda_types';
 import Autocomplete from '@mui/material/Autocomplete';
 import { ReactComponent as InfoLightIcon } from "./../icons/info.svg";
-import Link from '@mui/material/Link';
-import { saveAs } from 'file-saver';
+//import Link from '@mui/material/Link';
+//import { saveAs } from 'file-saver';
 
 var alertText = "Сообщение";
 var alertSeverity = "info";
@@ -568,18 +569,30 @@ const handleCloseDSInfo = () => {
     setOpenView(true);
   }; */
 
-  const handleClickView = () => {
+/*   const handleClickView = () => {
     const xmlContent = valueParameters; // Переменная с содержимым файла XML
     //const xmlData = encodeURIComponent(xmlContent); // Кодируем содержимое файла
   
     const blob = new Blob([xmlContent], { type: 'text/xml;charset=utf-8' });
     saveAs(blob, 'file.xml');
+  }; */
+
+  const handleClickView = () => {
+    const xmlContent = valueParameters; // Переменная с содержимым файла XML
+  
+    const blob = new Blob([xmlContent], { type: 'text/xml;charset=utf-8' });
+    const url = URL.createObjectURL(blob);
+  
+    const link = document.createElement('a');
+    link.setAttribute('href', url);
+    link.setAttribute('download', 'parameters.xml');
+    link.style.visibility = 'hidden';
+  
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
   };
 
-  const xmlContent = valueParameters; // Переменная с содержимым файла XML
-  const xmlData = encodeURIComponent(xmlContent); // Кодируем содержимое файла
-
-  const fileUrl = `data:text/xml;charset=utf-8,${xmlData}`;
 
 /*   const insertXmlLink = (xmlContent) => {
     const xmlData = encodeURIComponent(xmlContent); // Кодируем содержимое файла
@@ -939,7 +952,7 @@ const handleCloseDSInfo = () => {
             </label>
             <br/> */}
             &nbsp;<label htmlFor="icon-button-file1">
-            <IconButton onClick={()=>{handleClickView()}} color="primary" size="small" title="Информация">
+            <IconButton onClick={()=>{handleClickView()}} color="primary" size="small" title="Сохранить в формате XML">
               <SvgIcon fontSize="small" component={DownloadLightIcon} inheritViewBox /></IconButton>
             </label></td></tr>
             </tbody></table>
@@ -1070,19 +1083,6 @@ const handleCloseDSInfo = () => {
         {valueId?
           `В запись таблицы "${table_names[props.table_name]}" внесены изменения.`:
           `В таблицу "${table_names[props.table_name]}" внесена новая несохраненная запись.`} 
-{/*             {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p></p>
-            {valueNameRus === valueNameRusInitial ? '' : 'Название (рус. яз): '+valueNameRus+'; ' }<p></p>
-            {valueNameEng === valueNameEngInitial ? '' : 'Название (англ. яз): '+valueNameEng+'; ' }<p></p>
-            {valueDescrRus === valueDescrRusInitial ? '' : 'Комментарий (рус. яз): '+valueDescrRus+'; ' }<p></p>
-            {valueDescrEng === valueDescrEngInitial ? '' : 'Комментарий (англ. яз): '+valueDescrEng+'; ' }<p></p>
-            {valueRespRate === valueRespRateInitial ? '' : 'Скорость дыхания, куб.м/сек: '+valueRespRate+'; ' }<p></p>
-            {valueRespYear === valueRespYearInitial ? '' : 'Годовой объем вдыхаемого воздуха, куб.м: '+valueRespYear+'; ' }<p></p>
-            {valueIndoor === valueIndoorInitial ? '' : 'Доля времени, проводимая индивидуумом в помещении: '+valueIndoor+'; ' }<p></p>
-            {valueExtCloud === valueExtCloudInitial ? '' : 'Коэффициент для дозы внешнего облучения от облака: '+valueExtCloud+'; ' }<p></p>
-            {valueExtGround === valueExtGroundInitial ? '' : 'Коэффициент для дозы внешнего облучения от поверхности: '+valueExtGround+'; ' }<p></p>
-            {valuePhysParamID === valuePhysParamIDInitial ? '' : 'Физический параметр (из общего списка): '+valuePhysParamID+'; ' }<p></p>
-            {valueUsed === valueUsedInitial ? '' : 'Используется расчетным модулем '+valueUsed+'; ' }<p></p>
-            {valueParameters === valueParametersInitial ? '' : 'Параметры функции'+valueParameters+'; ' }<p></p> */}
             <br/>Вы желаете сохранить указанную запись?
         </DialogContentText>
     </DialogContent>

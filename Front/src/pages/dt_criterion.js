@@ -698,8 +698,8 @@ const DataTableCriterion = (props) => {
  };
 /////////////////////////////////////////////////////////////////// ADDREC ///////////////////// 
   const addRec = async ()  => {
-    let myParentID;
-    myParentID = valueParentID === -1 ? null : valueParentID;
+    //let myParentID;
+    //myParentID = valueParentID === -1 ? null : valueParentID;
     const js = JSON.stringify({
       id: valueId,
       title: valueTitle,
