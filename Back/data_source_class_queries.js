@@ -85,7 +85,6 @@ const createDataSourceClass = (request, response) => {
 }
 
 const deleteDataSourceClass = (request, response) => {
-
   function delRec( id ) {
     console.log('delrec ' + id);
     pool.query('DELETE FROM nucl.data_source_class WHERE id = $1', [id], (error, results) => {

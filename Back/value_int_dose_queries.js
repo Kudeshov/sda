@@ -27,7 +27,6 @@ pool.on('error', (err) => {
 });
 
 const getValueRelation = (request, response, table_name) => {
-  //const source_table = 'value_int_dose';
   pool.query(` SELECT * from nucl.value_relation_mv where source_table = $1`, [table_name], (error, results) => {
     if (error) {
       throw error
@@ -97,7 +96,8 @@ const getValueIntDose = (request, response) => {
     ${whereClause}
     order by id
     limit 100000`;
-
+    
+  console.log( s_query );
   // Выполнение SQL-запроса
   pool.query(s_query, (error, results) => {
     if (error) {
@@ -191,10 +191,21 @@ const deleteValueIntDose = (request, response) => {
   })
 }
 
+const getIntDoseAttr = (request, response) => {
+  pool.query(` SELECT * from nucl.int_dose_attr_mv `, (error, results) => {
+    if (error) {
+      throw error
+    }
+    response.status(200).json(results.rows)
+  })
+}
+
+
 module.exports = {
   getValueIntDose,
   updateValueIntDose,
   createValueIntDose,
   deleteValueIntDose,
-  getValueRelation
+  getValueRelation,
+  getIntDoseAttr 
 }

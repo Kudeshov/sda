@@ -255,7 +255,8 @@ app.delete('/value_int_dose/:id', (req, res) => {vid_q.deleteValueIntDose(req, r
 
 //app.get('/value_relation', (req, res) => {vid_q.getValueRelation(req, res, 'value_int_dose')}); 
 //связи в таблице value_int_dose
-app.get('/value_relation/:tableName', (req, res) => {vid_q.getValueRelation(req, res, req.params.tableName);});
+app.get('/value_relation/:tableName', (req, res) => {vid_q.getValueRelation(req, res, req.params.tableName)});
+app.get('/int_dose_attr/', (req, res) => {vid_q.getIntDoseAttr(req, res)});
 
 /* var allowCrossDomain = function(req, res, next) {
     res.header('Access-Control-Allow-Origin', "*");
