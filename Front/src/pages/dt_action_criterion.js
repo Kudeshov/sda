@@ -107,8 +107,8 @@ const columns_src = [
   { field: 'id', headerName: 'Код', width: 60 },
   { field: 'action_id', headerName: 'Код действия', width: 100 },
   { field: 'criterion_id', headerName: 'Код критерия', width: 100 },
-  { field: 'title', headerName: 'Обозначение', width: 200 },
-  { field: 'name_rus', headerName: 'Название (рус)', width: 200 },
+  { field: 'title', headerName: 'Обозначение', width: 300 },
+  { field: 'name_rus', headerName: 'Название', width: 300, },
   { field: 'name_eng', headerName: 'Название (англ)', width: 180, hideable: false },
   { field: 'descr_rus', headerName: 'Описание (рус)', width: 250 },
   { field: 'descr_eng', headerName: 'Описание (англ)', width: 250 },
@@ -373,16 +373,18 @@ const formRef = React.useRef();
         initialState={{
           columns: {
             columnVisibilityModel: {
-              data_source_id: false,
-              table_name: false,
-              rec_id: false,
-              fullname: false,
-              shortname: false,
-              external_ds: false,
-              descr: false,
+              id: false,
+              action_id: false,
+              criterion_id: false,
+              title: true,
+              name_rus: true,
+              name_eng: false,
+              descr_rus: false,
+              descr_eng: false,
             },
           },
         }}             
+
       /></td>
       <td style={{ height: 270, width: 100, verticalAlign: 'top' }}>
       &nbsp;<IconButton onClick={()=>handleClickAdd()} disabled={(lastRecID===-1)||(props.rec_id==='-1000000')} color="primary" size="small" title="Добавить связь с источником данных">
