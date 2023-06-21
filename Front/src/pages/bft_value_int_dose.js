@@ -129,6 +129,7 @@ const BigTableValueIntDose = (props) => {
       if (currentPage !== rowPageIndex) { // проверяем, нужно ли изменять страницу
         apiRef.current.setPage(rowPageIndex);
       }
+      console.log('pagee ',currentPage );
       setRowSelectionModel([v_id]); //это устанавливает фокус на выбранной строке (подсветка)
       setTimeout(function() {       //делаем таймаут в 0.1 секунды, иначе скроллинг тупит
         apiRef.current.scrollToIndexes({ rowIndex: index, colIndex: 0 });
@@ -139,14 +140,19 @@ const BigTableValueIntDose = (props) => {
   const scrollToIndexRef = React.useRef(null); //тут хранится значение (айди) добавленной записи
   useEffect(() => {
     //событие, которое вызовет скроллинг грида после изменения данных в tableValueIntDose
+    console.log('событие, которое вызовет скроллинг грида после изменения данных в tableValueIntDose');
     if (!scrollToIndexRef.current) return; //если значение не указано, то ничего не делаем
+    console.log('scrollToIndexRef.current ', scrollToIndexRef.current, ' isRecordAdded ', isRecordAdded);
     if (scrollToIndexRef.current===-1) return;
     if (!isRecordAdded) return;
+    console.log('handleScrollToRow');
     handleScrollToRow(scrollToIndexRef.current);
     handleRowClick({ row: tableValueIntDose.find(row => row.id === scrollToIndexRef.current) });
     scrollToIndexRef.current = null; //обнуляем значение
+    console.log('setRecordAdded(false);');
     setRecordAdded(false); // Сбрасываем флаг после использования
-  }, [tableValueIntDose, handleScrollToRow, handleRowClick, setRecordAdded, isRecordAdded]);
+    // eslint-disable-next-line
+  }, [/* tableValueIntDose, handleScrollToRow, handleRowClick, setRecordAdded, isRecordAdded, */ scrollToIndexRef.current ]);
 
    const [pageState] = useState({
     page: 0,
@@ -178,26 +184,9 @@ const BigTableValueIntDose = (props) => {
       width: 280,
       valueGetter: (params) => formatDate(params.value)
     },    
-/*     { 
-      field: 'updatetime', 
-      headerName: 'Время последнего измерения', 
-      width: 280,
-      
-      valueGetter: (params) => {
-        const date = new Date(params.value);
-        const day = date.getDate().toString().padStart(2, '0');
-        const month = (date.getMonth() + 1).toString().padStart(2, '0');
-        const year = date.getFullYear().toString();
-        const hours = date.getHours().toString().padStart(2, '0');
-        const minutes = date.getMinutes().toString().padStart(2, '0');
-        const formattedDate = `${day}.${month}.${year} ${hours}:${minutes}`;
-        return formattedDate;
-      }
-    }, */
     { field: 'irradiation_name_rus', headerName: 'Тип облучения', width: 200 },
     { field: 'dose_ratio_title', headerName: 'Параметр', width: 200 },
    ]
-
 
   //объект для хранения текущего состояния фильтра - значения, выбранные в автокомплитах
   const [currFlt, setCurrFlt] = useState({
@@ -235,9 +224,6 @@ const BigTableValueIntDose = (props) => {
 
   // Обновление текущего значения фильтра
   const updateCurrentFilter = (newFilterValue) => {
-
-    console.log(newFilterValue);
-
     setCurrFlt((prevFilter) => ({
       ...prevFilter,
       ...newFilterValue,
@@ -246,54 +232,20 @@ const BigTableValueIntDose = (props) => {
 
   // Применение текущего значения фильтра
   const applyFilter = () => {
-    //setApplFlt(currFlt);
     setApplFlt(prevState => {
       // Копируем все свойства из currFlt
       let newState = {...currFlt};
-  
       // Следующее сделано для того, чтобы невидимые (скрытые) контролы не попадали в примененный фильтр
-/*
-      if (!((currFlt.selDataSourceValues.length)&&(currFlt.selDoseRatioValue) ))
-      {
-        newState.selOrganValues = [];
-      } 
-      
-      if (!((currFlt.selDataSourceValues.length)&&(currFlt.selDoseRatioValue) ))
-      {
-        newState.selLetLevelValues = [];
-      } 
-
-      if (!((currFlt.selDataSourceValues.length)&&(currFlt.selIrradiationValue)&&(currFlt.selIrradiationValue.id===2)))  
-      {  
-        newState.selSubstFormValues = [];
-      }
-
-      if (!((currFlt.selDataSourceValues.length)&&(currFlt.selIrradiationValue)&&(currFlt.selIrradiationValue.id===2)))  
-      {  
-        newState.selSubstFormValues = [];
-      }
-
-      if (!((currFlt.selDataSourceValues.length)&&(currFlt.selIrradiationValue)&&(currFlt.selIrradiationValue.id===2)&&
-        // ((currFlt.selSubstFormValues.filter((row) => substFormToAerosolSolParentIds.includes(row.id))).length!==0)
-      ))  
-      {  
-        newState.selAerosolSolValues = [];
-        newState.selAerosolAMADValues = [];
-      }
-
-       if (!((currFlt.selDataSourceValues.length)&&((currFlt.selPeopleClassValues.filter((row) => peopleClassToAgeGroupParentIds.includes(row.id))).length!==0) ))  
-      {  
-        newState.selAgeGroupValues = [];
-      }
-
-      if (!((currFlt.selDataSourceValues.length)&&((currFlt.selPeopleClassValues.filter((row) => peopleClassToExpScenarioParentIds.includes(row.id))).length!==0) ))  
-      {  
-        newState.selExpScenarioValues = [];
-      } */
+      if (!organVisible) { newState.selOrganValues = []; } 
+      if (!letLevelVisible) { newState.selLetLevelValues = []; } 
+      if (!substFormVisible) { newState.selSubstFormValues = []; }
+      if (!aerosolSolVisible) { newState.selAerosolSolValues = []; }
+      if (!aerosolAmadVisible) { newState.selAerosolAMADValues = []; }
+      if (!agegroupVisible) { newState.selAgeGroupValues = []; }
+      if (!expScenarioVisible) { newState.selExpScenarioValues = []; } 
       // Возвращаем новый объект, который будет новым состоянием
       return newState;
     });
-   
   };
 
   //массивы, содержащие данные для автокомплитов
@@ -408,7 +360,7 @@ const BigTableValueIntDose = (props) => {
       isOrganVisible = tableIntDoseAttr.some(item => item.dose_ratio_id === currFlt.selDoseRatioValue.id && item.organ_id >= 0);
     }
     // Используем результат для установки видимости
-    console.log('isOrganVisible',isOrganVisible);
+    //console.log('isOrganVisible',isOrganVisible);
     setOrganVisible(isOrganVisible);
     if (!isOrganVisible)
       updateCurrentFilter({ selOrganValues: [] }); 
@@ -448,8 +400,8 @@ const BigTableValueIntDose = (props) => {
         && currFlt.selPeopleClassValues && currFlt.selPeopleClassValues.length > 0
         && currFlt.selSubstFormValues && currFlt.selSubstFormValues.length > 0) {
 
-        console.log(' currFlt.selDoseRatioValue, currFlt.selIrradiationValue, currFlt.selPeopleClassValues, currFlt.selSubstFormValues');
-        console.log(currFlt.selDoseRatioValue.id, currFlt.selIrradiationValue.id, currFlt.selPeopleClassValues, currFlt.selSubstFormValues);
+        //console.log(' currFlt.selDoseRatioValue, currFlt.selIrradiationValue, currFlt.selPeopleClassValues, currFlt.selSubstFormValues');
+        //console.log(currFlt.selDoseRatioValue.id, currFlt.selIrradiationValue.id, currFlt.selPeopleClassValues, currFlt.selSubstFormValues);
       
       tableIntDoseAttr.forEach(item => {
         const match = item.dose_ratio_id === currFlt.selDoseRatioValue.id 
