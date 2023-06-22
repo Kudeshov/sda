@@ -10,7 +10,6 @@ import { Box, IconButton } from '@mui/material';
 import Alert from '@mui/material/Alert';
 import Collapse from '@mui/material/Collapse';
 import CloseIcon from '@mui/icons-material/Close';
-//import { DataTableDataSourceClass } from './dt_data_source_class';
 import SvgIcon from '@mui/material/SvgIcon';
 import { ReactComponent as SaveLightIcon } from "./../icons/save.svg";
 import { ReactComponent as PlusLightIcon } from "./../icons/plus.svg";
@@ -47,7 +46,6 @@ var clickAfterReload = false;
 
 const DataTableCriterion = (props) => {
   const [tableCalcfunction, settableCalcfunction] = useState([]); 
-  //const [tableCriterionGr, settableCriterionGr] = useState([]); 
   const [tableActionLevel, settableActionLevel] = useState([]); 
   const [tableIrradiation, settableIrradiation] = useState([]); 
   const [tablePeopleClass, settablePeopleClass] = useState([]); 
@@ -61,7 +59,6 @@ const DataTableCriterion = (props) => {
   const [tableAerosolAmad, settableAerosolAmad] = useState([]);
   const [tableDataSource, settableDataSource] = useState([]);
   const [tableExpScenario, settableExpScenario] = useState([]); 
-  // const [tableCrvalue, settableCrvalue] = useState([0,1,2,3,4,5,6]); 
   const [valueCalcfunctionID, setValueCalcfunctionID] = useState(); 
   const [valueCrValue, setValueCrValue] = useState(); 
   const [valueTimeend, setValueTimeend] = useState(); 
@@ -111,7 +108,6 @@ const DataTableCriterion = (props) => {
       valueParentID, valueNormativ]); 
 
   useEffect(() => {
-    //console.log('setEditStarted valueTitleInitial='+valueTitleInitial+' valueTitle = '+ valueTitle);    
     setEditStarted(       
        (valueTitleInitial!==valueTitle)||(valueNameRusInitial!==valueNameRus)||(valueNameEngInitial!==valueNameEng)
       ||(valueDescrEngInitial!==valueDescrEng) ||(valueDescrRusInitial!==valueDescrRus)||(valueParentIDInitial!==valueParentID)/*||(valueNormativInitial!==valueNormativ)*/);
@@ -158,7 +154,6 @@ const DataTableCriterion = (props) => {
               setValueDescrEng(res[0].descr_eng);    
               setValueParentID(res[0].parent_id||-1);    
               setValueNormativ(res[0].normativ_id);      
-
               setValueTitleInitial(res[0].title);
               setValueNameRusInitial(res[0].name_rus);
               setValueNameEngInitial(res[0].name_eng);
@@ -167,22 +162,21 @@ const DataTableCriterion = (props) => {
               setValueParentIDInitial(res[0].parent_id||-1); 
               setValueNormativInitial(res[0].normativ_id);      
               setValueCalcfunctionID(res[0].calcfunction_id);
-      setValueIrradiation(res[0].irradiation_id);
-      setValueAgegroup(res[0].agegroup_id);
-      setValueExpScenario(res[0].exp_scenario_id);
-      setValueIntegralPeriod(res[0].integral_period_id);
-      setValueOrgan(res[0].organ_id);
-      setValueDataSource(res[0].data_source_id);
-      setValueAerosolAmad(res[0].aerosol_amad_id);
-      setValueAerosolSol(res[0].aerosol_sol_id);
-      setValueChemCompGr(res[0].chem_comp_gr_id);
-      setValueSubstForm(res[0].subst_form_id);
-      setValueIsotope(res[0].isotope_id);
-      setValueActionLevel(res[0].action_level_id);
-      setValuePeopleClass(res[0].people_class_id);
-      setValueCrValue(res[0].cr_value);
-      setValueTimeend(res[0].timeend);
-              
+              setValueIrradiation(res[0].irradiation_id);
+              setValueAgegroup(res[0].agegroup_id);
+              setValueExpScenario(res[0].exp_scenario_id);
+              setValueIntegralPeriod(res[0].integral_period_id);
+              setValueOrgan(res[0].organ_id);
+              setValueDataSource(res[0].data_source_id);
+              setValueAerosolAmad(res[0].aerosol_amad_id);
+              setValueAerosolSol(res[0].aerosol_sol_id);
+              setValueChemCompGr(res[0].chem_comp_gr_id);
+              setValueSubstForm(res[0].subst_form_id);
+              setValueIsotope(res[0].isotope_id);
+              setValueActionLevel(res[0].action_level_id);
+              setValuePeopleClass(res[0].people_class_id);
+              setValueCrValue(res[0].cr_value);
+              setValueTimeend(res[0].timeend);
           }; 
         
       if (clickAfterReload) {
@@ -236,11 +230,7 @@ const DataTableCriterion = (props) => {
           onNodeSelect={handleSelect}
           expanded={expanded}
           selected={selected}          
-          //onNodeToggle={handleChange}
-          //defaultExpanded={[1,2]}
-          //expanded={true}
           loading={isLoading}
-          //defaultExpanded={ids}
         >
           {getTreeItemsFromData(treeItems)}
         </TreeView></div>
@@ -293,8 +283,6 @@ const DataTableCriterion = (props) => {
       setValuePeopleClass(res[0].people_class_id);
       setValueCrValue(res[0].cr_value);
       setValueTimeend(res[0].timeend);
-      
-      console.log(res[0].crit);
       setValueCrit(res[0].crit);
     }   
   }; 
@@ -312,7 +300,7 @@ const DataTableCriterion = (props) => {
       setValueNameEng(``);
       setValueDescrRus(``);
       setValueDescrEng(``);
-      setValueParentID(valueParentID); //-1
+      setValueParentID(valueParentID);  
       setValueNormativ(``);
       setValueCalcfunctionID(``);
       setValueIrradiation(``);
@@ -330,16 +318,13 @@ const DataTableCriterion = (props) => {
       setValuePeopleClass(``);
       setValueCrValue(``);
       setValueTimeend(``);
-      
     }
   }; 
 
   useEffect(() => {
     fetch(`/${props.table_name}`)
       .then((data) => data.json())
-      .then((data) => setTableData(data))
-      .then((data) => {  //lastId = data[0].id||0; clickAfterReload = true; console.log( 'setSelected ');  //console.log( tableData[0].id||0 ); 
-          } ); 
+      .then((data) => setTableData(data)); 
   }, [props.table_name])
 
   useEffect(() => {
@@ -351,7 +336,6 @@ const DataTableCriterion = (props) => {
         return item.id.toString() === id;
       });
 
-      //console.log('res.length ' + res.length);
       setValueID(res[0].id); 
       setValueTitle(res[0].title);
       setValueNameRus(res[0].name_rus);
@@ -384,12 +368,8 @@ const DataTableCriterion = (props) => {
       setValueCrValue(res[0].cr_value);
       setValueTimeend(res[0].timeend);
     }; 
-
-    //console.log( 'selected = ' + selected + ' tableData.length ' + tableData.length );
     if ((!selected)&&(tableData.length))
     {
-      //console.log( 'setSelected(tableData[0].id.toString()); = ' + tableData[0].id.toString()  );
-
       setSelected(tableData[0].id.toString());
       updateCurrentRec(tableData[0].id.toString());
     }      
@@ -398,131 +378,93 @@ const DataTableCriterion = (props) => {
   useEffect(() => {
     fetch(`/normativ`)
       .then((data) => data.json())
-      .then((data) => setNormativ(data))
-      .then((data) => { /* lastId = 0; */} ); 
+      .then((data) => setNormativ(data)); 
   }, [valueNormativ])
-
 
   useEffect(() => {
     fetch(`/calcfunction`)
       .then((data) => data.json())
-      .then((data) => settableCalcfunction(data))
-      .then((data) => { lastId = 0;} ); 
+      .then((data) => settableCalcfunction(data)); 
   }, [])
-
-/*   useEffect(() => {
-    fetch(`/criterion_gr`)
-      .then((data) => data.json())
-      .then((data) => settableCriterionGr(data))
-      .then((data) => {  lastId = 0;} ); 
-  }, []) */
 
   useEffect(() => {
     fetch(`/action_level`)
       .then((data) => data.json())
-      .then((data) => settableActionLevel(data))
-      .then((data) => {  lastId = 0;} ); 
+      .then((data) => settableActionLevel(data)); 
   }, [])
 
   useEffect(() => {
     fetch(`/irradiation`)
       .then((data) => data.json())
-      .then((data) => settableIrradiation(data))
-      .then((data) => {  lastId = 0;} ); 
+      .then((data) => settableIrradiation(data)); 
   }, [])
 
   useEffect(() => {
     fetch(`/people_class`)
       .then((data) => data.json())
-      .then((data) => settablePeopleClass(data))
-      .then((data) => {  lastId = 0;} ); 
+      .then((data) => settablePeopleClass(data)); 
   }, [])
 
   useEffect(() => {
     fetch(`/agegroup`)
       .then((data) => data.json())
-      .then((data) => settableAgegroup(data))
-      .then((data) => {  lastId = 0;} ); 
+      .then((data) => settableAgegroup(data)); 
   }, [])
 
-  
   useEffect(() => {
     fetch(`/exp_scenario`)
       .then((data) => data.json())
-      .then((data) => settableExpScenario(data))
-      .then((data) => {  lastId = 0;} ); 
+      .then((data) => settableExpScenario(data)); 
   }, [])
 
-   
   useEffect(() => {
     fetch(`/integral_period`)
       .then((data) => data.json())
-      .then((data) => settableIntegralPeriod(data))
-      .then((data) => {  lastId = 0;} ); 
+      .then((data) => settableIntegralPeriod(data)); 
   }, [])
 
   useEffect(() => {
     fetch(`/organ`)
       .then((data) => data.json())
-      .then((data) => settableOrgan(data))
-      .then((data) => {  lastId = 0;} ); 
+      .then((data) => settableOrgan(data)); 
   }, [])
 
   useEffect(() => {
     fetch(`/isotope`)
       .then((data) => data.json())
-      .then((data) => settableIsotope(data))
-      .then((data) => {  lastId = 0;} ); 
+      .then((data) => settableIsotope(data)); 
   }, [])
 
   useEffect(() => {
     fetch(`/subst_form`)
       .then((data) => data.json())
-      .then((data) => settableSubstForm(data))
-      .then((data) => {  lastId = 0;} ); 
+      .then((data) => settableSubstForm(data)); 
   }, [])
 
   
   useEffect(() => {
     fetch(`/aerosol_sol`)
       .then((data) => data.json())
-      .then((data) => settableAerosolSol(data))
-      .then((data) => {  lastId = 0;} ); 
+      .then((data) => settableAerosolSol(data)); 
   }, [])
 
   useEffect(() => {
     fetch(`/chem_comp_gr_min`)
       .then((data) => data.json())
-      .then((data) => settableChemCompGr(data))
-      .then((data) => {  lastId = 0;} ); 
+      .then((data) => settableChemCompGr(data)); 
   }, [])
-
 
   useEffect(() => {
     fetch(`/aerosol_amad`)
       .then((data) => data.json())
-      .then((data) => settableAerosolAmad(data))
-      .then((data) => {  lastId = 0;} ); 
+      .then((data) => settableAerosolAmad(data)); 
   }, [])
 
-  
   useEffect(() => {
     fetch(`/data_source`)
       .then((data) => data.json())
-      .then((data) => settableDataSource(data))
-      .then((data) => {  lastId = 0;} ); 
+      .then((data) => settableDataSource(data)); 
   }, [])
-
-
-
-/*   useEffect(() => {
-    fetch(`/cr_value`)
-      .then((data) => data.json())SubstForm
-      .then((data) => settableCrvalue(data))
-      .then((data) => {  lastId = 0;} ); 
-  }, [])
- */
-
 
 ///////////////////////////////////////////////////////////////////  Tree load functions and hook  /////////////////////
   useEffect(() => {
@@ -590,13 +532,10 @@ const DataTableCriterion = (props) => {
 
   ///////////////////////////////////////////////////////////////////  SAVE  /////////////////////
   const saveRec = async ( fromToolbar ) => {
-
     if (formRef.current.reportValidity() )
     {
-
-    console.log('valueParentID = ' + valueParentID)
-    console.log('valueChemCompGr = ' + valueChemCompGr)
-
+    //console.log('valueParentID = ' + valueParentID)
+    //console.log('valueChemCompGr = ' + valueChemCompGr)
     const js = JSON.stringify({
       id: valueId,
       title: valueTitle,
@@ -648,23 +587,22 @@ const DataTableCriterion = (props) => {
         alertText = await response.text();
         setOpenAlert(true);  
       }
-   } catch (err) {
-     alertText = err.message;
-     alertSeverity = 'error';
-     setOpenAlert(true);
-   } finally {
-     setIsLoading('false');
-     if (fromToolbar) 
-     {
-       //console.log('fromToolbar valueTitle'+valueTitle)
-       setValueTitleInitial(valueTitle);       
-       setValueNameRusInitial(valueNameRus); 
-       setValueNameEngInitial(valueNameEng);
-       setValueDescrRusInitial(valueDescrRus);
-       setValueDescrEngInitial(valueDescrEng);    
-       setValueParentIDInitial(valueParentID);
-       setValueNormativInitial(valueNormativ);
-       setValueTitleInitial(valueTitle);       
+    } catch (err) {
+      alertText = err.message;
+      alertSeverity = 'error';
+      setOpenAlert(true);
+    } finally {
+      setIsLoading('false');
+      if (fromToolbar) 
+      {
+        setValueTitleInitial(valueTitle);       
+        setValueNameRusInitial(valueNameRus); 
+        setValueNameEngInitial(valueNameEng);
+        setValueDescrRusInitial(valueDescrRus);
+        setValueDescrEngInitial(valueDescrEng);    
+        setValueParentIDInitial(valueParentID);
+        setValueNormativInitial(valueNormativ);
+        setValueTitleInitial(valueTitle);       
         setValueNameRusInitial(valueNameRus); 
         setValueNameEngInitial(valueNameEng);
         setValueDescrRusInitial(valueDescrRus);
@@ -687,8 +625,6 @@ const DataTableCriterion = (props) => {
         setValuePeopleClass(valuePeopleClass);
         setValueCrValue(valueCrValue);
         setValueTimeend(valueTimeend);
-           
-       
      }
     reloadData();     
    }
@@ -696,8 +632,6 @@ const DataTableCriterion = (props) => {
  };
 /////////////////////////////////////////////////////////////////// ADDREC ///////////////////// 
   const addRec = async ()  => {
-    //let myParentID;
-    //myParentID = valueParentID === -1 ? null : valueParentID;
     const js = JSON.stringify({
       id: valueId,
       title: valueTitle,
@@ -779,7 +713,6 @@ const DataTableCriterion = (props) => {
         setValuePeopleClass(valuePeopleClass);
         setValueCrValue(valueCrValue);
         setValueTimeend(valueTimeend);
-           
         setOpenAlert(true);  
       }
     } catch (err) {
@@ -809,19 +742,16 @@ const DataTableCriterion = (props) => {
         },
       });
       if (!response.ok) {
-        //console.log('response not OK');
         alertSeverity = 'error';
         alertText = await response.text();
         setOpenAlert(true);          
       }
       else
       {
-        //console.log('response OK');
         alertSeverity = "success";
         alertText = await response.text();
         setOpenAlert(true); 
         reloadData();
-        //setSelectionModel(tableData[0].id );  
         setValueID(tableData[0].id);
         setValueTitle(tableData[0].title);
         setValueNameRus(tableData[0].name_rus);
@@ -869,11 +799,8 @@ const DataTableCriterion = (props) => {
     alertText =  'Данные успешно обновлены';
     try 
     {
-      //console.log('handleClickReload await reloadData();');
       clickAfterReload = true;
       await reloadData().then( console.log('after reload, title = '+tableData[0].title) ) ;
-      //console.log('handleClickReload handleItemClick(lastId); lastId= '+lastId);
-      //handleItemClick(lastId);
     } catch(e)
     {
       alertSeverity = "error";
@@ -933,7 +860,6 @@ const DataTableCriterion = (props) => {
     var res = tableData.filter(function(item) {
       return item.id.toString() === id;
     });
-    //console.log('res.length ' + res.length);
     setValueID(res[0].id); 
     setValueTitle(res[0].title);
     setValueNameRus(res[0].name_rus);
@@ -965,20 +891,16 @@ const DataTableCriterion = (props) => {
     setValuePeopleClass(res[0].people_class_id);
     setValueCrValue(res[0].cr_value);
     setValueTimeend(res[0].timeend);
-    
-     
   }; 
 
   const handleCloseSaveNo = () => {
     setOpenSave(false);
-    //handleCancelClick();
     updateCurrentRecHandles(clickedId);
   };
 
   const handleCloseSaveYes = () => {
     setOpenSave(false);
     saveRec(false);
-    //handleCancelClick();
     updateCurrentRecHandles(clickedId);
   };
 
@@ -988,15 +910,11 @@ const DataTableCriterion = (props) => {
 
   const handleCloseSaveWhenNewNo = () => {
     setOpenSaveWhenNew(false);
-    //updateCurrentRecHandles(clickedId);    
   };
 
   const handleCloseSaveWhenNewYes = () => {
-    //console.log('handleCloseSaveWhenNewYes');
     setOpenSaveWhenNew(false);
     saveRec(true);
-    //console.log('handleCloseSaveWhenNewYes lastId = '+lastId);
-    //updateCurrentRec(lastId);    
   };
 
   //////////////////////////////////////////////////////// ACTIONS ///////////////////////////////
@@ -1022,7 +940,6 @@ const DataTableCriterion = (props) => {
       setValueParentIDInitial(selectedRowData[0].parent_id||-1);
       setValueNormativ(selectedRowData[0].normativ_id);
       setValueNormativInitial(selectedRowData[0].normativ_id);
-
       setValueCalcfunctionID(selectedRowData[0].calcfunction_id);
       setValueIrradiation(selectedRowData[0].irradiation_id);
       setValueAgegroup(selectedRowData[0].agegroup_id);
@@ -1039,18 +956,12 @@ const DataTableCriterion = (props) => {
       setValuePeopleClass(selectedRowData[0].people_class_id);
       setValueCrValue(selectedRowData[0].cr_value);
       setValueTimeend(selectedRowData[0].timeend);
-      
-
     }
   }
 
   function getHeaders(atable)
   {
-    if (atable==='criterion_gr') 
-      return ['Обозначение','Название(рус.яз)','Название(англ.яз)','Нормативная база','Родительский класс','Комментарий(рус.яз)','Комментарий(англ.яз)'];
-    if (atable==='organ') 
-      return ['Обозначение','Название(рус.яз)','Название(англ.яз)','Родительский класс','Комментарий(рус.яз)','Комментарий(англ.яз)'];
-    if (atable==='exp_scenario') 
+    if (atable==='criterion') 
       return ['Обозначение','Название(рус.яз)','Название(англ.яз)','Родительский класс','Комментарий(рус.яз)','Комментарий(англ.яз)'];
   }
 
@@ -1082,12 +993,7 @@ const DataTableCriterion = (props) => {
 
     var arr_excel = [];
     
-    if (props.table_name==='criterion_gr')  
-      arr_excel= t.map(({title, name_rus, name_eng, descr_rus, descr_eng, parent_name, normativ_title}) => ({title, name_rus, name_eng, normativ_title, parent_name, descr_rus, descr_eng}))
-    else
-      arr_excel= t.map(({title, name_rus, name_eng, descr_rus, descr_eng, parent_name}) => ({title, name_rus, name_eng, parent_name, descr_rus, descr_eng}));
-
-    //arr_excel = JSON.parse(JSON.stringify(arr_excel).replace(/\:null/gi, "\:\"\"")); 
+    arr_excel= t.map(({title, name_rus, name_eng, descr_rus, descr_eng, parent_name}) => ({title, name_rus, name_eng, parent_name, descr_rus, descr_eng}));
     arr_excel = JSON.parse( JSON.stringify(arr_excel, replacer) );
 
     return(arr_excel);
@@ -1097,7 +1003,7 @@ const DataTableCriterion = (props) => {
     const csvExporter = new ExportToCsv(optionsCSV);
     console.log(treeFilterString);
     const filteredData = tableData.filter(item =>
-      item.title.toLowerCase().includes(treeFilterString.toLowerCase())
+      item.title.toLowerCase().includes(treeFilterString.toLowerCase()) && item.crit === 1
     );
     csvExporter.generateCsv(getTableDataForExcel(filteredData));
   }
