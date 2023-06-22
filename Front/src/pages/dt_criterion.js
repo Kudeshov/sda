@@ -62,6 +62,9 @@ const DataTableCriterion = (props) => {
   const [valueCalcfunctionID, setValueCalcfunctionID] = useState(); 
   const [valueCrValue, setValueCrValue] = useState(); 
   const [valueTimeend, setValueTimeend] = useState(); 
+  const [valueCalcfunctionIDInitial, setValueCalcfunctionIDInitial] = useState(); 
+  const [valueCrValueInitial, setValueCrValueInitial] = useState(); 
+  const [valueTimeendInitial, setValueTimeendInitial] = useState(); 
   const [valueId, setValueID] = React.useState();
   const [valueTitle, setValueTitle] = React.useState();
   const [valueTitleInitial, setValueTitleInitial] = React.useState();
@@ -75,14 +78,12 @@ const DataTableCriterion = (props) => {
   const [valueDescrRusInitial, setValueDescrRusInitial] = React.useState();
   const [valueParentID, setValueParentID] = React.useState();
   const [valuePeopleClass, setValuePeopleClass] = React.useState();
-
   const [valueActionLevel, setValueActionLevel] = React.useState();
   const [valueIrradiation, setValueIrradiation] = React.useState();
   const [valueAgegroup, setValueAgegroup] = React.useState();
   const [valueExpScenario, setValueExpScenario] = React.useState();
   const [valueIntegralPeriod, setValueIntegralPeriod] = React.useState();
   const [valueOrgan, setValueOrgan] = React.useState();
-  
   const [valueDataSource, setValueDataSource] = React.useState();
   const [valueChemCompGr, setValueChemCompGr] = React.useState();
   const [valueAerosolSol, setValueAerosolSol] = React.useState();
@@ -90,29 +91,68 @@ const DataTableCriterion = (props) => {
   const [valueSubstForm, setValueSubstForm] = React.useState();
   const [valueIsotope, setValueIsotope] = React.useState();
   const [valueParentIDInitial, setValueParentIDInitial] = React.useState();
+  const [valuePeopleClassInitial, setValuePeopleClassInitial] = React.useState();
+  const [valueActionLevelInitial, setValueActionLevelInitial] = React.useState();
+  const [valueIrradiationInitial, setValueIrradiationInitial] = React.useState();
+  const [valueAgegroupInitial, setValueAgegroupInitial] = React.useState();
+  const [valueExpScenarioInitial, setValueExpScenarioInitial] = React.useState();
+  const [valueIntegralPeriodInitial, setValueIntegralPeriodInitial] = React.useState();
+  const [valueOrganInitial, setValueOrganInitial] = React.useState();
+  const [valueDataSourceInitial, setValueDataSourceInitial] = React.useState();
+  const [valueChemCompGrInitial, setValueChemCompGrInitial] = React.useState();
+  const [valueAerosolSolInitial, setValueAerosolSolInitial] = React.useState();
+  const [valueAerosolAmadInitial, setValueAerosolAmadInitial] = React.useState();
+  const [valueSubstFormInitial, setValueSubstFormInitial] = React.useState();
+  const [valueIsotopeInitial, setValueIsotopeInitial] = React.useState();
   const [valueNormativ, setValueNormativ] = React.useState();
   const [valueNormativInitial, setValueNormativInitial] = React.useState();
-
   const [isLoading, setIsLoading] = React.useState("false");
   const [tableData, setTableData] = useState([]); 
   const [tableNormativ, setNormativ] = useState([]); 
   const [treeData, setTreeData] = useState([]); 
-  const [editStarted, setEditStarted] = useState([false]);
+  const [editStarted, setEditStarted] = useState(false);
   const [isEmpty, setIsEmpty] = useState([false]);
-  const [valueCrit, setValueCrit] = React.useState();
+  const [valueCrit, setValueCrit] = React.useState(0);
 
-  useEffect(() => {
+   useEffect(() => {
     setIsEmpty((''===valueTitle)&&(''===valueNameRus)&&(''===valueNameEng)&&(''===valueDescrEng)&&(''===valueDescrRus)   
-      &&(''===valueParentID)&&(''===valueNormativ));
-    }, [ valueTitle, valueNameRus, valueNameEng, valueDescrEng, valueDescrRus, 
-      valueParentID, valueNormativ]); 
+      &&(''===valueParentID)&&(''===valueCalcfunctionID)(''===valueCrValue)&&(''===valueTimeend)&&(''===valuePeopleClass)&&(''===valueIrradiation)&&(''===valueAgegroup)   
+      &&(''===valueActionLevel)&&(''===valueExpScenario)(''===valueIntegralPeriod)&&(''===valueOrgan)&&(''===valueDataSource)&&(''===valueChemCompGr)&&(''===valueAerosolSol)   
+      &&(''===valueAerosolAmad)&&(''===valueSubstForm)&&(''===valueIsotope));
+    }, [ valueTitle, valueNameRus, valueNameEng, valueDescrEng, valueDescrRus, valueParentID, valueNormativ, valueCalcfunctionID,
+      valueCrValue, valueTimeend, valuePeopleClass, valueIrradiation, valueAgegroup, valueActionLevel, valueExpScenario, valueIntegralPeriod,
+      valueOrgan, valueDataSource, valueChemCompGr, valueAerosolSol, valueAerosolAmad, valueSubstForm, valueIsotope]);    
+
+    useEffect(() => {
+      setIsEmpty(('' === valueTitle) && ('' === valueNameRus) && ('' === valueNameEng) && ('' === valueDescrEng) && ('' === valueDescrRus)
+        && ('' === valueParentID) && ('' === valueNormativ) && ('' === valueCalcfunctionID) && ('' === valueCrValue) && ('' === valueTimeend)
+        && ('' === valuePeopleClass) && ('' === valueIrradiation) && ('' === valueAgegroup) && ('' === valueActionLevel) && ('' === valueExpScenario)
+        && ('' === valueIntegralPeriod) && ('' === valueOrgan) && ('' === valueDataSource) && ('' === valueChemCompGr) && ('' === valueAerosolSol)
+        && ('' === valueAerosolAmad) && ('' === valueSubstForm) && ('' === valueIsotope));
+    }, [
+      valueTitle, valueNameRus, valueNameEng, valueDescrEng, valueDescrRus, valueParentID, valueNormativ, valueCalcfunctionID,
+      valueCrValue, valueTimeend, valuePeopleClass, valueIrradiation, valueAgegroup, valueActionLevel, valueExpScenario, valueIntegralPeriod,
+      valueOrgan, valueDataSource, valueChemCompGr, valueAerosolSol, valueAerosolAmad, valueSubstForm, valueIsotope
+    ]);
+    
 
   useEffect(() => {
     setEditStarted(       
        (valueTitleInitial!==valueTitle)||(valueNameRusInitial!==valueNameRus)||(valueNameEngInitial!==valueNameEng)
-      ||(valueDescrEngInitial!==valueDescrEng) ||(valueDescrRusInitial!==valueDescrRus)||(valueParentIDInitial!==valueParentID)/*||(valueNormativInitial!==valueNormativ)*/);
+      ||(valueDescrEngInitial!==valueDescrEng) ||(valueCrValueInitial!==valueCrValue)||(valueParentIDInitial!==valueParentID)||(valueParentIDInitial!==valueParentID)||(valueNormativ!==valueNormativInitial)
+      ||(valueCalcfunctionIDInitial!==valueCalcfunctionID)||(valueTimeendInitial!==valueTimeend)||(valueExpScenarioInitial!==valueExpScenario)||(valueIntegralPeriodInitial!==valueIntegralPeriod)
+      ||(valueOrganInitial!==valueOrgan)||(valueDataSourceInitial!==valueDataSource)||(valueChemCompGrInitial!==valueChemCompGr)||(valueAerosolSolInitial!==valueAerosolSol)||(valueAerosolAmadInitial!==valueAerosolAmad)
+      ||(valueDataSourceInitial!==valueDataSource)||(valueChemCompGrInitial!==valueChemCompGr)||(valueAerosolAmadInitial!==valueAerosolAmad)
+      ||(valueSubstFormInitial!==valueSubstForm)
+      ||(valueIsotopeInitial!==valueIsotope)||(valueAerosolAmadInitial!==valueAerosolAmad)||(valueActionLevelInitial!==valueActionLevel)|(valueAgegroupInitial!==valueAgegroup));
+
     }, [valueTitleInitial, valueTitle, valueNameRusInitial, valueNameRus, valueNameEngInitial, valueNameEng, 
-        valueDescrEngInitial, valueDescrEng, valueDescrRusInitial, valueDescrRus, valueParentID, valueParentIDInitial, valueNormativ, valueNormativInitial]); 
+        valueDescrEngInitial, valueDescrEng, valueDescrRusInitial, valueDescrRus, valueParentID, valueParentIDInitial, valueNormativ, valueNormativInitial, valueCalcfunctionID, valueCalcfunctionIDInitial,
+      valueCrValueInitial, valueCrValue,  valueTimeend,valueTimeendInitial,valuePeopleClass, valuePeopleClassInitial,
+       valueIrradiation, valueIrradiationInitial, valueAgegroup, valueAgegroupInitial, valueActionLevel, valueActionLevelInitial,
+    valueExpScenario, valueExpScenarioInitial, valueIntegralPeriod, valueIntegralPeriodInitial, valueOrgan, valueOrganInitial,valueDataSource,
+    valueDataSourceInitial, valueChemCompGr, valueChemCompGrInitial, valueAerosolSol,
+    valueAerosolSolInitial, valueAerosolAmad, valueAerosolAmadInitial, valueSubstForm, valueSubstFormInitial, valueIsotope, valueIsotopeInitial,]); 
 
   useEffect(() => {
     if ((!isLoading) && (tableData) && (tableData.length)) {
@@ -133,6 +173,40 @@ const DataTableCriterion = (props) => {
         setValueParentIDInitial(tableData[0].parent_id||-1);
         setValueNormativ(tableData[0].normativ_id);
         setValueNormativInitial(tableData[0].normativ_id);  
+
+        setValueCalcfunctionID(tableData[0].calcfunction_id);
+        setValueIrradiation(tableData[0].irradiation_id);
+        setValueAgegroup(tableData[0].agegroup_id);
+        setValueExpScenario(tableData[0].exp_scenario_id);
+        setValueIntegralPeriod(tableData[0].integral_period_id);
+        setValueOrgan(tableData[0].organ_id);
+        setValueDataSource(tableData[0].data_source_id);
+        setValueAerosolAmad(tableData[0].aerosol_amad_id);
+        setValueAerosolSol(tableData[0].aerosol_sol_id);
+        setValueChemCompGr(tableData[0].chem_comp_gr_id);
+        setValueSubstForm(tableData[0].subst_form_id);
+        setValueIsotope(tableData[0].isotope_id);
+        setValueActionLevel(tableData[0].action_level_id);
+        setValuePeopleClass(tableData[0].people_class_id);
+        setValueCrValue(tableData[0].cr_value);
+        setValueTimeend(tableData[0].timeend);
+
+        setValueCalcfunctionIDInitial(tableData[0].calcfunction_id);
+        setValueIrradiationInitial(tableData[0].irradiation_id);
+        setValueAgegroupInitial(tableData[0].agegroup_id);
+        setValueExpScenarioInitial(tableData[0].exp_scenario_id);
+        setValueIntegralPeriodInitial(tableData[0].integral_period_id);
+        setValueOrganInitial(tableData[0].organ_id);
+        setValueDataSourceInitial(tableData[0].data_source_id);
+        setValueAerosolAmadInitial(tableData[0].aerosol_amad_id);
+        setValueAerosolSolInitial(tableData[0].aerosol_sol_id);
+        setValueChemCompGrInitial(tableData[0].chem_comp_gr_id);
+        setValueSubstFormInitial(tableData[0].subst_form_id);
+        setValueIsotopeInitial(tableData[0].isotope_id);
+        setValueActionLevelInitial(tableData[0].action_level_id);
+        setValuePeopleClassInitial(tableData[0].people_class_id);
+        setValueCrValueInitial(tableData[0].cr_value);
+        setValueTimeendInitial(tableData[0].timeend);
       }
     }
     }, [ isLoading, tableData] );
@@ -177,6 +251,23 @@ const DataTableCriterion = (props) => {
               setValuePeopleClass(res[0].people_class_id);
               setValueCrValue(res[0].cr_value);
               setValueTimeend(res[0].timeend);
+
+              setValueCalcfunctionIDInitial(res[0].calcfunction_id);
+              setValueIrradiationInitial(res[0].irradiation_id);
+              setValueAgegroupInitial(res[0].agegroup_id);
+              setValueExpScenarioInitial(res[0].exp_scenario_id);
+              setValueIntegralPeriodInitial(res[0].integral_period_id);
+              setValueOrganInitial(res[0].organ_id);
+              setValueDataSourceInitial(res[0].data_source_id);
+              setValueAerosolAmadInitial(res[0].aerosol_amad_id);
+              setValueAerosolSolInitial(res[0].aerosol_sol_id);
+              setValueChemCompGrInitial(res[0].chem_comp_gr_id);
+              setValueSubstFormInitial(res[0].subst_form_id);
+              setValueIsotopeInitial(res[0].isotope_id);
+              setValueActionLevelInitial(res[0].action_level_id);
+              setValuePeopleClassInitial(res[0].people_class_id);
+              setValueCrValueInitial(res[0].cr_value);
+              setValueTimeendInitial(res[0].timeend);
           }; 
         
       if (clickAfterReload) {
@@ -284,6 +375,23 @@ const DataTableCriterion = (props) => {
       setValueCrValue(res[0].cr_value);
       setValueTimeend(res[0].timeend);
       setValueCrit(res[0].crit);
+
+      setValueCalcfunctionIDInitial(res[0].calcfunction_id);
+      setValueIrradiationInitial(res[0].irradiation_id);
+      setValueAgegroupInitial(res[0].agegroup_id);
+      setValueExpScenarioInitial(res[0].exp_scenario_id);
+      setValueIntegralPeriodInitial(res[0].integral_period_id);
+      setValueOrganInitial(res[0].organ_id);
+      setValueDataSourceInitial(res[0].data_source_id);
+      setValueAerosolAmadInitial(res[0].aerosol_amad_id);
+      setValueAerosolSolInitial(res[0].aerosol_sol_id);
+      setValueChemCompGrInitial(res[0].chem_comp_gr_id);
+      setValueSubstFormInitial(res[0].subst_form_id);
+      setValueIsotopeInitial(res[0].isotope_id);
+      setValueActionLevelInitial(res[0].action_level_id);
+      setValuePeopleClassInitial(res[0].people_class_id);
+      setValueCrValueInitial(res[0].cr_value);
+      setValueTimeendInitial(res[0].timeend);
     }   
   }; 
 
@@ -367,6 +475,23 @@ const DataTableCriterion = (props) => {
       setValuePeopleClass(res[0].people_class_id);
       setValueCrValue(res[0].cr_value);
       setValueTimeend(res[0].timeend);
+
+      setValueCalcfunctionIDInitial(res[0].calcfunction_id);
+      setValueIrradiationInitial(res[0].irradiation_id);
+      setValueAgegroupInitial(res[0].agegroup_id);
+      setValueExpScenarioInitial(res[0].exp_scenario_id);
+      setValueIntegralPeriodInitial(res[0].integral_period_id);
+      setValueOrganInitial(res[0].organ_id);
+      setValueDataSourceInitial(res[0].data_source_id);
+      setValueAerosolAmadInitial(res[0].aerosol_amad_id);
+      setValueAerosolSolInitial(res[0].aerosol_sol_id);
+      setValueChemCompGrInitial(res[0].chem_comp_gr_id);
+      setValueSubstFormInitial(res[0].subst_form_id);
+      setValueIsotopeInitial(res[0].isotope_id);
+      setValueActionLevelInitial(res[0].action_level_id);
+      setValuePeopleClassInitial(res[0].people_class_id);
+      setValueCrValueInitial(res[0].cr_value);
+      setValueTimeendInitial(res[0].timeend);
     }; 
     if ((!selected)&&(tableData.length))
     {
@@ -609,6 +734,7 @@ const DataTableCriterion = (props) => {
         setValueDescrEngInitial(valueDescrEng);    
         setValueParentIDInitial(valueParentID);
         setValueNormativInitial(valueNormativ);     
+
         setValueCalcfunctionID(valueCalcfunctionID);
         setValueIrradiation(valueIrradiation);
         setValueAgegroup(valueAgegroup);
@@ -625,6 +751,23 @@ const DataTableCriterion = (props) => {
         setValuePeopleClass(valuePeopleClass);
         setValueCrValue(valueCrValue);
         setValueTimeend(valueTimeend);
+
+        setValueCalcfunctionIDInitial(valueCalcfunctionID);
+        setValueIrradiationInitial(valueIrradiation);
+        setValueAgegroupInitial(valueAgegroup);
+        setValueExpScenarioInitial(valueExpScenario);
+        setValueIntegralPeriodInitial(valueIntegralPeriod);
+        setValueOrganInitial(valueOrgan);
+        setValueDataSourceInitial(valueDataSource);
+        setValueAerosolAmadInitial(valueAerosolAmad);
+        setValueAerosolSolInitial(valueAerosolSol);
+        setValueChemCompGrInitial(valueChemCompGr);
+        setValueSubstFormInitial(valueSubstForm);
+        setValueIsotopeInitial(valueIsotope);
+        setValueActionLevelInitial(valueActionLevel);
+        setValuePeopleClassInitial(valuePeopleClass);
+        setValueCrValueInitial(valueCrValue);
+        setValueTimeendInitial(valueTimeend);
      }
     reloadData();     
    }
@@ -714,6 +857,23 @@ const DataTableCriterion = (props) => {
         setValueCrValue(valueCrValue);
         setValueTimeend(valueTimeend);
         setOpenAlert(true);  
+
+        setValueCalcfunctionIDInitial(valueCalcfunctionID);
+        setValueIrradiationInitial(valueIrradiation);
+        setValueAgegroupInitial(valueAgegroup);
+        setValueExpScenarioInitial(valueExpScenario);
+        setValueIntegralPeriodInitial(valueIntegralPeriod);
+        setValueOrganInitial(valueOrgan);
+        setValueDataSourceInitial(valueDataSource);
+        setValueAerosolAmadInitial(valueAerosolAmad);
+        setValueAerosolSolInitial(valueAerosolSol);
+        setValueChemCompGrInitial(valueChemCompGr);
+        setValueSubstFormInitial(valueSubstForm);
+        setValueIsotopeInitial(valueIsotope);
+        setValueActionLevelInitial(valueActionLevel);
+        setValuePeopleClassInitial(valuePeopleClass);
+        setValueCrValueInitial(valueCrValue);
+        setValueTimeendInitial(valueTimeend);
       }
     } catch (err) {
       alertText = err.message;
@@ -783,6 +943,23 @@ const DataTableCriterion = (props) => {
         setValuePeopleClass(tableData[0].people_class_id);
         setValueCrValue(tableData[0].cr_value);
         setValueTimeend(tableData[0].timeend);
+
+        setValueCalcfunctionIDInitial(tableData[0].calcfunction_id);
+        setValueIrradiationInitial(tableData[0].irradiation_id);
+        setValueAgegroupInitial(tableData[0].agegroup_id);
+        setValueExpScenarioInitial(tableData[0].exp_scenario_id);
+        setValueIntegralPeriodInitial(tableData[0].integral_period_id);
+        setValueOrganInitial(tableData[0].organ_id);
+        setValueDataSourceInitial(tableData[0].data_source_id);
+        setValueAerosolAmadInitial(tableData[0].aerosol_amad_id);
+        setValueAerosolSolInitial(tableData[0].aerosol_sol_id);
+        setValueChemCompGrInitial(tableData[0].chem_comp_gr_id);
+        setValueSubstFormInitial(tableData[0].subst_form_id);
+        setValueIsotopeInitial(tableData[0].isotope_id);
+        setValueActionLevelInitial(tableData[0].action_level_id);
+        setValuePeopleClassInitial(tableData[0].people_class_id);
+        setValueCrValueInitial(tableData[0].cr_value);
+        setValueTimeendInitial(tableData[0].timeend);
       }
     } catch (err) {
       alertText = err.message;
@@ -891,6 +1068,27 @@ const DataTableCriterion = (props) => {
     setValuePeopleClass(res[0].people_class_id);
     setValueCrValue(res[0].cr_value);
     setValueTimeend(res[0].timeend);
+
+    
+    setValueCalcfunctionIDInitial(res[0].calcfunction_id);
+    setValueIrradiationInitial(res[0].irradiation_id);
+    setValueAgegroupInitial(res[0].agegroup_id);
+    setValueExpScenarioInitial(res[0].exp_scenario_id);
+    setValueIntegralPeriodInitial(res[0].integral_period_id);
+    setValueOrganInitial(res[0].organ_id);
+    setValueDataSourceInitial(res[0].data_source_id);
+    setValueAerosolAmadInitial(res[0].aerosol_amad_id);
+    setValueAerosolSolInitial(res[0].aerosol_sol_id);
+    setValueChemCompGrInitial(res[0].chem_comp_gr_id);
+    setValueSubstFormInitial(res[0].subst_form_id);
+    setValueIsotopeInitial(res[0].isotope_id);
+    setValueActionLevelInitial(res[0].action_level_id);
+    setValuePeopleClassInitial(res[0].people_class_id);
+    setValueCrValueInitial(res[0].cr_value);
+    setValueTimeendInitial(res[0].timeend);
+    
+
+    
   }; 
 
   const handleCloseSaveNo = () => {
@@ -956,13 +1154,31 @@ const DataTableCriterion = (props) => {
       setValuePeopleClass(selectedRowData[0].people_class_id);
       setValueCrValue(selectedRowData[0].cr_value);
       setValueTimeend(selectedRowData[0].timeend);
+
+      setValueCalcfunctionIDInitial(selectedRowData[0].calcfunction_id);
+      setValueIrradiationInitial(selectedRowData[0].irradiation_id);
+      setValueAgegroupInitial(selectedRowData[0].agegroup_id);
+      setValueExpScenarioInitial(selectedRowData[0].exp_scenario_id);
+      setValueIntegralPeriodInitial(selectedRowData[0].integral_period_id);
+      setValueOrganInitial(selectedRowData[0].organ_id);
+      setValueDataSourceInitial(selectedRowData[0].data_source_id);
+      setValueAerosolAmadInitial(selectedRowData[0].aerosol_amad_id);
+      setValueAerosolSolInitial(selectedRowData[0].aerosol_sol_id);
+      setValueChemCompGrInitial(selectedRowData[0].chem_comp_gr_id);
+      setValueSubstFormInitial(selectedRowData[0].subst_form_id);
+      setValueIsotopeInitial(selectedRowData[0].isotope_id);
+      setValueActionLevelInitial(selectedRowData[0].action_level_id);
+      setValuePeopleClassInitial(selectedRowData[0].people_class_id);
+      setValueCrValueInitial(selectedRowData[0].cr_value);
+      setValueTimeendInitial(selectedRowData[0].timeend);
     }
   }
 
   function getHeaders(atable)
   {
     if (atable==='criterion') 
-      return ['Обозначение','Название(рус.яз)','Название(англ.яз)','Родительский класс','Комментарий(рус.яз)','Комментарий(англ.яз)'];
+      return ['Обозначение','Название(рус.яз)','Название(англ.яз)','Родительский класс','Комментарий(рус.яз)','Комментарий(англ.яз)','Функция','Значение','Время облучения, сек','Уровень вмешательства',
+      'Тип облучения','Возрастная группа населения','Сценарий поступления','Период интегрирования','Орган / Ткань','Нуклид','Форма вещества','Химические соеденения (группа)','Тип растворимости','AMAD','Источник данных', ];
   }
 
   const optionsCSV = {
@@ -992,12 +1208,37 @@ const DataTableCriterion = (props) => {
      }
 
     var arr_excel = [];
+
+
     
-    arr_excel= t.map(({title, name_rus, name_eng, descr_rus, descr_eng, parent_name}) => ({title, name_rus, name_eng, parent_name, descr_rus, descr_eng}));
+    arr_excel= t.map(({title, name_rus, name_eng, descr_rus, descr_eng, parent_name,normativ_id,calcfunction_id,
+      irradiation_id,agegroup_id,exp_scenario_id, integral_period_id, organ_id, data_source_id, aerosol_amad_id, aerosol_sol_id,
+       chem_comp_gr_id, subst_form_id, isotope_id, action_level_id, people_class_id, cr_value, timeend}) => ({title, name_rus, name_eng, parent_name, descr_rus, descr_eng, normativ_id,calcfunction_id,
+        irradiation_id,agegroup_id,exp_scenario_id, integral_period_id, organ_id, data_source_id, aerosol_amad_id, aerosol_sol_id,
+         chem_comp_gr_id, subst_form_id, isotope_id, action_level_id, people_class_id, cr_value, timeend}));
     arr_excel = JSON.parse( JSON.stringify(arr_excel, replacer) );
 
     return(arr_excel);
-  }
+  }/* 
+
+  setValueNormativ(tableData[0].normativ_id);
+  setValueNormativInitial(tableData[0].normativ_id);
+  setValueCalcfunctionID(tableData[0].calcfunction_id);
+  setValueIrradiation(tableData[0].irradiation_id);
+  setValueAgegroup(tableData[0].agegroup_id);
+  setValueExpScenario(tableData[0].exp_scenario_id);
+  setValueIntegralPeriod(tableData[0].integral_period_id);
+  setValueOrgan(tableData[0].organ_id);
+  setValueDataSource(tableData[0].data_source_id);
+  setValueAerosolAmad(tableData[0].aerosol_amad_id);
+  setValueAerosolSol(tableData[0].aerosol_sol_id);
+  setValueChemCompGr(tableData[0].chem_comp_gr_id);
+  setValueSubstForm(tableData[0].subst_form_id);
+  setValueIsotope(tableData[0].isotope_id);
+  setValueActionLevel(tableData[0].action_level_id);
+  setValuePeopleClass(tableData[0].people_class_id);
+  setValueCrValue(tableData[0].cr_value);
+  setValueTimeend(tableData[0].timeend); */
 
   const exportDataCSV = async () => {
     const csvExporter = new ExportToCsv(optionsCSV);
