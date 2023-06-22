@@ -85,90 +85,68 @@ const createDataSourceClass = (request, response) => {
 }
 
 const deleteDataSourceClass = (request, response) => {
-  function delRec( id ) {
+  function delRec(id) {
     console.log('delrec ' + id);
     pool.query('DELETE FROM nucl.data_source_class WHERE id = $1', [id], (error, results) => {
       if (error) {
+        console.log(5);
         response.status(400).send(`Связь с источником данных не удалена: ${error.message}`);
       }
       else {
-        if (results.rowCount == 1)
+        if (results.rowCount === 1) {
+          console.log('5');
           response.status(200).send(`Связь с источником данных ${id} удалена: cтрок удалено: ${results.rowCount} `);
-        if (results.rowCount == 0)
-          response.status(400).send(`Запись с кодом ${id} не найдена `)
+        }
+          
+        if (results.rowCount === 0) {
+          console.log('6');
+          response.status(400).send(`Запись с кодом ${id} не найдена `);
+        }
       }
-    }) 
+    });
   }
 
   const id = parseInt(request.params.id);
-  pool.query(' SELECT data_source_id, rec_id, table_name FROM nucl.data_source_class where id = $1 LIMIT 1', [id], (err, res) => 
-  {
-    if (res.rowCount>0)
-    {
+  pool.query(' SELECT data_source_id, rec_id, table_name FROM nucl.data_source_class where id = $1 LIMIT 1', [id], async (err, res) => {
+    if (res.rowCount > 0) {
       const { data_source_id, rec_id, table_name } = res.rows[0];
-      console.log( 'table_name, rec_id, data_source_id='+table_name + ' ' + rec_id + ' ' + data_source_id  );
+      console.log('table_name, rec_id, data_source_id=' + table_name + ' ' + rec_id + ' ' + data_source_id);
 
-      pool.query('SELECT 1 FROM information_schema.columns '+
-        'WHERE table_schema=$1 AND table_name=$2 AND column_name=$3', ['nucl', 'value_int_dose', table_name+'_id'], (err, res) => 
-      {
-        if (err) 
-        {
-          response.status(400).send(`Ошибка при проверке наличия поля: ${err.message} `)
-        }
-        else
-        if (res.rowCount>0)
-        {
-/*           pool.query('SELECT (SELECT COUNT(id) FROM nucl.value_int_dose WHERE data_source_id = $1 and '+table_name+'_id = $2) AS int_dose_count, '+
-          '(SELECT COUNT(id) FROM nucl.value_ratio_git WHERE data_source_id = $1 and '+table_name+'_id = $2) AS ratio_git_count, '+
-          '(SELECT COUNT(id) FROM nucl.value_ext_dose WHERE data_source_id = $1 and '+table_name+'_id = $2) AS ext_dose_count '+
-          'FROM nucl.value_int_dose LIMIT 1', [data_source_id, rec_id], (err, res) => 
- */
-          pool.query('select coalesce( (SELECT id FROM nucl.value_int_dose WHERE data_source_id = $1 and '+table_name+'_id = $2 limit 1), 0) AS int_dose_id, '+
-          'coalesce( (select id FROM nucl.value_ratio_git WHERE data_source_id = $1 and '+table_name+'_id = $2 limit 1), 0) AS ratio_git_id, '+
-          'coalesce( (SELECT id FROM nucl.value_ext_dose WHERE data_source_id = $1 and '+table_name+'_id = $2 limit 1), 0) AS ext_dose_id  '+
-          'FROM nucl.value_int_dose LIMIT 1', [data_source_id, rec_id], (err, res) => 
-          {
-            if (err) 
-            {
-              response.status(400).send(`Ошибка при проверке связей: ${err.message} `)
-            }
-            else
-            if (res.rowCount>0)
-            {
-              const { int_dose_id, ratio_git_id, ext_dose_id } = res.rows[0];
-              console.log( 'int_dose_count, ratio_git_count, ext_dose_count=', int_dose_id, ratio_git_id, ext_dose_id );
-              if  (int_dose_id==0 && ratio_git_id==0 && ext_dose_id==0) 
-              {
-                delRec( id ); 
+      const tables = ['value_int_dose', 'value_ratio_git', 'value_ext_dose', 'criterion'];
+      const responses = ['"Значения дозовых коэффициентов для внутреннего облучения"', '"Значения коэффициента поглощения в желудочно-кишечном тракте (ЖКТ)"', '"Значения дозовых коэффициентов для внешнего облучения"', '"Критерии"'];
+
+      for (let i = 0; i < tables.length; i++) {
+        try {
+          const columnExistsRes = await pool.query('SELECT 1 FROM information_schema.columns '+
+            'WHERE table_schema=$1 AND table_name=$2 AND column_name=$3', ['nucl', tables[i], table_name+'_id']);
+
+          if (columnExistsRes.rowCount > 0) {
+            const linkedRecordRes = await pool.query('select coalesce( (SELECT id FROM nucl.'+tables[i]+' WHERE data_source_id = $1 and '+table_name+'_id = $2 limit 1), 0) AS id1 '+
+              'FROM nucl.'+tables[i]+' LIMIT 1', [data_source_id, rec_id]);
+
+            if (linkedRecordRes.rowCount > 0) {
+              const { id1 } = linkedRecordRes.rows[0];
+              console.log('id=', id1);
+
+              if (id1 != 0) {
+                console.log(1);
+                return response.status(400).send(`Запись с кодом ${id} не удалена, так как для нее существуют связанные записи в таблице ${responses[i]}`);
               }
-              else
-              {
-                if (int_dose_id!=0) {
+            } else {
+              console.log(2);
+              return response.status(400).send(`Запись с кодом ${id}: ошибка при проверке связанных таблиц`);
+            }
+          }
+        } catch(err) {
+          console.log(3);
+          return response.status(400).send(`Ошибка при проверке наличия поля: ${err.message}`);
+        }
+      }
 
-                  //Запись с кодом…… не удалена, так как для нее существуют связанные записи в таблице «Значения дозовых коэффициентов для внутреннего облучения»
-                  response.status(400).send(`Запись с кодом ${id} не удалена, так как для нее существуют связанные записи в таблице "Значения дозовых коэффициентов для внутреннего облучения" `);
-                } else if (ratio_git_id!=0) {
-                  response.status(400).send(`Запись с кодом ${id} не удалена, так как для нее существуют связанные записи в таблице "Значения коэффициента поглощения в желудочно-кишечном тракте (ЖКТ)" `);
-                } else if (ext_dose_id!=0) {
-                  response.status(400).send(`Запись с кодом ${id} не удалена, так как для нее существуют связанные записи в таблице "Значения дозовых коэффициентов для внешнего облучения" `);
-                }
-              } 
-            }
-            else
-            {
-              response.status(400).send(`Запись с кодом ${id}: ошибка при проверка связанных таблиц `);
-            }
-          }) 
-        }
-        else
-        {
-          delRec( id ); 
-        }
-      }) 
-    }
-    else
-    {
-      response.status(400).send(`Запись с кодом ${id} не найдена `)      
+      delRec(id);
+    } else {
+      console.log(4);
+      response.status(400).send(`Запись с кодом ${id} не найдена`);
     }
   })
 }

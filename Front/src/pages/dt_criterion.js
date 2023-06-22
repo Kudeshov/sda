@@ -47,7 +47,7 @@ var clickAfterReload = false;
 
 const DataTableCriterion = (props) => {
   const [tableCalcfunction, settableCalcfunction] = useState([]); 
-  const [tableCriterionGr, settableCriterionGr] = useState([]); 
+  //const [tableCriterionGr, settableCriterionGr] = useState([]); 
   const [tableActionLevel, settableActionLevel] = useState([]); 
   const [tableIrradiation, settableIrradiation] = useState([]); 
   const [tablePeopleClass, settablePeopleClass] = useState([]); 
@@ -158,9 +158,6 @@ const DataTableCriterion = (props) => {
               setValueDescrEng(res[0].descr_eng);    
               setValueParentID(res[0].parent_id||-1);    
               setValueNormativ(res[0].normativ_id);      
-
-
-
 
               setValueTitleInitial(res[0].title);
               setValueNameRusInitial(res[0].name_rus);
@@ -315,7 +312,7 @@ const DataTableCriterion = (props) => {
       setValueNameEng(``);
       setValueDescrRus(``);
       setValueDescrEng(``);
-      setValueParentID(valueId); //-1
+      setValueParentID(valueParentID); //-1
       setValueNormativ(``);
       setValueCalcfunctionID(``);
       setValueIrradiation(``);
@@ -413,12 +410,12 @@ const DataTableCriterion = (props) => {
       .then((data) => { lastId = 0;} ); 
   }, [])
 
-  useEffect(() => {
+/*   useEffect(() => {
     fetch(`/criterion_gr`)
       .then((data) => data.json())
       .then((data) => settableCriterionGr(data))
       .then((data) => {  lastId = 0;} ); 
-  }, [])
+  }, []) */
 
   useEffect(() => {
     fetch(`/action_level`)
@@ -450,7 +447,7 @@ const DataTableCriterion = (props) => {
 
   
   useEffect(() => {
-    fetch(`/agegroup`)
+    fetch(`/exp_scenario`)
       .then((data) => data.json())
       .then((data) => settableExpScenario(data))
       .then((data) => {  lastId = 0;} ); 
@@ -494,7 +491,7 @@ const DataTableCriterion = (props) => {
   }, [])
 
   useEffect(() => {
-    fetch(`/chem_comp_gr`)
+    fetch(`/chem_comp_gr_min`)
       .then((data) => data.json())
       .then((data) => settableChemCompGr(data))
       .then((data) => {  lastId = 0;} ); 
@@ -598,6 +595,7 @@ const DataTableCriterion = (props) => {
     {
 
     console.log('valueParentID = ' + valueParentID)
+    console.log('valueChemCompGr = ' + valueChemCompGr)
 
     const js = JSON.stringify({
       id: valueId,
@@ -1273,9 +1271,9 @@ const DataTableCriterion = (props) => {
           sx={{ width: '60ch' }}
           size="small"
           disablePortal
+          disableClearable
           id="combo-box-child-isotope"
           value={tableCalcfunction.find((option) => option.id === valueCalcfunctionID) || ''}
-          disableClearable
           isOptionEqualToValue={(option, value) => option.id === value.id}
           onChange={(event, newValueAC) => { setValueCalcfunctionID(newValueAC ? newValueAC.id : -1) }}
           options={tableCalcfunction}
@@ -1302,36 +1300,37 @@ const DataTableCriterion = (props) => {
 
     
      
-     <TextField  id="timeend" sx={{ width: '40ch' }} label="Время облучения, сек"  size="small" variant="outlined" 
+     <TextField  id="timeend" sx={{ width: '40ch' }} label="Время облучения, сек" required size="small" variant="outlined" 
        value={valueTimeend || ''} onChange={e => setValueTimeend(e.target.value)}/>
       &nbsp;&nbsp;&nbsp;&nbsp;
 
       <p></p>
 
-    <Autocomplete
-          fullWidth
-          sx={{ width: '60ch' }}
-          size="small"
-          disablePortal
-          id="combo-box-action-level"
-          value={tableActionLevel.find((option) => option.id === valueActionLevel) || ''}
-          disableClearable
-          isOptionEqualToValue={(option, value) => option.id === value.id}
-          onChange={(event, newValueAC) => { setValueActionLevel(newValueAC ? newValueAC.id : -1) }}
-          options={tableActionLevel}
-          getOptionLabel={option => option ? option.title : ""}
-          renderInput={(params) => <TextField {...params} label="Уровень вмешательства"  />}
-          renderOption={(props, option) => (
-            <li {...props}>
-              <Tooltip title={option.name_rus}>
-                <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
-                  <span>{option.title}</span>
-                  <span></span>
-                </div>
-              </Tooltip>
-            </li>
-          )}
-        />  
+      <Autocomplete
+      fullWidth
+      sx={{ width: '60ch' }}
+      size="small"
+      disablePortal
+      id="combo-box-action-level"
+      value={tableActionLevel.find((option) => option.id === valueActionLevel) || ''}
+      isOptionEqualToValue={(option, value) => option.id === value.id}
+      onChange={(event, newValueAC) => { setValueActionLevel(newValueAC ? newValueAC.id : null) }}
+      options={tableActionLevel}
+      getOptionLabel={option => option ? option.title : ""}
+      renderInput={(params) => <TextField {...params} label="Уровень вмешательства"  />}
+      renderOption={(props, option) => (
+        <li {...props}>
+          <Tooltip title={option.name_rus}>
+            <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
+              <span>{option.title}</span>
+              <span></span>
+            </div>
+          </Tooltip>
+        </li>
+      )}
+      clearable
+    />
+
 
 
 <p></p>
@@ -1344,9 +1343,8 @@ const DataTableCriterion = (props) => {
           disablePortal
           id="combo-box-irradiation"
           value={tableIrradiation.find((option) => option.id === valueIrradiation) || ''}
-          disableClearable
           isOptionEqualToValue={(option, value) => option.id === value.id}
-          onChange={(event, newValueAC) => { setValueIrradiation(newValueAC ? newValueAC.id : -1) }}
+          onChange={(event, newValueAC) => { setValueIrradiation(newValueAC ? newValueAC.id : null) }}
           options={tableIrradiation}
           getOptionLabel={option => option ? option.title : ""}
           renderInput={(params) => <TextField {...params} label="Тип облучения"  />}
@@ -1360,6 +1358,7 @@ const DataTableCriterion = (props) => {
               </Tooltip>
             </li>
           )}
+          clearable
         />  
 
 
@@ -1373,9 +1372,8 @@ const DataTableCriterion = (props) => {
           disablePortal
           id="combo-box-people-class"
           value={tablePeopleClass.find((option) => option.id === valuePeopleClass) || ''}
-          disableClearable
           isOptionEqualToValue={(option, value) => option.id === value.id}
-          onChange={(event, newValueAC) => { setValuePeopleClass(newValueAC ? newValueAC.id : -1) }}
+          onChange={(event, newValueAC) => { setValuePeopleClass(newValueAC ? newValueAC.id : null) }}
           options={tablePeopleClass}
           getOptionLabel={option => option ? option.title : ""}
           renderInput={(params) => <TextField {...params} label="Тип облучаемых лиц"  />}
@@ -1401,9 +1399,8 @@ const DataTableCriterion = (props) => {
           disablePortal
           id="combo-box-agegroup"
           value={tableAgegroup.find((option) => option.id === valueAgegroup) || ''}
-          disableClearable
           isOptionEqualToValue={(option, value) => option.id === value.id}
-          onChange={(event, newValueAC) => { setValueAgegroup(newValueAC ? newValueAC.id : -1) }}
+          onChange={(event, newValueAC) => { setValueAgegroup(newValueAC ? newValueAC.id : null) }}
           options={tableAgegroup}
           getOptionLabel={option => option ? option.title : ""}
           renderInput={(params) => <TextField {...params} label="Возрастная группа населения"  />}
@@ -1417,6 +1414,7 @@ const DataTableCriterion = (props) => {
               </Tooltip>
             </li>
           )}
+          clearable
         />  
 
 <p></p>
@@ -1429,9 +1427,8 @@ const DataTableCriterion = (props) => {
           disablePortal
           id="combo-box-exp-scenario"
           value={tableExpScenario.find((option) => option.id === valueExpScenario) || ''}
-          disableClearable
           isOptionEqualToValue={(option, value) => option.id === value.id}
-          onChange={(event, newValueAC) => { setValueExpScenario(newValueAC ? newValueAC.id : -1) }}
+          onChange={(event, newValueAC) => { setValueExpScenario(newValueAC ? newValueAC.id : null) }}
           options={tableExpScenario}
           getOptionLabel={option => option ? option.title : ""}
           renderInput={(params) => <TextField {...params} label="Сценарий поступления"  />}
@@ -1457,9 +1454,8 @@ const DataTableCriterion = (props) => {
           disablePortal
           id="combo-box-integral-period"
           value={tableIntegralPeriod.find((option) => option.id === valueIntegralPeriod) || ''}
-          disableClearable
           isOptionEqualToValue={(option, value) => option.id === value.id}
-          onChange={(event, newValueAC) => { setValueIntegralPeriod(newValueAC ? newValueAC.id : -1) }}
+          onChange={(event, newValueAC) => { setValueIntegralPeriod(newValueAC ? newValueAC.id : null) }}
           options={tableIntegralPeriod}
           getOptionLabel={option => option ? option.title : ""}
           renderInput={(params) => <TextField {...params} label="Период интегрирования"  />}
@@ -1485,9 +1481,8 @@ const DataTableCriterion = (props) => {
           disablePortal
           id="combo-box-organ"
           value={tableOrgan.find((option) => option.id === valueOrgan) || ''}
-          disableClearable
           isOptionEqualToValue={(option, value) => option.id === value.id}
-          onChange={(event, newValueAC) => { setValueOrgan(newValueAC ? newValueAC.id : -1) }}
+          onChange={(event, newValueAC) => { setValueOrgan(newValueAC ? newValueAC.id : null) }}
           options={tableOrgan}
           getOptionLabel={option => option ? option.title : ""}
           renderInput={(params) => <TextField {...params} label="Орган / ткань"  />}
@@ -1513,9 +1508,8 @@ const DataTableCriterion = (props) => {
           disablePortal
           id="combo-box-isotope"
           value={tableIsotope.find((option) => option.id === valueIsotope) || ''}
-          disableClearable
           isOptionEqualToValue={(option, value) => option.id === value.id}
-          onChange={(event, newValueAC) => { setValueIsotope(newValueAC ? newValueAC.id : -1) }}
+          onChange={(event, newValueAC) => { setValueIsotope(newValueAC ? newValueAC.id : null) }}
           options={tableIsotope}
           getOptionLabel={option => option ? option.title : ""}
           renderInput={(params) => <TextField {...params} label="Нуклид"  />}
@@ -1530,7 +1524,6 @@ const DataTableCriterion = (props) => {
             </li>
           )}
         />  
-
 <p></p>
 
 
@@ -1542,9 +1535,8 @@ const DataTableCriterion = (props) => {
           disablePortal
           id="combo-box-subst-form"
           value={tableSubstForm.find((option) => option.id === valueSubstForm) || ''}
-          disableClearable
           isOptionEqualToValue={(option, value) => option.id === value.id}
-          onChange={(event, newValueAC) => { setValueSubstForm(newValueAC ? newValueAC.id : -1) }}
+          onChange={(event, newValueAC) => { setValueSubstForm(newValueAC ? newValueAC.id : null) }}
           options={tableSubstForm}
           getOptionLabel={option => option ? option.title : ""}
           renderInput={(params) => <TextField {...params} label="Форма вещества"  />}
@@ -1560,8 +1552,6 @@ const DataTableCriterion = (props) => {
           )}
         />  
 
-
-
 <p></p>
 
 
@@ -1573,9 +1563,8 @@ const DataTableCriterion = (props) => {
           disablePortal
           id="combo-box-chem-comp-gr"
           value={tableChemCompGr.find((option) => option.id === valueChemCompGr) || ''}
-          disableClearable
           isOptionEqualToValue={(option, value) => option.id === value.id}
-          onChange={(event, newValueAC) => { setValueChemCompGr(newValueAC ? newValueAC.id : -1) }}
+          onChange={(event, newValueAC) => { setValueChemCompGr(newValueAC ? newValueAC.id : null) }}
           options={tableChemCompGr}
           getOptionLabel={option => option ? option.title : ""}
           renderInput={(params) => <TextField {...params} label="Химические соединения (группа)"  />}
@@ -1591,9 +1580,6 @@ const DataTableCriterion = (props) => {
           )}
         />  
 
-
-
-
 <p></p>
 
 
@@ -1605,9 +1591,8 @@ const DataTableCriterion = (props) => {
           disablePortal
           id="combo-box-aerosol-sol"
           value={tableAerosolSol.find((option) => option.id === valueAerosolSol) || ''}
-          disableClearable
           isOptionEqualToValue={(option, value) => option.id === value.id}
-          onChange={(event, newValueAC) => { setValueAerosolSol(newValueAC ? newValueAC.id : -1) }}
+          onChange={(event, newValueAC) => { setValueAerosolSol(newValueAC ? newValueAC.id : null) }}
           options={tableAerosolSol}
           getOptionLabel={option => option ? option.title : ""}
           renderInput={(params) => <TextField {...params} label="Тип растворимости"  />}
@@ -1634,9 +1619,8 @@ const DataTableCriterion = (props) => {
           disablePortal
           id="combo-box-aerosol-amad"
           value={tableAerosolAmad.find((option) => option.id === valueAerosolAmad) || ''}
-          disableClearable
           isOptionEqualToValue={(option, value) => option.id === value.id}
-          onChange={(event, newValueAC) => { setValueAerosolAmad(newValueAC ? newValueAC.id : -1) }}
+          onChange={(event, newValueAC) => { setValueAerosolAmad(newValueAC ? newValueAC.id : null) }}
           options={tableAerosolAmad}
           getOptionLabel={option => option ? option.title : ""}
           renderInput={(params) => <TextField {...params} label="AMAD"  />}
@@ -1660,17 +1644,17 @@ const DataTableCriterion = (props) => {
           sx={{ width: '60ch' }}
           size="small"
           disablePortal
+          disableClearable
           id="combo-box-data-source"
           value={tableDataSource.find((option) => option.id === valueDataSource) || ''}
-          disableClearable
           isOptionEqualToValue={(option, value) => option.id === value.id}
-          onChange={(event, newValueAC) => { setValueDataSource(newValueAC ? newValueAC.id : -1) }}
+          onChange={(event, newValueAC) => { setValueDataSource(newValueAC ? newValueAC.id : null) }}
           options={tableDataSource}
           getOptionLabel={option => option ? option.title : ""}
           renderInput={(params) => <TextField {...params} label="Источник данных" required  />}
           renderOption={(props, option) => (
             <li {...props}>
-              <Tooltip title={option.name_rus}>
+              <Tooltip title={option.shortname}>
                 <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
                   <span>{option.title}</span>
                   <span></span>
@@ -1679,8 +1663,6 @@ const DataTableCriterion = (props) => {
             </li>
           )}
         />  
-
-
 
       <div style={{ height: 300, width: 800 }}>
         <td>Действия критерия<br/>

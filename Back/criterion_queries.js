@@ -39,6 +39,10 @@ const getCriterion = (request, response, table_name ) => {
   })
 }
 
+function emptyStringToNull(value) {
+  if (value === '') return null;
+  return value;
+}
 
 const createCriterion = (request, response, table_name )=> {
   pool.connect((err, client, done) => {
@@ -65,17 +69,61 @@ const createCriterion = (request, response, table_name )=> {
       return !!err
     }
 
-    const { title, name_rus, name_eng, descr_rus, descr_eng, criterion_gr_id, calcfunction_id, irradiation_id, agegroup_id,  exp_scenario_id, integral_period_id, organ_id, data_source_id, aerosol_amad_id,
-      aerosol_sol_id, chem_comp_gr_id, subst_form_id, isotope_id, action_level_id, people_class_id, cr_value, timeend } = request.body;
+    const { title, name_rus, name_eng, descr_rus, descr_eng , criterion_gr_id, calcfunction_id, irradiation_id, agegroup_id,  
+      exp_scenario_id, integral_period_id, organ_id, data_source_id, aerosol_amad_id,
+      aerosol_sol_id, chem_comp_gr_id, subst_form_id, isotope_id, action_level_id, 
+      people_class_id, cr_value, timeend
+    } = request.body;
+
+    console.log(request.body);
+
+    const validatedTitle = emptyStringToNull(title);
+    const validatedCriterionGrId = emptyStringToNull(criterion_gr_id);
+    const validatedCalcFunctionId = emptyStringToNull(calcfunction_id);
+    const validatedIrradiationId = emptyStringToNull(irradiation_id);
+    const validatedAgeGroupId = emptyStringToNull(agegroup_id);
+    const validatedExpScenarioId = emptyStringToNull(exp_scenario_id);
+    const validatedIntegralPeriodId = emptyStringToNull(integral_period_id);
+    const validatedOrganId = emptyStringToNull(organ_id);
+    const validatedDataSourceId = emptyStringToNull(data_source_id);
+    const validatedAerosolAmadId = emptyStringToNull(aerosol_amad_id);
+    const validatedAerosolSolId = emptyStringToNull(aerosol_sol_id);
+    const validatedChemCompGrId = emptyStringToNull(chem_comp_gr_id);
+    const validatedSubstFormId = emptyStringToNull(subst_form_id);
+    const validatedIsotopeId = emptyStringToNull(isotope_id);
+    const validatedActionLevelId = emptyStringToNull(action_level_id);
+    const validatedPeopleClassId = emptyStringToNull(people_class_id);
+    const validatedCrValue = emptyStringToNull(cr_value);
+    const validatedTimeend = emptyStringToNull(timeend);
     client.query(`BEGIN`, err => {
       if (shouldAbort(err, response)) return;
-      client.query(`INSERT INTO nucl.${table_name}( title, criterion_gr_id, calcfunction_id, irradiation_id, agegroup_id,  exp_scenario_id, integral_period_id, organ_id, data_source_id, aerosol_amad_id,
-        aerosol_sol_id, chem_comp_gr_id, subst_form_id, isotope_id, action_level_id, people_class_id, cr_value, timeend ) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,) RETURNING id`, [title, criterion_gr_id, calcfunction_id, irradiation_id, agegroup_id,  exp_scenario_id, integral_period_id, organ_id, data_source_id, aerosol_amad_id,
-        aerosol_sol_id, chem_comp_gr_id, subst_form_id, isotope_id, action_level_id, people_class_id, cr_value, timeend ], (err, res) => {
+
+      client.query(`
+      INSERT INTO nucl.${table_name}( 
+        title, criterion_gr_id, calcfunction_id, irradiation_id, agegroup_id, 
+        exp_scenario_id, integral_period_id, organ_id, data_source_id, aerosol_amad_id,
+        aerosol_sol_id, chem_comp_gr_id, subst_form_id, isotope_id, action_level_id, 
+        people_class_id, cr_value, timeend
+      ) VALUES (
+        $1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,$16,$17,$18
+      ) RETURNING id`, 
+      [
+        validatedTitle, validatedCriterionGrId, validatedCalcFunctionId, validatedIrradiationId, validatedAgeGroupId, 
+        validatedExpScenarioId, validatedIntegralPeriodId, validatedOrganId, validatedDataSourceId, validatedAerosolAmadId,
+        validatedAerosolSolId, validatedChemCompGrId, validatedSubstFormId, validatedIsotopeId, validatedActionLevelId, 
+        validatedPeopleClassId, validatedCrValue, validatedTimeend
+      ], (err, res) => {
         if (shouldAbort(err, response)) return;      
         const { id } = res.rows[0];
         console.log(`Id = `+id);
-        client.query( c_c.getNLSQuery(name_rus||'', descr_rus||'', id, 1, table_name), (err, res) => {
+
+        //console.log(`getNLSQuery ` );
+
+        let s_query = c_c.getNLSQuery(name_rus||'', descr_rus||'', id, 1, table_name);
+        console.log(s_query);
+
+        //console.log( c_c.getNLSQuery(name_rus||'', descr_rus||'', id, 1, table_name) );
+         client.query( c_c.getNLSQuery(name_rus||'', descr_rus||'', id, 1, table_name), (err, res) => {
           if (shouldAbort(err, response)) return;
           client.query( c_c.getNLSQuery(name_eng||'', descr_eng||'', id, 2, table_name), (err, res) => {
             if (shouldAbort(err, response)) return;
@@ -92,7 +140,7 @@ const createCriterion = (request, response, table_name )=> {
               done()
             })
           }); 
-        });
+        }); 
       })
     })
   })

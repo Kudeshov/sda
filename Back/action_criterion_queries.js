@@ -109,7 +109,7 @@ const updateActionCriterion = (request, response) => {
 
   console.log( 'updateActionCriterion id='+id );
   pool.query( //поля table_name rec_id не должны меняться
-    'UPDATE nucl.action_criterion SET action_id = $1 where id = $2',+
+    'UPDATE nucl.action_criterion SET action_id = $1 where id = $2',
     [action_id, action_criterion_id ],
     (error, results) => {
       if (error) 

@@ -237,7 +237,7 @@ const DataTableExpScenario = (props) => {
       setValueDescrRus(``);
       setValueDescrEng(``);
       setValueParentID(valueId); //-1
-      setValueNormativ(``);
+      setValueNormativ(valueNormativ);
     }
   }; 
 

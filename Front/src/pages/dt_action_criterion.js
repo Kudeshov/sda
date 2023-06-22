@@ -1,7 +1,6 @@
 import React,  { useState, useEffect } from 'react'
 import { DataGrid, ruRU } from '@mui/x-data-grid'
 import Button from '@mui/material/Button';
-import TextField from '@mui/material/TextField';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
@@ -38,12 +37,6 @@ function DataTableActionCriterion(props)  {
   const handleClickAdd = () => {
     setValueActionCriterionId(null);
     setValueActionId(null);
-    //setValueID(null);
-    //setValueDataSourceId(null);
-/*     setValueRecID(props.rec_id);
-    setValueTableName(props.table_name);
-    setValueTitleSrc("");
-    setValueNameSrc(""); */
     setOpen(true);
   };
 
@@ -56,24 +49,16 @@ function DataTableActionCriterion(props)  {
     setOpen(false);
 
     console.log(lastID);  
-    //setValueId(lastID);
     var filteredData = tableDataSrcClass.filter(function(element) {
       return element.id === lastID;
     });
     if (filteredData.length > 0) {
       setValueActionCriterionId(lastID);
-      setValueTitleSrc(filteredData[0].title_src);
-      setValueNameSrc(filteredData[0].name_src);  
-      //setValueDataSourceId(filteredData[0].data_source_id);
-      setValueTableName(filteredData[0].table_name);
-      setValueRecID(filteredData[0].rec_id);
       setValueTitle(filteredData[0].title);    
-      setValueTitleSrc(filteredData[0].title_src);
-      setValueNameSrc(filteredData[0].name_src);
-      setValueShortName(filteredData[0].shortname);
-      setValueFullName(filteredData[0].fullname);
-      setValueDescr(filteredData[0].descr);
-      setValueExternalDS(filteredData[0].external_ds);    
+      setValueNameRus(filteredData[0].name_rus);    
+      setValueNameEng(filteredData[0].name_eng);    
+      setValueDescrRus(filteredData[0].descr_rus);    
+      setValueDescrEng(filteredData[0].descr_eng);    
     }    
   };
 
@@ -108,30 +93,16 @@ const columns_src = [
   { field: 'action_id', headerName: 'Код действия', width: 100 },
   { field: 'criterion_id', headerName: 'Код критерия', width: 100 },
   { field: 'title', headerName: 'Обозначение', width: 300 },
-  { field: 'name_rus', headerName: 'Название', width: 300, },
+  { field: 'name_rus', headerName: 'Название', width: 400, },
   { field: 'name_eng', headerName: 'Название (англ)', width: 180, hideable: false },
   { field: 'descr_rus', headerName: 'Описание (рус)', width: 250 },
   { field: 'descr_eng', headerName: 'Описание (англ)', width: 250 },
 ]
-/* [{"id":30576,"action_id":4,"criterion_id":30,"name_rus":"ограничение потребления важнейших продуктов","name_eng":"limiting the consumption of essential food","descr_rus":
-"Ограничения в отношении пищевых продуктов, молока и питьевой воды должны применяться  в период  до проведения отбора проб и анализа пищевых продуктов, молока и питьевой воды. 
-Такие ограничения применяются до тех пор, пока имеются в наличии заменители пищевых продуктов, молока и питьевой воды или другие альтернативные варианты, с целью обеспечения 
-того, чтобы они не приводили к острому недоеданию, обезвоживанию или другим тяжелым последствиям для здоровья.","descr_eng":"Restrictions on food, milk 
-and drinking water are to be applied before sampling and analysis of food, milk and drinking water are carried out. Such restrictions apply as long as replacements of food, 
-milk and drinking water or other alternatives are available to ensure they would not result in severe malnutrition, dehydration or other severe health impacts."}]
- */
-//const [valueId, setValueID] = React.useState();
-//const [valueDataSourceId, setValueDataSourceId] = React.useState();
-const [valueRecId, setValueRecID] = React.useState();
-const [valueTableName, setValueTableName] = React.useState();
 const [valueTitle, setValueTitle] = React.useState();
-const [valueTitleSrc, setValueTitleSrc] = React.useState();
-const [valueNameSrc, setValueNameSrc] = React.useState();
-
-const [valueShortName, setValueShortName] = React.useState();
-const [valueFullName, setValueFullName] = React.useState();
-const [valueDescr, setValueDescr] = React.useState();
-const [valueExternalDS, setValueExternalDS] = React.useState();
+const [valueNameRus, setValueNameRus] = React.useState();
+const [valueNameEng, setValueNameEng] = React.useState();
+const [valueDescrRus, setValueDescrRus] = React.useState();
+const [valueDescrEng, setValueDescrEng] = React.useState();
 
 const [isLoading, setIsLoading] = React.useState(false);
 const [openAlert, setOpenAlert] = React.useState(false, '');
@@ -146,16 +117,11 @@ useEffect(() => {
     setSelectionModel([tableDataSrcClass[0].id]); //выбрать первую строку при перегрузке таблицы
     lastID = tableDataSrcClass[0].id;
     setValueActionCriterionId(tableDataSrcClass[0].id);   //обновить переменные
-    //setValueDataSourceId(tableDataSrcClass[0].data_source_id);
-    setValueTableName(tableDataSrcClass[0].table_name);
-    setValueRecID(tableDataSrcClass[0].rec_id);
     setValueTitle(tableDataSrcClass[0].title);    
-    setValueTitleSrc(tableDataSrcClass[0].title_src);
-    setValueNameSrc(tableDataSrcClass[0].name_src);
-    setValueShortName(tableDataSrcClass[0].shortname);
-    setValueFullName(tableDataSrcClass[0].fullname);
-    setValueDescr(tableDataSrcClass[0].descr);
-    setValueExternalDS(tableDataSrcClass[0].external_ds);      
+    setValueNameRus(tableDataSrcClass[0].name_rus);    
+    setValueNameEng(tableDataSrcClass[0].name_eng);    
+    setValueDescrRus(tableDataSrcClass[0].descr_rus);    
+    setValueDescrEng(tableDataSrcClass[0].descr_eng);   
   }
   if ((!isLoading) && (tableDataSrcClass) )
   {
@@ -327,24 +293,17 @@ const addRec = async ()  => {
 };
 
 const handleRowClick = (params) => {
-  setOpenAlert(false);/* 
-  setValueID(params.row.id);
-  lastID = params.row.id;
-  setValueDataSourceId(params.row.data_source_id);
-  setValueTableName(params.row.table_name);
-  setValueRecID(params.row.rec_id);
-  setValueTitle(params.row.title);
-  setValueTitleSrc(params.row.title_src);
-  setValueNameSrc(params.row.name_src);
-  setValueShortName(params.row.shortname);  
-  setValueFullName(params.row.fullname);  
-  setValueDescr(params.row.descr);  
-  setValueExternalDS(params.row.external_ds); */  
+  setOpenAlert(false);
   setValueActionCriterionId(params.row.id);
   setValueActionId(params.row.action_id);
+  setValueTitle(params.row.title);    
+  setValueNameRus(params.row.name_rus);    
+  setValueNameEng(params.row.name_eng);    
+  setValueDescrRus(params.row.descr_rus);    
+  setValueDescrEng(params.row.descr_eng);   
 
-  console.log(params.row.id);
-  console.log(params.row.action_id);
+//  console.log(params.row.id);
+//  console.log(params.row.action_id);
 }; 
 
 const [noRecords, setNoRecords] = useState(true);
@@ -468,7 +427,7 @@ const formRef = React.useRef();
       </DialogTitle>
       <DialogContent>
           <DialogContentText>
-              В таблице "{table_names['data_source_class']}" предложена к удалению следующая запись:<p></p><b>{valueTitleSrc}</b>; Код в БД = <b>{valueActionCriterionId}</b><p></p>
+              В таблице "{table_names['data_source_class']}" предложена к удалению следующая запись:<p></p><b>{valueTitle}</b>; Код в БД = <b>{valueActionCriterionId}</b><p></p>
               Вы желаете удалить указанную запись?        
           </DialogContentText>
       </DialogContent>
@@ -486,10 +445,10 @@ const formRef = React.useRef();
           <DialogContentText>
               Код: <b>{valueActionCriterionId}</b><p></p>
               Обозначение: <b>{valueTitle}</b><p></p>
-              Название (рус.яз): <b>{valueShortName}</b><p></p> 
-              Название (англ.яз): <b>{valueFullName}</b><p></p> 
-              Комментарий (рус.яз): <b>{valueDescr}</b><p></p> 
-              Комментарий (англ.яз): <b>{valueDescr}</b><p></p> 
+              Название (рус.яз): <b>{valueNameRus}</b><p></p> 
+              Название (англ.яз): <b>{valueNameEng}</b><p></p> 
+              Комментарий (рус.яз): <b>{valueDescrRus}</b><p></p> 
+              Комментарий (англ.яз): <b>{valueDescrEng}</b><p></p> 
           </DialogContentText>
       </DialogContent>
       <DialogActions>

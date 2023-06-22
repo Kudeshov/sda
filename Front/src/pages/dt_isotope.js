@@ -155,6 +155,17 @@ const DataTableIsotope = (props) => {
 
   const [tableNuclide, setTableNuclide] = useState([]); 
 
+  // Получаем текущее выбранное значение для радиоизотопа
+  const currentNuclide = tableNuclide.find((option) => option.id === valueNuclideId);
+
+  // Используем хук эффекта для обновления поля Обозначение при изменении радиоизотопа или индекса
+  useEffect(() => {
+    if (valueId === '') { // проверяем, пустое ли поле Код
+      const nuclideTitle = currentNuclide ? currentNuclide.title : ''; // проверяем, выбран ли радиоизотоп
+      setValueTitle(nuclideTitle + valueNIndex); // обновляем поле Обозначение
+    }
+  }, [valueId, currentNuclide, valueNIndex]);   
+
   useEffect(() => {
     fetch(`/nuclide`)
       .then((data) => data.json())
@@ -765,35 +776,21 @@ function CustomToolbar1() {
       {/* <p></p> &nbsp;&nbsp;&nbsp; */}
 {/*       <div className={classes.root}> */}
 
-<table border = "0" cellSpacing="0" cellPadding="0"><tbody>
-    <tr>      
+      <table border = "0" cellSpacing="0" cellPadding="0"><tbody>
+      <tr>      
       <td>
-      <TextField  id="ch_id"  disabled={true} label="Код" sx={{ width: '12ch' }} variant="outlined" value={valueId || ''} size="small"  onChange={e => setValueID(e.target.value)}/>
+      <TextField  id="ch_id" disabled={true} label="Код" sx={{ width: '12ch' }} variant="outlined" value={valueId || ''} size="small"  onChange={e => setValueID(e.target.value)}/>
       </td>
       <td>
         &nbsp;&nbsp;&nbsp;&nbsp;
       </td>
       <td>
-        <TextField  id="ch_name" sx={{ width: '40ch' }} label="Обозначение" required size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
+        <TextField  id="ch_name" disabled={true} sx={{ width: '40ch' }} label="Обозначение" required size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
       </td>
       <td>
         &nbsp;&nbsp;&nbsp;&nbsp;
       </td>
       <td>
-
-{/*       <p></p>
-      <FormControl sx={{ width: '60ch' }} size="small">
-        <InputLabel id="fiz">Радиоизотоп</InputLabel>
-          <Select labelId="fiz" id="fiz1" label="Радиоизотоп" defaultValue="" value={valueNuclideId||""} onChange={e => setValueNuclideId(e.target.value)}>
-          {tableNuclide?.map(option => {
-                return (
-                  <MenuItem key={option.id} value={option.id}>
-                    {option.title ?? option.id}
-                  </MenuItem>
-                );
-                })}
-          </Select>
-          </FormControl> */}
 
       <Autocomplete
         size="small"
@@ -803,7 +800,7 @@ function CustomToolbar1() {
         value={tableNuclide.find((option) => option.id === valueNuclideId)||'' }
         disableClearable
         isOptionEqualToValue={(option, value) => option.id === value.id }  
-        onChange={(event, newValueAC) => { /*  console.log(newValueAC?newValueAC.id:-1);  */ setValueNuclideId(newValueAC?newValueAC.id:-1) } }
+        onChange={(event, newValueAC) => {setValueNuclideId(newValueAC?newValueAC.id:-1) } }
         options={tableNuclide}
         getOptionLabel={option => option?option.title:""}
         renderInput={(params) => <TextField {...params} label="Радиоизотоп" required/>}
@@ -820,12 +817,12 @@ function CustomToolbar1() {
 {/*       </div>   */}    
 
       <p></p>
-      <TextField id="ch_half_life_value" sx={{ width: '40ch' }} size="small" /* type="number"   className={classes.input}*/label="Период полураспада"  variant="outlined" value={valueHalfLifeValue || ''} onChange={e => setValueHalfLifeValue(e.target.value)}/>
+      <TextField id="ch_half_life_value" sx={{ width: '40ch' }} size="small" label="Период полураспада" required variant="outlined" value={valueHalfLifeValue || ''} onChange={e => setValueHalfLifeValue(e.target.value)}/>
       &nbsp;&nbsp;&nbsp;&nbsp;
 
       <FormControl sx={{ width: '20ch' }} size="small">
-            <InputLabel id="type">Ед. изм.</InputLabel>
-              <Select labelId="type" id="type1"  label="Ед. изм." defaultValue={true} value={valueHalfLifePeriod  || "" } onChange={e => setValueHalfLifePeriod(e.target.value)}>
+            <InputLabel id="type" required>Ед. изм.</InputLabel>
+              <Select labelId="type" id="type1"  label="Ед. изм." required defaultValue={true} value={valueHalfLifePeriod  || "" } onChange={e => setValueHalfLifePeriod(e.target.value)}>
                 {valuesMbae?.map(option => {
                     return (
                       <MenuItem key={option.id} value={option.id}>
@@ -836,23 +833,8 @@ function CustomToolbar1() {
               </Select>
             </FormControl>    
             <p></p>
-      <TextField  id="ch_decayconst" sx={{ width: '100ch' }} label="Постоянная распада, 1/сек" required /*  type="number"  */size="small" maxRows={4} variant="outlined" value={valueDecayConst || ''} onChange={e => setValueDecayConst(e.target.value)}/>
+      <TextField  id="ch_decayconst" sx={{ width: '100ch' }} label="Постоянная распада, 1/сек" required size="small" maxRows={4} variant="outlined" value={valueDecayConst || ''} onChange={e => setValueDecayConst(e.target.value)}/>
       
-
-{/*       <Box sx={{ height: 415, flexGrow: 1, overflowY: 'auto' }} >     
-            <DataTreeView treeItems={treeData} />
-          </Box> 
- */}
-
-
-{/*       <p></p>
-      <Tree
-      lineWidth={"2px"}
-      lineColor={"gray"}
-      lineBorderRadius={"10x"}
-      label={<StyledNode>Радиоактивные ряды: {valueTitle}</StyledNode>}> 
-        {getTreeNodesFromData(treeData)}
-      </Tree>      */}
       <p></p>    
       <table border = "0" cellSpacing="0" cellPadding="0">
         <tbody>

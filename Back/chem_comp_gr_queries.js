@@ -41,7 +41,7 @@ const getChemCompGr = (request, response ) => {
 
 const getChemCompGrMin = (request, response ) => {
   pool.query(` SELECT ccg.id as id,  
-  ccgn1.name name_rus 
+  ccgn1.name name_rus, ccg.title 
   FROM nucl.chem_comp_gr ccg  
   left join nucl.chem_comp_gr_nls ccgn1 on ccg.id=ccgn1.chem_comp_gr_id and ccgn1.lang_id=1  
   left join nucl.chem_comp_gr_nls ccgn2 on ccg.id=ccgn2.chem_comp_gr_id and ccgn2.lang_id=2 
