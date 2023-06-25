@@ -37,6 +37,7 @@ import { InputAdornment } from "@material-ui/core";
 import Autocomplete from '@mui/material/Autocomplete';
 import Tooltip from '@mui/material/Tooltip';
 import { DataTableActionCriterion } from './dt_action_criterion';
+import { listToTree } from '../helpers/treeHelper';
 
 var alertText = "Сообщение";
 var alertSeverity = "info";
@@ -139,7 +140,7 @@ const DataTableCriterion = (props) => {
   useEffect(() => {
     setEditStarted(       
        (valueTitleInitial!==valueTitle)||(valueNameRusInitial!==valueNameRus)||(valueNameEngInitial!==valueNameEng)
-      ||(valueDescrEngInitial!==valueDescrEng) ||(valueCrValueInitial!==valueCrValue)||(valueParentIDInitial!==valueParentID)||(valueParentIDInitial!==valueParentID)||(valueNormativ!==valueNormativInitial)
+      ||(valueDescrRusInitial!==valueDescrRus)||(valueDescrEngInitial!==valueDescrEng) ||(valueCrValueInitial!==valueCrValue)||(valueParentIDInitial!==valueParentID)||(valueParentIDInitial!==valueParentID)||(valueNormativ!==valueNormativInitial)
       ||(valueCalcfunctionIDInitial!==valueCalcfunctionID)||(valueTimeendInitial!==valueTimeend)||(valueExpScenarioInitial!==valueExpScenario)||(valueIntegralPeriodInitial!==valueIntegralPeriod)
       ||(valueOrganInitial!==valueOrgan)||(valueDataSourceInitial!==valueDataSource)||(valueChemCompGrInitial!==valueChemCompGr)||(valueAerosolSolInitial!==valueAerosolSol)||(valueAerosolAmadInitial!==valueAerosolAmad)
       ||(valueDataSourceInitial!==valueDataSource)||(valueChemCompGrInitial!==valueChemCompGr)||(valueAerosolAmadInitial!==valueAerosolAmad)
@@ -591,69 +592,12 @@ const DataTableCriterion = (props) => {
       .then((data) => settableDataSource(data)); 
   }, [])
 
-///////////////////////////////////////////////////////////////////  Tree load functions and hook  /////////////////////
+  ///////////////////////////////////////////////////////////////////  Tree load functions and hook  /////////////////////
   useEffect(() => {
-    function filterTree( tree1, filterS )
-    {
-      var i;
-      i = 0;
-      while (i < tree1.length) 
-      {
-        if (tree1[i].children.length === 0)
-        {
-          if (tree1[i].title.toLowerCase().indexOf(filterS.toLowerCase()) === -1)
-          {
-            tree1.splice(i, 1); 
-            i--;
-          }
-        }
-        else
-        {
-          filterTree( tree1[i].children, filterS );
-        }
-        i++;
-      }
-      i = 0;
-      while (i < tree1.length) 
-      {
-        if (tree1[i].children.length === 0)
-        {
-          if (tree1[i].title.toLowerCase().indexOf(filterS.toLowerCase()) === -1)
-          {
-            tree1.splice(i, 1); 
-            i--;
-          }
-        }
-        else
-        {
-          filterTree( tree1[i].children, filterS );
-        }
-        i++;
-      }      
-    }
-    function list_to_tree1(list, filterString) { 
-      var map = {}, node, roots = [], i;
-       for (i = 0; i < list.length; i += 1) {
-        map[list[i].id] = i;   // initialize the map
-        list[i].children = []; // initialize the children
-      }
-      filterString=filterString||'';
-      for (i = 0; i < list.length; i += 1) {
-        node = list[i];
-        if (node.parent_id) {
-          // if you have dangling branches check that map[node.parentId] exists
-          list[map[node.parent_id]].children.push(node);
-        } else {
-          roots.push(node);
-        }
-      }
-      filterTree(roots, filterString.toLowerCase());  
-      return roots;
-    }
-
-    let arr = list_to_tree1( tableData, treeFilterString );
-    setTreeData( arr );
-  }, [tableData, treeFilterString]) 
+    // Преобразуем tableData из списка в структуру дерева и обновляем состояние treeData
+    const arr = listToTree(tableData, treeFilterString);
+    setTreeData(arr);
+  }, [tableData, treeFilterString]);
 
   ///////////////////////////////////////////////////////////////////  SAVE  /////////////////////
   const saveRec = async ( fromToolbar ) => {
@@ -1177,8 +1121,34 @@ const DataTableCriterion = (props) => {
   function getHeaders(atable)
   {
     if (atable==='criterion') 
-      return ['Обозначение','Название(рус.яз)','Название(англ.яз)','Родительский класс','Комментарий(рус.яз)','Комментарий(англ.яз)','Функция','Значение','Время облучения, сек','Уровень вмешательства',
-      'Тип облучения','Возрастная группа населения','Сценарий поступления','Период интегрирования','Орган / Ткань','Нуклид','Форма вещества','Химические соеденения (группа)','Тип растворимости','AMAD','Источник данных', ];
+      return ['Обозначение','Название(рус.яз)','Название(англ.яз)','Группа критериев','Комментарий(рус.яз)','Комментарий(англ.яз)','Функция',
+      'Значение','Время облучения, сек',
+      'Уровень вмешательства',
+      'Тип облучения','Тип облучаемых лиц','Возрастная группа населения','Сценарий поступления','Период интегрирования','Орган / Ткань','Нуклид',
+      'Форма вещества','Химические соединения (группа)','Тип растворимости','AMAD','Источник данных', ];
+  }
+  function getTableDataForExcel(t) {
+    function replacer(i, val) {
+        if (val === null) {
+            return ""; // change null to empty string
+        } else {
+            return val; // return unchanged
+        }
+    }
+    var arr_excel = t.map(({
+        title, name_rus, name_eng, descr_rus, descr_eng, parent_name, normativ_title, calcfunction_title, cr_value, timeend,
+        action_level_title,
+        irradiation_title, people_class_title, agegroup_title, exp_scenario_title, integral_period_title, organ_title, isotope_title, 
+        subst_form_title, chem_comp_gr_title, aerosol_sol_title, aerosol_amad_title, data_source_title,
+    }) => ({
+        title, name_rus, name_eng, parent_name, descr_rus, descr_eng, normativ_title, calcfunction_title, cr_value, timeend,
+        action_level_title,
+        irradiation_title, people_class_title, agegroup_title, exp_scenario_title, integral_period_title, organ_title, isotope_title, 
+        subst_form_title, chem_comp_gr_title, aerosol_sol_title, aerosol_amad_title, data_source_title
+    }));
+    arr_excel = JSON.parse(JSON.stringify(arr_excel, replacer));
+
+    return (arr_excel);
   }
 
   const optionsCSV = {
@@ -1195,60 +1165,48 @@ const DataTableCriterion = (props) => {
   };
 
 
-
-  function getTableDataForExcel( t ) 
-  {
-    function replacer(i, val) {
-      if ( val === null ) 
-      { 
-         return ""; // change null to empty string
-      } else {
-         return val; // return unchanged
-      }
-     }
-
-    var arr_excel = [];
-
-
-    
-    arr_excel= t.map(({title, name_rus, name_eng, descr_rus, descr_eng, parent_name,normativ_id,calcfunction_id,
-      irradiation_id,agegroup_id,exp_scenario_id, integral_period_id, organ_id, data_source_id, aerosol_amad_id, aerosol_sol_id,
-       chem_comp_gr_id, subst_form_id, isotope_id, action_level_id, people_class_id, cr_value, timeend}) => ({title, name_rus, name_eng, parent_name, descr_rus, descr_eng, normativ_id,calcfunction_id,
-        irradiation_id,agegroup_id,exp_scenario_id, integral_period_id, organ_id, data_source_id, aerosol_amad_id, aerosol_sol_id,
-         chem_comp_gr_id, subst_form_id, isotope_id, action_level_id, people_class_id, cr_value, timeend}));
-    arr_excel = JSON.parse( JSON.stringify(arr_excel, replacer) );
-
-    return(arr_excel);
-  }/* 
-
-  setValueNormativ(tableData[0].normativ_id);
-  setValueNormativInitial(tableData[0].normativ_id);
-  setValueCalcfunctionID(tableData[0].calcfunction_id);
-  setValueIrradiation(tableData[0].irradiation_id);
-  setValueAgegroup(tableData[0].agegroup_id);
-  setValueExpScenario(tableData[0].exp_scenario_id);
-  setValueIntegralPeriod(tableData[0].integral_period_id);
-  setValueOrgan(tableData[0].organ_id);
-  setValueDataSource(tableData[0].data_source_id);
-  setValueAerosolAmad(tableData[0].aerosol_amad_id);
-  setValueAerosolSol(tableData[0].aerosol_sol_id);
-  setValueChemCompGr(tableData[0].chem_comp_gr_id);
-  setValueSubstForm(tableData[0].subst_form_id);
-  setValueIsotope(tableData[0].isotope_id);
-  setValueActionLevel(tableData[0].action_level_id);
-  setValuePeopleClass(tableData[0].people_class_id);
-  setValueCrValue(tableData[0].cr_value);
-  setValueTimeend(tableData[0].timeend); */
-
   const exportDataCSV = async () => {
     const csvExporter = new ExportToCsv(optionsCSV);
-    console.log(treeFilterString);
-    const filteredData = tableData.filter(item =>
-      item.title.toLowerCase().includes(treeFilterString.toLowerCase()) && item.crit === 1
+
+    // Start by filtering the tableData
+    let filteredData = tableData.filter(item =>
+        item.title.toLowerCase().includes(treeFilterString.toLowerCase()) && item.crit === 1
     );
+
+    // Log the filtered tableData for debugging
+    console.log('Filtered tableData:', filteredData);
+    console.log('tableAgegroup', tableAgegroup);
+    console.log('tableAgegroup[item.agegroup_id]', tableAgegroup.find(group => group.id === 61));
+
+    // Then, map each _id field to its corresponding _title in the filteredData
+    filteredData = filteredData.map(item => {
+        // Map each _id field to its corresponding _title
+        const findInArrayById = (array, id) => {
+            const foundItem = array.find(element => element.id === id);
+            return foundItem ? foundItem.title : null;
+        }
+
+        item.irradiation_title = findInArrayById(tableIrradiation, item.irradiation_id);
+        item.normativ_title = findInArrayById(tableNormativ, item.normativ_id);
+        item.calcfunction_title = findInArrayById(tableCalcfunction, item.calcfunction_id);
+        item.agegroup_title = findInArrayById(tableAgegroup, item.agegroup_id);
+        item.exp_scenario_title = findInArrayById(tableExpScenario, item.exp_scenario_id);
+        item.integral_period_title = findInArrayById(tableIntegralPeriod, item.integral_period_id);
+        item.organ_title = findInArrayById(tableOrgan, item.organ_id);
+        item.data_source_title = findInArrayById(tableDataSource, item.data_source_id);
+        item.aerosol_amad_title = findInArrayById(tableAerosolAmad, item.aerosol_amad_id);
+        item.aerosol_sol_title = findInArrayById(tableAerosolSol, item.aerosol_sol_id);
+        item.chem_comp_gr_title = findInArrayById(tableChemCompGr, item.chem_comp_gr_id);
+        item.subst_form_title = findInArrayById(tableSubstForm, item.subst_form_id);
+        item.isotope_title = findInArrayById(tableIsotope, item.isotope_id);
+        item.action_level_title = findInArrayById(tableActionLevel, item.action_level_id);
+        item.people_class_title = findInArrayById(tablePeopleClass, item.people_class_id);
+
+        return item;
+    });
     csvExporter.generateCsv(getTableDataForExcel(filteredData));
   }
-
+      
   const setTreeFilter = (e) => { 
     const value = e;
     const filter = value.trim();
@@ -1285,18 +1243,17 @@ const DataTableCriterion = (props) => {
   return (
 
     <div style={{ height: 650, width: 1500 }}>
-    <form ref={formRef}>  
 
     <table border = "0" style={{ height: 650, width: 1500 }} ><tbody>
     <tr>
       <td style={{ height: 550, width: 600, verticalAlign: 'top' }}>
       <div style={{ height: 500, width: 585 }}>
       <Box sx={{ border: 1, borderRadius: '4px', borderColor: 'grey.300', height: 500, p: '4px' }} >
-        <IconButton onClick={()=>handleClearClick()}  color="primary" size="small" title="Создать запись">
+        <IconButton onClick={()=>handleClearClick()} disabled={valueCrit===0} color="primary" size="small" title="Создать запись">
           <SvgIcon fontSize="small" component={PlusLightIcon} inheritViewBox /></IconButton>
-        <IconButton onClick={()=>saveRec(true)}  color="primary" size="small" title="Сохранить запись в БД">
+        <IconButton onClick={()=>saveRec(true)} disabled={valueCrit===0} color="primary" size="small" title="Сохранить запись в БД">
           <SvgIcon fontSize="small" component={SaveLightIcon} inheritViewBox/></IconButton>
-        <IconButton onClick={()=>handleClickDelete()}  color="primary" size="small" title="Удалить запись">
+        <IconButton onClick={()=>handleClickDelete()} disabled={valueCrit===0} color="primary" size="small" title="Удалить запись">
           <SvgIcon fontSize="small" component={TrashLightIcon} inheritViewBox /></IconButton>
         <IconButton onClick={()=>handleCancelClick()} disabled={!editStarted} color="primary" size="small" title="Отменить редактирование">
           <SvgIcon fontSize="small" component={UndoLightIcon} inheritViewBox /></IconButton>
@@ -1357,8 +1314,11 @@ const DataTableCriterion = (props) => {
       
       </td>
       <td style={{ height: 550, width: 900, verticalAlign: 'top' }}>
+
+    
       {( valueCrit === 1) &&
       <>
+      <form ref={formRef}> 
       <TextField  id="ch_id" disabled={true} label="Код" sx={{ width: '12ch' }} variant="outlined" value={ valueId ||''} size="small" /* onChange={e => setValueID(e.target.value)} *//>
       &nbsp;&nbsp;&nbsp;&nbsp;
       <TextField  id="ch_name" sx={{ width: '40ch' }} label="Обозначение" required size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
@@ -1444,46 +1404,39 @@ const DataTableCriterion = (props) => {
 
       <p></p>
 
-
-    
-     
      <TextField  id="timeend" sx={{ width: '40ch' }} label="Время облучения, сек" required size="small" variant="outlined" 
        value={valueTimeend || ''} onChange={e => setValueTimeend(e.target.value)}/>
       &nbsp;&nbsp;&nbsp;&nbsp;
 
       <p></p>
 
-      <Autocomplete
-      fullWidth
-      sx={{ width: '60ch' }}
-      size="small"
-      disablePortal
-      id="combo-box-action-level"
-      value={tableActionLevel.find((option) => option.id === valueActionLevel) || ''}
-      isOptionEqualToValue={(option, value) => option.id === value.id}
-      onChange={(event, newValueAC) => { setValueActionLevel(newValueAC ? newValueAC.id : null) }}
-      options={tableActionLevel}
-      getOptionLabel={option => option ? option.title : ""}
-      renderInput={(params) => <TextField {...params} label="Уровень вмешательства"  />}
-      renderOption={(props, option) => (
-        <li {...props}>
-          <Tooltip title={option.name_rus}>
-            <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
-              <span>{option.title}</span>
-              <span></span>
-            </div>
-          </Tooltip>
-        </li>
-      )}
-      clearable
-    />
+        <Autocomplete
+          fullWidth
+          sx={{ width: '60ch' }}
+          size="small"
+          disablePortal
+          id="combo-box-action-level"
+          value={tableActionLevel.find((option) => option.id === valueActionLevel) || ''}
+          isOptionEqualToValue={(option, value) => option.id === value.id}
+          onChange={(event, newValueAC) => { setValueActionLevel(newValueAC ? newValueAC.id : null) }}
+          options={tableActionLevel}
+          getOptionLabel={option => option ? option.title : ""}
+          renderInput={(params) => <TextField {...params} label="Уровень вмешательства"  />}
+          renderOption={(props, option) => (
+            <li {...props}>
+              <Tooltip title={option.name_rus}>
+                <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
+                  <span>{option.title}</span>
+                  <span></span>
+                </div>
+              </Tooltip>
+            </li>
+          )}
+          clearable="true"
+        />
+        <p></p>
 
-
-
-<p></p>
-
-
-<Autocomplete
+        <Autocomplete
           fullWidth
           sx={{ width: '60ch' }}
           size="small"
@@ -1505,14 +1458,11 @@ const DataTableCriterion = (props) => {
               </Tooltip>
             </li>
           )}
-          clearable
+          clearable="true"
         />  
+        <p></p>
 
-
-<p></p>
-
-
-<Autocomplete
+        <Autocomplete
           fullWidth
           sx={{ width: '60ch' }}
           size="small"
@@ -1535,11 +1485,9 @@ const DataTableCriterion = (props) => {
             </li>
           )}
         />  
+        <p></p>
 
-<p></p>
-
-
-<Autocomplete
+        <Autocomplete
           fullWidth
           sx={{ width: '60ch' }}
           size="small"
@@ -1561,13 +1509,11 @@ const DataTableCriterion = (props) => {
               </Tooltip>
             </li>
           )}
-          clearable
+          clearable="true"
         />  
+        <p></p>
 
-<p></p>
-
-
-<Autocomplete
+        <Autocomplete
           fullWidth
           sx={{ width: '60ch' }}
           size="small"
@@ -1590,11 +1536,9 @@ const DataTableCriterion = (props) => {
             </li>
           )}
         />  
+        <p></p>
 
-<p></p>
-
-
-<Autocomplete
+        <Autocomplete
           fullWidth
           sx={{ width: '60ch' }}
           size="small"
@@ -1617,11 +1561,9 @@ const DataTableCriterion = (props) => {
             </li>
           )}
         />  
+        <p></p>
 
-<p></p>
-
-
-<Autocomplete
+        <Autocomplete
           fullWidth
           sx={{ width: '60ch' }}
           size="small"
@@ -1644,11 +1586,9 @@ const DataTableCriterion = (props) => {
             </li>
           )}
         />  
+        <p></p>
 
-<p></p>
-
-
-<Autocomplete
+        <Autocomplete
           fullWidth
           sx={{ width: '60ch' }}
           size="small"
@@ -1671,11 +1611,9 @@ const DataTableCriterion = (props) => {
             </li>
           )}
         />  
-<p></p>
+        <p></p>
 
-
-
-<Autocomplete
+        <Autocomplete
           fullWidth
           sx={{ width: '60ch' }}
           size="small"
@@ -1699,11 +1637,9 @@ const DataTableCriterion = (props) => {
           )}
         />  
 
-<p></p>
+        <p></p>
 
-
-
-<Autocomplete
+        <Autocomplete
           fullWidth
           sx={{ width: '60ch' }}
           size="small"
@@ -1727,11 +1663,9 @@ const DataTableCriterion = (props) => {
           )}
         />  
 
-<p></p>
+        <p></p>
 
-
-
-<Autocomplete
+        <Autocomplete
           fullWidth
           sx={{ width: '60ch' }}
           size="small"
@@ -1755,11 +1689,9 @@ const DataTableCriterion = (props) => {
           )}
         />  
 
-<p></p>
+        <p></p>
 
-
-        
-<Autocomplete
+        <Autocomplete
           fullWidth
           sx={{ width: '60ch' }}
           size="small"
@@ -1783,22 +1715,22 @@ const DataTableCriterion = (props) => {
           )}
         />  
 
-<p></p>
+        <p></p>
 
-        
-<Autocomplete
+        <Autocomplete
           fullWidth
           sx={{ width: '60ch' }}
           size="small"
           disablePortal
-          disableClearable
+          required
+          //disableClearable
           id="combo-box-data-source"
           value={tableDataSource.find((option) => option.id === valueDataSource) || ''}
           isOptionEqualToValue={(option, value) => option.id === value.id}
           onChange={(event, newValueAC) => { setValueDataSource(newValueAC ? newValueAC.id : null) }}
           options={tableDataSource}
           getOptionLabel={option => option ? option.title : ""}
-          renderInput={(params) => <TextField {...params} label="Источник данных" required  />}
+          renderInput={(params) => <TextField {...params} label="Источник данных" required/>}
           renderOption={(props, option) => (
             <li {...props}>
               <Tooltip title={option.shortname}>
@@ -1810,17 +1742,16 @@ const DataTableCriterion = (props) => {
             </li>
           )}
         />  
-
+      </form>
+    
       <div style={{ height: 300, width: 800 }}>
         <td>Действия критерия<br/>
           <DataTableActionCriterion table_name={props.table_name} rec_id={valueId} />
         </td>
       </div>
-
       </>}
     </td>
   </tr>
-
   </tbody>
   </table>
 
@@ -1887,7 +1818,6 @@ const DataTableCriterion = (props) => {
         <Button variant="outlined" onClick={handleCloseSaveWhenNewYes} >Да</Button>
     </DialogActions>
   </Dialog>
-  </form>
  </div>     
   )
 }

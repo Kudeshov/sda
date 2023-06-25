@@ -35,6 +35,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import Backdrop from '@mui/material/Backdrop';
 
 import Autocomplete from '@mui/material/Autocomplete';
+import { createFilterOptions } from "@mui/material/Autocomplete";
 import Tooltip from '@mui/material/Tooltip';
 import Checkbox from '@mui/material/Checkbox';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
@@ -94,6 +95,12 @@ const BigTableValueIntDose = (props) => {
   const [isLoading, setIsLoading] = React.useState(false);
   //состояние открытой панельки алерта-уведомления
   const [openAlert, setOpenAlert] = React.useState(false, '');  
+  
+
+  // создаем пользовательскую функцию фильтрации
+  const filterOptions = createFilterOptions();
+//  const [nuclideLimitTags, setNuclideLimitTags] = useState([7]); 
+
 
   const handleRowClick = React.useCallback((params) => {
     setValueID(params.row.id);
@@ -140,9 +147,9 @@ const BigTableValueIntDose = (props) => {
   const scrollToIndexRef = React.useRef(null); //тут хранится значение (айди) добавленной записи
   useEffect(() => {
     //событие, которое вызовет скроллинг грида после изменения данных в tableValueIntDose
-    console.log('событие, которое вызовет скроллинг грида после изменения данных в tableValueIntDose');
+    //console.log('событие, которое вызовет скроллинг грида после изменения данных в tableValueIntDose');
     if (!scrollToIndexRef.current) return; //если значение не указано, то ничего не делаем
-    console.log('scrollToIndexRef.current ', scrollToIndexRef.current, ' isRecordAdded ', isRecordAdded);
+    //console.log('scrollToIndexRef.current ', scrollToIndexRef.current, ' isRecordAdded ', isRecordAdded);
     if (scrollToIndexRef.current===-1) return;
     if (!isRecordAdded) return;
     console.log('handleScrollToRow');
@@ -152,7 +159,7 @@ const BigTableValueIntDose = (props) => {
     console.log('setRecordAdded(false);');
     setRecordAdded(false); // Сбрасываем флаг после использования
     // eslint-disable-next-line
-  }, [/* tableValueIntDose, handleScrollToRow, handleRowClick, setRecordAdded, isRecordAdded, */ scrollToIndexRef.current ]);
+  }, [ scrollToIndexRef.current ]);
 
    const [pageState] = useState({
     page: 0,
@@ -487,10 +494,31 @@ const BigTableValueIntDose = (props) => {
      */
     ])
   
-  const handleChangeDataSource = (event, value) => {
+/*   const handleChangeDataSource = (event, value) => {
   // Обновление значения компонента Autocomplete
     updateCurrentFilter({ selDataSourceValues: value });
-  };
+  }; */
+
+  const handleChangeDataSource = (event, value) => {
+    // Обновление значения компонента Autocomplete
+    const newFilter = {
+      selDataSourceValues: value,
+      selDoseRatioValue: null,
+      selOrganValues: [],
+      selIrradiationValue: null,
+      selSubstFormValues: [],
+      selIsotopeValues: [],
+      selPeopleClassValues: [],
+      selIntegralPeriodValues: [],
+      selLetLevelValues: [],
+      selAgeGroupValues: [],
+      selAerosolSolValues: [],
+      selAerosolAMADValues: [],
+      selExpScenarioValues: [],
+    };
+  
+    updateCurrentFilter(newFilter);
+  };  
   
   //фильтрация списков фильтров в зависимости от выбранного источника (источников) данных
   useEffect(() => {
@@ -1866,7 +1894,7 @@ const reloadDataHandler = async () => {
                 });
               }}
               onInputChange={(event, newInputValue, reason) => {
-                if (reason !== "reset" || !autocompleteOpen) {
+                if (reason !== "reset" /* || !autocompleteOpen */) {
                   setSearchValue(newInputValue);
                 }
               }}
@@ -1884,9 +1912,16 @@ const reloadDataHandler = async () => {
               options={tableIsotopeFiltered}
               getOptionLabel={(option) => option.title}
               disableCloseOnSelect
+              filterOptions={filterOptions}
               renderOption={(props, option, { selected }) => (
                 <li {...props}>
-                  <Checkbox size="small" icon={icon} checkedIcon={checkedIcon} style={{ marginRight: 8 }} checked={selected}/>
+                  <Checkbox
+                    size="small"
+                    icon={icon}
+                    checkedIcon={checkedIcon}
+                    style={{ marginRight: 8 }}
+                    checked={selected}
+                  />
                   {option.title}
                 </li>
               )}
@@ -1908,9 +1943,22 @@ const reloadDataHandler = async () => {
           <td>
             &nbsp;&nbsp;
           </td>
-          <td>        
-            <IconButton onClick={()=> updateCurrentFilter({ selIsotopeValues: tableIsotopeFiltered })} color="primary" size="small" title="Выбрать все">
-            <SvgIcon fontSize="small" component={CheckDoubleIcon} inheritViewBox /></IconButton>
+          <td>      
+            <IconButton
+              onClick={async () => {
+                const filtered = filterOptions(tableIsotopeFiltered, { inputValue: searchValue, getOptionLabel: (option) => option.title });
+                setCurrFlt({
+                  ...currFlt,
+                  selIsotopeValues: filtered,
+                });
+                setSearchValue('');  // очищаем поле ввода после нажатия на "Выбрать все"
+              }} 
+              color="primary" 
+              size="small" 
+              title="Выбрать все"
+              >  
+              <SvgIcon fontSize="small" component={CheckDoubleIcon} inheritViewBox />
+            </IconButton> 
           </td>
           <td>
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;

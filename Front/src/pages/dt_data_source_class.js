@@ -54,7 +54,6 @@ function DataTableDataSourceClass(props)  {
     setOpen(false);
 
     console.log(lastID);  
-    //setValueId(lastID);
     var filteredData = tableDataSrcClass.filter(function(element) {
       return element.id === lastID;
     });
@@ -82,18 +81,15 @@ function DataTableDataSourceClass(props)  {
     if (props.rec_id==='') {
       lastRecID = -1;
     }
-    
+    setOpenAlert(false);
     setlastSrcClassID(0);
     setIsLoading(true);
-    //console.log(`/data_source_class?table_name=${props.table_name}&rec_id=${props.rec_id}`);
-    //console.log( lastRecID );
     fetch(`/data_source_class?table_name=${props.table_name}&rec_id=${lastRecID}`)
       .then((data) => data.json())
       .then((data) => setTableDataSrcClass(data));
     setlastSrcClassID(0);
     setIsLoading(false);
     }, [props.table_name, props.rec_id])
-
 
   useEffect(() => {
     fetch(`/data_source`)
