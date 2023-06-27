@@ -26,8 +26,8 @@ import { ReactComponent as TrashLightIcon } from "./../icons/trash.svg";
 import { ReactComponent as RepeatLightIcon } from "./../icons/repeat.svg";
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { ReactComponent as EditLightIcon } from "./../icons/edit.svg";
-//import { ReactComponent as InfoLightIcon } from "./../icons/info.svg";
 import { table_names } from './sda_types';
+import { useGridScrollPagination } from './../helpers/gridScrollHelper';
 
 var alertText = "Сообщение";
 var alertSeverity = "info";
@@ -471,7 +471,10 @@ const DataTableChelement = (props) => {
       setValueAtomicNumInitial(selectedRowData[0].atomic_num);
     }
   }
-// Scrolling and positionning
+  // Scrolling and positionning
+  const { paginationModel, setPaginationModel, scrollToIndexRef } = useGridScrollPagination(apiRef, tableData, setRowSelectionModel);
+
+/* 
 const [paginationModel, setPaginationModel] = React.useState({
   pageSize: 25,
   page: 0,
@@ -507,7 +510,7 @@ useEffect(() => {
   // console.log('scrollToIndex index '+ scrollToIndexRef.current);
   handleScrollToRow(scrollToIndexRef.current);
   scrollToIndexRef.current = null; //обнуляем значение
-}, [tableData, handleScrollToRow]);
+}, [tableData, handleScrollToRow]); */
 
 
 function CustomToolbar1() {

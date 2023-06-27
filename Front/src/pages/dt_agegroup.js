@@ -26,6 +26,7 @@ import { ReactComponent as DownloadLightIcon } from "./../icons/download.svg";
 import { ReactComponent as TrashLightIcon } from "./../icons/trash.svg";
 import { ReactComponent as RepeatLightIcon } from "./../icons/repeat.svg";
 import { table_names } from './sda_types';
+import { useGridScrollPagination } from './../helpers/gridScrollHelper';
 
 var alertText = "Сообщение";
 var alertSeverity = "info";
@@ -554,43 +555,7 @@ const DataTableAgeGroup = (props) => {
     }
   }
   // Scrolling and positionning
- const [paginationModel, setPaginationModel] = React.useState({
-  pageSize: 25,
-  page: 0,
-});
-
-useEffect(() => {
-  console.log(paginationModel.page);
-}, [paginationModel]);
-
-
-const handleScrollToRow = React.useCallback((v_id) => {
-  const sortedRowIds = apiRef.current.getSortedRowIds(); //получаем список отсортированных строк грида
-  const index = sortedRowIds.indexOf(parseInt(v_id));    //ищем в нем номер нужной записи
-  if (index !== -1) {
-    const pageSize = paginationModel.pageSize; // определяем текущую страницу и индекс строки в этой странице
-    const currentPage = paginationModel.page;
-    const rowPageIndex = Math.floor(index / pageSize);
-    if (currentPage !== rowPageIndex) { // проверяем, нужно ли изменять страницу
-      apiRef.current.setPage(rowPageIndex);
-    }
-    setRowSelectionModel([v_id]); //это устанавливает фокус на выбранной строке (подсветка)
-    setTimeout(function() {       //делаем таймаут в 0.1 секунды, иначе скроллинг тупит
-      apiRef.current.scrollToIndexes({ rowIndex: index, colIndex: 0 });
-    }, 100);
-  }
-}, [apiRef, paginationModel, setRowSelectionModel]);
-
-const scrollToIndexRef = React.useRef(null); //тут хранится значение (айди) добавленной записи
-
-useEffect(() => {
-  //событие, которое вызовет скроллинг грида после изменения данных в tableData
-  if (!scrollToIndexRef.current) return; //если значение не указано, то ничего не делаем
-  if (scrollToIndexRef.current===-1) return;
-  // console.log('scrollToIndex index '+ scrollToIndexRef.current);
-  handleScrollToRow(scrollToIndexRef.current);
-  scrollToIndexRef.current = null; //обнуляем значение
-}, [tableData, handleScrollToRow]);
+  const { paginationModel, setPaginationModel, scrollToIndexRef } = useGridScrollPagination(apiRef, tableData, setRowSelectionModel);
 
   function CustomToolbar1() {
    //const apiRef = useGridApiRef(); // init DataGrid API for scrolling

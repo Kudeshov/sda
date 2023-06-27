@@ -31,6 +31,7 @@ import { Select } from "@mui/material";
 import { MenuItem } from "@mui/material";
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Backdrop from '@mui/material/Backdrop';
+import { useGridScrollPagination } from './../helpers/gridScrollHelper';
 
 var alertText = "Сообщение";
 var alertSeverity = "info";
@@ -444,7 +445,9 @@ const DataTableDataSource = (props) => {
   }
 
   // Scrolling and positionning
-  const [paginationModel, setPaginationModel] = React.useState({
+  const { paginationModel, setPaginationModel, scrollToIndexRef } = useGridScrollPagination(apiRef, tableData, setRowSelectionModel);
+
+/*   const [paginationModel, setPaginationModel] = React.useState({
     pageSize: 25,
     page: 0,
   });
@@ -479,7 +482,7 @@ const DataTableDataSource = (props) => {
     // console.log('scrollToIndex index '+ scrollToIndexRef.current);
     handleScrollToRow(scrollToIndexRef.current);
     scrollToIndexRef.current = null; //обнуляем значение
-  }, [tableData, handleScrollToRow]);
+  }, [tableData, handleScrollToRow]); */
 
 
   function CustomToolbar1() {

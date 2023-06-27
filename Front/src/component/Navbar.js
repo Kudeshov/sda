@@ -69,6 +69,17 @@ function Navbar() {
       setMenuNorm(false);
   }
   
+  const [menuDb, setMenuDb] = useState(false);
+  const [anchorE4, setAnchorE4] = useState()
+
+  const recordButtonPositionDb = (event/* : any */) => {
+      setAnchorE4(event.currentTarget);
+      setMenuDb(true);
+  }
+  let closeMenuDb = () => {
+      setMenuDb(false);
+  }
+
   const [menuSubstance, setMenuSubstance] = useState(false);
   const [anchorE5, setAnchorE5] = useState()
 
@@ -139,9 +150,12 @@ function Navbar() {
             <Link to="/data_source" className={classes.link}>
               Источники данных
             </Link>
-            <Link to="/db" className={classes.link}>
+            <Link onClick={recordButtonPositionDb}  className={classes.link}>
               Целевые БД
-            </Link>
+            </Link>     
+            <Menu anchorEl={anchorE4} open={menuDb} onClose={closeMenuDb}>
+              <MenuItem onClick={closeMenuDb} component={Link} to="/db_struct">Состав и структура</MenuItem>
+            </Menu>            
           </div>
         }
       </Toolbar>
