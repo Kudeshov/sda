@@ -33,10 +33,6 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import Backdrop from '@mui/material/Backdrop';
 import { useGridScrollPagination } from './../helpers/gridScrollHelper';
 
-var alertText = "Сообщение";
-var alertSeverity = "info";
-var lastId = 0;
-
 const DataTableDataSource = (props) => {
   const apiRef = useGridApiRef(); // init DataGrid API for scrolling
 
@@ -61,6 +57,10 @@ const DataTableDataSource = (props) => {
 
   const [isEmpty, setIsEmpty] = useState([false]);
 
+  const [alertText, setAlertText] = useState("Сообщение");
+  const [alertSeverity, setAlertSeverity] = useState("info");
+  const [lastId, setLastId] = useState(0);  
+
   const valuesExtDS = [
     { label: 'Целевая БД', value: 'false' },
     { label: 'Внешний источник', value: 'true' } ];
@@ -79,8 +79,6 @@ const DataTableDataSource = (props) => {
     if ((!isLoading) && (tableData) && (tableData.length)) {
       if (!lastId) 
       {
-        //console.log('isLoading, tableData[0].external_ds '+tableData[0].external_ds);
-        lastId = tableData[0].id;
         setRowSelectionModel([tableData[0].id]);
         setValueID(tableData[0].id);
 
@@ -97,13 +95,25 @@ const DataTableDataSource = (props) => {
         setValueDescrInitial(tableData[0].descr || "" ); 
       }
     }
-    }, [ isLoading, tableData] );
+    }, [ isLoading, tableData, lastId] );
+
+  const [prevRowSelectionModel, setPrevRowSelectionModel] = useState([]);
+
+  useEffect(() => {
+    // Если редактирование начато, не меняем выбранную строку
+    if (editStarted) {
+      setRowSelectionModel(prevRowSelectionModel);
+    } else {
+      // Здесь сохраняем предыдущую выбранную строку
+      setPrevRowSelectionModel(rowSelectionModel);
+    }
+  }, [rowSelectionModel, prevRowSelectionModel, editStarted]);  
 
   const handleRowClick = (params) => {
     setOpenAlert(false);
     if (editStarted&&(!isEmpty))
     {
-      handleClickSave(params);
+      setDialogType('save');//handleClickSave(params);
     } 
     else 
     {
@@ -124,7 +134,8 @@ const DataTableDataSource = (props) => {
   const handleClearClick = (params) => {
     if (editStarted&&(!isEmpty))
     {
-      handleClickSaveWhenNew(params);
+      //handleClickSaveWhenNew(params);
+      setDialogType('save');
     } 
     else 
     {
@@ -141,187 +152,141 @@ const DataTableDataSource = (props) => {
     fetch(`/${props.table_name}`)
       .then((data) => data.json())
       .then((data) => setTableData(data))
-      .then((data) => {/* console.log('fetch ok'); console.log(data);  */lastId = 0;} ); 
+      .then((data) => { /* setLastId(0); */} ); 
   }, [props.table_name])
 
-  ///////////////////////////////////////////////////////////////////  SAVE  /////////////////////
-  const saveRec = async ( fromToolbar ) => {
-    if (formRef.current.reportValidity() )
-    {
-    const js = JSON.stringify({
+
+// Функция saveRec
+const saveRec = async () => {
+  if (formRef.current.reportValidity()) {
+    const data = {
       title: valueTitle,
       shortname: valueShortName,
       fullname: valueFullName,
       external_ds: valueExternalDS,
-      descr: valueDescr         
-   });
-    if (!valueId) {
-      addRec();
-      return;
-    }
+      descr: valueDescr
+    };
+    
     setIsLoading(true);
+    
+    const url = `/${props.table_name}/` + (valueId ? valueId : '');
+    const method = valueId ? 'PUT' : 'POST';
+    
     try {
-      const response = await fetch(`/${props.table_name}/`+valueId, {
-       method: 'PUT',
-       body: js,
-       headers: {
-         'Content-Type': 'Application/json',
-         Accept: '*/*',
-       },
-     });
-     if (!response.ok) {
-        alertSeverity = 'error';
-        alertText = await response.text();
-        setOpenAlert(true);          
-      }
-      else
-      {
-        alertSeverity = "success";
-        alertText = await response.text();
-        setOpenAlert(true);  
-      }
-   } catch (err) {
-     alertText = err.message;
-     alertSeverity = 'error';
-     setOpenAlert(true);
-   } finally {
-     setIsLoading(false);
-     if (fromToolbar) 
-     {
-       setValueTitleInitial(valueTitle);       
-       setValueShortNameInitial(valueShortName);
-       setValueFullNameInitial(valueFullName);
-       setValueExternalDSInitial(valueExternalDS);
-       setValueDescrInitial(valueDescr);           
-     }
-    reloadData();     
-   }
-  }
- };
-/////////////////////////////////////////////////////////////////// ADDREC ///////////////////// 
-  const addRec = async ()  => {
-    const js = JSON.stringify({
-      id: valueId,
-      title: valueTitle,
-      shortname: valueShortName,
-      fullname: valueFullName,
-      external_ds: valueExternalDS,
-      descr: valueDescr         
-   });
-    setIsLoading(true);
-    //console.log(js);
-    try {
-      const response = await fetch(`/${props.table_name}/`, {
-        method: 'POST',
-        body: js,
+      const response = await fetch(url, {
+        method,
+        body: JSON.stringify(data),
         headers: {
           'Content-Type': 'Application/json',
           Accept: '*/*',
         },
       });
-
+      
+      // Проверяем тип контента
+      const contentType = response.headers.get('content-type');
+      const isJson = contentType && contentType.includes('application/json');
+      
+      let responseData;
+      
+      // Обрабатываем ответ в зависимости от типа контента
+      if (isJson) {
+        responseData = await response.json();
+      } else {
+        responseData = await response.text();
+      }
+      
+      // Обрабатываем ответ в зависимости от статуса
       if (!response.ok) {
-        alertSeverity = 'error';
-        alertText = await response.text();
-        setOpenAlert(true);          
+        throw new Error(responseData);
       }
-      else
-      {
-        alertSeverity = "success";
-        const { id } = await response.json();
-        alertText = `Добавлена запись с кодом ${id}`;
-        lastId = id;  
-        //console.log('добавлено lastid = ' + lastId);
-        setValueID(lastId);
-        setOpenAlert(true);  
+      
+      setAlertSeverity('success');
+      
+      // Если это POST запрос, получаем и устанавливаем новый ID
+      if (method === 'POST') {
+        const newId = responseData.id;
+        setLastId(newId);
+        setValueID(newId);
+        setAlertText(`Добавлена запись с кодом ${newId}`);
+      } else {
+        setLastId(valueId);
+        setAlertText(responseData || 'Success');
       }
+      
     } catch (err) {
-      alertText = err.message;
-      alertSeverity = 'error';
-      setOpenAlert(true);
+      setAlertSeverity('error');
+      setAlertText(err.message);
     } finally {
       setIsLoading(false);
-      reloadData();
-      console.log('addRec setScrollToIndex lastId = ' + lastId);
-      scrollToIndexRef.current = lastId; //setScrollToIndex(lastId);  
-      //Refresh initial state
-      setValueTitle(valueTitle);       
-      setValueShortName(valueShortName);
-      setValueFullName(valueFullName);
-      setValueExternalDS(valueExternalDS);
-      setValueDescr(valueDescr);       
-      setValueTitleInitial(valueTitle);       
+      setOpenAlert(true);
+      setValueTitleInitial(valueTitle);
       setValueShortNameInitial(valueShortName);
       setValueFullNameInitial(valueFullName);
       setValueExternalDSInitial(valueExternalDS);
-      setValueDescrInitial(valueDescr);          
+      setValueDescrInitial(valueDescr);
+      reloadData();
     }
-  };
+  }
+};
 
-/////////////////////////////////////////////////////////////////// DELETE /////////////////////
-  const delRec =  async () => {
-    //console.log('delrec clicked');
-    const js = JSON.stringify({
-        id: valueId,
-        title: valueTitle,
+// Функция delRec
+const delRec = async () => {
+  setIsLoading(true);
+
+  try {
+    const response = await fetch(`/${props.table_name}/${valueId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'Application/json',
+        Accept: '*/*',
+      },
     });
-    setIsLoading(true);
-    //console.log(js);
-    try {
-      const response = await fetch(`/${props.table_name}/`+valueId, {
-        method: 'DELETE',
-        body: js,
-        headers: {
-          'Content-Type': 'Application/json',
-          Accept: '*/*',
-        },
-      });
-      if (!response.ok) {
-        alertSeverity = 'error';
-        alertText = await response.text();
-        setOpenAlert(true);          
-      }
-      else
-      {
-        alertSeverity = "success";
-        alertText = await response.text();
-        setOpenAlert(true); 
-        reloadData();
-        setRowSelectionModel([tableData[0].id ]);  
-        setValueID(tableData[0].id);
 
-        setValueTitle(tableData[0].title);
-        setValueShortName(tableData[0].shortname);
-        setValueFullName( tableData[0].fullname || "" );
-        setValueExternalDS(tableData[0].external_ds);
-        setValueDescr( tableData[0].descr || "" );
-
-        setValueTitleInitial(tableData[0].title);
-        setValueShortNameInitial(tableData[0].shortname);
-        setValueFullNameInitial( tableData[0].fullname || "" );
-        setValueExternalDSInitial(tableData[0].external_ds);
-        setValueDescrInitial( tableData[0].descr || "" );  
-      }
-    } catch (err) {
-      alertText = err.message;
-      alertSeverity = 'error';
-      setOpenAlert(true);
-    } finally {
-      setIsLoading(false);
+    if (!response.ok) {
+      throw new Error(await response.text());
     }
-  };  
+
+    setAlertSeverity('success');
+    setAlertText(await response.text());
+
+  } catch (err) {
+    setAlertSeverity('error');
+    setAlertText(err.message);
+  } finally {
+    setIsLoading(false);
+    setOpenAlert(true);
+    
+    // Переключаемся на первую запись после удаления
+    if (tableData[0]) {
+      setValueID(tableData[0].id);
+      setLastId(tableData[0].id); 
+      setValueTitle(tableData[0].title);
+      setValueShortName(tableData[0].shortname);
+      setValueFullName(tableData[0].fullname || "");
+      setValueExternalDS(tableData[0].external_ds);
+      setValueDescr(tableData[0].descr || "");
+      
+      setValueTitleInitial(tableData[0].title);
+      setValueShortNameInitial(tableData[0].shortname);
+      setValueFullNameInitial(tableData[0].fullname || "");
+      setValueExternalDSInitial(tableData[0].external_ds);
+      setValueDescrInitial(tableData[0].descr || "");  
+    }
+    reloadData();
+  }
+};
 
   /////////////////////////////////////////////////////////////////// RELOAD /////////////////////
   const reloadDataAlert =  async () => {
-    alertSeverity = "info";
-    alertText =  'Данные успешно обновлены';
+    setAlertSeverity('info');
+    setAlertText('Данные успешно обновлены');
     try 
     {
       await reloadData();
     } catch(e)
     {
-      alertSeverity = "error";
-      alertText =  'Ошибка при обновлении данных: '+e.message;      
+      setAlertSeverity('error');
+      setAlertText('Ошибка при обновлении данных: '+e.message);      
       setOpenAlert(true);
       return;
     }
@@ -329,87 +294,72 @@ const DataTableDataSource = (props) => {
   }
 
   const reloadData = async () => {
+    setIsLoading(true);  // запускаем индикатор загрузки
     try {
       const response = await fetch(`/${props.table_name}/`);
-       if (!response.ok) {
-        //console.log('response not ok');
-        alertText = `Ошибка при обновлении данных: ${response.status}`;
-        alertSeverity = "false";
-        const error = response.status + ' (' +response.statusText+')';  
+  
+      if (!response.ok) {
+        setAlertSeverity('error');
+        setAlertText(`Ошибка при обновлении данных: ${response.status}`);
+        const error = response.status + ' (' + response.statusText + ')';
         throw new Error(`${error}`);
-      }
-      else
-      {  
+      } else {
         const result = await response.json();
         setTableData(result);
       }
     } catch (err) {
-      //console.log('catch err');
       throw err;
     } finally {
-      setIsLoading(false);
+      setIsLoading(false);  // останавливаем индикатор загрузки
     }
   };
 
-  /////////////////////////////////////////
-  const [openDel, setOpenDel] = React.useState(false); 
-  const [openSave, setOpenSave] = React.useState(false); 
-  const [openSaveWhenNew, setOpenSaveWhenNew] = React.useState(false); 
+  ///////////////////////////////////////// DIALOG
+  const [dialogType, setDialogType] = useState('');
 
-  const handleClickDelete = () => {
-    setOpenDel(true);
+  const getDialogContentText = () => {
+    switch (dialogType) {
+      case 'delete':
+        return `В таблице "${table_names[props.table_name]}" предложена к удалению следующая запись: ${valueTitle}; Код в БД = ${valueId}. Вы желаете удалить указанную запись?`;
+      case 'save':
+      case 'saveWhenNew':
+        return valueId
+          ? `В запись таблицы "${table_names[props.table_name]}" внесены изменения. Вы желаете сохранить указанную запись?`
+          : `В таблицу "${table_names[props.table_name]}" внесена новая несохраненная запись. Вы желаете сохранить указанную запись?`;
+      default:
+        return '';
+    }
+  };
+  
+  const handleCloseNo = () => {
+    console.log('handleCloseNo',dialogType);
+    switch (dialogType) {
+      case 'save':
+        handleCancelClick(); 
+        break;
+      default:
+        break;
+    }
+    setDialogType('');
   };
 
-  const handleCloseDelNo = () => {
-    setOpenDel(false);
+  const handleCloseCancel = () => {
+    setDialogType('');
   };
-
-  const handleCloseDelYes = () => {
-    setOpenDel(false);
-    delRec();
+  
+  const handleCloseYes = () => {
+    switch (dialogType) {
+      case 'delete':
+        delRec();
+        break;
+      case 'save':
+        saveRec(false);
+        break;
+      default:
+        break;
+    }
+    setDialogType('');
   };
-
-  const handleClickSave = () => {
-    setOpenSave(true);
-  };
-
-  const handleCloseSaveNo = () => {
-    setOpenSave(false);
-    handleCancelClick();
-  };
-
-  const handleCloseSaveYes = () => {
-    setOpenSave(false);
-    saveRec(false);
-    handleCancelClick();
-  };
-
-  const handleClickSaveWhenNew = () => {
-    setOpenSaveWhenNew(true);
-  };
-
-  const handleCloseSaveWhenNewNo = () => {
-    setOpenSaveWhenNew(false);
-
-    setValueID('');
-    setValueTitle('');
-    setValueShortName('');
-    setValueFullName('');
-    setValueExternalDS(true);
-    setValueDescr('');
-  };
-
-  const handleCloseSaveWhenNewYes = () => {
-    setOpenSaveWhenNew(false);
-    saveRec(true);
-    setValueID('');
-    setValueTitle('');
-    setValueShortName('');
-    setValueFullName('');
-    setValueExternalDS(true);
-    setValueDescr('');
-  };
-
 
   //////////////////////////////////////////////////////// ACTIONS ///////////////////////////////
   const columns = [
@@ -447,46 +397,14 @@ const DataTableDataSource = (props) => {
   // Scrolling and positionning
   const { paginationModel, setPaginationModel, scrollToIndexRef } = useGridScrollPagination(apiRef, tableData, setRowSelectionModel);
 
-/*   const [paginationModel, setPaginationModel] = React.useState({
-    pageSize: 25,
-    page: 0,
-  });
-
   useEffect(() => {
-    console.log(paginationModel.page);
-  }, [paginationModel]);
-  
-  const handleScrollToRow = React.useCallback((v_id) => {
-    const sortedRowIds = apiRef.current.getSortedRowIds(); //получаем список отсортированных строк грида
-    const index = sortedRowIds.indexOf(parseInt(v_id));    //ищем в нем номер нужной записи
-    if (index !== -1) {
-      const pageSize = paginationModel.pageSize; // определяем текущую страницу и индекс строки в этой странице
-      const currentPage = paginationModel.page;
-      const rowPageIndex = Math.floor(index / pageSize);
-      if (currentPage !== rowPageIndex) { // проверяем, нужно ли изменять страницу
-        apiRef.current.setPage(rowPageIndex);
-      }
-      setRowSelectionModel([v_id]); //это устанавливает фокус на выбранной строке (подсветка)
-      setTimeout(function() {       //делаем таймаут в 0.1 секунды, иначе скроллинг тупит
-        apiRef.current.scrollToIndexes({ rowIndex: index, colIndex: 0 });
-      }, 100);
+    if (lastId !== null) {
+        scrollToIndexRef.current = lastId;
     }
-  }, [apiRef, paginationModel, setRowSelectionModel]);
-  
-  const scrollToIndexRef = React.useRef(null); //тут хранится значение (айди) добавленной записи
-
-  useEffect(() => {
-    //событие, которое вызовет скроллинг грида после изменения данных в tableData
-    if (!scrollToIndexRef.current) return; //если значение не указано, то ничего не делаем
-    if (scrollToIndexRef.current===-1) return;
-    // console.log('scrollToIndex index '+ scrollToIndexRef.current);
-    handleScrollToRow(scrollToIndexRef.current);
-    scrollToIndexRef.current = null; //обнуляем значение
-  }, [tableData, handleScrollToRow]); */
-
+  }, [lastId, scrollToIndexRef]);
 
   function CustomToolbar1() {
-    const handleExport = (options/* : GridCsvExportOptions */) =>
+    const handleExport = (options) =>
        apiRef.current.exportDataAsCsv(options);
 
     return (
@@ -495,7 +413,7 @@ const DataTableDataSource = (props) => {
           <SvgIcon fontSize="small" component={PlusLightIcon} inheritViewBox /></IconButton>
         <IconButton onClick={()=>saveRec(true)}  color="primary" size="small" title="Сохранить запись в БД">
           <SvgIcon fontSize="small" component={SaveLightIcon} inheritViewBox/></IconButton>
-        <IconButton onClick={()=>handleClickDelete()}  color="primary" size="small" title="Удалить запись">
+        <IconButton onClick={()=>setDialogType('delete')}  color="primary" size="small" title="Удалить запись">
           <SvgIcon fontSize="small" component={TrashLightIcon} inheritViewBox /></IconButton>
         <IconButton onClick={()=>handleCancelClick()} disabled={!editStarted} color="primary" size="small" title="Отменить редактирование">
           <SvgIcon fontSize="small" component={UndoLightIcon} inheritViewBox /></IconButton>
@@ -519,6 +437,11 @@ const DataTableDataSource = (props) => {
       <td style={{ height: 640, width: 600, verticalAlign: 'top' }}>
       <div style={{ height: 486, width: 585 }}>
       <DataGrid
+       sx={{
+          "&.MuiDataGrid-root .MuiDataGrid-cell:focus-within": {
+            outline: "none !important",
+          },
+        }}
         components={{ Toolbar: CustomToolbar1 }}
         apiRef={apiRef}
         hideFooterSelectedRowCount={true}
@@ -616,61 +539,24 @@ const DataTableDataSource = (props) => {
     <CircularProgress color="inherit" />
   </Backdrop> } 
 
-  <Dialog open={openDel} onClose={handleCloseDelNo} fullWidth={true}>
-      <DialogTitle>
-          Внимание
-      </DialogTitle>
-      <DialogContent>
-          <DialogContentText>
-          В таблице "{table_names[props.table_name]}" предложена к удалению следующая запись:<p></p><b>{valueTitle}</b>; Код в БД = <b>{valueId}</b><p></p>
-          Вы желаете удалить указанную запись?
-          </DialogContentText>
-      </DialogContent>
-      <DialogActions>
-          <Button variant="outlined" onClick={handleCloseDelNo} autoFocus>Нет</Button>
-          <Button variant="outlined" onClick={handleCloseDelYes} >Да</Button>
-      </DialogActions>
-  </Dialog>
- 
-  <Dialog open={openSave} onClose={handleCloseSaveNo} fullWidth={true}>
-    <DialogTitle>
-        Внимание
-    </DialogTitle>
-    <DialogContent>
-        <DialogContentText>
-        {valueId?
-          `В запись таблицы "${table_names[props.table_name]}" внесены изменения.`:
-          `В таблицу "${table_names[props.table_name]}" внесена новая несохраненная запись.`} 
-            <p></p>Вы желаете сохранить указанную запись?
-        </DialogContentText>
-    </DialogContent>
-    <DialogActions>
-        <Button variant="outlined" onClick={handleCloseSaveNo} autoFocus>Нет</Button>
-        <Button variant="outlined" onClick={handleCloseSaveYes} >Да</Button>
-    </DialogActions>
-  </Dialog>
-
-  <Dialog open={openSaveWhenNew} onClose={handleCloseSaveWhenNewNo} fullWidth={true}>
-    <DialogTitle>
-        Внимание
-    </DialogTitle>
-    <DialogContent>
-        <DialogContentText>
-        {valueId?
-          `В запись таблицы "${table_names[props.table_name]}" внесены изменения.`:
-          `В таблицу "${table_names[props.table_name]}" внесена новая несохраненная запись.`}          
-            {/* {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p></p> */}
-            <p></p>Вы желаете сохранить указанную запись?
-        </DialogContentText>
-    </DialogContent>
-    <DialogActions>
-        <Button variant="outlined" onClick={handleCloseSaveWhenNewNo} autoFocus>Нет</Button>
-        <Button variant="outlined" onClick={handleCloseSaveWhenNewYes} >Да</Button>
-    </DialogActions>
+  <Dialog open={dialogType !== ''} onClose={handleCloseNo} fullWidth={true}>
+  <DialogTitle>
+      Внимание
+  </DialogTitle>
+  <DialogContent>
+      <DialogContentText>
+        {getDialogContentText()}
+      </DialogContentText>
+  </DialogContent>
+  <DialogActions>
+    <Button variant="outlined" onClick={handleCloseYes} >Да</Button>
+    <Button variant="outlined" onClick={handleCloseNo} >Нет</Button>
+    <Button variant="outlined" onClick={handleCloseCancel} >Отмена</Button>
+  </DialogActions>
   </Dialog>
   </form>
  </div>     
   )
 }
 
-export { DataTableDataSource, lastId }
+export { DataTableDataSource }

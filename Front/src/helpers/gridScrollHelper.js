@@ -3,36 +3,38 @@ import React, { useState, useEffect, useRef } from 'react';
 // кастомный хук для управления пагинацией и скроллингом
 export const useGridScrollPagination = (apiRef, tableData, setRowSelectionModel) => {
     const [paginationModel, setPaginationModel] = useState({
-        pageSize: 25,
-        page: 0,
+        pageSize: 25, // Размер страницы
+        page: 0, // Текущая страница
     });
 
     const handleScrollToRow = React.useCallback((v_id) => {
-        const sortedRowIds = apiRef.current.getSortedRowIds(); //получаем список отсортированных строк грида
-        const index = sortedRowIds.indexOf(parseInt(v_id));    //ищем в нем номер нужной записи
+        const sortedRowIds = apiRef.current.getSortedRowIds();
+        const index = sortedRowIds.indexOf(parseInt(v_id)); // Получение индекса строки в отсортированных данных
         if (index !== -1) {
-            const pageSize = paginationModel.pageSize; // определяем текущую страницу и индекс строки в этой странице
-            const currentPage = paginationModel.page;
-            const rowPageIndex = Math.floor(index / pageSize);
-            if (currentPage !== rowPageIndex) { // проверяем, нужно ли изменять страницу
-            apiRef.current.setPage(rowPageIndex);
+            const pageSize = paginationModel.pageSize; // Размер страницы
+            const currentPage = paginationModel.page; // Текущая страница
+            const rowPageIndex = Math.floor(index / pageSize); // Индекс страницы, на которой находится строка
+
+            if (currentPage !== rowPageIndex) {
+                setPaginationModel((prevModel) => ({ ...prevModel, page: rowPageIndex })); // Обновление текущей страницы пагинации
             }
-            setRowSelectionModel([v_id]); //это устанавливает фокус на выбранной строке (подсветка)
-            setTimeout(function() {       //делаем таймаут в 0.1 секунды, иначе скроллинг тупит
-            apiRef.current.scrollToIndexes({ rowIndex: index, colIndex: 0 });
+            setRowSelectionModel([v_id]); // Выбор строки
+            setTimeout(function() {
+                console.log(handleScrollToRow, 'index set', index );
+                apiRef.current.scrollToIndexes({ rowIndex: index, colIndex: 0 }); // Прокрутка к строке
             }, 100);
         }
     }, [apiRef, paginationModel, setRowSelectionModel]);
 
-  const scrollToIndexRef = useRef(null); 
+    const scrollToIndexRef = useRef(null);
 
-  useEffect(() => {
-    //событие, которое вызовет скроллинг грида после изменения данных в tableData
-    if (!scrollToIndexRef.current) return; //если значение не указано, то ничего не делаем
-    if (scrollToIndexRef.current===-1) return;
-    handleScrollToRow(scrollToIndexRef.current);
-    scrollToIndexRef.current = null; //обнуляем значение
-  }, [tableData, handleScrollToRow]);
+    useEffect(() => {
+        if (!scrollToIndexRef.current) return;
+        if (scrollToIndexRef.current === -1) return;
 
-  return { paginationModel, setPaginationModel, handleScrollToRow, scrollToIndexRef };
+        handleScrollToRow(scrollToIndexRef.current); // Обработка прокрутки к указанной строке
+        scrollToIndexRef.current = null;
+    }, [tableData, handleScrollToRow, paginationModel]);
+
+    return { paginationModel, setPaginationModel, handleScrollToRow, scrollToIndexRef };
 };
