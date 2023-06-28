@@ -339,18 +339,23 @@ const BigTableValueIntDose = (props) => {
  
   useEffect(() => { 
     let isOrganVisible = false;
+    let isLetLevelVisible = false;
     // Проверяем, есть ли у currFlt.selDoseRatioValue свойство id
     if (currFlt.selDoseRatioValue && currFlt.selDoseRatioValue.hasOwnProperty('id')) {
       // Используем .some() для проверки наличия удовлетворяющей строки в массиве
-      isOrganVisible = tableIntDoseAttr.some(item => item.dose_ratio_id === currFlt.selDoseRatioValue.id && item.organ_id >= 0);
+      isOrganVisible = tableIntDoseAttr.some(item => item.dose_ratio_id === currFlt.selDoseRatioValue.id  && item.organ_id >= 0 );
+      isLetLevelVisible = tableIntDoseAttr.some(item => item.dose_ratio_id === currFlt.selDoseRatioValue.id  && item.let_level_id >= 0 );
     }
     // Используем результат для установки видимости
     setOrganVisible(isOrganVisible);
+    setLetLevelVisible(isLetLevelVisible);
     if (!isOrganVisible)
       updateCurrentFilter({ selOrganValues: [] }); 
+    if (!isLetLevelVisible)
+      updateCurrentFilter({ isLetLevelVisible: [] });       
   }, [ tableIntDoseAttr, currFlt.selDoseRatioValue ] );
   
-  useEffect(() => { 
+/*   useEffect(() => { 
     let isSubstFormVisible = false;
     // Проверяем, есть ли у currFlt.selDoseRatioValue, currFlt.selIrradiationValue свойства id и currFlt.selPeopleClassValues не пуст
     if (currFlt.selDoseRatioValue && currFlt.selDoseRatioValue.hasOwnProperty('id') 
@@ -370,44 +375,63 @@ const BigTableValueIntDose = (props) => {
       updateCurrentFilter({ selSubstFormValues: [] }); 
 
   }, [ tableIntDoseAttr, currFlt.selDoseRatioValue, currFlt.selIrradiationValue, currFlt.selPeopleClassValues ] );
+ */
+
+  useEffect(() => { 
+    let isSubstFormVisible = false;
+    if (currFlt.selIrradiationValue && currFlt.selIrradiationValue.hasOwnProperty('id') ) {
+      tableIntDoseAttr.forEach(item => {
+        const match = item.irradiation_id === currFlt.selIrradiationValue.id;
+        if(match){
+          if(item.subst_form_id >= 0) isSubstFormVisible = true;
+        }
+      });
+    }
+    setSubstFormVisible(isSubstFormVisible);
+    if (!isSubstFormVisible)
+      updateCurrentFilter({ selSubstFormValues: [] }); 
+  }, [ tableIntDoseAttr, currFlt.selIrradiationValue ]);
 
   useEffect(() => { 
     let isAerosolSolVisible = false;
     let isAerosolAmadVisible = false;
-    let isLetLevelVisible = false;
-    let isAgegroupVisible = false;
-    let isExpScenarioVisible = false;
-
-  
-    if (currFlt.selDoseRatioValue && currFlt.selDoseRatioValue.hasOwnProperty('id') 
-        && currFlt.selIrradiationValue && currFlt.selIrradiationValue.hasOwnProperty('id') 
-        && currFlt.selPeopleClassValues && currFlt.selPeopleClassValues.length > 0
-        && currFlt.selSubstFormValues && currFlt.selSubstFormValues.length > 0) {
-
+    if (currFlt.selSubstFormValues && currFlt.selSubstFormValues.length > 0) {
       tableIntDoseAttr.forEach(item => {
-        const match = item.dose_ratio_id === currFlt.selDoseRatioValue.id 
-            && item.irradiation_id === currFlt.selIrradiationValue.id 
-            && currFlt.selPeopleClassValues.some(peopleClass => peopleClass.id === item.people_class_id)
-            && currFlt.selSubstFormValues.some(substForm => substForm.id === item.subst_form_id);
-  
+        const match = currFlt.selSubstFormValues.some(substForm => substForm.id === item.subst_form_id);
         if(match){
           if(item.aerosol_sol_id >= 0) isAerosolSolVisible = true;
           if(item.aerosol_amad_id >= 0) isAerosolAmadVisible = true;
-          if(item.let_level_id >= 0) isLetLevelVisible = true;
+        }
+      });
+    }
+    setAerosolSolVisible(isAerosolSolVisible);
+    if (!isAerosolSolVisible)
+      updateCurrentFilter({ selAerosolSolValues: [] }); 
+    setAerosolAmadVisible(isAerosolAmadVisible);
+    if (!isAerosolAmadVisible)
+      updateCurrentFilter({ selAerosolAMADValues: [] });     
+  }, [ tableIntDoseAttr, currFlt.selSubstFormValues ]);  
+    
+  useEffect(() => { 
+    let isAgegroupVisible = false;
+    let isExpScenarioVisible = false;
+    if (currFlt.selPeopleClassValues && currFlt.selPeopleClassValues.length > 0) {
+      tableIntDoseAttr.forEach(item => {
+        const match = currFlt.selPeopleClassValues.some(peopleClass => peopleClass.id === item.people_class_id);
+        if(match){
           if(item.agegroup_id >= 0) isAgegroupVisible = true;
           if(item.exp_scenario_id >= 0) isExpScenarioVisible = true;
         }
       });
     }
-  
-    setAerosolSolVisible(isAerosolSolVisible);
-    setAerosolAmadVisible(isAerosolAmadVisible);
-    setLetLevelVisible(isLetLevelVisible);
     setAgegroupVisible(isAgegroupVisible);
+    if (!isAgegroupVisible)
+      updateCurrentFilter({ selAgeGroupValues: [] });     
     setExpScenarioVisible(isExpScenarioVisible);
-    
-  }, [ tableIntDoseAttr, currFlt.selDoseRatioValue, currFlt.selIrradiationValue, currFlt.selPeopleClassValues, currFlt.selSubstFormValues ]);
-  
+    if (!isExpScenarioVisible)
+      updateCurrentFilter({ selExpScenarioValues: [] }); 
+  }, [ tableIntDoseAttr, currFlt.selPeopleClassValues ]);
+
   // Для определения видимости колонок
   useEffect(() => {
     set_organ_name_rus_visible( applFlt.selOrganValues.length!==1 /* && applFlt.selDoseRatioValue && [2].includes(applFlt.selDoseRatioValue.id) */ ); 
@@ -1226,9 +1250,9 @@ const reloadDataHandler = async () => {
 
     return (
       <>
-        {dataSourceValues.length > 0 && (
+        {dataSourceValues.length === 1 && (
           <>
-            Источники данных: {dataSourceValues.map((value) => value.title).join(", ")}
+            Источник данных: {dataSourceValues.map((value) => value.title).join(", ")}
             {hasMoreRowsDataSource && "..."}
             <br />
           </>
@@ -1237,7 +1261,7 @@ const reloadDataHandler = async () => {
         {applFlt.selDoseRatioValue&&applFlt.selDoseRatioValue.title? (<>Параметр: {applFlt.selDoseRatioValue.title}<br /></>) : '' }
 
 
-        {organValues.length > 0/*  && doseRatioToOrganParentIds.includes(applFlt.selDoseRatioValue.id) */ && applFlt.selDataSourceValues.length && (
+        {organValues.length ===1 && applFlt.selDataSourceValues.length && (
           <>
             Органы и ткани: {organValues.map((value) => value.name_rus).join(", ")}
             {hasMoreRowsOrgan && "..."}
@@ -1245,27 +1269,27 @@ const reloadDataHandler = async () => {
           </>
         )}
 
-        { letLevelVisible ? (<>Уровни ЛПЭ: {applFlt.selLetLevelValues.map(value => value.name_rus).join(', ')}<br /></>) : ''}
+        { letLevelVisible&&(applFlt.selLetLevelValues.length===1) ? (<>Уровень ЛПЭ: {applFlt.selLetLevelValues.map(value => value.name_rus).join(', ')}<br /></>) : ''}
 
-        {applFlt.selIrradiationValue&&applFlt.selIrradiationValue.name_rus? (<>Тип облучения: {applFlt.selIrradiationValue.name_rus}<br /></>) : '' }
+        { applFlt.selIrradiationValue&&applFlt.selIrradiationValue.name_rus? (<>Тип облучения: {applFlt.selIrradiationValue.name_rus}<br /></>) : '' }
 
-        { substFormVisible ? (<>Формы вещества: {applFlt.selSubstFormValues.map(value => value.name_rus).join(', ')}<br /></>) : ''}
+        { substFormVisible&&(applFlt.selSubstFormValues.length===1) ? (<>Формирование вещества: {applFlt.selSubstFormValues.map(value => value.name_rus).join(', ')}<br /></>) : ''}
 
-        { aerosolSolVisible ? (<>Типы растворимости аэрозолей: {applFlt.selAerosolSolValues.map(value => value.name_rus).join(', ')}<br /></>) : ''}
+        { aerosolSolVisible&&(applFlt.selAerosolSolValues.length===1) ? (<>Тип растворимости аэрозолей: {applFlt.selAerosolSolValues.map(value => value.name_rus).join(', ')}<br /></>) : ''}
 
-        { aerosolAmadVisible ? (<>AMAD аэрозолей: {applFlt.selAerosolAMADValues.map(value => value.name_rus).join(', ')}<br /></>) : ''}
+        { aerosolAmadVisible&&(applFlt.selAerosolAMADValues.length===1) ? (<>AMAD аэрозолей: {applFlt.selAerosolAMADValues.map(value => value.name_rus).join(', ')}<br /></>) : ''}
 
-        {applFlt.selPeopleClassValues.length > 0? (<>Типы облучаемых лиц: {applFlt.selPeopleClassValues.map(value => value.name_rus).join(', ')}<br /></>) : '' }
+        {applFlt.selPeopleClassValues.length === 1? (<>Тип облучаемых лиц: {applFlt.selPeopleClassValues.map(value => value.name_rus).join(', ')}<br /></>) : '' }
        
         {!( (!applFlt.selDataSourceValues.length) /* || ((applFlt.selPeopleClassValues.filter((row) => peopleClassToAgeGroupParentIds.includes(row.id))).length===0) */ 
           )&&
-        (applFlt.selAgeGroupValues.length > 0)? (<>Возрастные группы населения: {applFlt.selAgeGroupValues.map(value => value.name_rus).join(', ')}<br /></>) : '' }
+        (applFlt.selAgeGroupValues.length === 1)? (<>Возрастная группа населения: {applFlt.selAgeGroupValues.map(value => value.name_rus).join(', ')}<br /></>) : '' }
  
         {!( (!applFlt.selDataSourceValues.length) /* || ((applFlt.selPeopleClassValues.filter((row) => peopleClassToExpScenarioParentIds.includes(row.id))).length===0) */ 
         )&&
-        (applFlt.selExpScenarioValues.length > 0)? (<>Сценарии поступления: {applFlt.selExpScenarioValues.map(value => value.name_rus).join(', ')}<br /></>) : '' }
+        (applFlt.selExpScenarioValues.length === 1)? (<>Сценарий поступления: {applFlt.selExpScenarioValues.map(value => value.name_rus).join(', ')}<br /></>) : '' }
 
-        {isotopeValues.length > 0 && (
+        {isotopeValues.length === 1 && (
           <>
             Нуклиды: {isotopeValues.map((value) => value.title).join(", ")}
             {hasMoreRowsIsotope && "..."}
@@ -1273,7 +1297,7 @@ const reloadDataHandler = async () => {
           </>
         )}
 
-        {applFlt.selIntegralPeriodValues.length > 0? (<>Периоды интегрирования: {applFlt.selIntegralPeriodValues.map(value => value.name_rus).join(', ')}<br /></>) : '' }
+        {applFlt.selIntegralPeriodValues.length === 1? (<>Периоды интегрирования: {applFlt.selIntegralPeriodValues.map(value => value.name_rus).join(', ')}<br /></>) : '' }
       </>  
     );
   }
@@ -1356,6 +1380,8 @@ const reloadDataHandler = async () => {
                   ...currFlt,
                   selDataSourceValues: filtered,
                 });
+                // вызов handleChangeDataSource
+                handleChangeDataSource(null, filtered);
                 setSearchValueDataSource('');  // очищаем поле ввода после нажатия на "Выбрать все"
               }}
               color="primary"
