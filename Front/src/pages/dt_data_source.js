@@ -437,8 +437,11 @@ const delRec = async () => {
       <td style={{ height: 640, width: 600, verticalAlign: 'top' }}>
       <div style={{ height: 486, width: 585 }}>
       <DataGrid
-       sx={{
-          "&.MuiDataGrid-root .MuiDataGrid-cell:focus-within": {
+        sx={{
+          "& .MuiDataGrid-row.Mui-selected": {
+            backgroundColor: "rgba(0, 0, 0, 0.11)", // Зеленый цвет с 50% прозрачностью
+          },
+          "& .MuiDataGrid-cell:focus-within": {
             outline: "none !important",
           },
         }}
@@ -551,7 +554,7 @@ const delRec = async () => {
   <DialogActions>
     <Button variant="outlined" onClick={handleCloseYes} >Да</Button>
     <Button variant="outlined" onClick={handleCloseNo} >Нет</Button>
-    <Button variant="outlined" onClick={handleCloseCancel} >Отмена</Button>
+    {dialogType !== 'delete' && <Button variant="outlined" onClick={handleCloseCancel} >Отмена</Button>}
   </DialogActions>
   </Dialog>
   </form>
