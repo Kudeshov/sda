@@ -1273,7 +1273,7 @@ const reloadDataHandler = async () => {
 
         { applFlt.selIrradiationValue&&applFlt.selIrradiationValue.name_rus? (<>Тип облучения: {applFlt.selIrradiationValue.name_rus}<br /></>) : '' }
 
-        { substFormVisible&&(applFlt.selSubstFormValues.length===1) ? (<>Формирование вещества: {applFlt.selSubstFormValues.map(value => value.name_rus).join(', ')}<br /></>) : ''}
+        { substFormVisible&&(applFlt.selSubstFormValues.length===1) ? (<>Формы вещества: {applFlt.selSubstFormValues.map(value => value.name_rus).join(', ')}<br /></>) : ''}
 
         { aerosolSolVisible&&(applFlt.selAerosolSolValues.length===1) ? (<>Тип растворимости аэрозолей: {applFlt.selAerosolSolValues.map(value => value.name_rus).join(', ')}<br /></>) : ''}
 
