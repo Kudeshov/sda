@@ -20,7 +20,7 @@ export const useGridScrollPagination = (apiRef, tableData, setRowSelectionModel)
             }
             setRowSelectionModel([v_id]); // Выбор строки
             setTimeout(function() {
-                console.log(handleScrollToRow, 'index set', index );
+                //console.log(handleScrollToRow, 'index set', index );
                 apiRef.current.scrollToIndexes({ rowIndex: index, colIndex: 0 }); // Прокрутка к строке
             }, 100);
         }

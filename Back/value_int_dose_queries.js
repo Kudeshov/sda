@@ -61,8 +61,8 @@ const getValueIntDose = (request, response) => {
  
   // Формирование условий для SQL-запроса на основе полученных параметров
   const whereParts = params.reduce((arr, param) => {
-    if (requestParams[param] && requestParams[param].toLowerCase() !== 'null') {
-      arr.push(`vid.${param} in (${requestParams[param]})`);
+    if (requestParams[param]) {
+      arr.push(`(vid.${param} in (${requestParams[param]}) OR vid.${param} IS NULL)`);
     }
     return arr;
   }, []);

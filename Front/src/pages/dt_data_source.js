@@ -29,7 +29,7 @@ import { FormControl } from "@mui/material";
 import { InputLabel } from "@mui/material";
 import { Select } from "@mui/material";
 import { MenuItem } from "@mui/material";
-import CircularProgress from '@material-ui/core/CircularProgress';
+import CircularProgress from '@mui/material/CircularProgress';
 import Backdrop from '@mui/material/Backdrop';
 import { useGridScrollPagination } from './../helpers/gridScrollHelper';
 
@@ -110,6 +110,11 @@ const DataTableDataSource = (props) => {
   }, [rowSelectionModel, prevRowSelectionModel, editStarted]);  
 
   const handleRowClick = (params) => {
+    if (params.row.id === valueId  ) {
+      // Если данные не изменились, просто выходим из функции
+      return;
+    }
+
     setOpenAlert(false);
     if (editStarted&&(!isEmpty))
     {
@@ -151,8 +156,7 @@ const DataTableDataSource = (props) => {
   useEffect(() => {
     fetch(`/${props.table_name}`)
       .then((data) => data.json())
-      .then((data) => setTableData(data))
-      .then((data) => { /* setLastId(0); */} ); 
+      .then((data) => setTableData(data)); 
   }, [props.table_name])
 
 
@@ -318,24 +322,52 @@ const delRec = async () => {
   const [dialogType, setDialogType] = useState('');
 
   const getDialogContentText = () => {
+    const allRequiredFieldsFilled = formRef.current?.checkValidity();
     switch (dialogType) {
       case 'delete':
-        return `В таблице "${table_names[props.table_name]}" предложена к удалению следующая запись: ${valueTitle}; Код в БД = ${valueId}. Вы желаете удалить указанную запись?`;
+        return (
+          <>
+            В таблице "{table_names[props.table_name]}" предложена к удалению следующая запись: 
+            <br />
+            {valueTitle}; Код в БД = {valueId}. 
+            <br />
+            Вы желаете удалить указанную запись?
+          </>);
       case 'save':
-      case 'saveWhenNew':
-        return valueId
-          ? `В запись таблицы "${table_names[props.table_name]}" внесены изменения. Вы желаете сохранить указанную запись?`
-          : `В таблицу "${table_names[props.table_name]}" внесена новая несохраненная запись. Вы желаете сохранить указанную запись?`;
+        if (!valueId) { // если это новая запись
+          if (allRequiredFieldsFilled) {
+            return `Создана новая запись, сохранить?`;
+          } else {
+            return (
+              <>
+                Не заданы обязательные поля, запись не будет создана.
+                <br />
+                Выйти без сохранения изменений?
+              </>
+            );
+          }
+        } else { // если это редактируемая запись
+          if (allRequiredFieldsFilled) {
+            return `В запись внесены изменения, сохранить изменения?`;
+          } else {
+            return (
+              <>
+                Не заданы обязательные поля, изменения не будут сохранены
+                <br />
+                Выйти без сохранения изменений?
+              </>
+            );            
+          }
+        }
       default:
         return '';
     }
   };
-  
+
   const handleCloseNo = () => {
-    console.log('handleCloseNo',dialogType);
     switch (dialogType) {
       case 'save':
-        handleCancelClick(); 
+        handleCancelClick();
         break;
       default:
         break;
@@ -344,6 +376,12 @@ const delRec = async () => {
   };
 
   const handleCloseCancel = () => {
+    switch (dialogType) {
+      case 'save':
+        break;
+      default:
+        break;
+    }
     setDialogType('');
   };
   
@@ -361,6 +399,27 @@ const delRec = async () => {
     setDialogType('');
   };
 
+  function DialogButtons() {
+    const allRequiredFieldsFilled = formRef.current?.checkValidity();
+  
+    if (dialogType === 'save' && !allRequiredFieldsFilled) {
+      return (
+        <>
+          <Button variant="outlined" onClick={handleCloseNo} >Да</Button>
+          <Button variant="outlined" onClick={handleCloseCancel} >Отмена</Button>
+        </>
+      );
+    } else {
+      return (
+        <>
+          <Button variant="outlined" onClick={handleCloseYes} >Да</Button>
+          <Button variant="outlined" onClick={handleCloseNo} >Нет</Button>
+          {dialogType !== 'delete' && <Button variant="outlined" onClick={handleCloseCancel} >Отмена</Button>}
+        </>
+      );
+    }
+  }
+
   //////////////////////////////////////////////////////// ACTIONS ///////////////////////////////
   const columns = [
     { field: 'id', headerName: 'ID', width: 60 },
@@ -374,7 +433,7 @@ const delRec = async () => {
   const [openAlert, setOpenAlert] = React.useState(false, '');
   const handleCancelClick = () => 
   {
-    const selectedIDs = new Set(rowSelectionModel);
+    const selectedIDs = new Set(rowSelectionModel.map(Number));
     const selectedRowData = tableData.filter((row) => selectedIDs.has(row.id));
     if (selectedRowData.length)
     {
@@ -403,7 +462,7 @@ const delRec = async () => {
     }
   }, [lastId, scrollToIndexRef]);
 
-  function CustomToolbar1() {
+  function GridToolbar() {
     const handleExport = (options) =>
        apiRef.current.exportDataAsCsv(options);
 
@@ -445,7 +504,7 @@ const delRec = async () => {
             outline: "none !important",
           },
         }}
-        components={{ Toolbar: CustomToolbar1 }}
+        components={{ Toolbar: GridToolbar }}
         apiRef={apiRef}
         hideFooterSelectedRowCount={true}
         localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
@@ -543,19 +602,17 @@ const delRec = async () => {
   </Backdrop> } 
 
   <Dialog open={dialogType !== ''} onClose={handleCloseNo} fullWidth={true}>
-  <DialogTitle>
-      Внимание
-  </DialogTitle>
-  <DialogContent>
-      <DialogContentText>
-        {getDialogContentText()}
-      </DialogContentText>
-  </DialogContent>
-  <DialogActions>
-    <Button variant="outlined" onClick={handleCloseYes} >Да</Button>
-    <Button variant="outlined" onClick={handleCloseNo} >Нет</Button>
-    {dialogType !== 'delete' && <Button variant="outlined" onClick={handleCloseCancel} >Отмена</Button>}
-  </DialogActions>
+    <DialogTitle>
+        Внимание
+    </DialogTitle>
+    <DialogContent>
+        <DialogContentText>
+          {getDialogContentText()}
+        </DialogContentText>
+    </DialogContent>
+    <DialogActions>
+      <DialogButtons />
+    </DialogActions>
   </Dialog>
   </form>
  </div>     
