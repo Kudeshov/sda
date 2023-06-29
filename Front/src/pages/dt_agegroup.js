@@ -657,10 +657,6 @@ const DataTableAgeGroup = (props) => {
       <p></p> 
       <TextField  id="ch_indoor" sx={{ width: '100ch' }} label="Доля времени, проводимая индивидуумом в помещении" required size="small" variant="outlined" value={valueIndoor || ''} onChange={e => setValueIndoor(e.target.value)}/>
       <p></p> 
-      {/* <TextField  id="ch_ext_cloud" sx={{ width: '100ch' }} label="Коэффициент для дозы внешнего облучения от облака"  size="small" multiline maxRows={4} variant="outlined" value={valueExtCloud || ''} onChange={e => setValueExtCloud(e.target.value)}/>
-      <p></p> 
-      <TextField  id="ch_ext_ground" sx={{ width: '100ch' }} label="Коэффициент для дозы внешнего облучения от поверхности"  size="small" multiline maxRows={4} variant="outlined" value={valueExtGround || ''} onChange={e => setValueExtGround(e.target.value)}/>
-      <p></p>  */}
       <TextField  id="ch_descr_rus" sx={{ width: '100ch' }} label="Комментарий (рус.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrRus || ''} onChange={e => setValueDescrRus(e.target.value)}/>
       <p></p> 
       <TextField  id="ch_descr_rus" sx={{ width: '100ch' }} label="Комментарий (англ.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrEng || ''} onChange={e => setValueDescrEng(e.target.value)}/>

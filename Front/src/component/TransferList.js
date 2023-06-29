@@ -1,4 +1,4 @@
-import React from 'react'
+import React from 'react';
 import Grid from '@mui/material/Grid';
 import List from '@mui/material/List';
 import ListItem from '@mui/material/ListItem';
@@ -7,7 +7,7 @@ import ListItemText from '@mui/material/ListItemText';
 import Checkbox from '@mui/material/Checkbox';
 import Button from '@mui/material/Button';
 import Paper from '@mui/material/Paper';
-
+import TextField from '@mui/material/TextField';
 
 function not(a, b) {
   return a.filter((value) => b.indexOf(value) === -1);
@@ -21,16 +21,9 @@ export default function TransferList(props) {
   const [checked, setChecked] = React.useState([]);
   const [left, setLeft] = React.useState(props.left);
   const [right, setRight] = React.useState(props.right);
+  const [searchLeft, setSearchLeft] = React.useState(''); // добавляем состояние для поиска
+  const [searchRight, setSearchRight] = React.useState('');
 
-/*   useEffect(() => {
-    fetch('/dose_ratio/')
-      .then(response => response.json())
-      .then(data => {
-        const items = data.map(item => item.title);
-        setLeft(items);
-      });
-  }, []); // пустой массив зависимостей означает, что эффект будет запущен только при первом рендеринге
- */
   const leftChecked = intersection(checked, left);
   const rightChecked = intersection(checked, right);
 
@@ -69,10 +62,16 @@ export default function TransferList(props) {
     setRight([]);
   };
 
-  const customList = (items) => (
-    <Paper sx={{ width: 200, height: 230, overflow: 'auto' }}>
+  const customList = (items, search, setSearch) => (
+    <Paper sx={{ width: 300, height: 430, overflow: 'auto' }}>
+      <TextField
+        sx={{ width: '100%', marginBottom: 1 }}
+        placeholder="Search"
+        value={search}
+        onChange={e => setSearch(e.target.value)}
+      />
       <List dense component="div" role="list">
-        {items.map((value) => {
+        {items.filter(item => item.toLowerCase().includes(search.toLowerCase())).map((value) => {
           const labelId = `transfer-list-item-${value}-label`;
   
           return (
@@ -87,9 +86,7 @@ export default function TransferList(props) {
                   checked={checked.indexOf(value) !== -1}
                   tabIndex={-1}
                   disableRipple
-                  inputProps={{
-                    'aria-labelledby': labelId,
-                  }}
+                  inputProps={{ 'aria-labelledby': labelId }}
                 />
               </ListItemIcon>
               <ListItemText id={labelId} primary={value} />
@@ -102,7 +99,7 @@ export default function TransferList(props) {
 
   return (
     <Grid container spacing={2} justifyContent="center" alignItems="center">
-      <Grid item>{customList(left)}</Grid>
+      <Grid item>{customList(left, searchLeft, setSearchLeft)}</Grid>
       <Grid item>
         <Grid container direction="column" alignItems="center">
           <Button
@@ -147,7 +144,7 @@ export default function TransferList(props) {
           </Button>
         </Grid>
       </Grid>
-      <Grid item>{customList(right)}</Grid>
+      <Grid item>{customList(right, searchRight, setSearchRight)}</Grid>
     </Grid>
   );
 }

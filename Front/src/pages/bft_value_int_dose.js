@@ -1281,11 +1281,11 @@ const reloadDataHandler = async () => {
 
         {applFlt.selPeopleClassValues.length === 1? (<>Тип облучаемых лиц: {applFlt.selPeopleClassValues.map(value => value.name_rus).join(', ')}<br /></>) : '' }
        
-        {!( (!applFlt.selDataSourceValues.length) /* || ((applFlt.selPeopleClassValues.filter((row) => peopleClassToAgeGroupParentIds.includes(row.id))).length===0) */ 
+        {!( (!applFlt.selDataSourceValues.length) 
           )&&
         (applFlt.selAgeGroupValues.length === 1)? (<>Возрастная группа населения: {applFlt.selAgeGroupValues.map(value => value.name_rus).join(', ')}<br /></>) : '' }
  
-        {!( (!applFlt.selDataSourceValues.length) /* || ((applFlt.selPeopleClassValues.filter((row) => peopleClassToExpScenarioParentIds.includes(row.id))).length===0) */ 
+        {!( (!applFlt.selDataSourceValues.length) 
         )&&
         (applFlt.selExpScenarioValues.length === 1)? (<>Сценарий поступления: {applFlt.selExpScenarioValues.map(value => value.name_rus).join(', ')}<br /></>) : '' }
 
@@ -2111,22 +2111,6 @@ const reloadDataHandler = async () => {
         <p>{/* Блок Нуклиды ==== Периоды интегрирования */}</p>                           
         <table border = "0" cellSpacing="0" cellPadding="0"><tbody>
           <tr>   
-{/*           <td width={400}>
-          <CustomAutocomplete 
-            label="Нуклиды"
-            placeholder="Нуклиды"
-            options={tableIsotopeFiltered}
-            getOptionLabel={(option) => option.title}
-            value={currFlt.selIsotopeValues}
-            onChange={(event, newValue) => {
-              setCurrFlt({
-                ...currFlt,
-                selIsotopeValues: newValue,
-              });
-            }}
-          />            
-          </td>   */}
-
           <td width={348}>
             <Autocomplete
               size="small"
