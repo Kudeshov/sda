@@ -19,7 +19,7 @@ import { ReactComponent as EditLightIcon } from "./../icons/edit.svg";
 import { ReactComponent as PlusLightIcon } from "./../icons/plus.svg";
 import { ReactComponent as InfoLightIcon } from "./../icons/info.svg";
 import { ReactComponent as TrashLightIcon } from "./../icons/trash.svg";
-import { table_names } from './sda_types';
+import { table_names } from './table_names';
 
 
 var lastRecID = 0;

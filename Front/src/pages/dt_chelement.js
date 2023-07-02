@@ -26,7 +26,7 @@ import { ReactComponent as TrashLightIcon } from "./../icons/trash.svg";
 import { ReactComponent as RepeatLightIcon } from "./../icons/repeat.svg";
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { ReactComponent as EditLightIcon } from "./../icons/edit.svg";
-import { table_names } from './sda_types';
+import { table_names } from './table_names';
 import { useGridScrollPagination } from './../helpers/gridScrollHelper';
 
 var alertText = "Сообщение";

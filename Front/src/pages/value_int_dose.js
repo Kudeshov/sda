@@ -1,5 +1,5 @@
 import { BigTableValueIntDose } from './bft_value_int_dose';
-import { table_names } from './sda_types';
+import { table_names } from './table_names';
 import { useEffect } from 'react';
 
 const useDocumentTitle = (title) => {

@@ -24,7 +24,7 @@ import { ReactComponent as UndoLightIcon } from "./../icons/undo.svg";
 import { ReactComponent as DownloadLightIcon } from "./../icons/download.svg";
 import { ReactComponent as TrashLightIcon } from "./../icons/trash.svg";
 import { ReactComponent as RepeatLightIcon } from "./../icons/repeat.svg";
-import { table_names } from './sda_types';
+import { table_names } from './table_names';
 import { FormControl } from "@mui/material";
 import { InputLabel } from "@mui/material";
 import { Select } from "@mui/material";
@@ -32,6 +32,7 @@ import { MenuItem } from "@mui/material";
 import CircularProgress from '@mui/material/CircularProgress';
 import Backdrop from '@mui/material/Backdrop';
 import { useGridScrollPagination } from './../helpers/gridScrollHelper';
+import { DataTableDataSourceClassRef } from './dt_data_source_class_ref';
 
 const DataTableDataSource = (props) => {
   const apiRef = useGridApiRef(); // init DataGrid API for scrolling
@@ -584,9 +585,13 @@ const delRec = async () => {
       </FormControl>  
       <p></p> 
 
-      <TextField  id="ch_descr" sx={{ width: '100ch' }} size="small" label="Комментарий" multiline rows={7} variant="outlined"   value={valueDescr || ''} onChange={e => setValueDescr(e.target.value)}/>
+      <TextField  id="ch_descr" sx={{ width: '100ch' }} size="small" label="Комментарий" multiline rows={4} variant="outlined"   value={valueDescr || ''} onChange={e => setValueDescr(e.target.value)}/>
       <p></p> 
-
+      <div style={{ height: 300, width: 800 }}>
+        <td>Связанные с источником классификаторы<br/>
+        <DataTableDataSourceClassRef rec_id={valueId||0} />
+        </td>
+      </div>
     </td>
   </tr>
   </tbody>

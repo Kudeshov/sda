@@ -94,8 +94,9 @@ const getValueIntDose = (request, response) => {
     left join nucl.people_class_nls pcn on pcn.people_class_id = vid.people_class_id and pcn.lang_id = 1
     left join nucl.chem_comp_gr_nls ccgn on ccgn.chem_comp_gr_id = vid.chem_comp_gr_id and ccgn.lang_id = 1
     ${whereClause}
-    order by id
-    limit 100000`;
+    order by pcn."name", i.title, ip.name, o_nls.name, an.name, esn."name", sfn."name", ccgn."name", 
+    asn."name", aan."name", lln."name", ds.title, vid.dr_value  
+    limit 50000`;
     
   console.log( s_query );
   // Выполнение SQL-запроса
@@ -166,7 +167,6 @@ const createValueIntDose = (request, response) => {
     }
   });
 }
-
 
 const deleteValueIntDose = (request, response) => {
   const id = parseInt(request.params.id)

@@ -10,7 +10,7 @@ import { Link } from "react-router-dom";
 import Divider from '@mui/material/Divider';
 import Menu from '@mui/material/Menu'; 
 import MenuItem from '@mui/material/MenuItem';
-import { table_names } from '../pages/sda_types';
+import { table_names } from '../pages/table_names';
 
 const useStyles = makeStyles((theme) => ({
   navlinks: {

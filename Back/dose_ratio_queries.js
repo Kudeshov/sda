@@ -22,10 +22,15 @@ pool.on(`error`, function (err, client) {
 });
 
 const getDoseRatio = (request, response, table_name ) => {
-  pool.query(`SELECT pc.*, pcn1.name name_rus, pcn2.name name_eng, pcn1.fullname descr_rus, pcn2.fullname descr_eng, null children FROM nucl.${table_name} pc `+
-  `left join nucl.${table_name}_nls pcn1 on pc.id=pcn1.${table_name}_id and pcn1.lang_id=1 `+
-  `left join nucl.${table_name}_nls pcn2 on pc.id=pcn2.${table_name}_id and pcn2.lang_id=2 `+
-  `ORDER BY pc.id ASC`, (error, results) => {
+  const s_query = `SELECT dr.*, pcn1.name name_rus, pcn2.name name_eng, pcn1.fullname descr_rus, pcn2.fullname descr_eng, pn.sign, null children 
+                   FROM nucl.${table_name} dr 
+                   left join nucl.${table_name}_nls pcn1 on dr.id=pcn1.${table_name}_id and pcn1.lang_id=1 
+                   left join nucl.${table_name}_nls pcn2 on dr.id=pcn2.${table_name}_id and pcn2.lang_id=2
+                   left join public.physunit p2 on p2.physparam_id = dr.physparam_id 
+                   left join public.physunit_nls pn on pn.physunit_id = p2.id and pn.lang_id = 1 
+                   ORDER BY dr.id ASC`;
+
+  pool.query(s_query, (error, results) => {
     if (error) {
       throw error
     }

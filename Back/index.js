@@ -165,7 +165,14 @@ app.get('/data_source_class', dsc_q.getDataSourceClass);           //list all
 app.get('/data_source_class_min', dsc_q.getDataSourceClassMin);    //list all withoud additional fields
 app.post('/data_source_class', dsc_q.createDataSourceClass);       //create
 app.put('/data_source_class/:id', dsc_q.updateDataSourceClass);    //update
-app.delete('/data_source_class/:id', dsc_q.deleteDataSourceClass); //delete 
+app.delete('/data_source_class/:id', dsc_q.deleteDataSourceClass); //delete
+app.get('/data_source_class_ref/:id', dsc_q.getDataSourceClassRef);//list all with link title attached
+
+//запрос для любого справочника
+app.get('/ref_table', (req, res) => {
+  const { table_name } = req.query;
+  dsc_q.getRefTable(req, res, table_name);
+});   
 
 app.get('/action_criterion', ac_q.getActionCriterion);           //list all
 app.get('/action_criterion_min', ac_q.getActionCriterionMin);    //list all withoud additional fields

@@ -30,7 +30,7 @@ import { Select } from "@mui/material";
 import { MenuItem } from "@mui/material";
 import { FormControl } from "@mui/material";
 import { InputLabel } from "@mui/material";
-import { table_names } from './sda_types';
+import { table_names } from './table_names';
 import Autocomplete from '@mui/material/Autocomplete';
 import { ReactComponent as InfoLightIcon } from "./../icons/info.svg";
 import { useGridScrollPagination } from './../helpers/gridScrollHelper';

@@ -31,7 +31,7 @@ import { FormControl } from "@mui/material";
 import { InputLabel } from "@mui/material";
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { ExportToCsv } from 'export-to-csv-fix-source-map';
-import { table_names } from './sda_types';
+import { table_names } from './table_names';
 import Backdrop from '@mui/material/Backdrop';
 import { InputAdornment } from "@material-ui/core";
 import Autocomplete from '@mui/material/Autocomplete';

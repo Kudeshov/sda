@@ -19,7 +19,7 @@ pool.on('error', function (err, client) {
 });
 
 const getDataSourceClass = (request, response) => {
-  const { rec_id, table_name } = request.query;
+  let { rec_id, table_name } = request.query;
   if (!rec_id||rec_id==='NaN')
   {
     //response.status(400).send(`Некорректный код родительской записи`);  
@@ -189,11 +189,61 @@ const updateDataSourceClass = (request, response) => {
   )
 }
 
+const getDataSourceClassRef = async (request, response) => {
+  const dataSourceId = parseInt(request.params.id);
+
+  try {
+    // Получаем все уникальные имена таблиц из data_source_class
+    const result = await pool.query('SELECT DISTINCT table_name FROM nucl.data_source_class WHERE data_source_id = $1', [dataSourceId]);
+    const tableNames = result.rows.map(row => row.table_name);
+
+    // Формируем часть запроса для каждой таблицы
+    const joinParts = tableNames.map((tableName, index) =>
+      `LEFT JOIN nucl.${tableName} AS t${index} ON nucl.data_source_class.rec_id = t${index}.id AND nucl.data_source_class.table_name = $${index + 2}`
+    );
+
+    // Формируем и выполняем полный запрос
+    const query = `SELECT nucl.data_source_class.*, ${tableNames.length > 0 ? `CONCAT(${tableNames.map((_, index) => `t${index}.title`).join(', ')}) AS ref_title` : `'' AS ref_title`} FROM nucl.data_source_class ${joinParts.join(' ')} WHERE data_source_id = $1 ORDER BY nucl.data_source_class.id ASC`;
+    const res = await pool.query(query, [dataSourceId, ...tableNames]);
+
+    response.status(200).json(res.rows);
+  } catch (error) {
+    console.error(error);
+    response.status(500).json({ error: 'Internal Server Error' });
+  }
+};
+
+const getRefTable = (request, response, table_name) => {
+  try {
+    let query;
+    if (table_name === 'isotope') {
+      query = `SELECT pc.id, pc.title, pc.title as name_rus, pc.title as name_eng FROM nucl.${table_name} pc ORDER BY pc.id ASC`;
+    } else {
+      query = `SELECT pc.id, pc.title, pcn1.name name_rus, pcn2.name name_eng FROM nucl.${table_name} pc `+
+      `left join nucl.${table_name}_nls pcn1 on pc.id=pcn1.${table_name}_id and pcn1.lang_id=1 `+
+      `left join nucl.${table_name}_nls pcn2 on pc.id=pcn2.${table_name}_id and pcn2.lang_id=2 `+
+      `ORDER BY pc.id ASC`;
+    }
+    pool.query(query, (error, results) => {
+      if (error) {
+        response.status(500).json({message: 'An error occurred during the query', error: error});
+      } else {
+        response.status(200).json(results.rows);
+      }
+    });
+  } catch (err) {
+    response.status(500).json({message: 'An error occurred', error: err});
+  }
+};
+
+
 module.exports = {
   getDataSourceClass,
   getDataSourceClassMin,
   getDataSourceClassById,
   createDataSourceClass,
   deleteDataSourceClass,
-  updateDataSourceClass
+  updateDataSourceClass,
+  getDataSourceClassRef,
+  getRefTable
 }
