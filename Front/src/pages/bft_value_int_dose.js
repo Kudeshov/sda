@@ -1309,7 +1309,7 @@ const reloadDataHandler = async () => {
         <AccordionDetails>
         <table border = "0" cellSpacing="0" cellPadding="0"><tbody>
           <tr>      
-          <td width={548}>
+          <td width={348}> 
           <Autocomplete
             size="small"
             value={currFlt.selDataSourceValues}
@@ -1412,13 +1412,13 @@ const reloadDataHandler = async () => {
           />
 
           </td>
-          <td>
+          <td width={59}>
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
           </td>
 
           { organVisible && ( 
             <>   
-            <td width={548}>
+            <td width={348}>
               <Autocomplete
                 size="small"
                 value={currFlt.selOrganValues}
@@ -1503,7 +1503,7 @@ const reloadDataHandler = async () => {
  
           {letLevelVisible && (
             <>
-              <td width={348}>
+              <td width={300}>
                 <Autocomplete
                   size="small"
                   limitTags={7}
@@ -1602,13 +1602,13 @@ const reloadDataHandler = async () => {
             }}                 
           />          
           </td>
-          <td>
+          <td width={59}>
             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
           </td>
 
           { substFormVisible && ( 
             <> 
-              <td width={300}>
+              <td width={348}>
                 <Autocomplete
                   size="small"
                   value={currFlt.selSubstFormValues}
@@ -2019,7 +2019,7 @@ const reloadDataHandler = async () => {
 
           {expScenarioVisible && (
             <>
-              <td width={348}>
+              <td width={300}>
                 <Autocomplete
                   size="small"
                   value={currFlt.selExpScenarioValues}
@@ -2505,7 +2505,7 @@ const reloadDataHandler = async () => {
           <td style={{ width: '16px'}}>  
             &nbsp;
           </td>
-          <td style={{ width: '290px'}}>      
+          <td style={{ width: '250px'}}>      
           <Autocomplete
             size="small"
             disabled={(valueID !== null)||(applFlt.selAerosolAMADValues.length===1)}
