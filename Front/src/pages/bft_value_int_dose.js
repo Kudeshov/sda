@@ -908,7 +908,8 @@ const delRec =  async () => {
       'aerosol_sol_name_rus': 'selAerosolSolValues', 
       'aerosol_amad_name_rus': 'selAerosolAMADValues', 
       'exp_scenario_name_rus': 'selExpScenarioValues', 
-      'people_class_name_rus': 'selPeopleClassValues'
+      'people_class_name_rus': 'selPeopleClassValues',
+      'data_source_title': 'selDataSourceValues' 
     };
   
     if (data.length === 0) {
