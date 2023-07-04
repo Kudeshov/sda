@@ -411,7 +411,7 @@ const formRef = React.useRef();
           />
       </td>
       <td style={{ height: 270, width: 100, verticalAlign: 'top' }}>
-      &nbsp;<IconButton onClick={()=>handleClickAdd()} disabled={(lastRecID===-1)||(props.rec_id==='-1000000')} color="primary" size="small" title="Добавить связь с классификатором">
+      &nbsp;<IconButton onClick={()=>handleClickAdd()} disabled={!props.rec_id} color="primary" size="small" title="Добавить связь с классификатором">
         <SvgIcon fontSize="small" component={PlusLightIcon} inheritViewBox /></IconButton><br/>
       &nbsp;<IconButton onClick={()=>handleClickEdit()} disabled={noRecords} color="primary" size="small" title="Редактировать связь с классификатором">
         <SvgIcon fontSize="small" component={EditLightIcon} inheritViewBox /></IconButton><br/>

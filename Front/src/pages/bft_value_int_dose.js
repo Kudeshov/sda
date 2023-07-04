@@ -2120,6 +2120,9 @@ const reloadDataHandler = async () => {
                 }
               }}
               inputValue={searchValueNuclide}
+              onClose={() => {
+                setSearchValueNuclide("");
+              }}
               multiple
               limitTags={7}
               id="autocomplete-isotope"
