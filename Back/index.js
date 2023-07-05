@@ -38,6 +38,7 @@ const id_q = require('./isotope_decay_queries');
 const i_q = require('./isotope_queries');
 const vid_q = require('./value_int_dose_queries');
 const ac_q = require('./action_criterion_queries')
+const ved_q = require('./value_ext_dose_queries')
 
 const { Pool } = require('pg');
 //var msg = 'a';
@@ -260,6 +261,13 @@ app.get('/value_int_dose', (req, res) => {vid_q.getValueIntDose(req, res, 'value
 app.put('/value_int_dose/:id', (req, res) => {vid_q.updateValueIntDose(req, res, 'value_int_dose')}); //update
 app.post('/value_int_dose', (req, res) => {vid_q.createValueIntDose(req, res, 'value_int_dose')});    //create
 app.delete('/value_int_dose/:id', (req, res) => {vid_q.deleteValueIntDose(req, res, 'value_int_dose')});  //delete 
+
+
+app.get('/value_ext_dose', (req, res) => {ved_q.getValueExtDose(req, res, 'value_ext_dose')}); 
+app.put('/value_ext_dose/:id', (req, res) => {ved_q.updateValueExtDose(req, res, 'value_ext_dose')}); //update
+app.post('/value_ext_dose', (req, res) => {ved_q.createValueExtDose(req, res, 'value_ext_dose')});    //create
+app.delete('/value_ext_dose/:id', (req, res) => {ved_q.deleteValueExtDose(req, res, 'value_ext_dose')});  //delete 
+
 
 //app.get('/value_relation', (req, res) => {vid_q.getValueRelation(req, res, 'value_int_dose')}); 
 //связи в таблице value_int_dose
