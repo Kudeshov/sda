@@ -103,12 +103,16 @@ const updateIsotope = (request, response) => {
     'UPDATE nucl.isotope SET title = $1, nuclide_id = $2, n_index = $3, half_life_value = $4, half_life_period = $5, decayconst = $6 where id = $7',
     [title, nuclide_id, n_index,  half_life_value, half_life_period,  decayconst, id ],
     (error, results) => {
-      if (error) 
-      {
-        response.status(400).send(`Запись с кодом ${id} не изменена: ${error.message} `)
-      }
-      else
-      { 
+      if (error) {
+        switch (error.code) {
+          case '22P02':  // код ошибки для "invalid input syntax for type numeric"
+            response.status(400).send(`Запись с кодом ${id} не изменена: неверный формат числового значения.`);
+            break;
+          // Добавьте здесь другие коды ошибок, которые вы хотите обрабатывать
+          default:
+            response.status(400).send(`Запись с кодом ${id} не изменена: ` + error.message);
+        }
+      } else { 
         response.status(200).send(`Запись с кодом ${id} сохранена.`);
       }
     }
@@ -124,13 +128,20 @@ const createIsotope = (request, response) => {
   [title, nuclide_id, n_index,  half_life_value, half_life_period,  decayconst], 
   (error, results) => {
     if (error) {
-      response.status(400).send(`Запись не добавлена: ` + error.message);
+      switch (error.code) {
+        case '22P02':  // код ошибки для "invalid input syntax for type numeric"
+          response.status(400).send(`Запись не добавлена: неверный формат числового значения.`);
+          break;
+        default:
+          response.status(400).send(`Запись не добавлена: ` + error.message);
+      }
     } else {
       const { id } = results.rows[0]; 
       response.status(201).json({id: `${id}`}); 
     }
   })
 }
+
 
 const deleteIsotope = (request, response) => {
   const id = parseInt(request.params.id);

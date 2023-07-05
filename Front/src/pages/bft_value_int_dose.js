@@ -252,6 +252,14 @@ const BigTableValueIntDose = (props) => {
       ...prevFilter,
       ...newFilterValue,
     }));
+    // Состояния, определяющие видимость выпадающих списков в диалоге
+/*     setOrganVisibleD(organVisible);
+    setSubstFormVisibleD(substFormVisibleD);
+    setAerosolSolVisibleD(aerosolSolVisibleD);
+    setAerosolAmadVisibleD(aerosolAmadVisibleD);
+    setLetLevelVisibleD(letLevelVisibleD);
+    setAgegroupVisibleD(agegroupVisibleD);
+    setExpScenarioVisibleD(expScenarioVisibleD); */
   };
 
   // Применение текущего значения фильтра
@@ -266,7 +274,14 @@ const BigTableValueIntDose = (props) => {
       if (!aerosolSolVisible) { newState.selAerosolSolValues = []; }
       if (!aerosolAmadVisible) { newState.selAerosolAMADValues = []; }
       if (!agegroupVisible) { newState.selAgeGroupValues = []; }
-      if (!expScenarioVisible) { newState.selExpScenarioValues = []; } 
+      if (!expScenarioVisible) { newState.selExpScenarioValues = []; }
+      setOrganVisibleD(organVisible);
+      setSubstFormVisibleD(substFormVisible);
+      setAerosolSolVisibleD(aerosolSolVisible);
+      setAerosolAmadVisibleD(aerosolAmadVisible);
+      setLetLevelVisibleD(letLevelVisible);
+      setAgegroupVisibleD(agegroupVisible);
+      setExpScenarioVisibleD(expScenarioVisible);        
       // Возвращаем новый объект, который будет новым состоянием
       return newState;
     });
@@ -327,6 +342,14 @@ const BigTableValueIntDose = (props) => {
   const [letLevelVisible, setLetLevelVisible] = useState(false);
   const [agegroupVisible, setAgegroupVisible] = useState(false);
   const [expScenarioVisible, setExpScenarioVisible] = useState(false);
+  // Состояния, определяющие видимость выпадающих списков в диалоге
+  const [organVisibleD, setOrganVisibleD] = useState(false);
+  const [substFormVisibleD, setSubstFormVisibleD] = useState(false);
+  const [aerosolSolVisibleD, setAerosolSolVisibleD] = useState(false);
+  const [aerosolAmadVisibleD, setAerosolAmadVisibleD] = useState(false);
+  const [letLevelVisibleD, setLetLevelVisibleD] = useState(false);
+  const [agegroupVisibleD, setAgegroupVisibleD] = useState(false);
+  const [expScenarioVisibleD, setExpScenarioVisibleD] = useState(false);
  
   useEffect(() => { 
     let isOrganVisible = false;
@@ -1326,6 +1349,7 @@ const reloadDataHandler = async () => {
             limitTags={10}
             id="autocomplete-datasource"
             options={tableDataSource}
+            onClose={() => { setSearchValueDataSource(""); }}
             getOptionLabel={(option) => option.title}
             disableCloseOnSelect
             filterOptions={filterOptions}
@@ -1435,6 +1459,7 @@ const reloadDataHandler = async () => {
                     setSearchValueOrgan(newInputValue);
                   }
                 }}
+                onClose={() => { setSearchValueOrgan(""); }}
                 inputValue={searchValueOrgan}
                 multiple
                 limitTags={7}
@@ -1521,6 +1546,7 @@ const reloadDataHandler = async () => {
                       setSearchValueLetLevel(newInputValue);
                     }
                   }}
+                  onClose={() => { setSearchValueLetLevel(""); }}
                   inputValue={searchValueLetLevel}
                   multiple
                   id="autocomplete-let_level"
@@ -1625,6 +1651,7 @@ const reloadDataHandler = async () => {
                       setSearchValueSubstForm(newInputValue);
                     }
                   }}
+                  onClose={() => { setSearchValueSubstForm(""); }}
                   inputValue={searchValueSubstForm}
                   multiple
                   id="autocomplete-subst_form"
@@ -1709,6 +1736,7 @@ const reloadDataHandler = async () => {
                       setSearchValueAerosolSol(newInputValue);
                     }
                   }}
+                  onClose={() => { setSearchValueAerosolSol(""); }}
                   inputValue={searchValueAerosolSol}
                   multiple
                   id="autocomplete-aerosol_sol"
@@ -1790,6 +1818,7 @@ const reloadDataHandler = async () => {
                       setSearchValueAerosolAMAD(newInputValue);
                     }
                   }}
+                  onClose={() => { setSearchValueAerosolAMAD(""); }}
                   inputValue={searchValueAerosolAMAD}
                   limitTags={7}
                   multiple
@@ -1873,6 +1902,7 @@ const reloadDataHandler = async () => {
                 setSearchValuePeopleClass(newInputValue);
               }
             }}
+            onClose={() => { setSearchValuePeopleClass(""); }}
             inputValue={searchValuePeopleClass}
             multiple
             limitTags={7}
@@ -1955,6 +1985,7 @@ const reloadDataHandler = async () => {
                           setSearchValueAgeGroup(newInputValue);
                         }
                       }}
+                      onClose={() => { setSearchValueAgeGroup(""); }}
                       inputValue={searchValueAgeGroup}
                       multiple
                       id="autocomplete-age_group"
@@ -2036,6 +2067,7 @@ const reloadDataHandler = async () => {
                       setSearchValueExpScenario(newInputValue);
                     }
                   }}
+                  onClose={() => { setSearchValueExpScenario(""); }}
                   inputValue={searchValueExpScenario}
                   multiple
                   id="autocomplete-exp_scenario"
@@ -2120,9 +2152,7 @@ const reloadDataHandler = async () => {
                 }
               }}
               inputValue={searchValueNuclide}
-              onClose={() => {
-                setSearchValueNuclide("");
-              }}
+              onClose={() => { setSearchValueNuclide(""); }}
               multiple
               limitTags={7}
               id="autocomplete-isotope"
@@ -2196,6 +2226,7 @@ const reloadDataHandler = async () => {
                     setSearchValueIntegralPeriod(newInputValue);
                   }
                 }}
+                onClose={() => { setSearchValueIntegralPeriod(""); }}
                 inputValue={searchValueIntegralPeriod}
                 multiple
                 limitTags={7}
@@ -2366,10 +2397,8 @@ const reloadDataHandler = async () => {
             &nbsp;
           </td>
 
-          {
-          //!((!currFlt.selDataSourceValues.length)||(!currFlt.selDoseRatioValue)||(!doseRatioToOrganParentIds.includes(currFlt.selDoseRatioValue.id)))
-          //&&
-          ( 
+
+          { organVisibleD && (
             <>   
             <td style={{ width: '290px'}}>    
             <Autocomplete
@@ -2393,8 +2422,10 @@ const reloadDataHandler = async () => {
             </td>
             </>            
           )}
+
           
-            <td style={{ width: '290px'}}> 
+          <td style={{ width: '290px'}}>
+            {letLevelVisibleD && ( 
             <Autocomplete
             size="small"
             disabled={(valueID !== null)||(applFlt.selLetLevelValues.length===1)}
@@ -2409,8 +2440,9 @@ const reloadDataHandler = async () => {
               };
               return <TextField {...params} inputProps={inputProps} label="Уровни ЛПЭ" placeholder="Уровни ЛПЭ"/>;
             }}                 
-            />    
-            </td>
+            />
+            )}    
+          </td>
           </tr>
           </tbody></table> 
           <p></p>
@@ -2440,7 +2472,8 @@ const reloadDataHandler = async () => {
           <td style={{ width: '16px'}}>  
             &nbsp;
           </td>
-          <td style={{ width: '290px'}}>          
+          <td style={{ width: '290px'}}>
+          { substFormVisibleD && (           
           <Autocomplete
             size="small"
             disabled={(valueID !== null)||(applFlt.selSubstFormValues.length===1)}
@@ -2455,7 +2488,8 @@ const reloadDataHandler = async () => {
               };
               return <TextField {...params} inputProps={inputProps} label="Формы вещества" placeholder="Формы вещества" required/>;
             }}                 
-          />   
+          />
+          )}   
           </td>
           <td style={{ width: '16px'}}>  
             &nbsp;
@@ -2489,7 +2523,8 @@ const reloadDataHandler = async () => {
           <td style={{ width: '16px'}}>  
             &nbsp;
           </td>
-          <td style={{ width: '290px'}}> 
+          <td style={{ width: '290px'}}>
+          { aerosolSolVisibleD && ( 
           <Autocomplete
             size="small"
             disabled={(valueID !== null)||(applFlt.selAerosolSolValues.length===1)}
@@ -2504,12 +2539,14 @@ const reloadDataHandler = async () => {
               };
               return <TextField {...params} inputProps={inputProps} label="Типы растворимости аэрозолей" placeholder="Типы растворимости аэрозолей" required/>;
             }}                 
-          />        
+          />
+          )}        
           </td>
           <td style={{ width: '16px'}}>  
             &nbsp;
           </td>
-          <td style={{ width: '250px'}}>      
+          <td style={{ width: '290px'}}>
+          { aerosolAmadVisibleD && (      
           <Autocomplete
             size="small"
             disabled={(valueID !== null)||(applFlt.selAerosolAMADValues.length===1)}
@@ -2525,7 +2562,8 @@ const reloadDataHandler = async () => {
               };
               return <TextField {...params} inputProps={inputProps} label="AMAD аэрозолей" placeholder="AMAD аэрозолей" required/>;
             }}                 
-          />        
+          />
+          )}        
           </td>
 
         </tr>
@@ -2553,7 +2591,8 @@ const reloadDataHandler = async () => {
           <td style={{ width: '16px'}}>  
             &nbsp;
           </td>
-          <td style={{ width: '290px'}}>  
+          <td style={{ width: '290px'}}>
+          {agegroupVisibleD&&(  
           <Autocomplete
             size="small"
             disabled={(valueID !== null)||(applFlt.selAgeGroupValues.length===1)}
@@ -2566,12 +2605,14 @@ const reloadDataHandler = async () => {
               <TextField {...params} label="Возрастная группа населения" placeholder="Возрастная группа населения" />
             )}
           />
+          )}
 
           </td>
           <td style={{ width: '16px'}}>  
             &nbsp;
           </td>
-          <td style={{ width: '290px'}}>            
+          <td style={{ width: '290px'}}>
+          {expScenarioVisibleD && (           
           <Autocomplete
             size="small"
             disabled={(valueID !== null)||(applFlt.selExpScenarioValues.length===1)}
@@ -2584,6 +2625,7 @@ const reloadDataHandler = async () => {
               <TextField {...params} label="Сценарий поступления" placeholder="Сценарий поступления" />
             )}
           />
+          )}
           </td>
         </tr>
         </tbody></table>  

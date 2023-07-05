@@ -26,6 +26,6 @@ function ValueIntDose() {
     </tbody>
     </table>   
     </div>
-  );
+  )
 }
 export default ValueIntDose;

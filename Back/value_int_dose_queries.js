@@ -129,6 +129,8 @@ const updateValueIntDose = (request, response, table_name) => {
 }
 
 const createValueIntDose = (request, response) => {
+
+  console.log(request.body);
   const { dose_ratio_id, dr_value, chem_comp_gr_id, people_class_id, isotope_id, integral_period_id, organ_id, 
     let_level_id, agegroup_id, data_source_id, subst_form_id, aerosol_sol_id, aerosol_amad_id, exp_scenario_id, 
     irradiation_id } = request.body;
