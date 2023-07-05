@@ -161,10 +161,11 @@ const DataTableIsotope = (props) => {
 
   // Используем хук эффекта для обновления поля Обозначение при изменении радиоизотопа или индекса
   useEffect(() => {
-    if (valueId === '') { // проверяем, пустое ли поле Код
+    //if (valueId === '') { // проверяем, пустое ли поле Код
       const nuclideTitle = currentNuclide ? currentNuclide.title : ''; // проверяем, выбран ли радиоизотоп
-      setValueTitle(nuclideTitle + valueNIndex); // обновляем поле Обозначение
-    }
+      const indexTitle = valueNIndex ? valueNIndex : ''; // проверяем, выбран ли радиоизотоп
+      setValueTitle(nuclideTitle + indexTitle); // обновляем поле Обозначение
+    //}
   }, [valueId, currentNuclide, valueNIndex]);   
 
   useEffect(() => {

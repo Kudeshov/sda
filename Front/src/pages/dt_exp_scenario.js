@@ -301,8 +301,32 @@ const DataTableExpScenario = (props) => {
     setTreeData(arr);
   }, [tableData, treeFilterString]);
 
+
+  //  состояние для управления диалогом
+  const [open, setOpen] = React.useState(false);
+
+  // Функция для открытия диалога
+  const handleClickOpen = () => {
+    setOpen(true);
+  };
+
+  // Функция для закрытия диалога
+  const handleClose = () => {
+    setOpen(false);
+  };
+
   ///////////////////////////////////////////////////////////////////  SAVE  /////////////////////
   const saveRec = async ( fromToolbar ) => {
+
+    // Проверка на то, что нормативная база у родителя и ребенка совпадает
+    if (valueParentID !== -1) { // если запись не на верхнем уровне
+      const parentNormativ = tableData.find(item => item.id === valueParentID).normativ_id;
+      if (parentNormativ !== valueNormativ) {
+          handleClickOpen();
+          //alert("Нормативная база у дочерней записи и родительской записи должна быть одинаковой!");
+          return; // выйти из функции, не продолжая сохранение
+      }
+  }    
 
     if (formRef.current.reportValidity() )
     {
@@ -910,6 +934,23 @@ const DataTableExpScenario = (props) => {
         <Button variant="outlined" onClick={handleCloseSaveWhenNewYes} >Да</Button>
     </DialogActions>
   </Dialog>
+
+ 
+  <Dialog open={open} onClose={handleClose}>
+    <DialogTitle>{"Ошибка"}</DialogTitle>
+    <DialogContent>
+      <DialogContentText>
+        {"Нормативная база у дочерней записи и родительской записи должна быть одинаковой!"}
+      </DialogContentText>
+    </DialogContent>
+    <DialogActions>
+      <Button  variant="outlined" onClick={handleClose}>
+        {"ОК"}
+      </Button>
+    </DialogActions>
+  </Dialog>
+ 
+
   </form>
  </div>     
   )

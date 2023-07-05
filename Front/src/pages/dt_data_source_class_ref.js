@@ -27,7 +27,6 @@ import Tooltip from '@mui/material/Tooltip';
 var alertText = "Сообщение";
 var alertSeverity = "info";
 var lastAddedId = 0;
-var lastRecID = 0;
 var lastID = 0;
 
 function DataTableDataSourceClassRef(props)  {
@@ -179,7 +178,6 @@ useEffect(() => {
 const reloadDataSrcClass = async () => {
   setIsLoading(true);
   try {
-    lastRecID = props.rec_id;
     const response = await fetch(`/data_source_class_ref/${props.rec_id||0}`);
     if (!response.ok) {
       alertText =  'Ошибка при обновлении данных';
