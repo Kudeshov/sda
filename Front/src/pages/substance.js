@@ -1,6 +1,6 @@
 //import { Typography } from "@material-ui/core";
 import { useEffect } from 'react';
-import { table_names } from './sda_types';
+import { table_names } from './table_names';
 
 const useDocumentTitle = (title) => {
   useEffect(() => {

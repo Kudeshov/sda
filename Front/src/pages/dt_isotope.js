@@ -26,12 +26,13 @@ import { ReactComponent as UndoLightIcon } from "./../icons/undo.svg";
 import { ReactComponent as DownloadLightIcon } from "./../icons/download.svg";
 import { ReactComponent as TrashLightIcon } from "./../icons/trash.svg";
 import { ReactComponent as RepeatLightIcon } from "./../icons/repeat.svg";
-import { table_names } from './sda_types';
+import { table_names } from './table_names';
 import { Select } from "@mui/material";
 import { MenuItem } from "@mui/material";
 import { FormControl } from "@mui/material";
 import { InputLabel } from "@mui/material";
 import Autocomplete from '@mui/material/Autocomplete';
+import { useGridScrollPagination } from './../helpers/gridScrollHelper';
 
 var alertText = "Сообщение";
 var alertSeverity = "info";
@@ -288,7 +289,6 @@ const DataTableIsotope = (props) => {
       setRowSelectionModel([lastId]);
       scrollToIndexRef.current = lastId;  
       //Refresh initial state
-      //console.log('addRec Refresh initial '+valueTitle+' '+valueNIndex);
       setValueTitle(valueTitle);
       setValueNIndex(valueNIndex);
       setValueHalfLifeValue(valueHalfLifeValue);
@@ -474,9 +474,7 @@ const DataTableIsotope = (props) => {
   const handleCancelClick = () => 
   {
     const selectedIDs = new Set(rowSelectionModel);
-    //console.log('selectedIDs ' + selectedIDs);
     const selectedRowData = tableData.filter((row) => selectedIDs.has(row.id));
-    //console.log('selectedRowData ' + selectedRowData);
     if (selectedRowData.length)
     {
       setValueID(selectedRowData[0].id);
@@ -496,50 +494,13 @@ const DataTableIsotope = (props) => {
     }
   }
   
- // Scrolling and positionning
- const [paginationModel, setPaginationModel] = React.useState({
-  pageSize: 25,
-  page: 0,
-});
-
-useEffect(() => {
-  console.log(paginationModel.page);
-}, [paginationModel]);
-
-const handleScrollToRow = React.useCallback((v_id) => {
-  const sortedRowIds = apiRef.current.getSortedRowIds(); //получаем список отсортированных строк грида
-  const index = sortedRowIds.indexOf(parseInt(v_id));    //ищем в нем номер нужной записи
-  if (index !== -1) {
-    const pageSize = paginationModel.pageSize; // определяем текущую страницу и индекс строки в этой странице
-    const currentPage = paginationModel.page;
-    const rowPageIndex = Math.floor(index / pageSize);
-    if (currentPage !== rowPageIndex) { // проверяем, нужно ли изменять страницу
-      apiRef.current.setPage(rowPageIndex);
-    }
-    setRowSelectionModel([v_id]); //это устанавливает фокус на выбранной строке (подсветка)
-    setTimeout(function() {       //делаем таймаут в 0.1 секунды, иначе скроллинг тупит
-      apiRef.current.scrollToIndexes({ rowIndex: index, colIndex: 0 });
-    }, 100);
-  }
-}, [apiRef, paginationModel, setRowSelectionModel]);
-
-const scrollToIndexRef = React.useRef(null); //тут хранится значение (айди) добавленной записи
-
-useEffect(() => {
-  //событие, которое вызовет скроллинг грида после изменения данных в tableData
-  if (!scrollToIndexRef.current) return; //если значение не указано, то ничего не делаем
-  if (scrollToIndexRef.current===-1) return;
-  // console.log('scrollToIndex index '+ scrollToIndexRef.current);
-  handleScrollToRow(scrollToIndexRef.current);
-  scrollToIndexRef.current = null; //обнуляем значение
-}, [tableData, handleScrollToRow]);
-
+  // Scrolling and positionning
+  const { paginationModel, setPaginationModel, scrollToIndexRef } = useGridScrollPagination(apiRef, tableData, setRowSelectionModel);
 
 function CustomToolbar1() {
   //const apiRef = useGridApiRef(); // init DataGrid API for scrolling
     const handleExport = (options) =>
       apiRef.current.exportDataAsCsv(options);
-
     return (
       <GridToolbarContainer>
         <IconButton onClick={()=>handleClearClick()}  color="primary" size="small" title="Создать запись">
@@ -559,160 +520,7 @@ function CustomToolbar1() {
     );
   }
 
-  ///////////////////////////////////////////////////////////////////  Tree load functions and hook  /////////////////////
-  //const [treeFilterString, setTreeFilterString] = React.useState('');
-
-  /* useEffect(() => {
-    function list_to_tree1(list) {
-      console.log(list); 
-      var map = {}, node, roots = [], i;
-       for (i = 0; i < list.length; i += 1) {
-        map[list[i].id] = i;   // initialize the map
-        list[i].children = []; // initialize the children
-      }
-      console.log(map);
-      //filterString=filterString||'';
-      for (i = 0; i < list.length; i += 1) {
-        node = list[i];
-        if (node.parent_id) {
-          // if you have dangling branches check that map[node.parentId] exists
-          console.log('map[node.parent_id] node.parent_id id = '+node.parent_id+' ' +node.id);
-          console.log(map[node.parent_id]);
-          list[map[node.parent_id]].children.push(node);
-        } else {
-          roots.push(node);
-        }
-      }
-      //filterTree(roots, filterString.toLowerCase());  
-      return roots;
-    }
-
-    let arr = list_to_tree1( tableData1 );
-    setTreeData( arr );
-  }, [tableData1]) 
- */
-
-/*   useEffect(() => {
-    if (!valueId)
-      return;
-
-    console.log( `/isotope_tree/`+valueId );
-    fetch(`/isotope_tree/`+valueId||0) 
-      .then((data) => data.json())
-      .then((data) => setTableData1(data))
-      .then((data) => { console.log( `fetched /isotope_tree/`+valueId); //lastId = data[0].id||0; clickAfterReload = true; console.log( 'setSelected ');  //console.log( tableData[0].id||0 ); 
-          } );   
-  }, [valueId]);
- */
-  //const [treeData, setTreeData] = useState([]); 
-
-/*   const [expanded, setExpanded] = React.useState([]);
-  const [selected, setSelected] = React.useState('');
-
-  const handleToggle = (event, nodeIds) => {
-    setExpanded(nodeIds);
-  };
-
-  const handleSelect = (event, nodeIds) => {
-    setSelected(nodeIds);
-    //handleItemClick(nodeIds);
-  };   */
-
-/*   const getTreeItemsFromData = treeItems => {
-    return treeItems.map(treeItemData => {
-      let children = undefined;
-      if (treeItemData.children && treeItemData.children.length > 0) {
-        children = getTreeItemsFromData(treeItemData.children);
-      }
-      return ( 
-        <TreeItem
-          key={treeItemData.id}
-          nodeId={treeItemData.id?treeItemData.id.toString():0}
-          label={treeItemData.title}
-          children={children}
-        />
-      );
-    });
-  };
- */
-/*   function probDisplay(prob) {
-    if ((parseInt(prob)===0)||(parseInt(prob)===1))
-      return('')
-    else
-      return(<div><small>P={prob}</small><br></br></div>);
-  }
   
-  function timeDisplay(val, per) {
-    return(<span> ({val} {per})</span>);
-  }
-   
-  function getNuclideNameById(n_id) {
-    if (n_id) {
-      var arr= tableNuclide.filter((row) => n_id===row.id);
-      if (arr.length) {
-        return(arr[0].title);
-      }      
-    }
-    else {
-      return('');
-    }
-   }
-*/
-
-/*   const getTreeNodesFromData = treeItems => {
-    return treeItems.map(treeItemData => {
-      let children = undefined;
-      if (treeItemData.children && treeItemData.children.length > 0) {
-        children = getTreeNodesFromData(treeItemData.children);
-      }
-      //children = getTreeNodesFromData(treeItemData.children);
-      return ( 
-        <TreeNode
-          //key={treeItemData.id}
-          //nodeId={treeItemData.id?treeItemData.id.toString():0}
-          //label={treeItemData.title}
-          label={<StyledNode>
-            {probDisplay(treeItemData.decay_prob)}{treeItemData.title} {} {timeDisplay(treeItemData.half_life_value,treeItemData.half_life_period)}</StyledNode>}
-          children={children}
-        />
-      );
-    });
-  }; */
-
-
-/*   const DataTreeView = ({ treeItems }) => {
-    return (
-      <div>
-      <p></p>
-      <TreeView
-        aria-label="Tree navigator"
-        defaultCollapseIcon={<ExpandMoreIcon />}
-        defaultExpandIcon={<ChevronRightIcon />}
-        sx={{ height: 240, flexGrow: 1, maxWidth: 400, overflowY: 'auto' }}
-        onNodeToggle={handleToggle}
-        onNodeSelect={handleSelect}
-        expanded={expanded}
-        selected={selected}          
-         loading={isLoading}
-      >
-        {getTreeItemsFromData(treeItems)}
-      </TreeView></div>
-    );
-  }; */
-
-  //const classes = useStyles();
-  
-/*   const useStyles = makeStyles((theme) => ({
-    inputStyle: {
-        "&::-webkit-outer-spin-button, &::-webkit-inner-spin-button": {
-            "-webkit-appearance": "none",
-            display: "none"
-        }
-    }
-  }));
-*/
-
-//  const classes = useStyles(); 
   const formRef = React.useRef();
   return (
     <div style={{ /* height: 640, */ width: 1500 }}>
@@ -773,8 +581,6 @@ function CustomToolbar1() {
       
       </td>
       <td style={{ height: 550, width: 900, verticalAlign: 'top' }}>
-      {/* <p></p> &nbsp;&nbsp;&nbsp; */}
-{/*       <div className={classes.root}> */}
 
       <table border = "0" cellSpacing="0" cellPadding="0"><tbody>
       <tr>      
@@ -813,8 +619,6 @@ function CustomToolbar1() {
         <TextField  id="ch_n_index" sx={{ width: '20ch' }}  size="small" label="Индекс"  variant="outlined"  value={valueNIndex || ''} onChange={e => setValueNIndex(e.target.value)} />
       </td>
       </tr></tbody></table>
-      
-{/*       </div>   */}    
 
       <p></p>
       <TextField id="ch_half_life_value" sx={{ width: '40ch' }} size="small" label="Период полураспада" required variant="outlined" value={valueHalfLifeValue || ''} onChange={e => setValueHalfLifeValue(e.target.value)}/>
@@ -881,12 +685,6 @@ function CustomToolbar1() {
         {valueId?
           `В запись таблицы "${table_names[props.table_name]}" внесены изменения.`:
           `В таблицу "${table_names[props.table_name]}" внесена новая несохраненная запись.`} 
-{/*             {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p></p>
-            {valueNIndex === valueNIndexInitial ? '' : 'Индекс: '+valueNIndex+'; ' }<p></p>
-            {valueHalfLifeValue === valueHalfLifeValueInitial ? '' : 'Период полураспада: '+valueHalfLifeValue+'; ' }<p></p>
-            {valueHalfLifePeriod === valueHalfLifePeriodInitial ? '' : 'Ед. изм.: '+valueHalfLifePeriod+'; ' }<p></p>
-            {valueDecayConst === valueDecayConstInitial ? '' : 'Постоянная распада, (1/сек) '+valueDecayConst+'; ' }<p></p>
-            {valueNuclideId === valueNuclideIdInitial ? '' : 'Нуклид: '+getNuclideNameById(valueNuclideId)+'; ' }<p></p> */}
             <br/>Вы желаете сохранить указанную запись?
         </DialogContentText>
     </DialogContent>
@@ -905,12 +703,6 @@ function CustomToolbar1() {
         {valueId?
           `В запись таблицы "${table_names[props.table_name]}" внесены изменения.`:
           `В таблицу "${table_names[props.table_name]}" внесена новая несохраненная запись.`} 
-{/*             {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p></p>
-            {valueNIndex === valueNIndexInitial ? '' : 'Индекс: '+valueNIndex+'; ' }<p></p>
-            {valueHalfLifeValue === valueHalfLifeValueInitial ? '' : 'Период полураспада: '+valueHalfLifeValue+'; ' }<p></p>
-            {valueHalfLifePeriod === valueHalfLifePeriodInitial ? '' : 'Ед. изм.: '+valueHalfLifePeriod+'; ' }<p></p>
-            {valueDecayConst === valueDecayConstInitial ? '' : 'Постоянная распада, (1/сек) '+valueDecayConst+'; ' }<p></p>
-            {valueNuclideId === valueNuclideIdInitial ? '' : 'Нуклид: '+getNuclideNameById(valueNuclideId)+'; ' }<p></p> */}
            <br/>Вы желаете сохранить указанную запись?
         </DialogContentText>
     </DialogContent>

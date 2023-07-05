@@ -26,8 +26,8 @@ import { ReactComponent as TrashLightIcon } from "./../icons/trash.svg";
 import { ReactComponent as RepeatLightIcon } from "./../icons/repeat.svg";
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { ReactComponent as EditLightIcon } from "./../icons/edit.svg";
-//import { ReactComponent as InfoLightIcon } from "./../icons/info.svg";
-import { table_names } from './sda_types';
+import { table_names } from './table_names';
+import { useGridScrollPagination } from './../helpers/gridScrollHelper';
 
 var alertText = "Сообщение";
 var alertSeverity = "info";
@@ -471,7 +471,10 @@ const DataTableChelement = (props) => {
       setValueAtomicNumInitial(selectedRowData[0].atomic_num);
     }
   }
-// Scrolling and positionning
+  // Scrolling and positionning
+  const { paginationModel, setPaginationModel, scrollToIndexRef } = useGridScrollPagination(apiRef, tableData, setRowSelectionModel);
+
+/* 
 const [paginationModel, setPaginationModel] = React.useState({
   pageSize: 25,
   page: 0,
@@ -507,7 +510,7 @@ useEffect(() => {
   // console.log('scrollToIndex index '+ scrollToIndexRef.current);
   handleScrollToRow(scrollToIndexRef.current);
   scrollToIndexRef.current = null; //обнуляем значение
-}, [tableData, handleScrollToRow]);
+}, [tableData, handleScrollToRow]); */
 
 
 function CustomToolbar1() {
@@ -826,7 +829,7 @@ function CustomToolbar1() {
       &nbsp;&nbsp;&nbsp;&nbsp;
       <TextField  id="ch_atomic_num" sx={{ width: '20ch' }} label="Атомный номер" required size="small" /* type="number" */ variant="outlined" value={valueAtomicNum || ''} onChange={e => setValueAtomicNum(e.target.value)}/>
       <p></p>
-      <TextField  id="ch_name_rus" sx={{ width: '49ch' }}  size="small" label="Название (рус.яз)"  variant="outlined"  value={valueNameRus || ''} onChange={e => setValueNameRus(e.target.value)} />
+      <TextField  id="ch_name_rus" sx={{ width: '49ch' }}  size="small" label="Название (рус.яз)" required variant="outlined"  value={valueNameRus || ''} onChange={e => setValueNameRus(e.target.value)} />
       &nbsp;&nbsp;&nbsp;&nbsp;
       <TextField  id="ch_name_eng" sx={{ width: '49ch' }} size="small" label="Название (англ.яз)"  variant="outlined" value={valueNameEng || ''} onChange={e => setValueNameEng(e.target.value)}/>
       <p></p>

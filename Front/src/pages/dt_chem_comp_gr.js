@@ -32,9 +32,10 @@ import { FormControl } from "@mui/material";
 import { InputLabel } from "@mui/material";
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { ExportToCsv } from 'export-to-csv-fix-source-map';
-import { table_names } from './sda_types';
+import { table_names } from './table_names';
 import Backdrop from '@mui/material/Backdrop';
 import { InputAdornment } from "@material-ui/core";
+import { listToTree } from '../helpers/treeHelper';
 
 var alertText = "Сообщение";
 var alertSeverity = "info";
@@ -301,70 +302,12 @@ const DataTableChemCompGr = (props) => {
       .then((data) => { lastId = 0;} ); 
   }, [valueParentID]);
 
-
-///////////////////////////////////////////////////////////////////  Tree load functions and hook  /////////////////////
+  ///////////////////////////////////////////////////////////////////  Tree load functions and hook  /////////////////////
   useEffect(() => {
-    function filterTree( tree1, filterS )
-    {
-      var i;
-      i = 0;
-      while (i < tree1.length) 
-      {
-        if (tree1[i].children.length === 0)
-        {
-          if (tree1[i].title.toLowerCase().indexOf(filterS.toLowerCase()) === -1)
-          {
-            tree1.splice(i, 1); 
-            i--;
-          }
-        }
-        else
-        {
-          filterTree( tree1[i].children, filterS );
-        }
-        i++;
-      }
-      i = 0;
-      while (i < tree1.length) 
-      {
-        if (tree1[i].children.length === 0)
-        {
-          if (tree1[i].title.toLowerCase().indexOf(filterS.toLowerCase()) === -1)
-          {
-            tree1.splice(i, 1); 
-            i--;
-          }
-        }
-        else
-        {
-          filterTree( tree1[i].children, filterS );
-        }
-        i++;
-      }      
-    }
-    function list_to_tree1(list, filterString) { 
-      var map = {}, node, roots = [], i;
-       for (i = 0; i < list.length; i += 1) {
-        map[list[i].id] = i;   // initialize the map
-        list[i].children = []; // initialize the children
-      }
-      filterString=filterString||'';
-      for (i = 0; i < list.length; i += 1) {
-        node = list[i];
-        if (node.parent_id) {
-          // if you have dangling branches check that map[node.parentId] exists
-          list[map[node.parent_id]].children.push(node);
-        } else {
-          roots.push(node);
-        }
-      }
-      filterTree(roots, filterString.toLowerCase());  
-      return roots;
-    }
-
-    let arr = list_to_tree1( tableData, treeFilterString );
-    setTreeData( arr );
-  }, [tableData, treeFilterString]) 
+    // Преобразуем tableData из списка в структуру дерева и обновляем состояние treeData
+    const arr = listToTree(tableData, treeFilterString);
+    setTreeData(arr);
+  }, [tableData, treeFilterString]);
 
   ///////////////////////////////////////////////////////////////////  SAVE  /////////////////////
   const saveRec = async ( fromToolbar ) => {
@@ -955,7 +898,7 @@ const DataTableChemCompGr = (props) => {
       <p></p> 
       <TextField  id="ch_formula" sx={{ width: '100ch' }}  size="small" label="Формула"  variant="outlined"  value={valueFormula || ''} onChange={e => setValueFormula(e.target.value)} />
       <p></p> 
-      <TextField  id="ch_name_rus" sx={{ width: '100ch' }}  size="small" label="Название (рус.яз)"  variant="outlined"  value={valueNameRus || ''} onChange={e => setValueNameRus(e.target.value)} />
+      <TextField  id="ch_name_rus" sx={{ width: '100ch' }}  size="small" label="Название (рус.яз)" required variant="outlined"  value={valueNameRus || ''} onChange={e => setValueNameRus(e.target.value)} />
       <p></p>
       <TextField  id="ch_name_eng" sx={{ width: '100ch' }} size="small" label="Название (англ.яз)"  variant="outlined" value={valueNameEng || ''} onChange={e => setValueNameEng(e.target.value)}/>
       <p></p>
@@ -1000,12 +943,6 @@ const DataTableChemCompGr = (props) => {
           {valueId?
           `В запись таблицы "${table_names[props.table_name]}" внесены изменения.`:
           `В таблицу "${table_names[props.table_name]}" внесена новая несохраненная запись.`}
-        {/*     {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p></p>
-            {valueParentID === valueParentIDInitial ? '' : 'Родительский класс: '+valueParentID+'; ' }<p></p>
-            {valueNameRus === valueNameRusInitial ? '' : 'Название (рус. яз): '+valueNameRus+'; ' }<p></p>
-            {valueNameEng === valueNameEngInitial ? '' : 'Название (англ. яз): '+valueNameEng+'; ' }<p></p>
-            {valueDescrRus === valueDescrRusInitial ? '' : 'Комментарий (рус. яз): '+valueDescrRus+'; ' }<p></p>
-            {valueDescrEng === valueDescrEngInitial ? '' : 'Комментарий (англ. яз): '+valueDescrEng+'; ' }<p></p> */}
           <br/>Вы желаете сохранить указанную запись?
         </DialogContentText>
     </DialogContent>
@@ -1024,12 +961,6 @@ const DataTableChemCompGr = (props) => {
           {valueId?
           `В запись таблицы "${table_names[props.table_name]}"/*  с кодом ${valueId} */ внесены изменения.`:
           `В таблицу "${table_names[props.table_name]}" внесена новая несохраненная запись.`}
-{/*             {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p></p>
-            {valueParentID === valueParentIDInitial ? '' : 'Родительский класс: '+valueParentID+'; ' }<p></p>
-            {valueNameRus === valueNameRusInitial ? '' : 'Название (рус. яз): '+valueNameRus+'; ' }<p></p>
-            {valueNameEng === valueNameEngInitial ? '' : 'Название (англ. яз): '+valueNameEng+'; ' }<p></p>
-            {valueDescrRus === valueDescrRusInitial ? '' : 'Комментарий (рус. яз): '+valueDescrRus+'; ' }<p></p>
-            {valueDescrEng === valueDescrEngInitial ? '' : 'Комментарий (англ. яз): '+valueDescrEng+'; ' }<p></p> */}
           <br/>Вы желаете сохранить указанную запись?
         </DialogContentText>
     </DialogContent>

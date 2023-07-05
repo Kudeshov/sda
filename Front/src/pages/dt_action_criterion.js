@@ -19,11 +19,9 @@ import { ReactComponent as EditLightIcon } from "./../icons/edit.svg";
 import { ReactComponent as PlusLightIcon } from "./../icons/plus.svg";
 import { ReactComponent as InfoLightIcon } from "./../icons/info.svg";
 import { ReactComponent as TrashLightIcon } from "./../icons/trash.svg";
-import { table_names } from './sda_types';
+import { table_names } from './table_names';
 
-var alertText = "Сообщение";
-var alertSeverity = "info";
-var lastAddedId = 0;
+
 var lastRecID = 0;
 var lastID = 0;
 
@@ -47,8 +45,7 @@ function DataTableActionCriterion(props)  {
 
   const handleCloseNo = () => {
     setOpen(false);
-
-    console.log(lastID);  
+  
     var filteredData = tableDataSrcClass.filter(function(element) {
       return element.id === lastID;
     });
@@ -69,11 +66,9 @@ function DataTableActionCriterion(props)  {
     if (props.rec_id==='') {
       lastRecID = -1;
     }
-    
+    setOpenAlert(false);
     setlastSrcClassID(0);
     setIsLoading(true);
-    console.log(`/action_criterion?criterion_id=${lastRecID}`);
-    //console.log( lastRecID );
     fetch(`/action_criterion?criterion_id=${lastRecID}`)
       .then((data) => data.json())
       .then((data) => setTableDataSrcClass(data));
@@ -97,7 +92,8 @@ const columns_src = [
   { field: 'name_eng', headerName: 'Название (англ)', width: 180, hideable: false },
   { field: 'descr_rus', headerName: 'Описание (рус)', width: 250 },
   { field: 'descr_eng', headerName: 'Описание (англ)', width: 250 },
-]
+];
+
 const [valueTitle, setValueTitle] = React.useState();
 const [valueNameRus, setValueNameRus] = React.useState();
 const [valueNameEng, setValueNameEng] = React.useState();
@@ -110,6 +106,9 @@ const [selectionModel, setSelectionModel] = React.useState([]);
 const [lastSrcClassID, setlastSrcClassID] = React.useState([0]);
 const [valueActionCriterionId,  setValueActionCriterionId] = React.useState();
 const [valueActionId,  setValueActionId] = React.useState();
+
+const [alertText, setAlertText] = useState("Сообщение");
+const [alertSeverity, setAlertSeverity] = useState("info");
 
 useEffect(() => {
   if ((!isLoading) && (tableDataSrcClass) && (tableDataSrcClass.length))
@@ -135,9 +134,9 @@ const reloadDataSrcClass = async () => {
   try {
     lastRecID = props.rec_id;
     const response = await fetch(`/action_criterion?criterion_id=${lastRecID}`);
-     if (!response.ok) {
-      alertText =  'Ошибка при обновлении данных';
-      alertSeverity = "false";
+    if (!response.ok) {
+      setAlertText('Ошибка при обновлении данных');
+      setAlertSeverity("error");
       setOpenAlert(true);  
       throw new Error(`Error! status: ${response.status}`);
     }  
@@ -145,6 +144,9 @@ const reloadDataSrcClass = async () => {
     setlastSrcClassID(0);
     setTableDataSrcClass(result);
   } catch (err) {
+    setAlertText(err.message);
+    setAlertSeverity("error");
+    setOpenAlert(true); 
   } finally {
     setIsLoading(false);
   }
@@ -173,39 +175,41 @@ const handleCloseConfirmDeleteYes = () => {
   delRec();
 };
 /////////////////////////////////////////////////////////////////// DELETE /////////////////////
-const delRec =  async () => {
-  const js = JSON.stringify({
-    id: valueActionCriterionId,
-    title: valueTitle,
-  });
+const delRec = async () => {
   setIsLoading(true);
+
   try {
     const response = await fetch('/action_criterion/'+valueActionCriterionId, {
-      
       method: 'DELETE',
-      body: js,
       headers: {
         'Content-Type': 'Application/json',
         Accept: '*/*',
       },
     });
+
+    let aSeverity = response.ok ? 'success' : 'error';
+    let aText = await response.text();
+
+    setAlertText(aText);
+    setAlertSeverity(aSeverity);
+
     if (!response.ok) {
-      alertSeverity = 'error';
-      alertText = await response.text();
-      setOpenAlert(true);          
+      throw new Error(alertText);
     }
-    else
-    {
-      alertSeverity = "success";
-      alertText = await response.text();
-      setOpenAlert(true);  
-    }
+
   } catch (err) {
+    console.error(err);
+    setAlertText(err.message);
+    setAlertSeverity( 'error');    
+    //alertSeverity = 'error';
+    //alertText = err.message;
+
   } finally {
+    setOpenAlert(true);
     setIsLoading(false);
     reloadDataSrcClass();
   }
-};  
+};
 ///////////////////////////////////////////////////////////////////  SAVE  /////////////////////
 const saveRec = async () => {
 
@@ -231,20 +235,23 @@ const saveRec = async () => {
         Accept: '*/*',
      },
    });
+   let aSeverity;
+   let aText;
    if (!response.ok) {
-      alertSeverity = 'error';
-      alertText = await response.text();
-      setOpenAlert(true);          
+      aSeverity = 'error';
+      aText = await response.text();
     }
     else
     {
-      alertSeverity = "success";
-      alertText = await response.text();
-      setOpenAlert(true);  
+      aSeverity = "success";
+      aText = await response.text();
     }
+    setAlertText(aText);
+    setAlertSeverity(aSeverity);
+    setOpenAlert(true); 
  } catch (err) {
-  alertText = err.message;
-  alertSeverity = 'error';
+  setAlertText(err.message);
+  setAlertSeverity('error');
   setOpenAlert(true);
  } finally {
    setIsLoading(false);
@@ -268,23 +275,26 @@ const addRec = async ()  => {
         Accept: '*/*',
       },
     });
+    let aSeverity;
+    let aText;
     if (!response.ok) {
-      alertSeverity = 'error';
-      alertText = await response.text();
-      setOpenAlert(true);          
+      aSeverity = 'error';
+      aText = await response.text();
     }
     else
     {
-      alertSeverity = "success";
       const { id } = await response.json();
-      alertText = `Добавлена запись с кодом ${id}`;
-      lastAddedId =  id; 
+      aSeverity = "success";
+      aText = `Добавлена запись с кодом ${id}`;
+      let lastAddedId =  id; 
       setValueActionCriterionId(lastAddedId);
-      setOpenAlert(true);  
     }
+    setAlertText(aText);
+    setAlertSeverity(aSeverity);
+    setOpenAlert(true);
   } catch (err) {
-    alertText = err.message;
-    alertSeverity = 'error';
+    setAlertText(err.message);
+    setAlertSeverity('error');
     setOpenAlert(true);
   } finally {
     setIsLoading(false);
@@ -390,9 +400,9 @@ const formRef = React.useRef();
       <Dialog open={open} onClose={handleCloseNo} fullWidth={false} maxWidth="800px">
       <DialogTitle>Действие</DialogTitle>  
         <DialogContent style={{height:'280px', width: '700px'}}>
-          <DialogContentText>
+{/*           <DialogContentText>
             Задать действие
-          </DialogContentText>
+          </DialogContentText> */}
         <p></p>        
         <FormControl fullWidth>
             <InputLabel id="demo-controlled-open-select-label" required >Действие</InputLabel>

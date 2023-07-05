@@ -30,15 +30,10 @@ import { Select } from "@mui/material";
 import { MenuItem } from "@mui/material";
 import { FormControl } from "@mui/material";
 import { InputLabel } from "@mui/material";
-/* import { ReactComponent as FileImportLightIcon } from "./../icons/file-import.svg";
-import { ReactComponent as EraserLightIcon } from "./../icons/eraser.svg";
-import { ReactComponent as EditLightIcon } from "./../icons/edit.svg";
- */
-import { table_names } from './sda_types';
+import { table_names } from './table_names';
 import Autocomplete from '@mui/material/Autocomplete';
 import { ReactComponent as InfoLightIcon } from "./../icons/info.svg";
-//import Link from '@mui/material/Link';
-//import { saveAs } from 'file-saver';
+import { useGridScrollPagination } from './../helpers/gridScrollHelper';
 
 var alertText = "Сообщение";
 var alertSeverity = "info";
@@ -95,12 +90,6 @@ const DataTableDoseRatio = (props) => {
     { label: 'e - внешнее облучение', value: 'e' },
     { label: 'i - внутреннее облучение', value: 'i' },
     { label: 'f - поглощение в ЖКТ', value: 'f' } ];
-
-/*     const valuesDrTypeList = [
-      { label: 'e', value: 'e' },
-      { label: 'i', value: 'i' },
-      { label: 'f', value: 'f' } ]; */
-  
 
   useEffect(() => {
     setValuePhysParamCode(valuePhysParamID);
@@ -717,7 +706,7 @@ const handleCloseDSInfo = () => {
       setValueIndoor(selectedRowData[0].indoor );
       setValueExtCloud(selectedRowData[0].ext_cloud );
       setValueExtGround(selectedRowData[0].ext_ground );
-      //console.log('handleCancelClick Refresh initial '+selectedRowData[0].title+' '+selectedRowData[0].name_rus);
+
       setValueTitleInitial(selectedRowData[0].title);
       setValueNameRusInitial(selectedRowData[0].name_rus);
       setValueNameEngInitial(selectedRowData[0].name_eng );
@@ -741,46 +730,9 @@ const handleCloseDSInfo = () => {
   }
 
   // Scrolling and positionning
-  const [paginationModel, setPaginationModel] = React.useState({
-    pageSize: 25,
-    page: 0,
-  });
-
-  useEffect(() => {
-    console.log(paginationModel.page);
-  }, [paginationModel]);
-  
-  const handleScrollToRow = React.useCallback((v_id) => {
-    const sortedRowIds = apiRef.current.getSortedRowIds(); //получаем список отсортированных строк грида
-    const index = sortedRowIds.indexOf(parseInt(v_id));    //ищем в нем номер нужной записи
-    if (index !== -1) {
-      const pageSize = paginationModel.pageSize; // определяем текущую страницу и индекс строки в этой странице
-      const currentPage = paginationModel.page;
-      const rowPageIndex = Math.floor(index / pageSize);
-      if (currentPage !== rowPageIndex) { // проверяем, нужно ли изменять страницу
-        apiRef.current.setPage(rowPageIndex);
-      }
-      setRowSelectionModel([v_id]); //это устанавливает фокус на выбранной строке (подсветка)
-      setTimeout(function() {       //делаем таймаут в 0.1 секунды, иначе скроллинг тупит
-        apiRef.current.scrollToIndexes({ rowIndex: index, colIndex: 0 });
-      }, 100);
-    }
-  }, [apiRef, paginationModel, setRowSelectionModel]);
-  
-  const scrollToIndexRef = React.useRef(null); //тут хранится значение (айди) добавленной записи
-
-  useEffect(() => {
-    //событие, которое вызовет скроллинг грида после изменения данных в tableData
-    if (!scrollToIndexRef.current) return; //если значение не указано, то ничего не делаем
-    if (scrollToIndexRef.current===-1) return;
-    // console.log('scrollToIndex index '+ scrollToIndexRef.current);
-    handleScrollToRow(scrollToIndexRef.current);
-    scrollToIndexRef.current = null; //обнуляем значение
-  }, [tableData, handleScrollToRow]);
-
+  const { paginationModel, setPaginationModel, scrollToIndexRef } = useGridScrollPagination(apiRef, tableData, setRowSelectionModel);
 
   function CustomToolbar1() {
-    //const apiRef = useGridApiRef(); // init DataGrid API for scrolling
     const handleExport = (options) =>
       apiRef.current.exportDataAsCsv(options);
 
@@ -808,15 +760,11 @@ const handleCloseDSInfo = () => {
     { title: 'Да', id: 'true' } ];
 
   function handleFileChange(event) {
-    //console.log( 'handleFileChange файл '+event.target.files[0] );
-//    setFile(event.target.files[0]);
     var reader = new FileReader();
     reader.readAsText(event.target.files[0]);
     reader.onload = e => {
-      //console.log(e.target.result);
       setValueParameters("" + e.target.result);
       event.target.value = '';
-      //$("#icon-button-file").val('');
     };
   }
   const formRef = React.useRef();
@@ -886,7 +834,7 @@ const handleCloseDSInfo = () => {
       &nbsp;&nbsp;&nbsp;&nbsp;
       <TextField  id="ch_name" sx={{ width: '40ch' }} label="Обозначение" required size="small" variant="outlined" value={valueTitle || '' } autoComplete="off" onChange={e => setValueTitle(e.target.value)}/>
       <p></p>
-      <TextField  id="ch_name_rus" sx={{ width: '49ch' }}  size="small" label="Название (рус.яз)"  variant="outlined"  value={valueNameRus || ''} onChange={e => setValueNameRus(e.target.value)} />
+      <TextField  id="ch_name_rus" sx={{ width: '49ch' }}  size="small" label="Название (рус.яз)" required variant="outlined"  value={valueNameRus || ''} onChange={e => setValueNameRus(e.target.value)} />
       &nbsp;&nbsp;&nbsp;&nbsp;
       <TextField  id="ch_name_eng" sx={{ width: '49ch' }} size="small" label="Название (англ.яз)"  variant="outlined" value={valueNameEng || ''} onChange={e => setValueNameEng(e.target.value)}/>
       <p></p>
@@ -919,8 +867,7 @@ const handleCloseDSInfo = () => {
       </FormControl>  
       <p></p></>
       }
-
-          
+         
 
       <div>
       {(() => {
@@ -957,8 +904,6 @@ const handleCloseDSInfo = () => {
             </label></td></tr>
             </tbody></table>
             <p></p>
-             
-
 
             <FormControl sx={{ width: '40ch' }} size="small">
             <InputLabel id="type"  >Используется расчетным модулем</InputLabel>
@@ -978,8 +923,6 @@ const handleCloseDSInfo = () => {
         } 
       })()}
       </div>
-
-          
 
       <table border = "0" cellSpacing={0} cellPadding={0}><tbody>
       <tr>
@@ -1101,19 +1044,6 @@ const handleCloseDSInfo = () => {
         {valueId?
           `В запись таблицы "${table_names[props.table_name]}" внесены изменения.`:
           `В таблицу "${table_names[props.table_name]}" внесена новая несохраненная запись.`} 
-{/*             {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p></p>
-            {valueNameRus === valueNameRusInitial ? '' : 'Название (рус. яз): '+valueNameRus+'; ' }<p></p>
-            {valueNameEng === valueNameEngInitial ? '' : 'Название (англ. яз): '+valueNameEng+'; ' }<p></p>
-            {valueDescrRus === valueDescrRusInitial ? '' : 'Комментарий (рус. яз): '+valueDescrRus+'; ' }<p></p>
-            {valueDescrEng === valueDescrEngInitial ? '' : 'Комментарий (англ. яз): '+valueDescrEng+'; ' }<p></p>
-            {valueRespRate === valueRespRateInitial ? '' : 'Скорость дыхания, куб.м/сек: '+valueRespRate+'; ' }<p></p>
-            {valueRespYear === valueRespYearInitial ? '' : 'Годовой объем вдыхаемого воздуха, куб.м: '+valueRespYear+'; ' }<p></p>
-            {valueIndoor === valueIndoorInitial ? '' : 'Доля времени, проводимая индивидуумом в помещении: '+valueIndoor+'; ' }<p></p>
-            {valueExtCloud === valueExtCloudInitial ? '' : 'Коэффициент для дозы внешнего облучения от облака: '+valueExtCloud+'; ' }<p></p>
-            {valueExtGround === valueExtGroundInitial ? '' : 'Коэффициент для дозы внешнего облучения от поверхности: '+valueExtGround+'; ' }<p></p>
-            {valuePhysParamID === valuePhysParamIDInitial ? '' : 'Физический параметр (из общего списка): '+valuePhysParamID+'; ' }<p></p>
-            {valueUsed === valueUsedInitial ? '' : 'Используется расчетным модулем '+valueUsed+'; ' }<p></p>
-            {valueParameters === valueParametersInitial ? '' : 'Параметры функции'+valueParameters+'; ' }<p></p> */}
             <br/>Вы желаете сохранить указанную запись?
         </DialogContentText>
     </DialogContent>

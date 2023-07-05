@@ -24,17 +24,15 @@ import { ReactComponent as UndoLightIcon } from "./../icons/undo.svg";
 import { ReactComponent as DownloadLightIcon } from "./../icons/download.svg";
 import { ReactComponent as TrashLightIcon } from "./../icons/trash.svg";
 import { ReactComponent as RepeatLightIcon } from "./../icons/repeat.svg";
-import { table_names } from './sda_types';
+import { table_names } from './table_names';
 import { FormControl } from "@mui/material";
 import { InputLabel } from "@mui/material";
 import { Select } from "@mui/material";
 import { MenuItem } from "@mui/material";
-import CircularProgress from '@material-ui/core/CircularProgress';
+import CircularProgress from '@mui/material/CircularProgress';
 import Backdrop from '@mui/material/Backdrop';
-
-var alertText = "Сообщение";
-var alertSeverity = "info";
-var lastId = 0;
+import { useGridScrollPagination } from './../helpers/gridScrollHelper';
+import { DataTableDataSourceClassRef } from './dt_data_source_class_ref';
 
 const DataTableDataSource = (props) => {
   const apiRef = useGridApiRef(); // init DataGrid API for scrolling
@@ -56,9 +54,15 @@ const DataTableDataSource = (props) => {
   const [isLoading, setIsLoading] = React.useState(false);
   const [tableData, setTableData] = useState([]); 
   const [rowSelectionModel, setRowSelectionModel] = React.useState([]);
-  const [editStarted, setEditStarted] = useState([false]);
+  const [editStarted, setEditStarted] = useState(false);
 
-  const [isEmpty, setIsEmpty] = useState([false]);
+  const [isEmpty, setIsEmpty] = useState(false);
+
+  const [alertText, setAlertText] = useState("Сообщение");
+  const [alertSeverity, setAlertSeverity] = useState("info");
+  const [currentId, setCurrentId] = useState(null);  
+
+  const [addedId, setAddedId] = useState(null);  
 
   const valuesExtDS = [
     { label: 'Целевая БД', value: 'false' },
@@ -68,62 +72,84 @@ const DataTableDataSource = (props) => {
     setIsEmpty((''===valueTitle)&&(''===valueShortName)&&(''===valueFullName)&&(''===valueDescr)&&(''===valueExternalDS)   );
     }, [ valueTitle, valueShortName, valueFullName, valueDescr, valueExternalDS]); 
 
-  useEffect(() => {
-    setEditStarted((valueTitleInitial!==valueTitle)||(valueShortNameInitial!==valueShortName)||(valueFullNameInitial!==valueFullName)
-      ||(valueDescrInitial!==valueDescr)||(valueExternalDSInitial!==valueExternalDS));
-    }, [valueTitleInitial, valueTitle, valueShortNameInitial, valueShortName, valueFullNameInitial, valueFullName, 
-      valueDescrInitial, valueDescr, valueExternalDSInitial, valueExternalDS]); 
+    useEffect(() => {
+
+      if (!currentId) {
+        setEditStarted(false);
+        return;
+      }  
+
+      const editStarted1 = (valueTitleInitial !== valueTitle) || (valueShortNameInitial !== valueShortName) || 
+                          (valueFullNameInitial !== valueFullName) || (valueDescrInitial !== valueDescr) || 
+                          (valueExternalDSInitial !== valueExternalDS);
+      
+      setEditStarted(editStarted1);
+    }, [
+      valueTitleInitial, 
+      valueTitle, 
+      valueShortNameInitial, 
+      valueShortName, 
+      valueFullNameInitial, 
+      valueFullName, 
+      valueDescrInitial, 
+      valueDescr, 
+      valueExternalDSInitial, 
+      valueExternalDS,
+      currentId
+    ]);
+    
 
   useEffect(() => {
     if ((!isLoading) && (tableData) && (tableData.length)) {
-      if (!lastId) 
+      if (!currentId) 
       {
-        //console.log('isLoading, tableData[0].external_ds '+tableData[0].external_ds);
-        lastId = tableData[0].id;
-        setRowSelectionModel([tableData[0].id]);
+        console.log('setRowSelectionModel([tableData[0].id]);', tableData[0].id);  
+        setRowSelectionModel(tableData[0].id);
+        setCurrentId(tableData[0].id);
         setValueID(tableData[0].id);
-
-        setValueTitle(tableData[0].title);
-        setValueShortName(tableData[0].shortname);
-        setValueFullName(tableData[0].fullname || "" );
-        setValueExternalDS(tableData[0].external_ds);
-        setValueDescr(tableData[0].descr || "" );
-
-        setValueTitleInitial(tableData[0].title);
-        setValueShortNameInitial(tableData[0].shortname);
-        setValueFullNameInitial(tableData[0].fullname || "" );
-        setValueExternalDSInitial(tableData[0].external_ds);
-        setValueDescrInitial(tableData[0].descr || "" ); 
       }
     }
-    }, [ isLoading, tableData] );
+    }, [ isLoading, tableData, currentId] );
+
+  const [prevRowSelectionModel, setPrevRowSelectionModel] = useState([]);
+  const [clickedRowId, setClickedRowId] = useState(null);
+
+   useEffect(() => {
+    console.log('Блокировка - ', editStarted); 
+      
+    // Если редактирование начато, не меняем выбранную строку
+    if (editStarted) {
+      setRowSelectionModel(prevRowSelectionModel);
+    } else {
+      // Здесь сохраняем предыдущую выбранную строку
+      setPrevRowSelectionModel(rowSelectionModel);
+    }
+  }, [rowSelectionModel, prevRowSelectionModel, editStarted]);    
 
   const handleRowClick = (params) => {
+    if (params.row.id === valueId  ) {
+      // Если данные не изменились, просто выходим из функции
+      return;
+    }
+
+    console.log('handleRowClick ClickedRowId=', params.row.id);
     setOpenAlert(false);
     if (editStarted&&(!isEmpty))
     {
-      handleClickSave(params);
+      setClickedRowId(params.row.id);
+      setDialogType('save');//handleClickSave(params);
     } 
     else 
     {
       setValueID(params.row.id);
-      setValueTitle(params.row.title);
-      setValueShortName(params.row.shortname);
-      setValueFullName( params.row.fullname || "" );
-      setValueExternalDS(params.row.external_ds);
-      setValueDescr( params.row.descr  || "" );
-      setValueTitleInitial(params.row.title);
-      setValueShortNameInitial(params.row.shortname);
-      setValueFullNameInitial( params.row.fullname || "" );
-      setValueExternalDSInitial(params.row.external_ds);
-      setValueDescrInitial( params.row.descr  || "" );
     }
   }; 
 
   const handleClearClick = (params) => {
     if (editStarted&&(!isEmpty))
     {
-      handleClickSaveWhenNew(params);
+      //handleClickSaveWhenNew(params);
+      setDialogType('save');
     } 
     else 
     {
@@ -139,188 +165,156 @@ const DataTableDataSource = (props) => {
   useEffect(() => {
     fetch(`/${props.table_name}`)
       .then((data) => data.json())
-      .then((data) => setTableData(data))
-      .then((data) => {/* console.log('fetch ok'); console.log(data);  */lastId = 0;} ); 
+      .then((data) => setTableData(data)); 
   }, [props.table_name])
 
-  ///////////////////////////////////////////////////////////////////  SAVE  /////////////////////
-  const saveRec = async ( fromToolbar ) => {
-    if (formRef.current.reportValidity() )
-    {
-    const js = JSON.stringify({
+
+// Функция saveRec
+const saveRec = async () => {
+  if (formRef.current.reportValidity()) {
+    const data = {
       title: valueTitle,
       shortname: valueShortName,
       fullname: valueFullName,
       external_ds: valueExternalDS,
-      descr: valueDescr         
-   });
-    if (!valueId) {
-      addRec();
-      return;
-    }
+      descr: valueDescr
+    };
+    
     setIsLoading(true);
+    
+    const url = `/${props.table_name}/` + (valueId ? valueId : '');
+    const method = valueId ? 'PUT' : 'POST';
+    
     try {
-      const response = await fetch(`/${props.table_name}/`+valueId, {
-       method: 'PUT',
-       body: js,
-       headers: {
-         'Content-Type': 'Application/json',
-         Accept: '*/*',
-       },
-     });
-     if (!response.ok) {
-        alertSeverity = 'error';
-        alertText = await response.text();
-        setOpenAlert(true);          
+      const response = await fetch(url, {
+        method,
+        body: JSON.stringify(data),
+        headers: {
+          'Content-Type': 'Application/json',
+          Accept: '*/*',
+        },
+      });
+      
+      // Проверяем тип контента
+      const contentType = response.headers.get('content-type');
+      const isJson = contentType && contentType.includes('application/json');
+      
+      let responseData;
+      
+      // Обрабатываем ответ в зависимости от типа контента
+      if (isJson) {
+        responseData = await response.json();
+      } else {
+        responseData = await response.text();
       }
-      else
-      {
-        alertSeverity = "success";
-        alertText = await response.text();
-        setOpenAlert(true);  
+      
+      // Обрабатываем ответ в зависимости от статуса
+      if (!response.ok) {
+        throw new Error(responseData);
       }
-   } catch (err) {
-     alertText = err.message;
-     alertSeverity = 'error';
-     setOpenAlert(true);
-   } finally {
-     setIsLoading(false);
-     if (fromToolbar) 
-     {
-       setValueTitleInitial(valueTitle);       
-       setValueShortNameInitial(valueShortName);
-       setValueFullNameInitial(valueFullName);
-       setValueExternalDSInitial(valueExternalDS);
-       setValueDescrInitial(valueDescr);           
-     }
-    reloadData();     
-   }
+      
+      setAlertSeverity('success');
+      
+      // Если это POST запрос, получаем и устанавливаем новый ID
+      if (method === 'POST') {
+        console.log('after post', clickedRowId);
+        const newId = responseData.id;
+        
+        //setCurrentId(newId);
+        if (clickedRowId===null) {
+          setValueID(newId);
+          setAddedId(newId);
+        }
+        else {
+          setValueID(clickedRowId);
+        }
+          
+        setAlertText(`Добавлена запись с кодом ${newId}`);
+
+      } else {
+        console.log('after edit', clickedRowId);
+        //setCurrentId(valueId);
+
+        if (clickedRowId) {
+          setValueID(clickedRowId);
+        }
+        //setValueID(valueId);
+        setAlertText(responseData || 'Success');
+      }
+      
+    } catch (err) {
+      setAlertSeverity('error');
+      setAlertText(err.message);
+
+      if (clickedRowId!==null) {
+        setValueID(clickedRowId);
+      }
+    } finally {
+      setIsLoading(false);
+      setOpenAlert(true);
+
+      await reloadData();
+    }
   }
- };
-/////////////////////////////////////////////////////////////////// ADDREC ///////////////////// 
-  const addRec = async ()  => {
-    const js = JSON.stringify({
-      id: valueId,
-      title: valueTitle,
-      shortname: valueShortName,
-      fullname: valueFullName,
-      external_ds: valueExternalDS,
-      descr: valueDescr         
-   });
-    setIsLoading(true);
-    //console.log(js);
-    try {
-      const response = await fetch(`/${props.table_name}/`, {
-        method: 'POST',
-        body: js,
-        headers: {
-          'Content-Type': 'Application/json',
-          Accept: '*/*',
-        },
-      });
+};
 
-      if (!response.ok) {
-        alertSeverity = 'error';
-        alertText = await response.text();
-        setOpenAlert(true);          
-      }
-      else
-      {
-        alertSeverity = "success";
-        const { id } = await response.json();
-        alertText = `Добавлена запись с кодом ${id}`;
-        lastId = id;  
-        //console.log('добавлено lastid = ' + lastId);
-        setValueID(lastId);
-        setOpenAlert(true);  
-      }
-    } catch (err) {
-      alertText = err.message;
-      alertSeverity = 'error';
-      setOpenAlert(true);
-    } finally {
-      setIsLoading(false);
-      reloadData();
-      console.log('addRec setScrollToIndex lastId = ' + lastId);
-      scrollToIndexRef.current = lastId; //setScrollToIndex(lastId);  
-      //Refresh initial state
-      setValueTitle(valueTitle);       
-      setValueShortName(valueShortName);
-      setValueFullName(valueFullName);
-      setValueExternalDS(valueExternalDS);
-      setValueDescr(valueDescr);       
-      setValueTitleInitial(valueTitle);       
-      setValueShortNameInitial(valueShortName);
-      setValueFullNameInitial(valueFullName);
-      setValueExternalDSInitial(valueExternalDS);
-      setValueDescrInitial(valueDescr);          
-    }
-  };
 
-/////////////////////////////////////////////////////////////////// DELETE /////////////////////
-  const delRec =  async () => {
-    //console.log('delrec clicked');
-    const js = JSON.stringify({
-        id: valueId,
-        title: valueTitle,
+useEffect(() => {
+  console.log('SetValues tableData, valueId=', valueId );
+  const rowData = tableData.find(row => row.id === valueId);
+  if (rowData) {
+    setValues(rowData);
+  }
+}, [tableData, valueId]);
+
+// Функция delRec
+const delRec = async () => {
+  setIsLoading(true);
+
+  try {
+    const response = await fetch(`/${props.table_name}/${valueId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'Application/json',
+        Accept: '*/*',
+      },
     });
-    setIsLoading(true);
-    //console.log(js);
-    try {
-      const response = await fetch(`/${props.table_name}/`+valueId, {
-        method: 'DELETE',
-        body: js,
-        headers: {
-          'Content-Type': 'Application/json',
-          Accept: '*/*',
-        },
-      });
-      if (!response.ok) {
-        alertSeverity = 'error';
-        alertText = await response.text();
-        setOpenAlert(true);          
-      }
-      else
-      {
-        alertSeverity = "success";
-        alertText = await response.text();
-        setOpenAlert(true); 
-        reloadData();
-        setRowSelectionModel([tableData[0].id ]);  
-        setValueID(tableData[0].id);
 
-        setValueTitle(tableData[0].title);
-        setValueShortName(tableData[0].shortname);
-        setValueFullName( tableData[0].fullname || "" );
-        setValueExternalDS(tableData[0].external_ds);
-        setValueDescr( tableData[0].descr || "" );
-
-        setValueTitleInitial(tableData[0].title);
-        setValueShortNameInitial(tableData[0].shortname);
-        setValueFullNameInitial( tableData[0].fullname || "" );
-        setValueExternalDSInitial(tableData[0].external_ds);
-        setValueDescrInitial( tableData[0].descr || "" );  
-      }
-    } catch (err) {
-      alertText = err.message;
-      alertSeverity = 'error';
-      setOpenAlert(true);
-    } finally {
-      setIsLoading(false);
+    if (!response.ok) {
+      throw new Error(await response.text());
     }
-  };  
+
+    setAlertSeverity('success');
+    setAlertText(await response.text());
+
+  } catch (err) {
+    setAlertSeverity('error');
+    setAlertText(err.message);
+  } finally {
+    setIsLoading(false);
+    setOpenAlert(true);
+    
+    // Переключаемся на первую запись после удаления
+    if (tableData[0]) {
+      console.log('Переключаемся на первую запись после удаления setValues(tableData[0])', tableData[0].id);
+      setValueID(tableData[0].id);
+      setAddedId(tableData[0].id);
+    } 
+    reloadData();
+  }
+};
 
   /////////////////////////////////////////////////////////////////// RELOAD /////////////////////
   const reloadDataAlert =  async () => {
-    alertSeverity = "info";
-    alertText =  'Данные успешно обновлены';
+    setAlertSeverity('info');
+    setAlertText('Данные успешно обновлены');
     try 
     {
       await reloadData();
     } catch(e)
     {
-      alertSeverity = "error";
-      alertText =  'Ошибка при обновлении данных: '+e.message;      
+      setAlertSeverity('error');
+      setAlertText('Ошибка при обновлении данных: '+e.message);      
       setOpenAlert(true);
       return;
     }
@@ -328,87 +322,155 @@ const DataTableDataSource = (props) => {
   }
 
   const reloadData = async () => {
+    setIsLoading(true);  // запускаем индикатор загрузки
     try {
       const response = await fetch(`/${props.table_name}/`);
-       if (!response.ok) {
-        //console.log('response not ok');
-        alertText = `Ошибка при обновлении данных: ${response.status}`;
-        alertSeverity = "false";
-        const error = response.status + ' (' +response.statusText+')';  
+  
+      if (!response.ok) {
+        setAlertSeverity('error');
+        setAlertText(`Ошибка при обновлении данных: ${response.status}`);
+        const error = response.status + ' (' + response.statusText + ')';
         throw new Error(`${error}`);
-      }
-      else
-      {  
+      } else {
         const result = await response.json();
         setTableData(result);
       }
     } catch (err) {
-      //console.log('catch err');
       throw err;
     } finally {
-      setIsLoading(false);
+      setIsLoading(false);  // останавливаем индикатор загрузки
     }
   };
 
-  /////////////////////////////////////////
-  const [openDel, setOpenDel] = React.useState(false); 
-  const [openSave, setOpenSave] = React.useState(false); 
-  const [openSaveWhenNew, setOpenSaveWhenNew] = React.useState(false); 
+  ///////////////////////////////////////// DIALOG
+  const [dialogType, setDialogType] = useState('');
 
-  const handleClickDelete = () => {
-    setOpenDel(true);
+  const getDialogContentText = () => {
+    const allRequiredFieldsFilled = formRef.current?.checkValidity();
+    switch (dialogType) {
+      case 'delete':
+        return (
+          <>
+            В таблице "{table_names[props.table_name]}" предложена к удалению следующая запись: 
+            <br />
+            {valueTitle}; Код в БД = {valueId}. 
+            <br />
+            Вы желаете удалить указанную запись?
+          </>);
+      case 'save':
+        if (!valueId) { // если это новая запись
+          if (allRequiredFieldsFilled) {
+            return `Создана новая запись, сохранить?`;
+          } else {
+            return (
+              <>
+                Не заданы обязательные поля, запись не будет создана.
+                <br />
+                Перейти без сохранения изменений?
+              </>
+            );
+          }
+        } else { // если это редактируемая запись
+          if (allRequiredFieldsFilled) {
+            return `В запись внесены изменения, сохранить изменения?`;
+          } else {
+            return (
+              <>
+                Не заданы обязательные поля, изменения не будут сохранены
+                <br />
+                Перейти без сохранения изменений?
+              </>
+            );            
+          }
+        }
+      default:
+        return '';
+    }
   };
 
-  const handleCloseDelNo = () => {
-    setOpenDel(false);
+  const setValues = (row) => {
+    console.log('setValues row.id ', row.id);
+    //setValueID(row.id);
+    setValueTitle(row.title);
+    setValueShortName(row.shortname);
+    setValueFullName(row.fullname);
+    setValueExternalDS(row.external_ds);
+    setValueDescr(row.descr);
+  
+    setValueTitleInitial(row.title);
+    setValueShortNameInitial(row.shortname);
+    setValueFullNameInitial(row.fullname);
+    setValueExternalDSInitial(row.external_ds);
+    setValueDescrInitial(row.descr);
   };
 
-  const handleCloseDelYes = () => {
-    setOpenDel(false);
-    delRec();
+  const handleCloseNo = () => {
+    switch (dialogType) {
+      case 'save':
+        console.log('handleCloseNo clickedRowId', clickedRowId);
+        setEditStarted(false);
+        setValueID(clickedRowId);
+        setRowSelectionModel([clickedRowId]);
+        break;
+      default:
+        break;
+    }
+    setDialogType('');
+};
+
+  const handleCloseCancel = () => {
+    switch (dialogType) {
+      case 'save':
+        break;
+      default:
+        break;
+    }
+    setDialogType('');
+  };
+  
+  const handleCloseYes = () => {
+    switch (dialogType) {
+      case 'delete':
+        delRec();
+        break;
+      case 'save':
+        saveRec(false);
+        break;
+      default:
+        break;
+    }
+    
+    setDialogType('');
+
+    if (clickedRowId>0) {
+      setEditStarted(false);
+      setRowSelectionModel([clickedRowId]);
+      const rowData = tableData.find(row => row.id === clickedRowId);
+      setValues(rowData);
+      setEditStarted(false);
+    }
   };
 
-  const handleClickSave = () => {
-    setOpenSave(true);
-  };
-
-  const handleCloseSaveNo = () => {
-    setOpenSave(false);
-    handleCancelClick();
-  };
-
-  const handleCloseSaveYes = () => {
-    setOpenSave(false);
-    saveRec(false);
-    handleCancelClick();
-  };
-
-  const handleClickSaveWhenNew = () => {
-    setOpenSaveWhenNew(true);
-  };
-
-  const handleCloseSaveWhenNewNo = () => {
-    setOpenSaveWhenNew(false);
-
-    setValueID('');
-    setValueTitle('');
-    setValueShortName('');
-    setValueFullName('');
-    setValueExternalDS(true);
-    setValueDescr('');
-  };
-
-  const handleCloseSaveWhenNewYes = () => {
-    setOpenSaveWhenNew(false);
-    saveRec(true);
-    setValueID('');
-    setValueTitle('');
-    setValueShortName('');
-    setValueFullName('');
-    setValueExternalDS(true);
-    setValueDescr('');
-  };
-
+  function DialogButtons() {
+    const allRequiredFieldsFilled = formRef.current?.checkValidity();
+  
+    if (dialogType === 'save' && !allRequiredFieldsFilled) {
+      return (
+        <>
+          <Button variant="outlined" onClick={handleCloseNo} >Да</Button>
+          <Button variant="outlined" onClick={handleCloseCancel} >Отмена</Button>
+        </>
+      );
+    } else {
+      return (
+        <>
+          <Button variant="outlined" onClick={handleCloseYes} >Да</Button>
+          <Button variant="outlined" onClick={handleCloseNo} >Нет</Button>
+          {dialogType !== 'delete' && <Button variant="outlined" onClick={handleCloseCancel} >Отмена</Button>}
+        </>
+      );
+    }
+  }
 
   //////////////////////////////////////////////////////// ACTIONS ///////////////////////////////
   const columns = [
@@ -423,76 +485,52 @@ const DataTableDataSource = (props) => {
   const [openAlert, setOpenAlert] = React.useState(false, '');
   const handleCancelClick = () => 
   {
-    const selectedIDs = new Set(rowSelectionModel);
+    console.log('handleCancelClick');
+    const selectedIDs = new Set(rowSelectionModel.map(Number));
     const selectedRowData = tableData.filter((row) => selectedIDs.has(row.id));
     if (selectedRowData.length)
     {
+      console.log('handleCancelClick ', selectedRowData[0].id);
       setValueID(selectedRowData[0].id);
-
       setValueTitle(selectedRowData[0].title);
       setValueShortName(selectedRowData[0].shortname);
-      setValueFullName( selectedRowData[0].fullname || "" );
+      setValueFullName( selectedRowData[0].fullname);
       setValueExternalDS(selectedRowData[0].external_ds);
-      setValueDescr( selectedRowData[0].descr  || "" );
+      setValueDescr( selectedRowData[0].descr  );
 
       setValueTitleInitial(selectedRowData[0].title);
       setValueShortNameInitial(selectedRowData[0].shortname);
-      setValueFullNameInitial( selectedRowData[0].fullname || "" );
+      setValueFullNameInitial( selectedRowData[0].fullname );
       setValueExternalDSInitial(selectedRowData[0].external_ds);
-      setValueDescrInitial( selectedRowData[0].descr  || "" );
+      setValueDescrInitial( selectedRowData[0].descr  );
     }
   }
 
   // Scrolling and positionning
-  const [paginationModel, setPaginationModel] = React.useState({
-    pageSize: 25,
-    page: 0,
-  });
+  const { paginationModel, setPaginationModel, scrollToIndexRef } = useGridScrollPagination(apiRef, tableData, setRowSelectionModel);
 
   useEffect(() => {
-    console.log(paginationModel.page);
-  }, [paginationModel]);
-  
-  const handleScrollToRow = React.useCallback((v_id) => {
-    const sortedRowIds = apiRef.current.getSortedRowIds(); //получаем список отсортированных строк грида
-    const index = sortedRowIds.indexOf(parseInt(v_id));    //ищем в нем номер нужной записи
-    if (index !== -1) {
-      const pageSize = paginationModel.pageSize; // определяем текущую страницу и индекс строки в этой странице
-      const currentPage = paginationModel.page;
-      const rowPageIndex = Math.floor(index / pageSize);
-      if (currentPage !== rowPageIndex) { // проверяем, нужно ли изменять страницу
-        apiRef.current.setPage(rowPageIndex);
-      }
-      setRowSelectionModel([v_id]); //это устанавливает фокус на выбранной строке (подсветка)
-      setTimeout(function() {       //делаем таймаут в 0.1 секунды, иначе скроллинг тупит
-        apiRef.current.scrollToIndexes({ rowIndex: index, colIndex: 0 });
-      }, 100);
+    //console.log('scroll addedId=', addedId , ' clickedRowId =', clickedRowId);
+
+    if (addedId !== null){  
+        scrollToIndexRef.current = addedId;
+        setAddedId(null);
+        setEditStarted(false);
+        setRowSelectionModel([addedId]);
     }
-  }, [apiRef, paginationModel, setRowSelectionModel]);
-  
-  const scrollToIndexRef = React.useRef(null); //тут хранится значение (айди) добавленной записи
+  }, [addedId, scrollToIndexRef]);
 
-  useEffect(() => {
-    //событие, которое вызовет скроллинг грида после изменения данных в tableData
-    if (!scrollToIndexRef.current) return; //если значение не указано, то ничего не делаем
-    if (scrollToIndexRef.current===-1) return;
-    // console.log('scrollToIndex index '+ scrollToIndexRef.current);
-    handleScrollToRow(scrollToIndexRef.current);
-    scrollToIndexRef.current = null; //обнуляем значение
-  }, [tableData, handleScrollToRow]);
-
-
-  function CustomToolbar1() {
-    const handleExport = (options/* : GridCsvExportOptions */) =>
+  function GridToolbar() {
+    const handleExport = (options) =>
        apiRef.current.exportDataAsCsv(options);
 
     return (
       <GridToolbarContainer>
         <IconButton onClick={()=>handleClearClick()}  color="primary" size="small" title="Создать запись">
           <SvgIcon fontSize="small" component={PlusLightIcon} inheritViewBox /></IconButton>
-        <IconButton onClick={()=>saveRec(true)}  color="primary" size="small" title="Сохранить запись в БД">
+        <IconButton onClick={()=>{setClickedRowId(null); saveRec(true)}}  color="primary" size="small" title="Сохранить запись в БД">
           <SvgIcon fontSize="small" component={SaveLightIcon} inheritViewBox/></IconButton>
-        <IconButton onClick={()=>handleClickDelete()}  color="primary" size="small" title="Удалить запись">
+        <IconButton onClick={()=>setDialogType('delete')}  color="primary" size="small" title="Удалить запись">
           <SvgIcon fontSize="small" component={TrashLightIcon} inheritViewBox /></IconButton>
         <IconButton onClick={()=>handleCancelClick()} disabled={!editStarted} color="primary" size="small" title="Отменить редактирование">
           <SvgIcon fontSize="small" component={UndoLightIcon} inheritViewBox /></IconButton>
@@ -516,7 +554,15 @@ const DataTableDataSource = (props) => {
       <td style={{ height: 640, width: 600, verticalAlign: 'top' }}>
       <div style={{ height: 486, width: 585 }}>
       <DataGrid
-        components={{ Toolbar: CustomToolbar1 }}
+        sx={{
+          "& .MuiDataGrid-row.Mui-selected": {
+            backgroundColor: dialogType !== '' ? "transparent" : "rgba(0, 0, 0, 0.11)",
+          },
+          "& .MuiDataGrid-cell:focus-within": {
+            outline: "none !important",
+          },
+        }}
+        components={{ Toolbar: GridToolbar }}
         apiRef={apiRef}
         hideFooterSelectedRowCount={true}
         localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
@@ -566,7 +612,7 @@ const DataTableDataSource = (props) => {
       </Box>
       </td>
       <td style={{ height: 550, width: 900, verticalAlign: 'top' }}>
-      <TextField  id="ch_id"  disabled={true} label="Код" sx={{ width: '12ch' }} variant="outlined" value={valueId || ''} size="small" onChange={e => setValueID(e.target.value)}/>
+      <TextField  id="ch_id"  disabled={true} label="Код" sx={{ width: '12ch' }} variant="outlined" value={valueId || ''} size="small" /* onChange={e => setValueID(e.target.value)} */ />
       &nbsp;&nbsp;&nbsp;&nbsp;
       <TextField  id="ch_name" sx={{ width: '40ch' }} label="Обозначение" required size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
       <p></p>
@@ -596,9 +642,13 @@ const DataTableDataSource = (props) => {
       </FormControl>  
       <p></p> 
 
-      <TextField  id="ch_descr" sx={{ width: '100ch' }} size="small" label="Комментарий" multiline rows={7} variant="outlined"   value={valueDescr || ''} onChange={e => setValueDescr(e.target.value)}/>
+      <TextField  id="ch_descr" sx={{ width: '100ch' }} size="small" label="Комментарий" multiline rows={4} variant="outlined"   value={valueDescr || ''} onChange={e => setValueDescr(e.target.value)}/>
       <p></p> 
-
+      <div style={{ height: 300, width: 800 }}>
+        <td>Связанные с источником классификаторы<br/>
+        <DataTableDataSourceClassRef rec_id={valueId||0} />
+        </td>
+      </div>
     </td>
   </tr>
   </tbody>
@@ -613,56 +663,17 @@ const DataTableDataSource = (props) => {
     <CircularProgress color="inherit" />
   </Backdrop> } 
 
-  <Dialog open={openDel} onClose={handleCloseDelNo} fullWidth={true}>
-      <DialogTitle>
-          Внимание
-      </DialogTitle>
-      <DialogContent>
-          <DialogContentText>
-          В таблице "{table_names[props.table_name]}" предложена к удалению следующая запись:<p></p><b>{valueTitle}</b>; Код в БД = <b>{valueId}</b><p></p>
-          Вы желаете удалить указанную запись?
-          </DialogContentText>
-      </DialogContent>
-      <DialogActions>
-          <Button variant="outlined" onClick={handleCloseDelNo} autoFocus>Нет</Button>
-          <Button variant="outlined" onClick={handleCloseDelYes} >Да</Button>
-      </DialogActions>
-  </Dialog>
- 
-  <Dialog open={openSave} onClose={handleCloseSaveNo} fullWidth={true}>
+  <Dialog open={dialogType !== ''} onClose={handleCloseCancel} fullWidth={true}>
     <DialogTitle>
         Внимание
     </DialogTitle>
     <DialogContent>
         <DialogContentText>
-        {valueId?
-          `В запись таблицы "${table_names[props.table_name]}" внесены изменения.`:
-          `В таблицу "${table_names[props.table_name]}" внесена новая несохраненная запись.`} 
-            <p></p>Вы желаете сохранить указанную запись?
+          {getDialogContentText()}
         </DialogContentText>
     </DialogContent>
     <DialogActions>
-        <Button variant="outlined" onClick={handleCloseSaveNo} autoFocus>Нет</Button>
-        <Button variant="outlined" onClick={handleCloseSaveYes} >Да</Button>
-    </DialogActions>
-  </Dialog>
-
-  <Dialog open={openSaveWhenNew} onClose={handleCloseSaveWhenNewNo} fullWidth={true}>
-    <DialogTitle>
-        Внимание
-    </DialogTitle>
-    <DialogContent>
-        <DialogContentText>
-        {valueId?
-          `В запись таблицы "${table_names[props.table_name]}" внесены изменения.`:
-          `В таблицу "${table_names[props.table_name]}" внесена новая несохраненная запись.`}          
-            {/* {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p></p> */}
-            <p></p>Вы желаете сохранить указанную запись?
-        </DialogContentText>
-    </DialogContent>
-    <DialogActions>
-        <Button variant="outlined" onClick={handleCloseSaveWhenNewNo} autoFocus>Нет</Button>
-        <Button variant="outlined" onClick={handleCloseSaveWhenNewYes} >Да</Button>
+      <DialogButtons />
     </DialogActions>
   </Dialog>
   </form>
@@ -670,4 +681,4 @@ const DataTableDataSource = (props) => {
   )
 }
 
-export { DataTableDataSource, lastId }
+export { DataTableDataSource }

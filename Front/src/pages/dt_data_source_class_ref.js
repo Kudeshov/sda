@@ -7,10 +7,10 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import { FormControl } from "@mui/material";
+/* import { FormControl } from "@mui/material";
 import { InputLabel } from "@mui/material";
 import { Select } from "@mui/material";
-import { MenuItem } from "@mui/material";
+import { MenuItem } from "@mui/material"; */
 import { Box, IconButton } from '@mui/material';
 import Alert from '@mui/material/Alert';
 import Collapse from '@mui/material/Collapse';
@@ -21,6 +21,8 @@ import { ReactComponent as PlusLightIcon } from "./../icons/plus.svg";
 import { ReactComponent as InfoLightIcon } from "./../icons/info.svg";
 import { ReactComponent as TrashLightIcon } from "./../icons/trash.svg";
 import { table_names } from './table_names';
+import Autocomplete from '@mui/material/Autocomplete';
+import Tooltip from '@mui/material/Tooltip';
 
 var alertText = "Сообщение";
 var alertSeverity = "info";
@@ -28,7 +30,7 @@ var lastAddedId = 0;
 var lastRecID = 0;
 var lastID = 0;
 
-function DataTableDataSourceClass(props)  {
+function DataTableDataSourceClassRef(props)  {
   const [open, setOpen] = React.useState(false);
 
   const handleClickEdit = () => {
@@ -36,10 +38,11 @@ function DataTableDataSourceClass(props)  {
   };
 
   const handleClickAdd = () => {
+    console.log('handleClickAdd');
     setValueID(null);
     setValueDataSourceId(null);
-    setValueRecID(props.rec_id);
-    setValueTableName(props.table_name);
+    setValueRecID(null);
+    setValueTableName(null);
     setValueTitleSrc("");
     setValueNameSrc("");
     setOpen(true);
@@ -73,43 +76,48 @@ function DataTableDataSourceClass(props)  {
       setValueExternalDS(filteredData[0].external_ds);    
     }    
   };
+/* 
+  const [tableDataSrc, setTableDataSrc] = useState([]); */
 
   const [tableDataSrcClass, setTableDataSrcClass] = useState([]);
-  const [tableDataSrc, setTableDataSrc] = useState([]);
+  const columns_src = [
+    { field: 'id', headerName: 'Код', width: 60 },
+    { field: 'data_source_id', headerName: 'Код источника данных', width: 100 },
+    { field: 'table_name_verbose', headerName: 'Имя классификатора', width: 230 },
+/*    { field: 'table_name', headerName: 'Имя таблицы БД', width: 180 },
+     { field: 'rec_id', headerName: `Идентификатор записи в таблице ${props.table_name}`, width: 100 },
+    { field: 'title', headerName: 'Источник', width: 200 }, */
+    { field: 'title_src', headerName: 'Обозначение', width: 150, hideable: false },
+    { field: 'name_src', headerName: 'Название', width: 150 },
+    { field: 'ref_title', headerName: 'Запись классификатора', width: 170 },
+  /*   { field: 'shortname', headerName: 'Краткое название', width: 250 },
+    { field: 'fullname', headerName: 'Полное название', width: 250 },
+    { field: 'descr', headerName: 'Комментарий', width: 250 },
+    { field: 'external_ds', headerName: 'Внешний источник данных', width: 250 }, */
+  ]
+
   useEffect(() => {
-    lastRecID = props.rec_id||0;
-    if (props.rec_id==='') {
-      lastRecID = -1;
-    }
     setOpenAlert(false);
     setlastSrcClassID(0);
     setIsLoading(true);
-    fetch(`/data_source_class?table_name=${props.table_name}&rec_id=${lastRecID}`)
-      .then((data) => data.json())
-      .then((data) => setTableDataSrcClass(data));
+    fetch(`/data_source_class_ref/${props.rec_id||0}`)  
+    .then((data) => data.json())
+    .then((data) => {
+      const updatedData = data.map(item => ({
+        ...item,
+        table_name_verbose: table_names[item.table_name] || 'Неизвестно'
+      }));
+      setTableDataSrcClass(updatedData);
+    });    
     setlastSrcClassID(0);
     setIsLoading(false);
-    }, [props.table_name, props.rec_id])
+  }, [props.rec_id])
 
-  useEffect(() => {
+/*   useEffect(() => {
     fetch(`/data_source`)
       .then((data) => data.json())
       .then((data) => setTableDataSrc(data));
-  }, [])
-
-const columns_src = [
-  { field: 'id', headerName: 'Код', width: 60 },
-  { field: 'data_source_id', headerName: 'Код источника данных', width: 100 },
-  { field: 'table_name', headerName: 'Имя таблицы БД', width: 180 },
-  { field: 'rec_id', headerName: `Идентификатор записи в таблице ${props.table_name}`, width: 100 },
-  { field: 'title', headerName: 'Источник', width: 200 },
-  { field: 'title_src', headerName: 'Обозначение', width: 180, hideable: false },
-  { field: 'name_src', headerName: 'Название', width: 250 },
-  { field: 'shortname', headerName: 'Краткое название', width: 250 },
-  { field: 'fullname', headerName: 'Полное название', width: 250 },
-  { field: 'descr', headerName: 'Комментарий', width: 250 },
-  { field: 'external_ds', headerName: 'Внешний источник данных', width: 250 },
-]
+  }, []) */
 
 const [valueId, setValueID] = React.useState();
 const [valueDataSourceId, setValueDataSourceId] = React.useState();
@@ -128,6 +136,21 @@ const [isLoading, setIsLoading] = React.useState(false);
 const [openAlert, setOpenAlert] = React.useState(false, '');
 const [selectionModel, setSelectionModel] = React.useState([]);
 const [lastSrcClassID, setlastSrcClassID] = React.useState([0]);
+
+const [tableRef, setTableRef] = useState([]);
+//const [selectedRefItem, setSelectedRefItem] = useState(null);
+
+useEffect(() => {
+
+  console.log(valueTableName);
+
+  if(valueTableName) {
+    fetch(`/ref_table?table_name=${valueTableName}`)
+    .then(response => response.json())
+    .then(data => setTableRef(data))
+    .catch(error => console.log(error));
+  }
+}, [valueTableName]);
 
 useEffect(() => {
   if ((!isLoading) && (tableDataSrcClass) && (tableDataSrcClass.length))
@@ -157,16 +180,20 @@ const reloadDataSrcClass = async () => {
   setIsLoading(true);
   try {
     lastRecID = props.rec_id;
-    const response = await fetch(`/data_source_class?table_name=${props.table_name}&rec_id=${props.rec_id??0}`);
-     if (!response.ok) {
+    const response = await fetch(`/data_source_class_ref/${props.rec_id||0}`);
+    if (!response.ok) {
       alertText =  'Ошибка при обновлении данных';
       alertSeverity = "false";
       setOpenAlert(true);  
       throw new Error(`Error! status: ${response.status}`);
     }  
-    const result = await response.json();
+    const data = await response.json();
+    const updatedData = data.map(item => ({
+      ...item,
+      table_name_verbose: table_names[item.table_name] || 'Неизвестно'
+    }));
     setlastSrcClassID(0);
-    setTableDataSrcClass(result);
+    setTableDataSrcClass(updatedData);
   } catch (err) {
   } finally {
     setIsLoading(false);
@@ -282,12 +309,15 @@ const saveRec = async () => {
 const addRec = async ()  => {
   const js = JSON.stringify({
     id: valueId,
-    data_source_id: valueDataSourceId,
+    data_source_id: props.rec_id,
     table_name: valueTableName,
-    rec_id: lastRecID,
+    rec_id: valueRecId,
     title_src: valueTitleSrc,
     name_src: valueNameSrc         
   });
+  console.log(valueRecId);
+  console.log(js);
+  //return;
   setIsLoading(true);
   try {
     const response = await fetch('/data_source_class/', {
@@ -329,6 +359,8 @@ const handleRowClick = (params) => {
   setValueDataSourceId(params.row.data_source_id);
   setValueTableName(params.row.table_name);
   setValueRecID(params.row.rec_id);
+
+  console.log('click', params.row.table_name, params.row.rec_id);
   setValueTitle(params.row.title);
   setValueTitleSrc(params.row.title_src);
   setValueNameSrc(params.row.name_src);
@@ -348,41 +380,44 @@ const formRef = React.useRef();
       <form ref={formRef}>  
       <table cellSpacing={0} cellPadding={0} style={{ height: 270, width: 886, verticalAlign: 'top' }} border="0"><tbody><tr>
         <td style={{ height: 270, width: 800, verticalAlign: 'top' }}>
-      <DataGrid
-        localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
-        rowHeight={25}
-        columns={columns_src}
-        rows={tableDataSrcClass}
-        disableMultipleSelection={true}
-        onRowClick={handleRowClick} {...tableDataSrcClass} 
-        hideFooterSelectedRowCount={true}
-        selectionModel={selectionModel}
-        onSelectionModelChange={(newSelectionModel) => {
-          setSelectionModel(newSelectionModel);
-        }}
-        loading={isLoading}        
-        initialState={{
-          columns: {
-            columnVisibilityModel: {
-              data_source_id: false,
-              table_name: false,
-              rec_id: false,
-              fullname: false,
-              shortname: false,
-              external_ds: false,
-              descr: false,
-            },
-          },
-        }}             
-      /></td>
+          <DataGrid
+            localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
+            rowHeight={25}
+            columns={columns_src}
+            rows={tableDataSrcClass}
+            disableMultipleSelection={true}
+            onRowClick={handleRowClick} {...tableDataSrcClass} 
+            hideFooterSelectedRowCount={true}
+            selectionModel={selectionModel}
+            onSelectionModelChange={(newSelectionModel) => {
+              setSelectionModel(newSelectionModel);
+            }}
+            loading={isLoading}        
+            pageSize={25} // number of rows per page
+            style={{ height: '300px', width: '786px' }} // set height of the DataGrid
+            initialState={{
+              columns: {
+                columnVisibilityModel: {
+                  data_source_id: false,
+                  table_name: false,
+                  rec_id: false,
+                  fullname: false,
+                  shortname: false,
+                  external_ds: false,
+                  descr: false,
+                },
+              },
+            }}             
+          />
+      </td>
       <td style={{ height: 270, width: 100, verticalAlign: 'top' }}>
-      &nbsp;<IconButton onClick={()=>handleClickAdd()} disabled={(lastRecID===-1)||(props.rec_id==='-1000000')} color="primary" size="small" title="Добавить связь с источником данных">
+      &nbsp;<IconButton onClick={()=>handleClickAdd()} disabled={!props.rec_id} color="primary" size="small" title="Добавить связь с классификатором">
         <SvgIcon fontSize="small" component={PlusLightIcon} inheritViewBox /></IconButton><br/>
-      &nbsp;<IconButton onClick={()=>handleClickEdit()} disabled={noRecords} color="primary" size="small" title="Редактировать связь с источником данных">
+      &nbsp;<IconButton onClick={()=>handleClickEdit()} disabled={noRecords} color="primary" size="small" title="Редактировать связь с классификатором">
         <SvgIcon fontSize="small" component={EditLightIcon} inheritViewBox /></IconButton><br/>
-      &nbsp;<IconButton onClick={()=>handleClickDelete()} disabled={noRecords} color="primary" size="small" title="Удалить связь с источником данных">
+      &nbsp;<IconButton onClick={()=>handleClickDelete()} disabled={noRecords} color="primary" size="small" title="Удалить связь с классификатором">
         <SvgIcon fontSize="small" component={TrashLightIcon} inheritViewBox /></IconButton><br/>
-      &nbsp;<IconButton onClick={()=>handleOpenDSInfo()} disabled={noRecords} color="primary" size="small" title="Информация по источнику данных">
+      &nbsp;<IconButton onClick={()=>handleOpenDSInfo()} disabled={noRecords} color="primary" size="small" title="Информация по классификатору">
         <SvgIcon fontSize="small" component={InfoLightIcon} inheritViewBox /></IconButton>
       </td></tr>
       <tr>
@@ -418,57 +453,78 @@ const formRef = React.useRef();
       </tbody></table>
 
       <Dialog open={open} onClose={handleCloseNo} fullWidth={false} maxWidth="800px">
-      <DialogTitle>Связь с источником данных</DialogTitle>  
-        <DialogContent style={{height:'480px', width: '700px'}}>
-          <DialogContentText>
-            Задать связь с источником данных
-          </DialogContentText>
-        <p></p>        
-        <FormControl fullWidth>
-            <InputLabel id="demo-controlled-open-select-label" required >Источник данных</InputLabel>
-            <Select
-              labelId="demo-controlled-open-select-label"
-              id="demo-controlled-open-select"
-              value={valueDataSourceId  || "" }
-              label="Источник данных"
-              defaultValue={true}
-              fullWidth
-              onChange={e => setValueDataSourceId(e.target.value)}
-            >
-            {tableDataSrc?.map(option => {
-                return (
-                  <MenuItem key={option.id} value={option.id}>
-                    {option.title ?? option.id}
-                  </MenuItem>
-                );
-            })}
-            </Select>
-          </FormControl>  
-          <p></p> 
-          <TextField
-            variant="outlined"
-            margin="dense"
-            id="title"
-            label="Обозначение" required
-            value={valueTitleSrc || ''}
-            fullWidth
-            onChange={e => setValueTitleSrc(e.target.value)}
-          />
-          <p></p>
-          <TextField
-            variant="outlined"
-            id="name_src"
-            label="Название"
-            value={valueNameSrc || ''}
-            fullWidth
-            onChange={e => setValueNameSrc(e.target.value)}
-          />        
-          </DialogContent>
-        <DialogActions>
-          <Button variant="outlined" onClick={handleCloseNo}>Отмена</Button>
-          <Button variant="outlined" disabled={!valueTitleSrc||!valueDataSourceId} onClick={handleCloseYes}>Сохранить</Button>
-        </DialogActions>
-      </Dialog>
+  <DialogTitle>Связь с классификатором</DialogTitle>
+  <DialogContent style={{height:'480px', width: '700px'}}>
+    <DialogContentText>
+      Задать связь с классификатором
+    </DialogContentText>
+    <p></p>
+    <p></p>
+    <Autocomplete
+      size="small"
+      disabled={valueId}  
+      fullWidth
+      id="table-name-autocomplete"
+      options={Object.entries(table_names)}
+      getOptionLabel={(option) => option[1]} // используем второй элемент пары [ключ, значение]
+      onChange={(event, newValue) => {
+        setValueTableName(newValue ? newValue[0] : ""); // в качестве значения используем ключ
+      }}
+      value={Object.entries(table_names).find(([key, value]) => key === valueTableName) || null}
+      renderInput={(params) => <TextField {...params} label="Классификатор" size="small" required />}
+    />
+    <p></p>
+    <p></p>
+      <Autocomplete
+        size="small"
+        disabled={valueId}  
+        id="table-ref-autocomplete"
+        options={tableRef}
+        getOptionLabel={(option) => option.name_rus}
+        value={tableRef.find((item) => item.id === valueRecId) || null} // Ищем выбранный объект по коду
+        //style={{ width: '100%' }} 
+        fullWidth
+        onChange={(event, newValue) => {
+          setValueRecID(newValue ? newValue.id : null); // Обновляем значение при изменении
+        }}
+        renderInput={(params) => <TextField {...params} label="Запись классификатора" variant="outlined" size="small" required/>}
+        renderOption={(props, option) => (
+          <li {...props}>
+            <Tooltip title={option.name_eng}>
+              <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
+                <span>{option.name_rus}</span>
+              </div>
+            </Tooltip>
+          </li>
+        )}
+      />
+    <p></p>
+    <TextField
+      variant="outlined"
+      margin="dense"
+      id="title"
+      label="Обозначение" required
+      value={valueTitleSrc || ''}
+      fullWidth
+      size="small"
+      onChange={e => setValueTitleSrc(e.target.value)}
+    />
+    <p></p>
+    <TextField
+      variant="outlined"
+      id="name_src"
+      label="Название"
+      value={valueNameSrc || ''}
+      fullWidth
+      size="small"
+      onChange={e => setValueNameSrc(e.target.value)}
+    />
+  </DialogContent>
+  <DialogActions>
+    <Button variant="outlined" onClick={handleCloseNo}>Отмена</Button>
+    <Button variant="outlined" disabled={!valueTitleSrc||!valueTableName} onClick={handleCloseYes}>Сохранить</Button>
+  </DialogActions>
+</Dialog>
 
       <Dialog open={openConfirmDelete} onClose={handleCloseConfirmDelete} fullWidth={true}>
       <DialogTitle>
@@ -508,4 +564,4 @@ const formRef = React.useRef();
     </div>
     )
 }
- export  { DataTableDataSourceClass }
+ export  { DataTableDataSourceClassRef }

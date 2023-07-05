@@ -25,7 +25,8 @@ import { ReactComponent as UndoLightIcon } from "./../icons/undo.svg";
 import { ReactComponent as DownloadLightIcon } from "./../icons/download.svg";
 import { ReactComponent as TrashLightIcon } from "./../icons/trash.svg";
 import { ReactComponent as RepeatLightIcon } from "./../icons/repeat.svg";
-import { table_names } from './sda_types';
+import { table_names } from './table_names';
+import { useGridScrollPagination } from './../helpers/gridScrollHelper';
 
 var alertText = "Сообщение";
 var alertSeverity = "info";
@@ -554,43 +555,7 @@ const DataTableAgeGroup = (props) => {
     }
   }
   // Scrolling and positionning
- const [paginationModel, setPaginationModel] = React.useState({
-  pageSize: 25,
-  page: 0,
-});
-
-useEffect(() => {
-  console.log(paginationModel.page);
-}, [paginationModel]);
-
-
-const handleScrollToRow = React.useCallback((v_id) => {
-  const sortedRowIds = apiRef.current.getSortedRowIds(); //получаем список отсортированных строк грида
-  const index = sortedRowIds.indexOf(parseInt(v_id));    //ищем в нем номер нужной записи
-  if (index !== -1) {
-    const pageSize = paginationModel.pageSize; // определяем текущую страницу и индекс строки в этой странице
-    const currentPage = paginationModel.page;
-    const rowPageIndex = Math.floor(index / pageSize);
-    if (currentPage !== rowPageIndex) { // проверяем, нужно ли изменять страницу
-      apiRef.current.setPage(rowPageIndex);
-    }
-    setRowSelectionModel([v_id]); //это устанавливает фокус на выбранной строке (подсветка)
-    setTimeout(function() {       //делаем таймаут в 0.1 секунды, иначе скроллинг тупит
-      apiRef.current.scrollToIndexes({ rowIndex: index, colIndex: 0 });
-    }, 100);
-  }
-}, [apiRef, paginationModel, setRowSelectionModel]);
-
-const scrollToIndexRef = React.useRef(null); //тут хранится значение (айди) добавленной записи
-
-useEffect(() => {
-  //событие, которое вызовет скроллинг грида после изменения данных в tableData
-  if (!scrollToIndexRef.current) return; //если значение не указано, то ничего не делаем
-  if (scrollToIndexRef.current===-1) return;
-  // console.log('scrollToIndex index '+ scrollToIndexRef.current);
-  handleScrollToRow(scrollToIndexRef.current);
-  scrollToIndexRef.current = null; //обнуляем значение
-}, [tableData, handleScrollToRow]);
+  const { paginationModel, setPaginationModel, scrollToIndexRef } = useGridScrollPagination(apiRef, tableData, setRowSelectionModel);
 
   function CustomToolbar1() {
    //const apiRef = useGridApiRef(); // init DataGrid API for scrolling
@@ -680,7 +645,7 @@ useEffect(() => {
       &nbsp;&nbsp;&nbsp;&nbsp;
       <TextField  id="ch_name" sx={{ width: '40ch' }} label="Обозначение" required size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
       <p></p>
-      <TextField  id="ch_name_rus" sx={{ width: '49ch' }}  size="small" label="Название (рус.яз)"  variant="outlined"  value={valueNameRus || ''} onChange={e => setValueNameRus(e.target.value)} />
+      <TextField  id="ch_name_rus" sx={{ width: '49ch' }}  size="small" label="Название (рус.яз)" required variant="outlined"  value={valueNameRus || ''} onChange={e => setValueNameRus(e.target.value)} />
       &nbsp;&nbsp;&nbsp;&nbsp;
       <TextField  id="ch_name_eng" sx={{ width: '49ch' }} size="small" label="Название (англ.яз)"  variant="outlined" value={valueNameEng || ''} onChange={e => setValueNameEng(e.target.value)}/>
       <p></p>
@@ -692,10 +657,6 @@ useEffect(() => {
       <p></p> 
       <TextField  id="ch_indoor" sx={{ width: '100ch' }} label="Доля времени, проводимая индивидуумом в помещении" required size="small" variant="outlined" value={valueIndoor || ''} onChange={e => setValueIndoor(e.target.value)}/>
       <p></p> 
-      {/* <TextField  id="ch_ext_cloud" sx={{ width: '100ch' }} label="Коэффициент для дозы внешнего облучения от облака"  size="small" multiline maxRows={4} variant="outlined" value={valueExtCloud || ''} onChange={e => setValueExtCloud(e.target.value)}/>
-      <p></p> 
-      <TextField  id="ch_ext_ground" sx={{ width: '100ch' }} label="Коэффициент для дозы внешнего облучения от поверхности"  size="small" multiline maxRows={4} variant="outlined" value={valueExtGround || ''} onChange={e => setValueExtGround(e.target.value)}/>
-      <p></p>  */}
       <TextField  id="ch_descr_rus" sx={{ width: '100ch' }} label="Комментарий (рус.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrRus || ''} onChange={e => setValueDescrRus(e.target.value)}/>
       <p></p> 
       <TextField  id="ch_descr_rus" sx={{ width: '100ch' }} label="Комментарий (англ.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrEng || ''} onChange={e => setValueDescrEng(e.target.value)}/>
@@ -735,17 +696,7 @@ useEffect(() => {
         {valueId?
           `В запись таблицы "${table_names[props.table_name]}" внесены изменения.`:
           `В таблицу "${table_names[props.table_name]}" внесена новая несохраненная запись.`} 
-   {/*          {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p></p>
-            {valueNameRus === valueNameRusInitial ? '' : 'Название (рус. яз): '+valueNameRus+'; ' }<p></p>
-            {valueNameEng === valueNameEngInitial ? '' : 'Название (англ. яз): '+valueNameEng+'; ' }<p></p>
-            {valueDescrRus === valueDescrRusInitial ? '' : 'Комментарий (рус. яз): '+valueDescrRus+'; ' }<p></p>
-            {valueDescrEng === valueDescrEngInitial ? '' : 'Комментарий (англ. яз): '+valueDescrEng+'; ' }<p></p>
-            {valueRespRate === valueRespRateInitial ? '' : 'Скорость дыхания, куб.м/сек: '+valueRespRate+'; ' }<p></p>
-            {valueRespYear === valueRespYearInitial ? '' : 'Годовой объем вдыхаемого воздуха, куб.м: '+valueRespYear+'; ' }<p></p>
-            {valueIndoor === valueIndoorInitial ? '' : 'Доля времени, проводимая индивидуумом в помещении: '+valueIndoor+'; ' }<p></p>
-            {valueExtCloud === valueExtCloudInitial ? '' : 'Коэффициент для дозы внешнего облучения от облака: '+valueExtCloud+'; ' }<p></p>
-            {valueExtGround === valueExtGroundInitial ? '' : 'Коэффициент для дозы внешнего облучения от поверхности: '+valueExtGround+'; ' }<p></p> */}
-            <br/>Вы желаете сохранить указанную запись?
+              <br/>Вы желаете сохранить указанную запись?
         </DialogContentText>
     </DialogContent>
     <DialogActions>
@@ -763,17 +714,7 @@ useEffect(() => {
         {valueId?
           `В запись таблицы "${table_names[props.table_name]}" внесены изменения.`:
           `В таблицу "${table_names[props.table_name]}" внесена новая несохраненная запись.`} 
-   {/*          {valueTitle === valueTitleInitial ? '' : 'Обозначение: '+valueTitle+'; ' }<p></p>
-            {valueNameRus === valueNameRusInitial ? '' : 'Название (рус. яз): '+valueNameRus+'; ' }<p></p>
-            {valueNameEng === valueNameEngInitial ? '' : 'Название (англ. яз): '+valueNameEng+'; ' }<p></p>
-            {valueDescrRus === valueDescrRusInitial ? '' : 'Комментарий (рус. яз): '+valueDescrRus+'; ' }<p></p>
-            {valueDescrEng === valueDescrEngInitial ? '' : 'Комментарий (англ. яз): '+valueDescrEng+'; ' }<p></p>
-            {valueRespRate === valueRespRateInitial ? '' : 'Скорость дыхания, куб.м/сек: '+valueRespRate+'; ' }<p></p>
-            {valueRespYear === valueRespYearInitial ? '' : 'Годовой объем вдыхаемого воздуха, куб.м: '+valueRespYear+'; ' }<p></p>
-            {valueIndoor === valueIndoorInitial ? '' : 'Доля времени, проводимая индивидуумом в помещении: '+valueIndoor+'; ' }<p></p>
-            {valueExtCloud === valueExtCloudInitial ? '' : 'Коэффициент для дозы внешнего облучения от облака: '+valueExtCloud+'; ' }<p></p>
-            {valueExtGround === valueExtGroundInitial ? '' : 'Коэффициент для дозы внешнего облучения от поверхности: '+valueExtGround+'; ' }<p></p> */}
-            <br/>Вы желаете сохранить указанную запись?
+             <br/>Вы желаете сохранить указанную запись?
         </DialogContentText>
     </DialogContent>
     <DialogActions>

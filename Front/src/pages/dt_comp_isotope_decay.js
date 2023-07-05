@@ -21,7 +21,7 @@ import { ReactComponent as PlusLightIcon } from "./../icons/plus.svg";
 //import { ReactComponent as InfoLightIcon } from "./../icons/info.svg";
 import { ReactComponent as NetworkLightIcon } from "./../icons/chart-network.svg";
 import { ReactComponent as TrashLightIcon } from "./../icons/trash.svg";
-import { table_names } from './sda_types';
+import { table_names } from './table_names';
 import Autocomplete from '@mui/material/Autocomplete';
 import Paper from "@material-ui/core/Paper";
 import { makeStyles } from "@material-ui/core/styles";
