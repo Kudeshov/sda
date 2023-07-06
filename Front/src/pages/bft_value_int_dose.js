@@ -1134,6 +1134,25 @@ const reloadDataHandler = async () => {
   }
 }
 
+const reloadDataHandlerNoApplyFilter = async () => {
+  if (formRef.current.reportValidity() )
+  {  
+    console.log('reloadDataHandler');
+    alertSeverity = "info";
+    alertText = 'Данные успешно загружены';
+    try {
+      await applyFilter();
+    } 
+    catch (e) {
+      alertSeverity = "error";
+      alertText = 'Ошибка при загрузке данных данных: ' + e.message;
+      setOpenAlert(true);
+      return;
+    }
+    setIsFilterExpanded(false);
+  }
+}
+
   //////////////////////////////////////////////////////// ACTIONS ///////////////////////////////
   function CustomToolbar1() {
 
@@ -1244,7 +1263,7 @@ const reloadDataHandler = async () => {
         <IconButton onClick={()=>handleClickDelete()} disabled={(!valueID || !tableValueIntDose || tableValueIntDose.length === 0 )} color="primary" size="small" title="Удалить запись">
           <SvgIcon fontSize="small" component={TrashLightIcon} inheritViewBox /></IconButton>
 
-        <IconButton onClick={()=>reloadDataHandler()} color="primary" size="small" title="Обновить данные">
+        <IconButton onClick={()=>reloadData()} color="primary" size="small" title="Обновить данные">
           <SvgIcon fontSize="small" component={RepeatLightIcon} inheritViewBox /></IconButton>
         {/* тут кастомное сохранение в CSV - добавлен заголовок */}
         <IconButton
