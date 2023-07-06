@@ -1134,25 +1134,6 @@ const reloadDataHandler = async () => {
   }
 }
 
-const reloadDataHandlerNoApplyFilter = async () => {
-  if (formRef.current.reportValidity() )
-  {  
-    console.log('reloadDataHandler');
-    alertSeverity = "info";
-    alertText = 'Данные успешно загружены';
-    try {
-      await applyFilter();
-    } 
-    catch (e) {
-      alertSeverity = "error";
-      alertText = 'Ошибка при загрузке данных данных: ' + e.message;
-      setOpenAlert(true);
-      return;
-    }
-    setIsFilterExpanded(false);
-  }
-}
-
   //////////////////////////////////////////////////////// ACTIONS ///////////////////////////////
   function CustomToolbar1() {
 
