@@ -556,7 +556,7 @@ const delRec = async () => {
       <DataGrid
         sx={{
           "& .MuiDataGrid-row.Mui-selected": {
-            backgroundColor: dialogType !== '' ? "transparent" : "rgba(0, 0, 0, 0.11)",
+            backgroundColor: dialogType !== ''||((valueId || '')==='') ? "transparent" : "rgba(0, 0, 0, 0.11)",
           },
           "& .MuiDataGrid-cell:focus-within": {
             outline: "none !important",
