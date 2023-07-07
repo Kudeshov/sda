@@ -640,16 +640,17 @@ const BigTableValueIntDose = (props) => {
       setOpenEdit(false);
     }
   };
+
   const handleCloseEditNo = () => {
-    if (valueIDInitial)
-    {
-      handleRowClick({ row: tableValueIntDose.find(row => row.id === valueIDInitial) });
-      //const originalRow = tableValueIntDose.find(row => row.id === valueIDInitial);
-      //handleRowClick({ row: originalRow });
+    if (valueIDInitial) {
+      const foundRow = tableValueIntDose.find(row => row.id === valueIDInitial);
+      if (foundRow) {
+        handleRowClick({ row: foundRow });
+      }
     }
     setOpenEdit(false);
   };
-
+  
   const handleClickDelete = () => {
     setOpenDel(true);
   };
