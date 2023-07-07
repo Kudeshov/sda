@@ -246,6 +246,23 @@ const BigTableValueIntDose = (props) => {
     selExpScenarioValues: [],
   });
 
+  const handleClearFilter = () => {
+    setCurrFlt({
+      selDataSourceValues: [],
+      selDoseRatioValue: null,
+      selOrganValues: [],
+      selIrradiationValue: null,
+      selSubstFormValues: [],
+      selIsotopeValues: [],
+      selPeopleClassValues: [],
+      selIntegralPeriodValues: [],
+      selLetLevelValues: [],
+      selAgeGroupValues: [],
+      selAerosolSolValues: [],
+      selAerosolAMADValues: [],
+      selExpScenarioValues: [],
+    });
+  }
   // Обновление текущего значения фильтра
   const updateCurrentFilter = (newFilterValue) => {
     setCurrFlt((prevFilter) => ({
@@ -811,7 +828,7 @@ const delRec =  async () => {
     fetchData();
   },[]);
 
-  useEffect(() => {
+/*   useEffect(() => {
     const setFirst =  async () => { 
       if ((tableDataSource.length>0)) {
         updateCurrentFilter({ selDataSourceValues: [tableDataSource[0]] });
@@ -819,7 +836,7 @@ const delRec =  async () => {
     }   
     setFirst();  
   }, [tableDataSource])    
-
+ */
   useEffect(() => {
     fetch(`/data_source_class_min`)
       .then((data) => data.json())
@@ -1267,6 +1284,11 @@ const reloadDataHandler = async () => {
   }
 
   function GetFilterCaption() {
+    if (JSON.stringify(currFlt) !== JSON.stringify(applFlt)) {
+      return (
+        <p>Нажмите кнопку "Получить данные", чтобы отобразить таблицу.</p>
+      );
+    }
     return (
       <>
         {applFlt.selDoseRatioValue && (
@@ -2290,11 +2312,17 @@ const reloadDataHandler = async () => {
           </tr>
           </tbody>
         </table>
-        <p></p>  
 
-        <IconButton onClick={()=>reloadDataHandler()} color="primary" size="small" 
+        
+        <p></p>
+          <Button variant="outlined" onClick={reloadDataHandler}>Получить данные</Button>&nbsp;&nbsp;&nbsp;&nbsp; 
+          <Button variant="outlined" onClick={handleClearFilter}>Очистить фильтр</Button>  
+
+{/*        <Button variant="outlined" onClick={reloadDataHandler()}>Получить данные</Button>
+         <Button variant="outlined" onClick={handleCloseDelYes} >Очистить фильтр</Button> */}
+{/*         <IconButton onClick={()=>reloadDataHandler()} color="primary" size="small" 
           title="Получить данные">
-          <SvgIcon fontSize="small" component={ArrowAltDownIcon} inheritViewBox /></IconButton>
+          <SvgIcon fontSize="small" component={ArrowAltDownIcon} inheritViewBox /></IconButton> */}
 
         </AccordionDetails>
       </Accordion>
@@ -2304,6 +2332,9 @@ const reloadDataHandler = async () => {
           <Typography variant="body2">Таблица значений<br/> {GetFilterCaption()}</Typography>
         </AccordionSummary>
         <AccordionDetails>
+
+        {(JSON.stringify(currFlt) === JSON.stringify(applFlt)) && (
+         
           <table border = "0" style={{  height: 410,  width: 1500 }} >
           <tbody>
             <tr>
@@ -2363,7 +2394,7 @@ const reloadDataHandler = async () => {
           </tr>
         </tbody>
         </table>
-
+        )}
         </AccordionDetails>
       </Accordion>
 
