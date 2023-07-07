@@ -61,14 +61,14 @@ const DataTableChelement = (props) => {
     setIsEmpty((''===valueTitle)&&(''===valueNameRus)&&(''===valueNameEng)&&(''===valueAtomicNum)&&(''===valueMassNumber));
     }, [ valueTitle, valueNameRus, valueNameEng, valueAtomicNum, valueMassNumber]); 
       
-  useEffect(() => {
+   useEffect(() => {
     setEditStarted((valueTitleInitial!==valueTitle)||(valueNameRusInitial!==valueNameRus)||(valueNameEngInitial!==valueNameEng)
       ||(valueAtomicNumInitial!==valueAtomicNum));
 
-      setReportValid(formRef.current.reportValidity());
+      //setReportValid(formRef.current.reportValidity());
 
     }, [valueTitleInitial, valueTitle, valueNameRusInitial, valueNameRus, valueNameEngInitial, valueNameEng, 
-       valueAtomicNumInitial, valueAtomicNum]); 
+       valueAtomicNumInitial, valueAtomicNum]);  
 
   useEffect(() => {
     if ((!isLoading) && (tableData) && (tableData.length)) {
