@@ -617,7 +617,7 @@ function CustomToolbar1() {
         &nbsp;&nbsp;&nbsp;&nbsp;
       </td>
       <td>
-        <TextField  id="ch_n_index" sx={{ width: '20ch' }}  size="small" label="Индекс"  variant="outlined"  value={valueNIndex || ''} onChange={e => setValueNIndex(e.target.value)} />
+        <TextField inputProps={{maxLength: 1}} id="ch_n_index" sx={{ width: '20ch' }}  size="small" label="Индекс"  variant="outlined"  value={valueNIndex || ''} onChange={e => setValueNIndex(e.target.value)} />
       </td>
       </tr></tbody></table>
 
