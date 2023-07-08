@@ -39,6 +39,8 @@ const i_q = require('./isotope_queries');
 const vid_q = require('./value_int_dose_queries');
 const ac_q = require('./action_criterion_queries')
 const ved_q = require('./value_ext_dose_queries')
+const vrg_q = require('./value_ratio_git_queries')
+
 
 const { Pool } = require('pg');
 //var msg = 'a';
@@ -275,6 +277,11 @@ app.put('/value_ext_dose/:id', (req, res) => {ved_q.updateValueExtDose(req, res,
 app.post('/value_ext_dose', (req, res) => {ved_q.createValueExtDose(req, res, 'value_ext_dose')});    //create
 app.delete('/value_ext_dose/:id', (req, res) => {ved_q.deleteValueExtDose(req, res, 'value_ext_dose')});  //delete 
 
+
+app.get('/value_ratio_git', (req, res) => {vrg_q.getValueRatioGit(req, res, 'value_ratio_git')}); 
+app.put('/value_ratio_git/:id', (req, res) => {vrg_q.updateValueRatioGit(req, res, 'value_ratio_git')}); //update
+app.post('/value_ratio_git', (req, res) => {vrg_q.createValueRatioGit(req, res, 'value_ratio_git')});    //create
+app.delete('/value_ratio_git/:id', (req, res) => {vrg_q.deleteValueRatioGit(req, res, 'value_ratio_git')});  //delete 
 
 //app.get('/value_relation', (req, res) => {vid_q.getValueRelation(req, res, 'value_int_dose')}); 
 //связи в таблице value_int_dose
