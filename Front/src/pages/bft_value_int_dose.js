@@ -30,7 +30,7 @@ import { ReactComponent as EditLightIcon } from "./../icons/edit.svg";
 import { ReactComponent as TrashLightIcon } from "./../icons/trash.svg";
 import { ReactComponent as RepeatLightIcon } from "./../icons/repeat.svg";
 import { ReactComponent as CheckDoubleIcon } from "./../icons/check-double.svg";
-import { ReactComponent as ArrowAltDownIcon } from "./../icons/arrow-alt-down.svg";
+// import { ReactComponent as ArrowAltDownIcon } from "./../icons/arrow-alt-down.svg";
 import CircularProgress from '@material-ui/core/CircularProgress';
 import Backdrop from '@mui/material/Backdrop';
 
@@ -124,11 +124,16 @@ const BigTableValueIntDose = (props) => {
     setValueIrradiationID(params.row.irradiation_id);
     setValueUpdateTime( formatDate(params.row.updatetime) ); 
     
-    setOpenAlert(false); 
+    //setOpenAlert(false); 
   }, [setValueID, setValueIDInitial, setValueDoseRatioID, setValuePeopleClassID, setValueIsotopeID, 
     setValueIntegralPeriodID, setValueOrganID, setValueLetLevelID, setValueAgeGroupID, 
     setValueDataSourceID, setValueDrValue, setValueChemCompGrID, setValueSubstFormID, setValueAerosolSolID, 
     setValueAerosolAMADID, setValueExpScenarioID, setValueIrradiationID, setValueUpdateTime]); 
+
+  const handleRowClickAndCloseAlert = (rowParams) => {
+    handleRowClick(rowParams);
+    setOpenAlert(false);
+  };    
 
   // Scrolling and positionning
   const { paginationModel, setPaginationModel, scrollToIndexRef } = useGridScrollPagination(apiRef, tableValueIntDose, setRowSelectionModel);
@@ -246,6 +251,23 @@ const BigTableValueIntDose = (props) => {
     selExpScenarioValues: [],
   });
 
+  const handleClearFilter = () => {
+    setCurrFlt({
+      selDataSourceValues: [],
+      selDoseRatioValue: null,
+      selOrganValues: [],
+      selIrradiationValue: null,
+      selSubstFormValues: [],
+      selIsotopeValues: [],
+      selPeopleClassValues: [],
+      selIntegralPeriodValues: [],
+      selLetLevelValues: [],
+      selAgeGroupValues: [],
+      selAerosolSolValues: [],
+      selAerosolAMADValues: [],
+      selExpScenarioValues: [],
+    });
+  }
   // Обновление текущего значения фильтра
   const updateCurrentFilter = (newFilterValue) => {
     setCurrFlt((prevFilter) => ({
@@ -351,7 +373,7 @@ const BigTableValueIntDose = (props) => {
   const [agegroupVisibleD, setAgegroupVisibleD] = useState(false);
   const [expScenarioVisibleD, setExpScenarioVisibleD] = useState(false);
  
-  useEffect(() => { 
+/*   useEffect(() => { 
     let isOrganVisible = false;
     let isLetLevelVisible = false;
     // Проверяем, есть ли у currFlt.selDoseRatioValue свойство id
@@ -383,9 +405,53 @@ const BigTableValueIntDose = (props) => {
     setSubstFormVisible(isSubstFormVisible);
     if (!isSubstFormVisible)
       updateCurrentFilter({ selSubstFormValues: [] }); 
-  }, [ tableIntDoseAttr, currFlt.selIrradiationValue ]);
+  }, [ tableIntDoseAttr, currFlt.selIrradiationValue ]); */
 
   useEffect(() => { 
+    let isOrganVisible = false;
+    let isLetLevelVisible = false;
+    
+    if ((currFlt.selDoseRatioValue && currFlt.selDoseRatioValue.hasOwnProperty('id')) ||
+        (currFlt.selDataSourceValues && currFlt.selDataSourceValues.length > 0)) {
+      tableIntDoseAttr.forEach(item => {
+        const matchDoseRatio = currFlt.selDoseRatioValue && item.dose_ratio_id === currFlt.selDoseRatioValue.id;
+        const matchDataSource = currFlt.selDataSourceValues.some(dataSource => dataSource.id === item.data_source_id);
+        if(matchDoseRatio && matchDataSource){
+          if(item.organ_id >= 0) isOrganVisible = true;
+          if(item.let_level_id >= 0) isLetLevelVisible = true;
+        }
+      });
+    }
+  
+    setOrganVisible(isOrganVisible);
+    setLetLevelVisible(isLetLevelVisible);
+    if (!isOrganVisible)
+      updateCurrentFilter({ selOrganValues: [] });     
+    if (!isLetLevelVisible)
+      updateCurrentFilter({ selLetLevelValues: [] });
+  }, [ tableIntDoseAttr, currFlt.selDoseRatioValue, currFlt.selDataSourceValues ]);
+  
+  
+  useEffect(() => { 
+    let isSubstFormVisible = false;
+    
+    if ((currFlt.selIrradiationValue && currFlt.selIrradiationValue.hasOwnProperty('id')) ||
+        (currFlt.selDataSourceValues && currFlt.selDataSourceValues.length > 0)) {
+      tableIntDoseAttr.forEach(item => {
+        const matchIrradiation = currFlt.selIrradiationValue && item.irradiation_id === currFlt.selIrradiationValue.id;
+        const matchDataSource = currFlt.selDataSourceValues.some(dataSource => dataSource.id === item.data_source_id);
+        if(matchIrradiation && matchDataSource){
+          if(item.subst_form_id >= 0) isSubstFormVisible = true;
+        }
+      });
+    }
+    
+    setSubstFormVisible(isSubstFormVisible);
+    if (!isSubstFormVisible)
+      updateCurrentFilter({ selSubstFormValues: [] }); 
+  }, [tableIntDoseAttr, currFlt.selIrradiationValue, currFlt.selDataSourceValues]);
+  
+/*   useEffect(() => { 
     let isAerosolSolVisible = false;
     let isAerosolAmadVisible = false;
     if (currFlt.selSubstFormValues && currFlt.selSubstFormValues.length > 0) {
@@ -403,9 +469,34 @@ const BigTableValueIntDose = (props) => {
     setAerosolAmadVisible(isAerosolAmadVisible);
     if (!isAerosolAmadVisible)
       updateCurrentFilter({ selAerosolAMADValues: [] });     
-  }, [ tableIntDoseAttr, currFlt.selSubstFormValues ]);  
-    
+  }, [ tableIntDoseAttr, currFlt.selSubstFormValues ]);   */
+
   useEffect(() => { 
+    let isAerosolSolVisible = false;
+    let isAerosolAmadVisible = false;
+    
+    if ((currFlt.selSubstFormValues && currFlt.selSubstFormValues.length > 0) ||
+        (currFlt.selDataSourceValues && currFlt.selDataSourceValues.length > 0)) {
+      tableIntDoseAttr.forEach(item => {
+        const matchSubstForm = currFlt.selSubstFormValues.some(substForm => substForm.id === item.subst_form_id);
+        const matchDataSource = currFlt.selDataSourceValues.some(dataSource => dataSource.id === item.data_source_id);
+        if(matchSubstForm && matchDataSource){
+          if(item.aerosol_sol_id >= 0) isAerosolSolVisible = true;
+          if(item.aerosol_amad_id >= 0) isAerosolAmadVisible = true;
+        }
+      });
+    }
+  
+    setAerosolSolVisible(isAerosolSolVisible);
+    if (!isAerosolSolVisible)
+      updateCurrentFilter({ selAerosolSolValues: [] }); 
+  
+    setAerosolAmadVisible(isAerosolAmadVisible);
+    if (!isAerosolAmadVisible)
+      updateCurrentFilter({ selAerosolAMADValues: [] });     
+  }, [tableIntDoseAttr, currFlt.selSubstFormValues, currFlt.selDataSourceValues]);
+    
+/*   useEffect(() => { 
     let isAgegroupVisible = false;
     let isExpScenarioVisible = false;
     if (currFlt.selPeopleClassValues && currFlt.selPeopleClassValues.length > 0) {
@@ -423,7 +514,33 @@ const BigTableValueIntDose = (props) => {
     setExpScenarioVisible(isExpScenarioVisible);
     if (!isExpScenarioVisible)
       updateCurrentFilter({ selExpScenarioValues: [] }); 
-  }, [ tableIntDoseAttr, currFlt.selPeopleClassValues ]);
+  }, [ tableIntDoseAttr, currFlt.selPeopleClassValues ]); */
+
+  useEffect(() => { 
+    let isAgegroupVisible = false;
+    let isExpScenarioVisible = false;
+    
+    if ((currFlt.selPeopleClassValues && currFlt.selPeopleClassValues.length > 0) ||
+        (currFlt.selDataSourceValues && currFlt.selDataSourceValues.length > 0)) {
+      tableIntDoseAttr.forEach(item => {
+        const matchPeopleClass = currFlt.selPeopleClassValues.some(peopleClass => peopleClass.id === item.people_class_id);
+        const matchDataSource = currFlt.selDataSourceValues.some(dataSource => dataSource.id === item.data_source_id);
+        if(matchPeopleClass && matchDataSource){
+          if(item.agegroup_id >= 0) isAgegroupVisible = true;
+          if(item.exp_scenario_id >= 0) isExpScenarioVisible = true;
+        }
+      });
+    }
+    
+    setAgegroupVisible(isAgegroupVisible);
+    if (!isAgegroupVisible)
+      updateCurrentFilter({ selAgeGroupValues: [] });     
+    
+    setExpScenarioVisible(isExpScenarioVisible);
+    if (!isExpScenarioVisible)
+      updateCurrentFilter({ selExpScenarioValues: [] }); 
+  }, [tableIntDoseAttr, currFlt.selPeopleClassValues, currFlt.selDataSourceValues]);
+  
 
 
   const handleChangeDataSource = (event, value) => {
@@ -623,12 +740,13 @@ const BigTableValueIntDose = (props) => {
       setOpenEdit(false);
     }
   };
+
   const handleCloseEditNo = () => {
-    if (valueIDInitial)
-    {
-      handleRowClick({ row: tableValueIntDose.find(row => row.id === valueIDInitial) });
-      //const originalRow = tableValueIntDose.find(row => row.id === valueIDInitial);
-      //handleRowClick({ row: originalRow });
+    if (valueIDInitial) {
+      const foundRow = tableValueIntDose.find(row => row.id === valueIDInitial);
+      if (foundRow) {
+        handleRowClick({ row: foundRow });
+      }
     }
     setOpenEdit(false);
   };
@@ -787,6 +905,7 @@ const delRec =  async () => {
     {
       alertSeverity = "success";
       alertText = await response.text();
+      console.log(alertText);
       setOpenAlert(true); 
       reloadData();
       if (tableValueIntDose && tableValueIntDose.length > 0) 
@@ -811,7 +930,7 @@ const delRec =  async () => {
     fetchData();
   },[]);
 
-  useEffect(() => {
+/*   useEffect(() => {
     const setFirst =  async () => { 
       if ((tableDataSource.length>0)) {
         updateCurrentFilter({ selDataSourceValues: [tableDataSource[0]] });
@@ -819,7 +938,7 @@ const delRec =  async () => {
     }   
     setFirst();  
   }, [tableDataSource])    
-
+ */
   useEffect(() => {
     fetch(`/data_source_class_min`)
       .then((data) => data.json())
@@ -966,7 +1085,7 @@ const delRec =  async () => {
     return columnsToShow;
   }, []);
   
-  const [vidColumnVisibilityModel, setVidColumnVisibilityModel] = useState(false);
+  const [vidColumnVisibilityModel, setVidColumnVisibilityModel] = useState();
 
     //загрузка данных в основную таблицу
     const reloadData = React.useCallback(async () =>  {
@@ -1244,7 +1363,7 @@ const reloadDataHandler = async () => {
         <IconButton onClick={()=>handleClickDelete()} disabled={(!valueID || !tableValueIntDose || tableValueIntDose.length === 0 )} color="primary" size="small" title="Удалить запись">
           <SvgIcon fontSize="small" component={TrashLightIcon} inheritViewBox /></IconButton>
 
-        <IconButton onClick={()=>reloadDataHandler()} color="primary" size="small" title="Обновить данные">
+        <IconButton onClick={()=>reloadData()} color="primary" size="small" title="Обновить данные">
           <SvgIcon fontSize="small" component={RepeatLightIcon} inheritViewBox /></IconButton>
         {/* тут кастомное сохранение в CSV - добавлен заголовок */}
         <IconButton
@@ -1267,6 +1386,11 @@ const reloadDataHandler = async () => {
   }
 
   function GetFilterCaption() {
+    if (JSON.stringify(currFlt) !== JSON.stringify(applFlt)) {
+      return (
+        <p>Нажмите кнопку "Получить данные", чтобы отобразить таблицу.</p>
+      );
+    }
     return (
       <>
         {applFlt.selDoseRatioValue && (
@@ -2290,11 +2414,17 @@ const reloadDataHandler = async () => {
           </tr>
           </tbody>
         </table>
-        <p></p>  
 
-        <IconButton onClick={()=>reloadDataHandler()} color="primary" size="small" 
+        
+        <p></p>
+          <Button variant="outlined" onClick={reloadDataHandler}>Получить данные</Button>&nbsp;&nbsp;&nbsp;&nbsp; 
+          <Button variant="outlined" onClick={handleClearFilter}>Очистить фильтр</Button>  
+
+{/*        <Button variant="outlined" onClick={reloadDataHandler()}>Получить данные</Button>
+         <Button variant="outlined" onClick={handleCloseDelYes} >Очистить фильтр</Button> */}
+{/*         <IconButton onClick={()=>reloadDataHandler()} color="primary" size="small" 
           title="Получить данные">
-          <SvgIcon fontSize="small" component={ArrowAltDownIcon} inheritViewBox /></IconButton>
+          <SvgIcon fontSize="small" component={ArrowAltDownIcon} inheritViewBox /></IconButton> */}
 
         </AccordionDetails>
       </Accordion>
@@ -2304,6 +2434,9 @@ const reloadDataHandler = async () => {
           <Typography variant="body2">Таблица значений<br/> {GetFilterCaption()}</Typography>
         </AccordionSummary>
         <AccordionDetails>
+
+        {(JSON.stringify(currFlt) === JSON.stringify(applFlt)) && (
+         
           <table border = "0" style={{  height: 410,  width: 1500 }} >
           <tbody>
             <tr>
@@ -2330,7 +2463,7 @@ const reloadDataHandler = async () => {
                   }}
                   rowSelectionModel={rowSelectionModel}
                   columnVisibilityModel={vidColumnVisibilityModel}
-                  onRowClick={handleRowClick}
+                  onRowClick={handleRowClickAndCloseAlert}
                   {...tableValueIntDose}
                 />              
                 </div>    
@@ -2363,7 +2496,7 @@ const reloadDataHandler = async () => {
           </tr>
         </tbody>
         </table>
-
+        )}
         </AccordionDetails>
       </Accordion>
 
@@ -2637,7 +2770,7 @@ const reloadDataHandler = async () => {
           <td style={{ width: '290px'}}> 
           <Autocomplete
             size="small"
-            disabled={(valueID !== null)||(applFlt.selDataSourceValues.length===1)}
+            disabled={(valueID !== null)  ||(applFlt.selDataSourceValues.length===1)  }
             value={tableDataSourceFilteredEdit.find((option) => option.id === valueDataSourceID) }
             onChange={(event, newValueAC) => { console.log('data_source_edit '+newValueAC?newValueAC.id:-1); setValueDataSourceID(newValueAC?newValueAC.id:-1) } }
             id="autocomplete-data_source_edit"

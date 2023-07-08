@@ -145,6 +145,8 @@ const DataTableDataSource = (props) => {
     }
   }; 
 
+  const inputRef = React.useRef();
+
   const handleClearClick = (params) => {
     if (editStarted&&(!isEmpty))
     {
@@ -159,6 +161,8 @@ const DataTableDataSource = (props) => {
       setValueFullName('');
       setValueExternalDS(true);
       setValueDescr('');
+     // Даем фокус TextField после обновления состояния
+      inputRef.current.focus();
     }
   }; 
 
@@ -257,7 +261,6 @@ const saveRec = async () => {
     }
   }
 };
-
 
 useEffect(() => {
   console.log('SetValues tableData, valueId=', valueId );
@@ -556,7 +559,7 @@ const delRec = async () => {
       <DataGrid
         sx={{
           "& .MuiDataGrid-row.Mui-selected": {
-            backgroundColor: dialogType !== '' ? "transparent" : "rgba(0, 0, 0, 0.11)",
+            backgroundColor: dialogType !== ''||((valueId || '')==='') ? "transparent" : "rgba(0, 0, 0, 0.11)",
           },
           "& .MuiDataGrid-cell:focus-within": {
             outline: "none !important",
@@ -614,7 +617,17 @@ const delRec = async () => {
       <td style={{ height: 550, width: 900, verticalAlign: 'top' }}>
       <TextField  id="ch_id"  disabled={true} label="Код" sx={{ width: '12ch' }} variant="outlined" value={valueId || ''} size="small" /* onChange={e => setValueID(e.target.value)} */ />
       &nbsp;&nbsp;&nbsp;&nbsp;
-      <TextField  id="ch_name" sx={{ width: '40ch' }} label="Обозначение" required size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
+      <TextField  
+        id="ch_name" 
+        sx={{ width: '40ch' }} 
+        label="Обозначение" 
+        required 
+        size="small" 
+        variant="outlined" 
+        value={valueTitle || ''} 
+        onChange={e => setValueTitle(e.target.value)}
+        inputRef={inputRef} 
+      />
       <p></p>
       <TextField  id="ch_shortname" sx={{ width: '100ch' }} label="Краткое название" required size="small" variant="outlined" value={valueShortName || ''} onChange={e => setValueShortName(e.target.value)}/>
       <p></p>
