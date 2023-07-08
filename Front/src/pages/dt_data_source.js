@@ -13,7 +13,7 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import { Box, IconButton } from '@mui/material';
+import { Grid, Box, IconButton } from '@mui/material';
 import Alert from '@mui/material/Alert';
 import Collapse from '@mui/material/Collapse';
 import CloseIcon from '@mui/icons-material/Close';
@@ -100,10 +100,9 @@ const DataTableDataSource = (props) => {
     
 
   useEffect(() => {
-    if ((!isLoading) && (tableData) && (tableData.length)) {
-      if (!currentId) 
+    if ((!isLoading) && (tableData) && (tableData.length) && tableData[0].id) {
+      if (!currentId)  
       {
-        console.log('setRowSelectionModel([tableData[0].id]);', tableData[0].id);  
         setRowSelectionModel(tableData[0].id);
         setCurrentId(tableData[0].id);
         setValueID(tableData[0].id);
@@ -115,8 +114,6 @@ const DataTableDataSource = (props) => {
   const [clickedRowId, setClickedRowId] = useState(null);
 
    useEffect(() => {
-    console.log('Блокировка - ', editStarted); 
-      
     // Если редактирование начато, не меняем выбранную строку
     if (editStarted) {
       setRowSelectionModel(prevRowSelectionModel);
@@ -131,13 +128,11 @@ const DataTableDataSource = (props) => {
       // Если данные не изменились, просто выходим из функции
       return;
     }
-
-    console.log('handleRowClick ClickedRowId=', params.row.id);
     setOpenAlert(false);
     if (editStarted&&(!isEmpty))
     {
       setClickedRowId(params.row.id);
-      setDialogType('save');//handleClickSave(params);
+      setDialogType('save');
     } 
     else 
     {
@@ -150,7 +145,6 @@ const DataTableDataSource = (props) => {
   const handleClearClick = (params) => {
     if (editStarted&&(!isEmpty))
     {
-      //handleClickSaveWhenNew(params);
       setDialogType('save');
     } 
     else 
@@ -161,7 +155,7 @@ const DataTableDataSource = (props) => {
       setValueFullName('');
       setValueExternalDS(true);
       setValueDescr('');
-     // Даем фокус TextField после обновления состояния
+      // Даем фокус TextField после обновления состояния
       inputRef.current.focus();
     }
   }; 
@@ -171,7 +165,6 @@ const DataTableDataSource = (props) => {
       .then((data) => data.json())
       .then((data) => setTableData(data)); 
   }, [props.table_name])
-
 
 // Функция saveRec
 const saveRec = async () => {
@@ -221,10 +214,8 @@ const saveRec = async () => {
       
       // Если это POST запрос, получаем и устанавливаем новый ID
       if (method === 'POST') {
-        console.log('after post', clickedRowId);
         const newId = responseData.id;
         
-        //setCurrentId(newId);
         if (clickedRowId===null) {
           setValueID(newId);
           setAddedId(newId);
@@ -236,13 +227,9 @@ const saveRec = async () => {
         setAlertText(`Добавлена запись с кодом ${newId}`);
 
       } else {
-        console.log('after edit', clickedRowId);
-        //setCurrentId(valueId);
-
         if (clickedRowId) {
           setValueID(clickedRowId);
         }
-        //setValueID(valueId);
         setAlertText(responseData || 'Success');
       }
       
@@ -263,7 +250,6 @@ const saveRec = async () => {
 };
 
 useEffect(() => {
-  console.log('SetValues tableData, valueId=', valueId );
   const rowData = tableData.find(row => row.id === valueId);
   if (rowData) {
     setValues(rowData);
@@ -299,7 +285,6 @@ const delRec = async () => {
     
     // Переключаемся на первую запись после удаления
     if (tableData[0]) {
-      console.log('Переключаемся на первую запись после удаления setValues(tableData[0])', tableData[0].id);
       setValueID(tableData[0].id);
       setAddedId(tableData[0].id);
     } 
@@ -392,8 +377,6 @@ const delRec = async () => {
   };
 
   const setValues = (row) => {
-    console.log('setValues row.id ', row.id);
-    //setValueID(row.id);
     setValueTitle(row.title);
     setValueShortName(row.shortname);
     setValueFullName(row.fullname);
@@ -410,7 +393,6 @@ const delRec = async () => {
   const handleCloseNo = () => {
     switch (dialogType) {
       case 'save':
-        console.log('handleCloseNo clickedRowId', clickedRowId);
         setEditStarted(false);
         setValueID(clickedRowId);
         setRowSelectionModel([clickedRowId]);
@@ -488,12 +470,10 @@ const delRec = async () => {
   const [openAlert, setOpenAlert] = React.useState(false, '');
   const handleCancelClick = () => 
   {
-    console.log('handleCancelClick');
     const selectedIDs = new Set(rowSelectionModel.map(Number));
     const selectedRowData = tableData.filter((row) => selectedIDs.has(row.id));
     if (selectedRowData.length)
     {
-      console.log('handleCancelClick ', selectedRowData[0].id);
       setValueID(selectedRowData[0].id);
       setValueTitle(selectedRowData[0].title);
       setValueShortName(selectedRowData[0].shortname);
@@ -513,8 +493,6 @@ const delRec = async () => {
   const { paginationModel, setPaginationModel, scrollToIndexRef } = useGridScrollPagination(apiRef, tableData, setRowSelectionModel);
 
   useEffect(() => {
-    //console.log('scroll addedId=', addedId , ' clickedRowId =', clickedRowId);
-
     if (addedId !== null){  
         scrollToIndexRef.current = addedId;
         setAddedId(null);
@@ -529,7 +507,7 @@ const delRec = async () => {
 
     return (
       <GridToolbarContainer>
-        <IconButton onClick={()=>handleClearClick()}  color="primary" size="small" title="Создать запись">
+        <IconButton onClick={()=>handleClearClick()} disabled={editStarted} color="primary" size="small" title="Создать запись">
           <SvgIcon fontSize="small" component={PlusLightIcon} inheritViewBox /></IconButton>
         <IconButton onClick={()=>{setClickedRowId(null); saveRec(true)}}  color="primary" size="small" title="Сохранить запись в БД">
           <SvgIcon fontSize="small" component={SaveLightIcon} inheritViewBox/></IconButton>
@@ -547,151 +525,116 @@ const delRec = async () => {
   }
 
   const formRef = React.useRef();
+
+
   return (
-    
-    <div style={{ height: 640, width: 1500 }}>
-
-    <form ref={formRef}>  
-    <table border = "0" style={{ height: 550, width: 1500 }} ><tbody>
-    <tr>
-      <td style={{ height: 640, width: 600, verticalAlign: 'top' }}>
-      <div style={{ height: 486, width: 585 }}>
-      <DataGrid
-        sx={{
-          "& .MuiDataGrid-row.Mui-selected": {
-            backgroundColor: dialogType !== ''||((valueId || '')==='') ? "transparent" : "rgba(0, 0, 0, 0.11)",
-          },
-          "& .MuiDataGrid-cell:focus-within": {
-            outline: "none !important",
-          },
-        }}
-        components={{ Toolbar: GridToolbar }}
-        apiRef={apiRef}
-        hideFooterSelectedRowCount={true}
-        localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
-        rowHeight={25}
-        pageSize={5}
-        rows={tableData}
-        columns={columns}
-        paginationModel={paginationModel}
-        onPaginationModelChange={setPaginationModel}
-        onRowSelectionModelChange={(newRowSelectionModel) => {
-          setRowSelectionModel(newRowSelectionModel);
-        }}
-        rowSelectionModel={rowSelectionModel}
-
-        initialState={{
-          columns: {
-            columnVisibilityModel: {
-              fullname: false,
-              external_ds: false,
-              descr: false,
-            },
-          },
-        }}        
-        onRowClick={handleRowClick} {...tableData} 
-      />
-      </div>
-      <Box sx={{ width: 585 }}>
-      <Collapse in={openAlert}>
-        <Alert
-          severity={alertSeverity}
-          action={
-            <IconButton
-              aria-label="close"
-              color="inherit"
-              size="small"
-              onClick={() => {
-                setOpenAlert(false);
+    <Box sx={{ border: '0px solid purple', width: 1445, height: 650, padding: 1 }}>
+      <form ref={formRef}>    
+        <Grid container spacing={1}>
+          <Grid item sx={{width: 583, border: '0px solid green', ml: 1 }}> {/* xs={5}  */}
+            <DataGrid
+              components={{ Toolbar: GridToolbar }}
+              apiRef={apiRef}
+              hideFooterSelectedRowCount={true}
+              localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
+              rowHeight={25}
+              pageSize={5}
+              rows={tableData}
+              columns={columns}
+              paginationModel={paginationModel}
+              onPaginationModelChange={setPaginationModel}
+              onRowSelectionModelChange={(newRowSelectionModel) => {
+                setRowSelectionModel(newRowSelectionModel);
               }}
-            >
-              <CloseIcon fontSize="inherit" />
-            </IconButton>
-          }
-        >
-          {alertText}
-        </Alert>
-      </Collapse>
-      </Box>
-      </td>
-      <td style={{ height: 550, width: 900, verticalAlign: 'top' }}>
-      <TextField  id="ch_id"  disabled={true} label="Код" sx={{ width: '12ch' }} variant="outlined" value={valueId || ''} size="small" /* onChange={e => setValueID(e.target.value)} */ />
-      &nbsp;&nbsp;&nbsp;&nbsp;
-      <TextField  
-        id="ch_name" 
-        sx={{ width: '40ch' }} 
-        label="Обозначение" 
-        required 
-        size="small" 
-        variant="outlined" 
-        value={valueTitle || ''} 
-        onChange={e => setValueTitle(e.target.value)}
-        inputRef={inputRef} 
-      />
-      <p></p>
-      <TextField  id="ch_shortname" sx={{ width: '100ch' }} label="Краткое название" required size="small" variant="outlined" value={valueShortName || ''} onChange={e => setValueShortName(e.target.value)}/>
-      <p></p>
-      <TextField  id="ch_fullname" sx={{ width: '100ch' }} label="Полное название" size="small" variant="outlined" value={valueFullName || ''} onChange={e => setValueFullName(e.target.value)}/>
-      <p></p>
-      <FormControl sx={{ width: '40ch' }} size="small">
-        <InputLabel required id="demo-controlled-open-select-label">Тип источника</InputLabel>
-        <Select
-          labelId="demo-controlled-open-select-label"
-          id="demo-controlled-open-select"
-          required
-          value={valueExternalDS}
-          label="Тип источника"
-          defaultValue={true}
-          onChange={e => setValueExternalDS(e.target.value)}
-        >
-        {valuesExtDS?.map(option => {
-            return (
-              <MenuItem key={option.value} value={option.value}>
-                {option.label ?? option.value}
-              </MenuItem>
-            );
-        })}
-        </Select>
-      </FormControl>  
-      <p></p> 
-
-      <TextField  id="ch_descr" sx={{ width: '100ch' }} size="small" label="Комментарий" multiline rows={4} variant="outlined"   value={valueDescr || ''} onChange={e => setValueDescr(e.target.value)}/>
-      <p></p> 
-      <div style={{ height: 300, width: 800 }}>
-        <td>Связанные с источником классификаторы<br/>
-        <DataTableDataSourceClassRef rec_id={valueId||0} />
-        </td>
-      </div>
-    </td>
-  </tr>
-  </tbody>
-  </table>
-
-  {(isLoading) && 
-
-  <Backdrop
-    sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }}
-    open={isLoading}
-  >
-    <CircularProgress color="inherit" />
-  </Backdrop> } 
-
-  <Dialog open={dialogType !== ''} onClose={handleCloseCancel} fullWidth={true}>
-    <DialogTitle>
-        Внимание
-    </DialogTitle>
-    <DialogContent>
-        <DialogContentText>
-          {getDialogContentText()}
-        </DialogContentText>
-    </DialogContent>
-    <DialogActions>
-      <DialogButtons />
-    </DialogActions>
-  </Dialog>
-  </form>
- </div>     
+              rowSelectionModel={rowSelectionModel}
+              initialState={{
+                columns: {
+                  columnVisibilityModel: {
+                    fullname: false,
+                    external_ds: false,
+                    descr: false,
+                  },
+                },
+              }}        
+              onRowClick={handleRowClick} {...tableData}
+              style={{ width: 570, height: 500, border: '1px solid rgba(0, 0, 0, 0.23)', borderRadius: '4px' }}
+              sx={{
+                "& .MuiDataGrid-row.Mui-selected": {
+                  backgroundColor: dialogType !== ''||((valueId || '')==='') ? "transparent" : "rgba(0, 0, 0, 0.11)",
+                },
+                "& .MuiDataGrid-cell:focus-within": {
+                  outline: "none !important",
+                },
+              }}
+            />
+  
+            <Collapse in={openAlert}>
+              <Alert
+                severity={alertSeverity}
+                action={
+                  <IconButton
+                    aria-label="close"
+                    color="inherit"
+                    size="small"
+                    onClick={() => {
+                      setOpenAlert(false);
+                    }}
+                  >
+                    <CloseIcon fontSize="inherit" />
+                  </IconButton>
+                }
+              >
+                {alertText}
+              </Alert>
+            </Collapse>
+          </Grid>
+          <Grid item xs={7} sx={{ border: '0px solid blue' }}>
+            <Box sx={{ border: '0px solid red', padding: 0, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+              <Box sx={{ display: 'flex', flexDirection: 'row', gap: 1.5 }}>
+                <TextField id="ch_id" disabled={true} label="Код" sx={{ width: '12ch' }} variant="outlined" value={valueId || ''} size="small" />
+                <TextField id="ch_name" sx={{ width: '50ch' }} label="Обозначение" required size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)} inputRef={inputRef} />
+              </Box>
+              <TextField id="ch_shortname" sx={{ width: '785px' }} label="Краткое название" required size="small" variant="outlined" value={valueShortName || ''} onChange={e => setValueShortName(e.target.value)} />
+              <TextField id="ch_fullname" sx={{ width: '785px' }} label="Полное название" size="small" variant="outlined" value={valueFullName || ''} onChange={e => setValueFullName(e.target.value)} />
+              <FormControl sx={{ width: '30ch' }} size="small">
+                <InputLabel required id="demo-controlled-open-select-label">Тип источника</InputLabel>
+                <Select labelId="demo-controlled-open-select-label" id="demo-controlled-open-select" required value={valueExternalDS} label="Тип источника" defaultValue={true} onChange={e => setValueExternalDS(e.target.value)}>
+                  {valuesExtDS?.map(option => {
+                    return (
+                      <MenuItem key={option.value} value={option.value}>
+                        {option.label ?? option.value}
+                      </MenuItem>
+                    );
+                  })}
+                </Select>
+              </FormControl>  
+              <TextField id="ch_descr" sx={{ width: '785px' }} size="small" label="Комментарий" multiline rows={4} variant="outlined" value={valueDescr || ''} onChange={e => setValueDescr(e.target.value)} />
+            </Box>
+            <Box sx={{ marginTop: '0.4rem' }}>
+              Связанные с источником классификаторы<br/>
+              <DataTableDataSourceClassRef rec_id={valueId||0} />
+            </Box>
+          </Grid>
+        </Grid>
+        {(isLoading) && 
+          <Backdrop sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }} open={isLoading}>
+            <CircularProgress color="inherit" />
+          </Backdrop> 
+        } 
+        <Dialog open={dialogType !== ''} onClose={handleCloseCancel} fullWidth={true}>
+          <DialogTitle>Внимание</DialogTitle>
+          <DialogContent>
+            <DialogContentText>
+              {getDialogContentText()}
+            </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <DialogButtons />
+          </DialogActions>
+        </Dialog>
+      </form>
+    </Box>
   )
-}
-
+  }
+  
 export { DataTableDataSource }

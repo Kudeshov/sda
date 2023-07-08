@@ -22,15 +22,14 @@ import { ReactComponent as InfoLightIcon } from "./../icons/info.svg";
 import { ReactComponent as TrashLightIcon } from "./../icons/trash.svg";
 import { table_names } from './table_names';
 
-var alertText = "Сообщение";
-var alertSeverity = "info";
 var lastAddedId = 0;
 var lastRecID = 0;
 var lastID = 0;
 
 function DataTableDataSourceClass(props)  {
   const [open, setOpen] = React.useState(false);
-
+  const [alertText, setAlertText] = useState("Сообщение");
+  const [alertSeverity, setAlertSeverity] = useState("info");
   const handleClickEdit = () => {
     setOpen(true);
   };
@@ -159,8 +158,8 @@ const reloadDataSrcClass = async () => {
     lastRecID = props.rec_id;
     const response = await fetch(`/data_source_class?table_name=${props.table_name}&rec_id=${props.rec_id??0}`);
      if (!response.ok) {
-      alertText =  'Ошибка при обновлении данных';
-      alertSeverity = "false";
+      setAlertText('Ошибка при обновлении данных');
+      setAlertSeverity('error');
       setOpenAlert(true);  
       throw new Error(`Error! status: ${response.status}`);
     }  
@@ -213,16 +212,14 @@ const delRec =  async () => {
       },
     });
     if (!response.ok) {
-      alertSeverity = 'error';
-      alertText = await response.text();
-      setOpenAlert(true);          
+      setAlertSeverity('error');
     }
     else
     {
-      alertSeverity = "success";
-      alertText = await response.text();
-      setOpenAlert(true);  
+      setAlertSeverity('success');
     }
+    setAlertText(await response.text());
+    setOpenAlert(true);
   } catch (err) {
   } finally {
     setIsLoading(false);
@@ -258,19 +255,17 @@ const saveRec = async () => {
      },
    });
    if (!response.ok) {
-      alertSeverity = 'error';
-      alertText = await response.text();
-      setOpenAlert(true);          
+      setAlertSeverity('error');
     }
     else
     {
-      alertSeverity = "success";
-      alertText = await response.text();
-      setOpenAlert(true);  
+      setAlertSeverity('success');
     }
+    setAlertText(await response.text());
+    setOpenAlert(true);    
  } catch (err) {
-  alertText = err.message;
-  alertSeverity = 'error';
+  setAlertText(err.message);
+  setAlertSeverity('error');
   setOpenAlert(true);
  } finally {
    setIsLoading(false);
@@ -299,22 +294,22 @@ const addRec = async ()  => {
       },
     });
     if (!response.ok) {
-      alertSeverity = 'error';
-      alertText = await response.text();
+      setAlertSeverity('error');
+      setAlertText(await response.text());
       setOpenAlert(true);          
     }
     else
     {
-      alertSeverity = "success";
+      setAlertSeverity('success');
       const { id } = await response.json();
-      alertText = `Добавлена запись с кодом ${id}`;
+      setAlertText(`Добавлена запись с кодом ${id}`);
       lastAddedId =  id; 
       setValueID(lastAddedId);
       setOpenAlert(true);  
     }
   } catch (err) {
-    alertText = err.message;
-    alertSeverity = 'error';
+    setAlertText(err.message);
+    setAlertSeverity('error');
     setOpenAlert(true);
   } finally {
     setIsLoading(false);
@@ -508,4 +503,4 @@ const formRef = React.useRef();
     </div>
     )
 }
- export  { DataTableDataSourceClass }
+export  { DataTableDataSourceClass }

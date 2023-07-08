@@ -7,31 +7,26 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-/* import { FormControl } from "@mui/material";
-import { InputLabel } from "@mui/material";
-import { Select } from "@mui/material";
-import { MenuItem } from "@mui/material"; */
-import { Box, IconButton } from '@mui/material';
+import { Box, Grid, IconButton } from '@mui/material';
 import Alert from '@mui/material/Alert';
 import Collapse from '@mui/material/Collapse';
 import CloseIcon from '@mui/icons-material/Close';
 import SvgIcon from '@mui/material/SvgIcon';
 import { ReactComponent as EditLightIcon } from "./../icons/edit.svg";
 import { ReactComponent as PlusLightIcon } from "./../icons/plus.svg";
-import { ReactComponent as InfoLightIcon } from "./../icons/info.svg";
+//import { ReactComponent as InfoLightIcon } from "./../icons/info.svg";
 import { ReactComponent as TrashLightIcon } from "./../icons/trash.svg";
 import { table_names } from './table_names';
 import Autocomplete from '@mui/material/Autocomplete';
 import Tooltip from '@mui/material/Tooltip';
 
-var alertText = "Сообщение";
-var alertSeverity = "info";
 var lastAddedId = 0;
 var lastID = 0;
 
 function DataTableDataSourceClassRef(props)  {
   const [open, setOpen] = React.useState(false);
-
+  const [alertText, setAlertText] = useState("Сообщение");
+  const [alertSeverity, setAlertSeverity] = useState("info");
   const handleClickEdit = () => {
     setOpen(true);
   };
@@ -66,13 +61,15 @@ function DataTableDataSourceClassRef(props)  {
       setValueDataSourceId(filteredData[0].data_source_id);
       setValueTableName(filteredData[0].table_name);
       setValueRecID(filteredData[0].rec_id);
-      setValueTitle(filteredData[0].title);    
       setValueTitleSrc(filteredData[0].title_src);
       setValueNameSrc(filteredData[0].name_src);
+
+/*       setValueTitle(filteredData[0].title);    
       setValueShortName(filteredData[0].shortname);
       setValueFullName(filteredData[0].fullname);
       setValueDescr(filteredData[0].descr);
       setValueExternalDS(filteredData[0].external_ds);    
+ */
     }    
   };
 /* 
@@ -122,14 +119,14 @@ const [valueId, setValueID] = React.useState();
 const [valueDataSourceId, setValueDataSourceId] = React.useState();
 const [valueRecId, setValueRecID] = React.useState();
 const [valueTableName, setValueTableName] = React.useState();
-const [valueTitle, setValueTitle] = React.useState();
 const [valueTitleSrc, setValueTitleSrc] = React.useState();
 const [valueNameSrc, setValueNameSrc] = React.useState();
 
+/* const [valueTitle, setValueTitle] = React.useState();
 const [valueShortName, setValueShortName] = React.useState();
 const [valueFullName, setValueFullName] = React.useState();
 const [valueDescr, setValueDescr] = React.useState();
-const [valueExternalDS, setValueExternalDS] = React.useState();
+const [valueExternalDS, setValueExternalDS] = React.useState(); */
 
 const [isLoading, setIsLoading] = React.useState(false);
 const [openAlert, setOpenAlert] = React.useState(false, '');
@@ -160,13 +157,14 @@ useEffect(() => {
     setValueDataSourceId(tableDataSrcClass[0].data_source_id);
     setValueTableName(tableDataSrcClass[0].table_name);
     setValueRecID(tableDataSrcClass[0].rec_id);
-    setValueTitle(tableDataSrcClass[0].title);    
     setValueTitleSrc(tableDataSrcClass[0].title_src);
     setValueNameSrc(tableDataSrcClass[0].name_src);
+
+/*     setValueTitle(tableDataSrcClass[0].title);    
     setValueShortName(tableDataSrcClass[0].shortname);
     setValueFullName(tableDataSrcClass[0].fullname);
     setValueDescr(tableDataSrcClass[0].descr);
-    setValueExternalDS(tableDataSrcClass[0].external_ds);      
+    setValueExternalDS(tableDataSrcClass[0].external_ds);     */  
   }
   if ((!isLoading) && (tableDataSrcClass) )
   {
@@ -180,8 +178,8 @@ const reloadDataSrcClass = async () => {
   try {
     const response = await fetch(`/data_source_class_ref/${props.rec_id||0}`);
     if (!response.ok) {
-      alertText =  'Ошибка при обновлении данных';
-      alertSeverity = "false";
+      setAlertText('Ошибка при обновлении данных');
+      setAlertSeverity('error')
       setOpenAlert(true);  
       throw new Error(`Error! status: ${response.status}`);
     }  
@@ -199,15 +197,16 @@ const reloadDataSrcClass = async () => {
 };
 
 const [openConfirmDelete, setOpenConfirmDelete] = React.useState(false); 
+/*
 const [openDSInfo, setOpenDSInfo] = React.useState(false); 
-const handleOpenDSInfo = () => {
+ const handleOpenDSInfo = () => {
   setOpenDSInfo(true);
 };
 
 const handleCloseDSInfo = () => {
   setOpenDSInfo(false);
 };
-
+*/
 const handleClickDelete = () => {
   setOpenConfirmDelete(true);
 };
@@ -238,14 +237,14 @@ const delRec =  async () => {
       },
     });
     if (!response.ok) {
-      alertSeverity = 'error';
-      alertText = await response.text();
+      setAlertSeverity('error');
+      setAlertText(await response.text());
       setOpenAlert(true);          
     }
     else
     {
-      alertSeverity = "success";
-      alertText = await response.text();
+      setAlertSeverity('success');
+      setAlertText(await response.text());
       setOpenAlert(true);  
     }
   } catch (err) {
@@ -283,19 +282,19 @@ const saveRec = async () => {
      },
    });
    if (!response.ok) {
-      alertSeverity = 'error';
-      alertText = await response.text();
+      setAlertSeverity('error');
+      setAlertText(await response.text());
       setOpenAlert(true);          
     }
     else
     {
-      alertSeverity = "success";
-      alertText = await response.text();
+      setAlertSeverity('success');
+      setAlertText(await response.text());
       setOpenAlert(true);  
     }
  } catch (err) {
-  alertText = err.message;
-  alertSeverity = 'error';
+  setAlertText(err.message);
+  setAlertSeverity('error');
   setOpenAlert(true);
  } finally {
    setIsLoading(false);
@@ -327,22 +326,22 @@ const addRec = async ()  => {
       },
     });
     if (!response.ok) {
-      alertSeverity = 'error';
-      alertText = await response.text();
+      setAlertSeverity('error');
+      setAlertText(await response.text());
       setOpenAlert(true);          
     }
     else
     {
-      alertSeverity = "success";
+      setAlertSeverity('success');
       const { id } = await response.json();
-      alertText = `Добавлена запись с кодом ${id}`;
+      setAlertText(`Добавлена запись с кодом ${id}`);
       lastAddedId =  id; 
       setValueID(lastAddedId);
       setOpenAlert(true);  
     }
   } catch (err) {
-    alertText = err.message;
-    alertSeverity = 'error';
+    setAlertText(err.message);
+    setAlertSeverity('error');
     setOpenAlert(true);
   } finally {
     setIsLoading(false);
@@ -359,13 +358,15 @@ const handleRowClick = (params) => {
   setValueRecID(params.row.rec_id);
 
   console.log('click', params.row.table_name, params.row.rec_id);
-  setValueTitle(params.row.title);
   setValueTitleSrc(params.row.title_src);
   setValueNameSrc(params.row.name_src);
+
+/*   setValueTitle(params.row.title);
   setValueShortName(params.row.shortname);  
   setValueFullName(params.row.fullname);  
   setValueDescr(params.row.descr);  
   setValueExternalDS(params.row.external_ds);  
+ */
 }; 
 
 const [noRecords, setNoRecords] = useState(true);
@@ -375,52 +376,70 @@ const formRef = React.useRef();
   return (
     
     <div style={{ height: 270, width: 886 }}>
-      <form ref={formRef}>  
-      <table cellSpacing={0} cellPadding={0} style={{ height: 270, width: 886, verticalAlign: 'top' }} border="0"><tbody><tr>
-        <td style={{ height: 270, width: 800, verticalAlign: 'top' }}>
-          <DataGrid
-            localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
-            rowHeight={25}
-            columns={columns_src}
-            rows={tableDataSrcClass}
-            disableMultipleSelection={true}
-            onRowClick={handleRowClick} {...tableDataSrcClass} 
-            hideFooterSelectedRowCount={true}
-            selectionModel={selectionModel}
-            onSelectionModelChange={(newSelectionModel) => {
-              setSelectionModel(newSelectionModel);
-            }}
-            loading={isLoading}        
-            pageSize={25} // number of rows per page
-            style={{ height: '300px', width: '786px' }} // set height of the DataGrid
-            initialState={{
-              columns: {
-                columnVisibilityModel: {
-                  data_source_id: false,
-                  table_name: false,
-                  rec_id: false,
-                  fullname: false,
-                  shortname: false,
-                  external_ds: false,
-                  descr: false,
+      <form ref={formRef}>
+      <Box sx={{ border: '0px solid purple', height: 250, width: 886 }}>
+     {/*  <form ref={formRef}> */}
+        <Grid container spacing={1}>
+          <Grid item sx={{width: 780, border: '0px solid black', ml: 0 }}>
+            <DataGrid
+              sx={{
+                border: '1px solid rgba(0, 0, 0, 0.23)',
+                borderRadius: '4px',
+                "& .MuiDataGrid-row.Mui-selected": {
+                  backgroundColor: ((valueId || '')==='') ? "transparent" : "rgba(0, 0, 0, 0.11)",
                 },
-              },
-            }}             
-          />
-      </td>
-      <td style={{ height: 270, width: 100, verticalAlign: 'top' }}>
-      &nbsp;<IconButton onClick={()=>handleClickAdd()} disabled={!props.rec_id} color="primary" size="small" title="Добавить связь с классификатором">
-        <SvgIcon fontSize="small" component={PlusLightIcon} inheritViewBox /></IconButton><br/>
-      &nbsp;<IconButton onClick={()=>handleClickEdit()} disabled={noRecords} color="primary" size="small" title="Редактировать связь с классификатором">
-        <SvgIcon fontSize="small" component={EditLightIcon} inheritViewBox /></IconButton><br/>
-      &nbsp;<IconButton onClick={()=>handleClickDelete()} disabled={noRecords} color="primary" size="small" title="Удалить связь с классификатором">
-        <SvgIcon fontSize="small" component={TrashLightIcon} inheritViewBox /></IconButton><br/>
-      &nbsp;<IconButton onClick={()=>handleOpenDSInfo()} disabled={noRecords} color="primary" size="small" title="Информация по классификатору">
-        <SvgIcon fontSize="small" component={InfoLightIcon} inheritViewBox /></IconButton>
-      </td></tr>
-      <tr>
-        <td>
-        <Box sx={{ width: '100%' }}>
+                "& .MuiDataGrid-cell:focus-within": {
+                  outline: "none !important",
+                },
+              }}          
+              localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
+              rowHeight={25}
+              columns={columns_src}
+              rows={tableDataSrcClass}
+              disableMultipleSelection={true}
+              onRowClick={handleRowClick} {...tableDataSrcClass} 
+              hideFooterSelectedRowCount={true}
+              selectionModel={selectionModel}
+              onSelectionModelChange={(newSelectionModel) => {
+                setSelectionModel(newSelectionModel);
+              }}
+              loading={isLoading}        
+              pageSize={25} // number of rows per page
+              style={{ height: '270px', width: '786px' }} // set height of the DataGrid
+              initialState={{
+                columns: {
+                  columnVisibilityModel: {
+                    data_source_id: false,
+                    table_name: false,
+                    rec_id: false,
+                    fullname: false,
+                    shortname: false,
+                    external_ds: false,
+                    descr: false,
+                  },
+                },
+              }}             
+            />
+          </Grid>
+
+          <Grid item sx={{width: 45, border: '0px solid green', ml: 1 }}>
+            <Box sx={{ border: '0px solid purple', display: 'flex', flexDirection: 'column', gap: 0.1, alignItems: 'center', justifyContent: 'center' }}>
+              <IconButton onClick={handleClickAdd} disabled={!props.rec_id} color="primary" size="small" title="Добавить связь с классификатором">
+                <SvgIcon fontSize="small" component={PlusLightIcon} inheritViewBox />
+              </IconButton>
+              <IconButton onClick={handleClickEdit} disabled={noRecords} color="primary" size="small" title="Редактировать связь с классификатором">
+                <SvgIcon fontSize="small" component={EditLightIcon} inheritViewBox />
+              </IconButton>
+              <IconButton onClick={handleClickDelete} disabled={noRecords} color="primary" size="small" title="Удалить связь с классификатором">
+                <SvgIcon fontSize="small" component={TrashLightIcon} inheritViewBox />
+              </IconButton>
+{/*               <IconButton onClick={handleOpenDSInfo} disabled={noRecords} color="primary" size="small" title="Информация по классификатору">
+                <SvgIcon fontSize="small" component={InfoLightIcon} inheritViewBox />
+              </IconButton> */}
+            </Box>
+          </Grid>
+        </Grid>
+
         <Collapse in={openAlert}>
           <Alert
             severity={alertSeverity}
@@ -436,128 +455,119 @@ const formRef = React.useRef();
                 <CloseIcon fontSize="inherit" />
               </IconButton>
             }
-            sx={{ mb: 2 }}
           >
             {alertText}
           </Alert>
         </Collapse>
-        <div style={{
-        marginLeft: '40%',
-        }}>
-        </div>
-      </Box>
-        </td>
-      </tr>
-      </tbody></table>
+     {/*  </form> */}
+    </Box>        
+
 
       <Dialog open={open} onClose={handleCloseNo} fullWidth={false} maxWidth="800px">
-  <DialogTitle>Связь с классификатором</DialogTitle>
-  <DialogContent style={{height:'480px', width: '700px'}}>
-    <DialogContentText>
-      Задать связь с классификатором
-    </DialogContentText>
-    <p></p>
-    <p></p>
-    <Autocomplete
-      size="small"
-      disabled={valueId}  
-      fullWidth
-      id="table-name-autocomplete"
-      options={Object.entries(table_names)}
-      getOptionLabel={(option) => option[1]} // используем второй элемент пары [ключ, значение]
-      onChange={(event, newValue) => {
-        setValueTableName(newValue ? newValue[0] : ""); // в качестве значения используем ключ
-      }}
-      value={Object.entries(table_names).find(([key, value]) => key === valueTableName) || null}
-      renderInput={(params) => <TextField {...params} label="Классификатор" size="small" required />}
-    />
-    <p></p>
-    <p></p>
-      <Autocomplete
-        size="small"
-        disabled={valueId}  
-        id="table-ref-autocomplete"
-        options={tableRef}
-        getOptionLabel={(option) => option.name_rus}
-        value={tableRef.find((item) => item.id === valueRecId) || null} // Ищем выбранный объект по коду
-        //style={{ width: '100%' }} 
-        fullWidth
-        onChange={(event, newValue) => {
-          setValueRecID(newValue ? newValue.id : null); // Обновляем значение при изменении
-        }}
-        renderInput={(params) => <TextField {...params} label="Запись классификатора" variant="outlined" size="small" required/>}
-        renderOption={(props, option) => (
-          <li {...props}>
-            <Tooltip title={option.name_eng}>
-              <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
-                <span>{option.name_rus}</span>
-              </div>
-            </Tooltip>
-          </li>
-        )}
-      />
-    <p></p>
-    <TextField
-      variant="outlined"
-      margin="dense"
-      id="title"
-      label="Обозначение" required
-      value={valueTitleSrc || ''}
-      fullWidth
-      size="small"
-      onChange={e => setValueTitleSrc(e.target.value)}
-    />
-    <p></p>
-    <TextField
-      variant="outlined"
-      id="name_src"
-      label="Название"
-      value={valueNameSrc || ''}
-      fullWidth
-      size="small"
-      onChange={e => setValueNameSrc(e.target.value)}
-    />
-  </DialogContent>
-  <DialogActions>
-    <Button variant="outlined" onClick={handleCloseNo}>Отмена</Button>
-    <Button variant="outlined" disabled={!valueTitleSrc||!valueTableName} onClick={handleCloseYes}>Сохранить</Button>
-  </DialogActions>
-</Dialog>
+        <DialogTitle>Связь с классификатором</DialogTitle>
+        <DialogContent style={{height:'480px', width: '700px'}}>
+          <DialogContentText>
+            Задать связь с классификатором
+          </DialogContentText>
+          <p></p>
+          <Autocomplete
+            size="small"
+            disabled={valueId}  
+            fullWidth
+            id="table-name-autocomplete"
+            options={Object.entries(table_names)}
+            getOptionLabel={(option) => option[1]} // используем второй элемент пары [ключ, значение]
+            onChange={(event, newValue) => {
+              setValueTableName(newValue ? newValue[0] : ""); // в качестве значения используем ключ
+            }}
+            value={Object.entries(table_names).find(([key, value]) => key === valueTableName) || null}
+            renderInput={(params) => <TextField {...params} label="Классификатор" size="small" required />}
+          />
+          <p></p>
+            <Autocomplete
+              size="small"
+              disabled={valueId}  
+              id="table-ref-autocomplete"
+              options={tableRef}
+              getOptionLabel={(option) => option.name_rus}
+              value={tableRef.find((item) => item.id === valueRecId) || null} // Ищем выбранный объект по коду
+              fullWidth
+              onChange={(event, newValue) => {
+                setValueRecID(newValue ? newValue.id : null); // Обновляем значение при изменении
+              }}
+              renderInput={(params) => <TextField {...params} label="Запись классификатора" variant="outlined" size="small" required/>}
+              renderOption={(props, option) => (
+                <li {...props}>
+                  <Tooltip title={option.name_eng}>
+                    <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
+                      <span>{option.name_rus}</span>
+                    </div>
+                  </Tooltip>
+                </li>
+              )}
+            />
+          <p></p>
+          <TextField
+            variant="outlined"
+            margin="dense"
+            id="title"
+            label="Обозначение" required
+            value={valueTitleSrc || ''}
+            fullWidth
+            size="small"
+            onChange={e => setValueTitleSrc(e.target.value)}
+          />
+          <p></p>
+          <TextField
+            variant="outlined"
+            id="name_src"
+            label="Название"
+            value={valueNameSrc || ''}
+            fullWidth
+            size="small"
+            onChange={e => setValueNameSrc(e.target.value)}
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button variant="outlined" onClick={handleCloseNo}>Отмена</Button>
+          <Button variant="outlined" disabled={!valueTitleSrc||!valueTableName} onClick={handleCloseYes}>Сохранить</Button>
+        </DialogActions>
+      </Dialog>
 
       <Dialog open={openConfirmDelete} onClose={handleCloseConfirmDelete} fullWidth={true}>
-      <DialogTitle>
-          Внимание
-      </DialogTitle>
-      <DialogContent>
-          <DialogContentText>
-              В таблице "{table_names['data_source_class']}" предложена к удалению следующая запись:<p></p><b>{valueTitleSrc}</b>; Код в БД = <b>{valueId}</b><p></p>
-              Вы желаете удалить указанную запись?        
-          </DialogContentText>
-      </DialogContent>
-      <DialogActions>
-          <Button variant="outlined" onClick={handleCloseConfirmDelete} autoFocus>Нет</Button>
-          <Button variant="outlined" onClick={handleCloseConfirmDeleteYes} >Да</Button>
-      </DialogActions>
+        <DialogTitle>
+            Внимание
+        </DialogTitle>
+        <DialogContent>
+            <DialogContentText>
+                В таблице "{table_names['data_source_class']}" предложена к удалению следующая запись:<p></p><b>{valueTitleSrc}</b>; Код в БД = <b>{valueId}</b><p></p>
+                Вы желаете удалить указанную запись?        
+            </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+            <Button variant="outlined" onClick={handleCloseConfirmDelete} autoFocus>Нет</Button>
+            <Button variant="outlined" onClick={handleCloseConfirmDeleteYes} >Да</Button>
+        </DialogActions>
+        </Dialog>
 
-      </Dialog>
-      <Dialog open={openDSInfo} onClose={handleCloseDSInfo} fullWidth={true}>
-      <DialogTitle>
-          Источник данных <b>{valueTitle}</b>
-      </DialogTitle>
-      <DialogContent>
-          <DialogContentText>
-              Код: <b>{valueDataSourceId}</b><p></p>
-              Обозначение: <b>{valueTitle}</b><p></p>
-              Краткое название: <b>{valueShortName}</b><p></p> 
-              Полное название: <b>{valueFullName}</b><p></p> 
-              Источник данных: <b>{valueExternalDS === 'false' ? 'Целевая БД' : 'Внешний источник' }</b><p></p> 
-              Комментарий: <b>{valueDescr}</b><p></p> 
-          </DialogContentText>
-      </DialogContent>
-      <DialogActions>
-          <Button variant="outlined" onClick={handleCloseDSInfo} autoFocus>Закрыть</Button>
-      </DialogActions>
-      </Dialog>
+{/*         <Dialog open={openDSInfo} onClose={handleCloseDSInfo} fullWidth={true}>
+        <DialogTitle>
+            Источник данных <b>{valueTitle}</b>
+        </DialogTitle>
+        <DialogContent>
+            <DialogContentText>
+                Код: <b>{valueDataSourceId}</b><p></p>
+                Обозначение: <b>{valueTitle}</b><p></p>
+                Краткое название: <b>{valueShortName}</b><p></p> 
+                Полное название: <b>{valueFullName}</b><p></p> 
+                Источник данных: <b>{valueExternalDS === 'false' ? 'Целевая БД' : 'Внешний источник' }</b><p></p> 
+                Комментарий: <b>{valueDescr}</b><p></p> 
+            </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+            <Button variant="outlined" onClick={handleCloseDSInfo} autoFocus>Закрыть</Button>
+        </DialogActions>
+        </Dialog> */}
       </form>
     </div>
     )
