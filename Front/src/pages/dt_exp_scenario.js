@@ -36,6 +36,7 @@ import { table_names } from './table_names';
 import Backdrop from '@mui/material/Backdrop';
 import { InputAdornment } from "@material-ui/core";
 import { listToTree } from '../helpers/treeHelper';
+import Tooltip from '@mui/material/Tooltip';
 
 var alertText = "Сообщение";
 var alertSeverity = "info";
@@ -143,12 +144,13 @@ const DataTableExpScenario = (props) => {
           children = getTreeItemsFromData(treeItemData.children);
         }
         return ( 
-          <TreeItem
-            key={treeItemData.id}
-            nodeId={treeItemData.id?treeItemData.id.toString():0}
-            label={treeItemData.title}
-            children={children}
-          />
+          <Tooltip title={treeItemData.name_rus} key={treeItemData.id}>
+            <TreeItem
+              nodeId={treeItemData.id?treeItemData.id.toString():0}
+              label={treeItemData.title}
+              children={children}
+            />
+          </Tooltip>
         );
       });
     };

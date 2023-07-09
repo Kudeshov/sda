@@ -105,7 +105,7 @@ const updateValueRatioGit = (request, response, table_name) => {
 
   pool.query(
     `UPDATE nucl.value_int_dose SET dose_ratio_id = $1, dr_value=$2, updatetime = NOW(),
-    chem_comp_gr_id=$3 WHERE id = $4`, // Запрос на обновление записи в таблице nucl.value_int_dose
+    chem_comp_gr_id=$3 WHERE id = $4`, // Запрос на обновление записи в таблице  
     [dose_ratio_id, dr_value, chem_comp_gr_id, id], // Параметры для запроса
     (err, res) => {
       if (err) {
@@ -184,7 +184,6 @@ const getRatioGitAttr = (request, response) => {
     response.status(200).json(results.rows)
   })
 }
-
 
 module.exports = {
   getValueRatioGit,
