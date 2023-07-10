@@ -35,7 +35,7 @@ import CircularProgress from '@material-ui/core/CircularProgress';
 import Backdrop from '@mui/material/Backdrop';
 
 import Autocomplete from '@mui/material/Autocomplete';
-import { createFilterOptions } from "@mui/material/Autocomplete";
+// import { createFilterOptions } from "@mui/material/Autocomplete";
 import Tooltip from '@mui/material/Tooltip';
 import Checkbox from '@mui/material/Checkbox';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
@@ -50,6 +50,11 @@ import { ReactComponent as DownloadLightIcon } from "./../icons/download.svg";
 import Divider from '@mui/material/Divider';
 import { useGridScrollPagination } from './../helpers/gridScrollHelper';
 //import CustomAutocomplete from './../component/CustomAutocomplete';
+//import AddCircleOutlineIcon from "@mui/icons-material/AddCircleOutline";
+import InputAdornment from "@mui/material/InputAdornment";
+import { styled } from '@mui/system';
+import AddIcon from '@mui/icons-material/Add';
+import AddOutlinedIcon from '@mui/icons-material/AddOutlined';
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
 const checkedIcon = <CheckBoxIcon fontSize="small" />;
@@ -94,7 +99,13 @@ const BigTableValueIntDose = (props) => {
   const [lastOperationWasAdd, setLastOperationWasAdd] = useState(false);
   
   // создаем пользовательскую функцию фильтрации
-  const filterOptions = createFilterOptions();
+  //const filterOptions = createFilterOptions();
+
+  const filterOptions = (options, { inputValue }) => {
+    return options.filter(option => 
+      option.title.toLowerCase().includes(inputValue.toLowerCase())
+    );
+  }
 
   const [pageState] = useState({
     page: 0,
@@ -1444,8 +1455,38 @@ const reloadDataHandler = async () => {
   const formRef = React.useRef();
   const formRefDialog = React.useRef();
 
+  const StyledIconButton = styled(IconButton)({
+    position: 'absolute',
+    right: 58, 
+    top: '50%',
+    transform: 'translateY(-50%)',
+    padding: 2, // Уменьшить размер кнопки, но оставить иконку того же размера
+  });
+  
+  const LightTooltip = styled(({ className, ...props }) => (
+    <Tooltip {...props} classes={{ popper: className }} />
+  ))(({ theme }) => ({
+    [`& .MuiTooltip-tooltip`]: {
+      backgroundColor: theme.palette.common.white,
+      color: theme.palette.text.primary,
+      boxShadow: theme.shadows[1],
+      fontSize: 11,
+      borderRadius: 0, 
+      border: `1px solid ${theme.palette.grey[300]}`,
+    },
+    [`& .MuiTooltip-arrow`]: {
+      color: theme.palette.common.white,
+    },
+  }));
+
+  const StyledAutocomplete = styled(Autocomplete)({
+    '& .MuiAutocomplete-tag': {
+      marginRight: 25, // Увеличьте значение для большего отступа
+    },
+  });
+
   // основной генератор страницы
-  return (
+  return(
     <div>
     <form ref={formRef}>  
       {/* аккордеон по страницам */} 
@@ -2260,7 +2301,88 @@ const reloadDataHandler = async () => {
         <table border = "0" cellSpacing="0" cellPadding="0"><tbody>
           <tr>   
           <td width={348}>
-            <Autocomplete
+
+          <Autocomplete
+            size="small"
+            value={currFlt.selIsotopeValues}
+            isOptionEqualToValue={(option, value) => option.id === value.id}
+            onChange={(event, newValue) => {
+              setCurrFlt({
+                ...currFlt,
+                selIsotopeValues: newValue,
+              });
+            }}
+            onInputChange={(event, newInputValue, reason) => {
+              if (reason !== "reset") {
+                setSearchValueNuclide(newInputValue);
+              }
+            }}
+            inputValue={searchValueNuclide}
+            onClose={() => { setSearchValueNuclide(""); }}
+            multiple
+            limitTags={7}
+            id="autocomplete-isotope"
+            options={tableIsotopeFiltered}
+            getOptionLabel={(option) => option.title}
+            disableCloseOnSelect
+            filterOptions={filterOptions}
+            renderOption={(props, option, { selected }) => (
+              <li {...props}>
+                <Checkbox
+                  size="small"
+                  icon={icon}
+                  checkedIcon={checkedIcon}
+                  style={{ marginRight: 8 }}
+                  checked={selected}
+                />
+                {option.title}
+              </li>
+            )}
+
+
+            renderInput={(params) => (
+              <TextField
+                {...params}
+                InputProps={{
+                  ...params.InputProps,
+                  endAdornment: (
+                    <>
+                      {searchValueNuclide && (
+                        <InputAdornment position="end">
+                          <LightTooltip title="Добавить найденные">
+                          <StyledIconButton
+                            onClick={() => {
+                              const filteredOptions = filterOptions(tableIsotopeFiltered, { inputValue: searchValueNuclide });
+                              const newValues = [...currFlt.selIsotopeValues, ...filteredOptions];
+                              setCurrFlt({
+                                ...currFlt,
+                                selIsotopeValues: newValues,
+                              });
+                              setSearchValueNuclide("");
+                              params.inputProps.ref.current.blur();
+                            }}
+                          >
+                            <AddOutlinedIcon />
+                          </StyledIconButton>
+                          </LightTooltip>
+                        </InputAdornment>
+                      )}
+                      {params.InputProps.endAdornment}
+                    </>
+                  ),
+                }}
+                inputProps={{
+                  ...params.inputProps,
+                  required: currFlt.selIsotopeValues.length === 0,
+                  value: tableIsotopeFiltered.length===0 ? "Выбор отсутствует" : params.inputProps.value,
+                }}
+                label="Нуклиды"
+                placeholder="Нуклиды"
+                required  
+              />
+            )}
+          />            
+          {/*   <Autocomplete
               size="small"
               value={currFlt.selIsotopeValues}
               isOptionEqualToValue={(option, value) => option.id === value.id}
@@ -2309,7 +2431,7 @@ const reloadDataHandler = async () => {
                   required  
                 />
               )}
-            />
+            /> */}
           </td>
           <td>
             &nbsp;&nbsp;
