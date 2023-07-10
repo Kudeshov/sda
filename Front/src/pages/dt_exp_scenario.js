@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
@@ -137,6 +137,89 @@ const DataTableExpScenario = (props) => {
       }
     }, [ tableData] );
 
+
+    const HoverContext = createContext();
+
+const HoverProvider = ({ children }) => {
+  const [hoverId, setHoverId] = useState(null);
+
+  return (
+    <HoverContext.Provider value={{ hoverId, setHoverId }}>
+      {children}
+    </HoverContext.Provider>
+  );
+};
+
+const [expanded, setExpanded] = React.useState([]);
+const [selected, setSelected] = React.useState('');
+const [treeFilterString, setTreeFilterString] = React.useState('');
+
+const TreeItems = ({ treeItems }) => {
+  const { hoverId, setHoverId } = useContext(HoverContext);
+
+  return treeItems.map(treeItemData => {
+    let children = undefined;
+    if (treeItemData.children && treeItemData.children.length > 0) {
+      children = <TreeItems treeItems={treeItemData.children} />;
+    }
+
+    return (
+      <TreeItem
+        nodeId={treeItemData.id ? treeItemData.id.toString() : '0'}
+        label={
+          <Tooltip
+            title={treeItemData.name_rus}
+            open={hoverId === treeItemData.id}
+          >
+            <span
+              onMouseEnter={() => setHoverId(treeItemData.id)}
+              onMouseLeave={() => setHoverId(null)}
+            >
+              {treeItemData.title}
+            </span>
+          </Tooltip>
+        }
+        children={children}
+        key={treeItemData.id}
+      />
+    );
+  });
+};
+
+const handleSelect = (event, nodeIds) => {
+  setSelected(nodeIds);
+  handleItemClick(nodeIds);
+};  
+
+const DataTreeView = ({ treeItems, handleItemClick, isLoading }) => {
+/*   const [expanded, setExpanded] = useState([]);
+  const [selected, setSelected] = useState(''); */
+  
+  const handleToggle = (event, nodeIds) => {
+    setExpanded(nodeIds);
+  };
+
+  return (
+    <HoverProvider>
+      <TreeView
+        aria-label="Tree navigator"
+        defaultCollapseIcon={<ExpandMoreIcon />}
+        defaultExpandIcon={<ChevronRightIcon />}
+        sx={{ height: 240, flexGrow: 1, maxWidth: 400, overflowY: 'auto' }}
+        onNodeToggle={handleToggle}
+        onNodeSelect={handleSelect}
+        expanded={expanded}
+        selected={selected}          
+        loading={isLoading}
+      >
+        <TreeItems treeItems={treeItems} />
+      </TreeView>
+    </HoverProvider>
+  );
+};
+
+/* 
+
     const getTreeItemsFromData = treeItems => {
       return treeItems.map(treeItemData => {
         let children = undefined;
@@ -157,7 +240,7 @@ const DataTableExpScenario = (props) => {
 
     const [expanded, setExpanded] = React.useState([]);
     const [selected, setSelected] = React.useState('');
-
+    const [treeFilterString, setTreeFilterString] = React.useState('');
     const handleToggle = (event, nodeIds) => {
       setExpanded(nodeIds);
     };
@@ -191,7 +274,7 @@ const DataTableExpScenario = (props) => {
           {getTreeItemsFromData(treeItems)}
         </TreeView></div>
       );
-    };
+    }; */
 
   const handleItemClick = (id) => {
     setOpenAlert(false);  

@@ -26,9 +26,10 @@ const getDoseRatio = (request, response, table_name ) => {
                    FROM nucl.${table_name} dr 
                    left join nucl.${table_name}_nls pcn1 on dr.id=pcn1.${table_name}_id and pcn1.lang_id=1 
                    left join nucl.${table_name}_nls pcn2 on dr.id=pcn2.${table_name}_id and pcn2.lang_id=2
-                   left join public.physunit p2 on p2.physparam_id = dr.physparam_id 
+                   left join public.physunit p2 on p2.physparam_id = dr.physparam_id and p2.basic_id is null
                    left join public.physunit_nls pn on pn.physunit_id = p2.id and pn.lang_id = 1 
                    ORDER BY dr.id ASC`;
+  console.log(s_query);
 
   pool.query(s_query, (error, results) => {
     if (error) {

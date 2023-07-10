@@ -103,7 +103,8 @@ const DataTableDataSource = (props) => {
     if ((!isLoading) && (tableData) && (tableData.length) && tableData[0].id) {
       if (!currentId)  
       {
-        setRowSelectionModel(tableData[0].id);
+        console.log('Выбрано ', tableData[0].id);
+        setRowSelectionModel([tableData[0].id]);
         setCurrentId(tableData[0].id);
         setValueID(tableData[0].id);
       }
@@ -470,6 +471,8 @@ const delRec = async () => {
   const [openAlert, setOpenAlert] = React.useState(false, '');
   const handleCancelClick = () => 
   {
+    console.log(rowSelectionModel);
+    
     const selectedIDs = new Set(rowSelectionModel.map(Number));
     const selectedRowData = tableData.filter((row) => selectedIDs.has(row.id));
     if (selectedRowData.length)
@@ -529,110 +532,110 @@ const delRec = async () => {
 
   return (
     <Box sx={{ border: '0px solid purple', width: 1445, height: 650, padding: 1 }}>
-      <form ref={formRef}>    
-        <Grid container spacing={1}>
-          <Grid item sx={{width: 583, border: '0px solid green', ml: 1 }}> {/* xs={5}  */}
-            <DataGrid
-              components={{ Toolbar: GridToolbar }}
-              apiRef={apiRef}
-              hideFooterSelectedRowCount={true}
-              localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
-              rowHeight={25}
-              pageSize={5}
-              rows={tableData}
-              columns={columns}
-              paginationModel={paginationModel}
-              onPaginationModelChange={setPaginationModel}
-              onRowSelectionModelChange={(newRowSelectionModel) => {
-                setRowSelectionModel(newRowSelectionModel);
-              }}
-              rowSelectionModel={rowSelectionModel}
-              initialState={{
-                columns: {
-                  columnVisibilityModel: {
-                    fullname: false,
-                    external_ds: false,
-                    descr: false,
-                  },
+      <Grid container spacing={1}>
+        <Grid item sx={{width: 583, border: '0px solid green', ml: 1 }}>
+          <DataGrid
+            components={{ Toolbar: GridToolbar }}
+            apiRef={apiRef}
+            hideFooterSelectedRowCount={true}
+            localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
+            rowHeight={25}
+            pageSize={5}
+            rows={tableData}
+            columns={columns}
+            paginationModel={paginationModel}
+            onPaginationModelChange={setPaginationModel}
+            onRowSelectionModelChange={(newRowSelectionModel) => {
+              setRowSelectionModel(newRowSelectionModel);
+            }}
+            rowSelectionModel={rowSelectionModel}
+            initialState={{
+              columns: {
+                columnVisibilityModel: {
+                  fullname: false,
+                  external_ds: false,
+                  descr: false,
                 },
-              }}        
-              onRowClick={handleRowClick} {...tableData}
-              style={{ width: 570, height: 500, border: '1px solid rgba(0, 0, 0, 0.23)', borderRadius: '4px' }}
-              sx={{
-                "& .MuiDataGrid-row.Mui-selected": {
-                  backgroundColor: dialogType !== ''||((valueId || '')==='') ? "transparent" : "rgba(0, 0, 0, 0.11)",
-                },
-                "& .MuiDataGrid-cell:focus-within": {
-                  outline: "none !important",
-                },
-              }}
-            />
-  
-            <Collapse in={openAlert}>
-              <Alert
-                severity={alertSeverity}
-                action={
-                  <IconButton
-                    aria-label="close"
-                    color="inherit"
-                    size="small"
-                    onClick={() => {
-                      setOpenAlert(false);
-                    }}
-                  >
-                    <CloseIcon fontSize="inherit" />
-                  </IconButton>
-                }
-              >
-                {alertText}
-              </Alert>
-            </Collapse>
-          </Grid>
-          <Grid item xs={7} sx={{ border: '0px solid blue' }}>
-            <Box sx={{ border: '0px solid red', padding: 0, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-              <Box sx={{ display: 'flex', flexDirection: 'row', gap: 1.5 }}>
-                <TextField id="ch_id" disabled={true} label="Код" sx={{ width: '12ch' }} variant="outlined" value={valueId || ''} size="small" />
-                <TextField id="ch_name" sx={{ width: '50ch' }} label="Обозначение" required size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)} inputRef={inputRef} />
-              </Box>
-              <TextField id="ch_shortname" sx={{ width: '785px' }} label="Краткое название" required size="small" variant="outlined" value={valueShortName || ''} onChange={e => setValueShortName(e.target.value)} />
-              <TextField id="ch_fullname" sx={{ width: '785px' }} label="Полное название" size="small" variant="outlined" value={valueFullName || ''} onChange={e => setValueFullName(e.target.value)} />
-              <FormControl sx={{ width: '30ch' }} size="small">
-                <InputLabel required id="demo-controlled-open-select-label">Тип источника</InputLabel>
-                <Select labelId="demo-controlled-open-select-label" id="demo-controlled-open-select" required value={valueExternalDS} label="Тип источника" defaultValue={true} onChange={e => setValueExternalDS(e.target.value)}>
-                  {valuesExtDS?.map(option => {
-                    return (
-                      <MenuItem key={option.value} value={option.value}>
-                        {option.label ?? option.value}
-                      </MenuItem>
-                    );
-                  })}
-                </Select>
-              </FormControl>  
-              <TextField id="ch_descr" sx={{ width: '785px' }} size="small" label="Комментарий" multiline rows={4} variant="outlined" value={valueDescr || ''} onChange={e => setValueDescr(e.target.value)} />
-            </Box>
-            <Box sx={{ marginTop: '0.4rem' }}>
-              Связанные с источником классификаторы<br/>
-              <DataTableDataSourceClassRef rec_id={valueId||0} />
-            </Box>
-          </Grid>
+              },
+            }}        
+            onRowClick={handleRowClick} {...tableData}
+            style={{ width: 570, height: 500, border: '1px solid rgba(0, 0, 0, 0.23)', borderRadius: '4px' }}
+            sx={{
+              "& .MuiDataGrid-row.Mui-selected": {
+                backgroundColor: dialogType !== ''||((valueId || '')==='') ? "transparent" : "rgba(0, 0, 0, 0.11)",
+              },
+              "& .MuiDataGrid-cell:focus-within": {
+                outline: "none !important",
+              },
+            }}
+          />
+
+          <Collapse in={openAlert}>
+            <Alert
+              severity={alertSeverity}
+              action={
+                <IconButton
+                  aria-label="close"
+                  color="inherit"
+                  size="small"
+                  onClick={() => {
+                    setOpenAlert(false);
+                  }}
+                >
+                  <CloseIcon fontSize="inherit" />
+                </IconButton>
+              }
+            >
+              {alertText}
+            </Alert>
+          </Collapse>
         </Grid>
-        {(isLoading) && 
-          <Backdrop sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }} open={isLoading}>
-            <CircularProgress color="inherit" />
-          </Backdrop> 
-        } 
-        <Dialog open={dialogType !== ''} onClose={handleCloseCancel} fullWidth={true}>
-          <DialogTitle>Внимание</DialogTitle>
-          <DialogContent>
-            <DialogContentText>
-              {getDialogContentText()}
-            </DialogContentText>
-          </DialogContent>
-          <DialogActions>
-            <DialogButtons />
-          </DialogActions>
-        </Dialog>
-      </form>
+        <Grid item xs={7} sx={{ border: '0px solid blue' }}>
+          <form ref={formRef}>
+          <Box sx={{ border: '0px solid red', padding: 0, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+            <Box sx={{ display: 'flex', flexDirection: 'row', gap: 1.5 }}>
+              <TextField id="ch_id" disabled={true} label="Код" sx={{ width: '12ch' }} variant="outlined" value={valueId || ''} size="small" />
+              <TextField id="ch_name" sx={{ width: '50ch' }} label="Обозначение" required size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)} inputRef={inputRef} />
+            </Box>
+            <TextField id="ch_shortname" sx={{ width: '785px' }} label="Краткое название" required size="small" variant="outlined" value={valueShortName || ''} onChange={e => setValueShortName(e.target.value)} />
+            <TextField id="ch_fullname" sx={{ width: '785px' }} label="Полное название" size="small" variant="outlined" value={valueFullName || ''} onChange={e => setValueFullName(e.target.value)} />
+            <FormControl sx={{ width: '30ch' }} size="small">
+              <InputLabel required id="demo-controlled-open-select-label">Тип источника</InputLabel>
+              <Select labelId="demo-controlled-open-select-label" id="demo-controlled-open-select" required value={valueExternalDS} label="Тип источника" defaultValue={true} onChange={e => setValueExternalDS(e.target.value)}>
+                {valuesExtDS?.map(option => {
+                  return (
+                    <MenuItem key={option.value} value={option.value}>
+                      {option.label ?? option.value}
+                    </MenuItem>
+                  );
+                })}
+              </Select>
+            </FormControl>  
+            <TextField id="ch_descr" sx={{ width: '785px' }} size="small" label="Комментарий" multiline rows={4} variant="outlined" value={valueDescr || ''} onChange={e => setValueDescr(e.target.value)} />
+          </Box>
+          </form>
+          <Box sx={{ marginTop: '0.4rem' }}>
+            Связанные с источником классификаторы<br/>
+            <DataTableDataSourceClassRef rec_id={valueId||0} />
+          </Box>
+        </Grid>
+      </Grid>
+      {(isLoading) && 
+        <Backdrop sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }} open={isLoading}>
+          <CircularProgress color="inherit" />
+        </Backdrop> 
+      } 
+      <Dialog open={dialogType !== ''} onClose={handleCloseCancel} fullWidth={true}>
+        <DialogTitle>Внимание</DialogTitle>
+        <DialogContent>
+          <DialogContentText>
+            {getDialogContentText()}
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <DialogButtons />
+        </DialogActions>
+      </Dialog>
     </Box>
   )
   }

@@ -14,7 +14,7 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import { Box, IconButton } from '@mui/material';
+import { Grid, Box, IconButton } from '@mui/material';
 import Alert from '@mui/material/Alert';
 import Collapse from '@mui/material/Collapse';
 import CloseIcon from '@mui/icons-material/Close';
@@ -34,6 +34,8 @@ import { table_names } from './table_names';
 import Autocomplete from '@mui/material/Autocomplete';
 import { ReactComponent as InfoLightIcon } from "./../icons/info.svg";
 import { useGridScrollPagination } from './../helpers/gridScrollHelper';
+import CircularProgress from '@mui/material/CircularProgress';
+import Backdrop from '@mui/material/Backdrop';
 
 var alertText = "Сообщение";
 var alertSeverity = "info";
@@ -82,9 +84,21 @@ const DataTableDoseRatio = (props) => {
   const [valueUsedInitial, setValueUsedInitial] = useState();
   const [valueParameters, setValueParameters] = useState();
   const [valueParametersInitial, setValueParametersInitial] = useState();
-  const [valueParametersDialog, setValueParametersDialog] = useState();
+/*   const [valueParametersDialog, setValueParametersDialog] = useState(); */
   
   const [isEmpty, setIsEmpty] = useState([false]);
+  const [prevRowSelectionModel, setPrevRowSelectionModel] = useState([]);
+  const [clickedRowId, setClickedRowId] = useState(null);
+
+  useEffect(() => {
+    // Если редактирование начато, не меняем выбранную строку
+    if (editStarted) {
+      setRowSelectionModel(prevRowSelectionModel);
+    } else {
+      // Здесь сохраняем предыдущую выбранную строку
+      setPrevRowSelectionModel(rowSelectionModel);
+    }
+  }, [rowSelectionModel, prevRowSelectionModel, editStarted]);      
 
   const valuesDrTypeList = [
     { label: 'e - внешнее облучение', value: 'e' },
@@ -110,13 +124,13 @@ const DataTableDoseRatio = (props) => {
   useEffect(() => {
     setIsEmpty((''===valueTitle)&&(''===valueNameRus)&&(''===valueNameEng)&&(''===valueDescrEng)&&(''===valueDescrRus)   
       &&(''===valueRespRate)&&(''===valueRespYear)&&(''===valueIndoor)&&(''===valueExtCloud)&&(''===valueExtGround)
-      &&(''===valuePhysParamID)&&(''===valueUsed)&&(''===valueParameters)&&(''===valueParametersDialog));
+      &&(''===valuePhysParamID)&&(''===valueUsed)&&(''===valueParameters));
 
       console.log('setIsEmpty');
 
     }, [ valueTitle, valueNameRus, valueNameEng, valueDescrEng, valueDescrRus, 
         valueRespRate, valueRespYear,  valueIndoor, valueExtCloud, valueExtGround,
-        valuePhysParamID, valueUsed, valueParameters, valueParametersDialog]); 
+        valuePhysParamID, valueUsed, valueParameters]); 
       
   useEffect(() => {
     setEditStarted((valueTitleInitial!==valueTitle)||(valueNameRusInitial!==valueNameRus)||(valueNameEngInitial!==valueNameEng)
@@ -185,56 +199,26 @@ const DataTableDoseRatio = (props) => {
     }, [ isLoading, tableData] );
 
   const handleRowClick = (params) => {
+    if (params.row.id === valueId  ) {
+      // Если данные не изменились, просто выходим из функции
+      return;
+    }
     setOpenAlert(false);
-    console.log( 'isEmpty = '+isEmpty);
     if (editStarted&&(!isEmpty))
     {
-      handleClickSave(params);
+      setClickedRowId(params.row.id);
+      setDialogType('save');
     } 
     else 
     {
       setValueID(params.row.id);
-      setValueTitle(params.row.title);
-      setValueNameRus(params.row.name_rus);
-      setValueNameEng(params.row.name_eng);
-      setValueDescrRus(params.row.descr_rus);
-      setValueDescrEng(params.row.descr_eng);
-
-      setValueRespRate(params.row.resp_rate );
-      setValueRespYear(params.row.resp_year );
-      setValueIndoor(params.row.indoor );
-      setValueExtCloud(params.row.ext_cloud );
-      setValueExtGround(params.row.ext_ground );
-      setValueTitleInitial(params.row.title);
-      setValueNameRusInitial(params.row.name_rus);
-      setValueNameEngInitial(params.row.name_eng);
-      setValueDescrRusInitial(params.row.descr_rus);
-      setValueDescrEngInitial(params.row.descr_eng);
-
-      setValueRespRateInitial(params.row.resp_rate );
-      setValueRespYearInitial(params.row.resp_year );
-      setValueIndoorInitial(params.row.indoor );
-      setValueExtCloudInitial(params.row.ext_cloud );
-      setValueExtGroundInitial(params.row.ext_ground );
-      setValuePhysParamId(params.row.physparam_id);
-      setValuePhysParamIdInitial(params.row.physparam_id);
-
-      setValueUsed(params.row.used);
-      setValueUsedInitial(params.row.used);
-      setValueParameters(params.row.parameters);
-      setValueParametersInitial(params.row.parameters);
-
-      setValueDrType(params.row.dr_type);
-      setValueDrTypeInitial(params.row.dr_type);      
-      console.log('params.row.dr_type');
-      console.log(params.row.dr_type);
     }
   }; 
 
   const handleClearClick = (params) => {
     if (editStarted&&(!isEmpty))
     {
-      handleClickSaveWhenNew(params);
+      setDialogType('save');
     } 
     else 
     {
@@ -252,7 +236,8 @@ const DataTableDoseRatio = (props) => {
       setValuePhysParamId('');  
       setValueUsed(true);
       setValueParameters(``);
-      setValueDrType(``);  
+      setValueDrType(``);
+      inputRef.current.focus();  
     }
   }; 
 
@@ -548,10 +533,10 @@ const handleCloseDSInfo = () => {
   };
 
   /////////////////////////////////////////
-  const [openDel, setOpenDel] = React.useState(false); 
+/*   const [openDel, setOpenDel] = React.useState(false); 
   const [openSave, setOpenSave] = React.useState(false); 
   const [openSaveWhenNew, setOpenSaveWhenNew] = React.useState(false); 
-  const [openEdit, setOpenView] = React.useState(false);
+  const [openEdit, setOpenView] = React.useState(false); */
     
 /*   const handleClickView = () => {
     setValueParametersDialog(valueParameters);
@@ -599,7 +584,7 @@ const handleCloseDSInfo = () => {
     parentElement.insertBefore(link, parentElement.firstChild);
   }; */
 
-  const handleClickViewYes = () => {
+/*   const handleClickViewYes = () => {
     setValueParameters(valueParametersDialog);
     setOpenView(false);
   };
@@ -674,16 +659,169 @@ const handleCloseDSInfo = () => {
     setValueExtGround(`` );
     setValuePhysParamId(``);
   };
+ */
 
+    ///////////////////////////////////////// DIALOG
+    const [dialogType, setDialogType] = useState('');
+
+    const getDialogContentText = () => {
+      const allRequiredFieldsFilled = formRef.current?.checkValidity();
+      switch (dialogType) {
+        case 'delete':
+          return (
+            <>
+              В таблице "{table_names[props.table_name]}" предложена к удалению следующая запись: 
+              <br />
+              {valueTitle}; Код в БД = {valueId}. 
+              <br />
+              Вы желаете удалить указанную запись?
+            </>);
+        case 'save':
+          if (!valueId) { // если это новая запись
+            if (allRequiredFieldsFilled) {
+              return `Создана новая запись, сохранить?`;
+            } else {
+              return (
+                <>
+                  Не заданы обязательные поля, запись не будет создана.
+                  <br />
+                  Перейти без сохранения изменений?
+                </>
+              );
+            }
+          } else { // если это редактируемая запись
+            if (allRequiredFieldsFilled) {
+              return `В запись внесены изменения, сохранить изменения?`;
+            } else {
+              return (
+                <>
+                  Не заданы обязательные поля, изменения не будут сохранены
+                  <br />
+                  Перейти без сохранения изменений?
+                </>
+              );            
+            }
+          }
+        default:
+          return '';
+      }
+    };
+
+  const setValues = (row) => {
+    setValueTitle(row.title);
+    setValueTitleInitial(row.title);
+    setValueNameRus(row.name_rus);
+    setValueNameRusInitial(row.name_rus);
+    setValueNameEng(row.name_eng);
+    setValueNameEngInitial(row.name_eng);
+    setValueDescrRus(row.descr_rus);
+    setValueDescrRusInitial(row.descr_rus);
+    setValueDescrEng(row.descr_eng);
+    setValueDescrEngInitial(row.descr_eng);
+
+    setValueRespRate(row.resp_rate);
+    setValueRespRateInitial(row.resp_rate);
+    setValueRespYear(row.resp_year);
+    setValueRespYearInitial(row.resp_year);
+    setValueIndoor(row.indoor);
+    setValueIndoorInitial(row.indoor);
+    setValueExtCloud(row.ext_cloud);
+    setValueExtCloudInitial(row.ext_cloud);
+    setValueExtGround(row.ext_ground);
+    setValueExtGroundInitial(row.ext_ground);
+    setValuePhysParamId(row.physparam_id);
+    setValuePhysParamIdInitial(row.physparam_id); 
+
+    setValueParameters(row.parameters);
+    setValueParametersInitial(row.parameters);
+    setValueDrType(row.dr_type);
+    setValueDrTypeInitial(row.dr_type);
+  };
+
+
+  useEffect(() => {
+    const rowData = tableData.find(row => row.id === valueId);
+    if (rowData) {
+      setValues(rowData);
+    }
+  }, [tableData, valueId]);    
+
+  
+  const handleCloseNo = () => {
+    switch (dialogType) {
+      case 'save':
+        setEditStarted(false);
+        setValueID(clickedRowId);
+        setRowSelectionModel([clickedRowId]);
+        break;
+      default:
+        break;
+    }
+    setDialogType('');
+  };
+  
+    const handleCloseCancel = () => {
+      switch (dialogType) {
+        case 'save':
+          break;
+        default:
+          break;
+      }
+      setDialogType('');
+    };
+    
+    const handleCloseYes = () => {
+      switch (dialogType) {
+        case 'delete':
+          delRec();
+          break;
+        case 'save':
+          saveRec(false);
+          break;
+        default:
+          break;
+      }
+      
+      setDialogType('');
+  
+      if (clickedRowId>0) {
+        setEditStarted(false);
+        setRowSelectionModel([clickedRowId]);
+        const rowData = tableData.find(row => row.id === clickedRowId);
+        setValues(rowData);
+        setEditStarted(false);
+      }
+    };
+  
+    function DialogButtons() {
+      const allRequiredFieldsFilled = formRef.current?.checkValidity();
+    
+      if (dialogType === 'save' && !allRequiredFieldsFilled) {
+        return (
+          <>
+            <Button variant="outlined" onClick={handleCloseNo} >Да</Button>
+            <Button variant="outlined" onClick={handleCloseCancel} >Отмена</Button>
+          </>
+        );
+      } else {
+        return (
+          <>
+            <Button variant="outlined" onClick={handleCloseYes} >Да</Button>
+            <Button variant="outlined" onClick={handleCloseNo} >Нет</Button>
+            {dialogType !== 'delete' && <Button variant="outlined" onClick={handleCloseCancel} >Отмена</Button>}
+          </>
+        );
+      }
+    }
   //////////////////////////////////////////////////////// ACTIONS ///////////////////////////////
   const columns = [
-    { field: 'id', headerName: 'Код', width: 80 },
-    { field: 'title', headerName: 'Обозначение', width: 180, hideable: false },
+    { field: 'id', headerName: 'Код', width: 70 },
+    { field: 'title', headerName: 'Обозначение', width: 150, hideable: false },
     { field: 'name_rus', headerName: 'Название (рус.яз)', width: 250 },
     { field: 'name_eng', headerName: 'Название (англ.яз)', width: 180 },
     { field: 'descr_rus', headerName: 'Полное название (рус.яз)', width: 180 },
     { field: 'descr_eng', headerName: 'Полное название (англ.яз)', width: 180 },
-    { field: 'dr_type', headerName: 'Тип дозового коэффициента', width: 180 },
+    { field: 'dr_type', headerName: 'Тип дозового коэффициента', width: 90 },
   ]
 
   const [openAlert, setOpenAlert] = React.useState(false, '');
@@ -738,11 +876,11 @@ const handleCloseDSInfo = () => {
 
     return (
       <GridToolbarContainer>
-        <IconButton onClick={()=>handleClearClick()}  color="primary" size="small" title="Создать запись">
+        <IconButton onClick={()=>handleClearClick()} disabled={editStarted}  color="primary" size="small" title="Создать запись">
           <SvgIcon fontSize="small" component={PlusLightIcon} inheritViewBox /></IconButton>
         <IconButton onClick={()=>saveRec(true)}  color="primary" size="small" title="Сохранить запись в БД">
           <SvgIcon fontSize="small" component={SaveLightIcon} inheritViewBox/></IconButton>
-        <IconButton onClick={()=>handleClickDelete()}  color="primary" size="small" title="Удалить запись">
+        <IconButton onClick={()=>setDialogType('delete')}  color="primary" size="small" title="Удалить запись">
           <SvgIcon fontSize="small" component={TrashLightIcon} inheritViewBox /></IconButton>
         <IconButton onClick={()=>handleCancelClick()} disabled={!editStarted} color="primary" size="small" title="Отменить редактирование">
           <SvgIcon fontSize="small" component={UndoLightIcon} inheritViewBox /></IconButton>
@@ -759,25 +897,23 @@ const handleCloseDSInfo = () => {
     { title: 'Нет', id: 'false' },
     { title: 'Да', id: 'true' } ];
 
-  function handleFileChange(event) {
+/*   function handleFileChange(event) {
     var reader = new FileReader();
     reader.readAsText(event.target.files[0]);
     reader.onload = e => {
       setValueParameters("" + e.target.result);
       event.target.value = '';
     };
-  }
+  } */
+
+
+  const inputRef = React.useRef();
   const formRef = React.useRef();
   return (
-    
-    <div style={{ height: 640, width: 1500 }}>
-    <form ref={formRef}>  
 
-    <table border = "0" style={{ height: 550, width: 1500 }} ><tbody>
-    <tr>
-      <td style={{ height: 640, width: 600, verticalAlign: 'top' }}>
-      <div style={{ height: 486, width: 585 }}>
-
+    <Box sx={{ border: '0px solid purple', width: 1445, height: 650, padding: 1 }}>
+    <Grid container spacing={1}>
+      <Grid item sx={{width: 583, border: '0px solid green', ml: 1 }}>
       <DataGrid
         components={{ Toolbar: CustomToolbar1 }}
         apiRef={apiRef}
@@ -803,164 +939,168 @@ const handleCloseDSInfo = () => {
             },
           },
         }}        
-        onRowClick={handleRowClick} {...tableData} 
+        onRowClick={handleRowClick} {...tableData}
+        style={{ width: 570, height: 500, border: '1px solid rgba(0, 0, 0, 0.23)', borderRadius: '4px' }}
+        sx={{
+          "& .MuiDataGrid-row.Mui-selected": {
+            backgroundColor: dialogType !== ''||((valueId || '')==='') ? "transparent" : "rgba(0, 0, 0, 0.11)",
+          },
+          "& .MuiDataGrid-cell:focus-within": {
+            outline: "none !important",
+          },
+        }}       
       />
-      </div>
-      <Box sx={{ width: 585 }}>
-      <Collapse in={openAlert}>
-        <Alert
-          severity={alertSeverity}
-          action={
-            <IconButton
-              aria-label="close"
-              color="inherit"
-              size="small"
-              onClick={() => {
-                setOpenAlert(false);
-              }}
-            >
-              <CloseIcon fontSize="inherit" />
-            </IconButton>
-          }
-        >
-          {alertText}
-        </Alert>
-      </Collapse>
-      </Box>
-      
-      </td>
-      <td style={{ height: 550, width: 900, verticalAlign: 'top' }}>
-      <TextField  id="ch_id"  disabled={true} label="Код" sx={{ width: '12ch' }} variant="outlined" value={valueId || ''} size="small" onChange={e => setValueID(e.target.value)}/>
-      &nbsp;&nbsp;&nbsp;&nbsp;
-      <TextField  id="ch_name" sx={{ width: '40ch' }} label="Обозначение" required size="small" variant="outlined" value={valueTitle || '' } autoComplete="off" onChange={e => setValueTitle(e.target.value)}/>
-      <p></p>
-      <TextField  id="ch_name_rus" sx={{ width: '49ch' }}  size="small" label="Название (рус.яз)" required variant="outlined"  value={valueNameRus || ''} onChange={e => setValueNameRus(e.target.value)} />
-      &nbsp;&nbsp;&nbsp;&nbsp;
-      <TextField  id="ch_name_eng" sx={{ width: '49ch' }} size="small" label="Название (англ.яз)"  variant="outlined" value={valueNameEng || ''} onChange={e => setValueNameEng(e.target.value)}/>
-      <p></p>
-      <TextField  id="ch_descr_rus" sx={{ width: '100ch' }} label="Комментарий (рус.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrRus || ''} onChange={e => setValueDescrRus(e.target.value)}/>
-      <p></p> 
-      <TextField  id="ch_descr_rus" sx={{ width: '100ch' }} label="Комментарий (англ.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrEng || ''} onChange={e => setValueDescrEng(e.target.value)}/>
-      <p></p>
 
-      {(props.table_name==='dose_ratio') && 
-      <>
-      <FormControl sx={{ width: '40ch' }} size="small">
-        <InputLabel required id="demo-controlled-open-select-label">Тип дозового коэффициента</InputLabel>
-        <Select
-          labelId="dose-coeff-select"
-          id="dose-coeff-select"
-          required
-          value={valueDrType}
-          label="Тип дозового коэффициента"
-         // defaultValue="e"
-          onChange={e => setValueDrType(e.target.value)}
-        >
-        {valuesDrTypeList?.map(option => {
-            return (
-              <MenuItem key={option.value} value={option.value}>
-                {option.label ?? option.value}
-              </MenuItem>
-            );
-        })}
-        </Select>
-      </FormControl>  
-      <p></p></>
-      }
+        <Collapse in={openAlert}>
+          <Alert
+            severity={alertSeverity}
+            action={
+              <IconButton
+                aria-label="close"
+                color="inherit"
+                size="small"
+                onClick={() => {
+                  setOpenAlert(false);
+                }}
+              >
+                <CloseIcon fontSize="inherit" />
+              </IconButton>
+            }
+          >
+            {alertText}
+          </Alert>
+        </Collapse>
+      </Grid>
+      <Grid item xs={7} sx={{ border: '0px solid blue' }}>
+        <form ref={formRef}>
+        <Box sx={{ border: '0px solid red', padding: 0, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+          <Box sx={{ display: 'flex', flexDirection: 'row', gap: 1.5 }}>
+            <TextField id="ch_id" disabled={true} label="Код" sx={{ width: '12ch' }} variant="outlined" value={valueId || ''} size="small" />
+            <TextField id="ch_name" inputRef={inputRef} sx={{ width: '50ch' }} label="Обозначение" required size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)} />
+          </Box>
+          <Box sx={{ display: 'flex', flexDirection: 'row', gap: 1.5 }}>
+            <TextField  id="ch_name_rus" sx={{ width: '49ch' }}  size="small" label="Название (рус.яз)" required variant="outlined"  value={valueNameRus || ''} onChange={e => setValueNameRus(e.target.value)} />
+            <TextField  id="ch_name_eng" sx={{ width: '49ch' }} size="small" label="Название (англ.яз)"  variant="outlined" value={valueNameEng || ''} onChange={e => setValueNameEng(e.target.value)}/>
+          </Box>
+
+        <TextField  id="ch_descr_rus" sx={{ width: '100ch' }} label="Комментарий (рус.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrRus || ''} onChange={e => setValueDescrRus(e.target.value)}/>
+        <TextField  id="ch_descr_rus" sx={{ width: '100ch' }} label="Комментарий (англ.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrEng || ''} onChange={e => setValueDescrEng(e.target.value)}/>
+
+        {(props.table_name==='dose_ratio') && 
+        <>
+        <FormControl sx={{ width: '40ch' }} size="small">
+          <InputLabel required id="demo-controlled-open-select-label">Тип дозового коэффициента</InputLabel>
+          <Select
+            labelId="dose-coeff-select"
+            id="dose-coeff-select"
+            required
+            value={valueDrType}
+            label="Тип дозового коэффициента"
+          // defaultValue="e"
+            onChange={e => setValueDrType(e.target.value)}
+          >
+          {valuesDrTypeList?.map(option => {
+              return (
+                <MenuItem key={option.value} value={option.value}>
+                  {option.label ?? option.value}
+                </MenuItem>
+              );
+          })}
+          </Select>
+        </FormControl>  
+        </>
+        }
+
+
+  {/*             <Button variant="contained" component="label">Загрузить из файла
+                <input hidden accept="text/xml" type="file" onChange={handleFileChange}/>
+              </Button><p></p> */}
+  {/*             <Button variant="contained" onClick={() => {setValueParameters(""); }}>Очистить</Button>   */}     
+            {/*  <label htmlFor="icon-button-file">
+                <IconButton color="primary" aria-label="upload xml file" component="span" size="small" title="Поиск и загрузка файла *.xml">
+                  <SvgIcon fontSize="small" component={FileImportLightIcon} inheritViewBox/>
+                </IconButton>
+              </label>
+              <br/>
+              &nbsp;<label htmlFor="icon-button-file1">
+              <IconButton onClick={()=>{setValueParameters("")}} color="primary" size="small" title="Очистить">
+                <SvgIcon fontSize="small" component={EraserLightIcon} inheritViewBox /></IconButton>
+              </label>
+              <br/> */}        
          
 
-      <div>
-      {(() => {
-        if (props.table_name==='calcfunction') {
-          return (
-            <div>
-{/*             <Button variant="contained" component="label">Загрузить из файла
-              <input hidden accept="text/xml" type="file" onChange={handleFileChange}/>
-            </Button><p></p> */}
-{/*             <Button variant="contained" onClick={() => {setValueParameters(""); }}>Очистить</Button>   */}     
+         
+        { (props.table_name==='calcfunction') && (
+          <>
+            <Box sx={{ display: 'flex', flexDirection: 'row', gap: 1  }}>
+              <TextField id="ch_parameters" sx={{ width: '100ch' }} label="Параметры функции"  size="small" multiline rows={4} variant="outlined" value={valueParameters || ''} onChange={e => setValueParameters(e.target.value)} disabled/>
+              <label htmlFor="icon-button-file1">
+                <IconButton onClick={()=>{handleClickView()}} color="primary" size="small" title="Сохранить в формате XML">
+                  <SvgIcon fontSize="small" component={DownloadLightIcon} inheritViewBox /></IconButton>
+              </label>
+            </Box>
+          
+            
+              <FormControl sx={{ width: '40ch' }} size="small">
+              <InputLabel id="type"  >Используется расчетным модулем</InputLabel>
+                <Select labelId="type" id="type1"  label="Используется расчетным модулем"  defaultValue={true}  value={valueUsed} onChange={e => setValueUsed(e.target.value)}>
+                  {valuesYesNo?.map(option => {
+                      return (
+                        <MenuItem key={option.id} value={option.id}>
+                          {option.title ?? option.id}
+                        </MenuItem>
+                      );
+                      })}
+                </Select>
+              </FormControl>    
+              </>
+            )
+          } 
+        
+          <Box sx={{ display: 'flex', flexDirection: 'row', gap: 1  }}>
+          <Autocomplete
+              fullWidth
+              sx={{ width: '60ch' }}
+              size="small"
+              disablePortal
+              id="combo-box-child-isotope"
+              value={tablePhysParam.find((option) => option.id === valuePhysParamID) || ''}
+              disableClearable
+              isOptionEqualToValue={(option, value) => option.id === value.id}
+              onChange={(event, newValueAC) => { setValuePhysParamId(newValueAC ? newValueAC.id : -1) }}
+              options={tablePhysParam}
+              getOptionLabel={option => option ? option.title : ""}
+              renderInput={(params) => <TextField {...params} label="Физический параметр (из общего списка)" required />}
+              renderOption={(props, option) => (
+                <li {...props}>
+                  <Tooltip title={option.name_rus}>
+                    <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
+                      <span>{option.title}</span>
+                      <span></span>
+                    </div>
+                  </Tooltip>
+                </li>
+              )}
+          />
 
-            <table border = "0" cellSpacing={0} cellPadding={0} style={{ height: 110, width: 886, verticalAlign: 'top' }}><tbody><tr>
-            <td style={{ height: 110, width: 787, verticalAlign: 'top' }}>
+          <IconButton onClick={()=>handleOpenDSInfo()} color="primary" size="small" title="Физический параметр">
+            <SvgIcon fontSize="small" component={InfoLightIcon} inheritViewBox /></IconButton>
+          </Box>         
+        </Box>
+        </form>
+        <Box sx={{ marginTop: '0.4rem' }}>
+          Источники данных<br/>
+          <DataTableDataSourceClass table_name={props.table_name} rec_id={valueId} />
+        </Box>
+      </Grid>
+    </Grid>
+    {(isLoading) && 
+      <Backdrop sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }} open={isLoading}>
+        <CircularProgress color="inherit" />
+      </Backdrop> 
+    } 
 
-            <TextField  id="ch_parameters" sx={{ width: '100ch' }} label="Параметры функции"  size="small" multiline rows={4} variant="outlined" value={valueParameters || ''} onChange={e => setValueParameters(e.target.value)}   disabled/>
-            </td>
-            <td style={{ height: 110, width: 100, verticalAlign: 'top' }}>
-
-            &nbsp;<input accept="text/xml" id="icon-button-file" type="file" style={{ display: 'none' }} onChange={handleFileChange}/>
-           {/*  <label htmlFor="icon-button-file">
-              <IconButton color="primary" aria-label="upload xml file" component="span" size="small" title="Поиск и загрузка файла *.xml">
-                <SvgIcon fontSize="small" component={FileImportLightIcon} inheritViewBox/>
-              </IconButton>
-            </label>
-            <br/>
-            &nbsp;<label htmlFor="icon-button-file1">
-            <IconButton onClick={()=>{setValueParameters("")}} color="primary" size="small" title="Очистить">
-              <SvgIcon fontSize="small" component={EraserLightIcon} inheritViewBox /></IconButton>
-            </label>
-            <br/> */}
-            &nbsp;<label htmlFor="icon-button-file1">
-            <IconButton onClick={()=>{handleClickView()}} color="primary" size="small" title="Сохранить в формате XML">
-              <SvgIcon fontSize="small" component={DownloadLightIcon} inheritViewBox /></IconButton>
-            </label></td></tr>
-            </tbody></table>
-            <p></p>
-
-            <FormControl sx={{ width: '40ch' }} size="small">
-            <InputLabel id="type"  >Используется расчетным модулем</InputLabel>
-              <Select labelId="type" id="type1"  label="Используется расчетным модулем"  defaultValue={true}  value={valueUsed} onChange={e => setValueUsed(e.target.value)}>
-                {valuesYesNo?.map(option => {
-                    return (
-                      <MenuItem key={option.id} value={option.id}>
-                        {option.title ?? option.id}
-                      </MenuItem>
-                    );
-                    })}
-              </Select>
-            </FormControl>    
-            <p></p> 
-            </div>
-          )
-        } 
-      })()}
-      </div>
-
-      <table border = "0" cellSpacing={0} cellPadding={0}><tbody>
-      <tr>
-      <td>
-        <Autocomplete
-          fullWidth
-          sx={{ width: '60ch' }}
-          size="small"
-          disablePortal
-          id="combo-box-child-isotope"
-          value={tablePhysParam.find((option) => option.id === valuePhysParamID) || ''}
-          disableClearable
-          isOptionEqualToValue={(option, value) => option.id === value.id}
-          onChange={(event, newValueAC) => { setValuePhysParamId(newValueAC ? newValueAC.id : -1) }}
-          options={tablePhysParam}
-          getOptionLabel={option => option ? option.title : ""}
-          renderInput={(params) => <TextField {...params} label="Физический параметр (из общего списка)" required />}
-          renderOption={(props, option) => (
-            <li {...props}>
-              <Tooltip title={option.name_rus}>
-                <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
-                  <span>{option.title}</span>
-                  <span></span>
-                </div>
-              </Tooltip>
-            </li>
-          )}
-        />
-        </td><td>
-        &nbsp;<IconButton onClick={()=>handleOpenDSInfo()} color="primary" size="small" title="Физический параметр">
-        <SvgIcon fontSize="small" component={InfoLightIcon} inheritViewBox /></IconButton>
-        </td>
-        </tr>
-        </tbody>
-        </table>  
-      
-
-      <Dialog open={openDSInfo} onClose={handleCloseDSInfo} fullWidth={true}>
+    <Dialog open={openDSInfo} onClose={handleCloseDSInfo} fullWidth={true}>
       <DialogTitle>
         Физический параметр <b>{(tablePhysParam.find((option) => option.id === valuePhysParamID)||'').title }</b> 
       </DialogTitle>
@@ -974,19 +1114,22 @@ const handleCloseDSInfo = () => {
       <DialogActions>
           <Button variant="outlined" onClick={handleCloseDSInfo} autoFocus>Закрыть</Button>
       </DialogActions>
-      </Dialog>
-      <p></p>
-      <div style={{ height: 300, width: 800 }}>
-      <td>Источники данных<br/>
-        <DataTableDataSourceClass table_name={props.table_name} rec_id={valueId} />
-        </td>
-      </div>
-    </td>
-  </tr>
-  </tbody>
-  </table>
+    </Dialog>
 
-  <Dialog open={openDel} onClose={handleCloseDelNo} fullWidth={true}>
+
+    <Dialog open={dialogType !== ''} onClose={handleCloseCancel} fullWidth={true}>
+      <DialogTitle>Внимание</DialogTitle>
+      <DialogContent>
+        <DialogContentText>
+          {getDialogContentText()}
+        </DialogContentText>
+      </DialogContent>
+      <DialogActions>
+        <DialogButtons />
+      </DialogActions>
+    </Dialog>
+
+{/*     <Dialog open={openDel} onClose={handleCloseDelNo} fullWidth={true}>
       <DialogTitle>
           Внимание
       </DialogTitle>
@@ -1051,9 +1194,10 @@ const handleCloseDSInfo = () => {
         <Button variant="outlined" onClick={handleCloseSaveWhenNewNo} autoFocus>Нет</Button>
         <Button variant="outlined" onClick={handleCloseSaveWhenNewYes} >Да</Button>
     </DialogActions>
-  </Dialog>
-  </form>
- </div>     
+  </Dialog>     */}
+  </Box>  
+
+
   )
 }
 

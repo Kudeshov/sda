@@ -5,7 +5,6 @@ import TextField from '@mui/material/TextField';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
-//import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
 import { Box, Grid, IconButton } from '@mui/material';
 import Alert from '@mui/material/Alert';
@@ -14,7 +13,6 @@ import CloseIcon from '@mui/icons-material/Close';
 import SvgIcon from '@mui/material/SvgIcon';
 import { ReactComponent as EditLightIcon } from "./../icons/edit.svg";
 import { ReactComponent as PlusLightIcon } from "./../icons/plus.svg";
-//import { ReactComponent as InfoLightIcon } from "./../icons/info.svg";
 import { ReactComponent as TrashLightIcon } from "./../icons/trash.svg";
 import { table_names } from './table_names';
 import Autocomplete from '@mui/material/Autocomplete';
@@ -27,7 +25,6 @@ function DataTableDataSourceClassRef(props)  {
   const [open, setOpen] = React.useState(false);
   const [alertText, setAlertText] = useState("Сообщение");
   const [alertSeverity, setAlertSeverity] = useState("info");
-  // Scrolling and positionning
   const [addedId, setAddedId] = useState(null);
   const [tableData, setTableData] = useState([]); 
   const [rowSelectionModel, setRowSelectionModel] = React.useState([]);   
@@ -47,7 +44,6 @@ function DataTableDataSourceClassRef(props)  {
   };
 
   const handleClickAdd = () => {
-    console.log('handleClickAdd');
     setValueID(null);
     setValueDataSourceId(null);
     setValueRecID(null);
@@ -93,37 +89,19 @@ function DataTableDataSourceClassRef(props)  {
     setIsLoading(false);
   }, [props.rec_id])
 
-/*   useEffect(() => {
-    fetch(`/data_source`)
-      .then((data) => data.json())
-      .then((data) => setTableDataSrc(data));
-  }, []) */
-
 const [valueId, setValueID] = React.useState();
 const [valueDataSourceId, setValueDataSourceId] = React.useState();
 const [valueRecId, setValueRecID] = React.useState();
 const [valueTableName, setValueTableName] = React.useState();
 const [valueTitleSrc, setValueTitleSrc] = React.useState();
 const [valueNameSrc, setValueNameSrc] = React.useState();
-
-/* const [valueTitle, setValueTitle] = React.useState();
-const [valueShortName, setValueShortName] = React.useState();
-const [valueFullName, setValueFullName] = React.useState();
-const [valueDescr, setValueDescr] = React.useState();
-const [valueExternalDS, setValueExternalDS] = React.useState(); */
-
 const [isLoading, setIsLoading] = React.useState(false);
 const [openAlert, setOpenAlert] = React.useState(false, '');
 const [selectionModel, setSelectionModel] = React.useState([]);
 const [lastSrcClassID, setlastSrcClassID] = React.useState([0]);
-
 const [tableRef, setTableRef] = useState([]);
-//const [selectedRefItem, setSelectedRefItem] = useState(null);
 
 useEffect(() => {
-
-  console.log(valueTableName);
-
   if(valueTableName) {
     fetch(`/ref_table?table_name=${valueTableName}`)
     .then(response => response.json())
@@ -133,23 +111,6 @@ useEffect(() => {
 }, [valueTableName]);
 
 useEffect(() => {
-/*   if ((!isLoading) && (tableDataSrcClass) && (tableDataSrcClass.length))
-  {
-     setSelectionModel([tableDataSrcClass[0].id]); //выбрать первую строку при перегрузке таблицы
-    lastID = tableDataSrcClass[0].id;
-    setValueID(tableDataSrcClass[0].id);   //обновить переменные
-    setValueDataSourceId(tableDataSrcClass[0].data_source_id);
-    setValueTableName(tableDataSrcClass[0].table_name);
-    setValueRecID(tableDataSrcClass[0].rec_id);
-    setValueTitleSrc(tableDataSrcClass[0].title_src);
-    setValueNameSrc(tableDataSrcClass[0].name_src);
-
-     setValueTitle(tableDataSrcClass[0].title);    
-    setValueShortName(tableDataSrcClass[0].shortname);
-    setValueFullName(tableDataSrcClass[0].fullname);
-    setValueDescr(tableDataSrcClass[0].descr);
-    setValueExternalDS(tableDataSrcClass[0].external_ds);      
-  } */
   if ((!isLoading) && (tableData) )
   {
     //обновить блокировку кнопок "Редактировать" и "Удалить" в зависимости от наличия записей в таблице
@@ -175,22 +136,15 @@ const reloadDataSrcClass = async () => {
     setlastSrcClassID(0);
     setTableData(updatedData);
   } catch (err) {
+    setAlertText('Ошибка при обновлении данных');
+    setAlertSeverity('error')
+    setOpenAlert(true); 
   } finally {
     setIsLoading(false);
   }
 };
 
 const [openConfirmDelete, setOpenConfirmDelete] = React.useState(false); 
-/*
-const [openDSInfo, setOpenDSInfo] = React.useState(false); 
- const handleOpenDSInfo = () => {
-  setOpenDSInfo(true);
-};
-
-const handleCloseDSInfo = () => {
-  setOpenDSInfo(false);
-};
-*/
 const handleClickDelete = () => {
   setOpenConfirmDelete(true);
 };
@@ -204,44 +158,37 @@ const handleCloseConfirmDeleteYes = () => {
   delRec();
 };
 /////////////////////////////////////////////////////////////////// DELETE /////////////////////
-const delRec =  async () => {
-  const js = JSON.stringify({
-     id: valueId,
-     table_name: props.table_name,
-     master_id: props.rec_id
-  });
+const delRec = async () => {
   setIsLoading(true);
   try {
-    const response = await fetch('/data_source_class/'+valueId, {
+    const response = await fetch(`/data_source_class/${valueId}`, {
       method: 'DELETE',
-      body: js,
       headers: {
         'Content-Type': 'Application/json',
         Accept: '*/*',
       },
     });
+
     if (!response.ok) {
-      setAlertSeverity('error');
-      setAlertText(await response.text());
-      setOpenAlert(true);          
+      throw new Error(await response.text());
     }
-    else
-    {
-      setAlertSeverity('success');
-      setAlertText(await response.text());
-      setOpenAlert(true);  
-    }
-  } catch (err) {
-  } finally {
-    setIsLoading(false);
+
+    setAlertSeverity('success');
+    setAlertText(await response.text());
     // Переключаемся на первую запись после удаления
     if (tableData[0]) {
       setValueID(tableData[0].id);
       setAddedId(tableData[0].id);
-    }     
-    reloadDataSrcClass();
+    }      
+  } catch (err) {
+    setAlertSeverity('error');
+    setAlertText(err.message);
+  } finally {
+    setIsLoading(false);
+    setOpenAlert(true);
+    reloadDataSrcClass(); 
   }
-};  
+};
 
 const saveRec = async () => {
   if (formRef.current.reportValidity()) {
@@ -299,7 +246,6 @@ const saveRec = async () => {
 
 const handleRowClick = (params) => {
   setOpenAlert(false);
-  console.log('click', params.row.table_name, params.row.id);
   setValueID(params.row.id);
   setClickedRowId(params.row.id);
   setRowSelectionModel([params.row.id]);
@@ -346,7 +292,7 @@ const formRef = React.useRef();
       <form ref={formRef}>
       <Box sx={{ border: '0px solid purple', height: 250, width: 886 }}>
         <Grid container spacing={1}>
-          <Grid item sx={{width: 780, border: '0px solid black', ml: 0 }}>
+          <Grid item sx={{ width: 780, border: '0px solid black', ml: 0 }}>
             <DataGrid
               sx={{
                 border: '1px solid rgba(0, 0, 0, 0.23)',
@@ -394,18 +340,15 @@ const formRef = React.useRef();
 
           <Grid item sx={{width: 45, border: '0px solid green', ml: 1 }}> 
             <Box sx={{ border: '0px solid purple', display: 'flex', flexDirection: 'column', gap: 0.1, alignItems: 'center', justifyContent: 'center' }}>
-              <IconButton onClick={handleClickAdd} disabled={false}/* {!props.rec_id}  */color="primary" size="small" title="Добавить связь с классификатором">
+              <IconButton onClick={handleClickAdd} disabled={!props.rec_id} color="primary" size="small" title="Добавить связь с классификатором">
                 <SvgIcon fontSize="small" component={PlusLightIcon} inheritViewBox />
               </IconButton>
-              <IconButton onClick={handleClickEdit} disabled={noRecords} color="primary" size="small" title="Редактировать связь с классификатором">
+              <IconButton onClick={handleClickEdit} disabled={!props.rec_id||noRecords} color="primary" size="small" title="Редактировать связь с классификатором">
                 <SvgIcon fontSize="small" component={EditLightIcon} inheritViewBox />
               </IconButton>
-              <IconButton onClick={handleClickDelete} disabled={noRecords} color="primary" size="small" title="Удалить связь с классификатором">
+              <IconButton onClick={handleClickDelete} disabled={!props.rec_id||noRecords} color="primary" size="small" title="Удалить связь с классификатором">
                 <SvgIcon fontSize="small" component={TrashLightIcon} inheritViewBox />
               </IconButton>
-{/*               <IconButton onClick={handleOpenDSInfo} disabled={noRecords} color="primary" size="small" title="Информация по классификатору">
-                <SvgIcon fontSize="small" component={InfoLightIcon} inheritViewBox />
-              </IconButton> */}
             </Box>
           </Grid>
         </Grid>
@@ -496,63 +439,28 @@ const formRef = React.useRef();
       </DialogActions>
     </Dialog>
 
-{/*       <Dialog open={openConfirmDelete} onClose={handleCloseConfirmDelete} fullWidth={true}>
-        <DialogTitle>
-            Внимание
-        </DialogTitle>
-        <DialogContent>
-            <DialogContentText>
-                В таблице "{table_names['data_source_class']}" предложена к удалению следующая запись:<p></p><b>{valueTitleSrc}</b>; Код в БД = <b>{valueId}</b><p></p>
-                Вы желаете удалить указанную запись?        
-            </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-            <Button variant="outlined" onClick={handleCloseConfirmDelete} autoFocus>Нет</Button>
-            <Button variant="outlined" onClick={handleCloseConfirmDeleteYes} >Да</Button>
-        </DialogActions>
-      </Dialog> */}
-
-      <Dialog open={openConfirmDelete} onClose={handleCloseConfirmDelete} fullWidth={true}>
-        <DialogTitle>
-          Внимание
-        </DialogTitle>
-        <DialogContent>
-          <Typography variant="body1" style={{marginBottom: "1em"}}>
-            В таблице "{table_names['data_source_class']}" предложена к удалению следующая запись:
-          </Typography>
-          <Typography variant="body1" style={{fontWeight: "bold", marginBottom: "1em"}}>
-            {valueTitleSrc}; Код в БД = {valueId}
-          </Typography>
-          <Typography variant="body1">
-            Вы желаете удалить указанную запись?        
-          </Typography>
-        </DialogContent>
-        <DialogActions>
-          <Button variant="outlined" onClick={handleCloseConfirmDeleteYes}>Да</Button>
-          <Button variant="outlined" onClick={handleCloseConfirmDelete} autoFocus>Нет</Button>
-        </DialogActions>
-      </Dialog>      
-
-{/*         <Dialog open={openDSInfo} onClose={handleCloseDSInfo} fullWidth={true}>
-        <DialogTitle>
-            Источник данных <b>{valueTitle}</b>
-        </DialogTitle>
-        <DialogContent>
-            <DialogContentText>
-                Код: <b>{valueDataSourceId}</b><p></p>
-                Обозначение: <b>{valueTitle}</b><p></p>
-                Краткое название: <b>{valueShortName}</b><p></p> 
-                Полное название: <b>{valueFullName}</b><p></p> 
-                Источник данных: <b>{valueExternalDS === 'false' ? 'Целевая БД' : 'Внешний источник' }</b><p></p> 
-                Комментарий: <b>{valueDescr}</b><p></p> 
-            </DialogContentText>
-        </DialogContent>
-        <DialogActions>
-            <Button variant="outlined" onClick={handleCloseDSInfo} autoFocus>Закрыть</Button>
-        </DialogActions>
-        </Dialog> */}
-      </form>
-    </div>
-    )
+    <Dialog open={openConfirmDelete} onClose={handleCloseConfirmDelete} fullWidth={true}>
+      <DialogTitle>
+        Внимание
+      </DialogTitle>
+      <DialogContent>
+        <Typography variant="body1" style={{marginBottom: "1em"}}>
+          В таблице "{table_names['data_source_class']}" предложена к удалению следующая запись:
+        </Typography>
+        <Typography variant="body1" style={{fontWeight: "bold", marginBottom: "1em"}}>
+          {valueTitleSrc}; Код в БД = {valueId}
+        </Typography>
+        <Typography variant="body1">
+          Вы желаете удалить указанную запись?        
+        </Typography>
+      </DialogContent>
+      <DialogActions>
+        <Button variant="outlined" onClick={handleCloseConfirmDeleteYes}>Да</Button>
+        <Button variant="outlined" onClick={handleCloseConfirmDelete} autoFocus>Нет</Button>
+      </DialogActions>
+    </Dialog>      
+    </form>
+  </div>
+  )
 }
- export  { DataTableDataSourceClassRef }
+export  { DataTableDataSourceClassRef }
