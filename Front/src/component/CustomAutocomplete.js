@@ -1,35 +1,53 @@
-import * as React from 'react';
-import { useState } from 'react';
-import Autocomplete, { createFilterOptions } from '@mui/material/Autocomplete';
-import Checkbox from '@mui/material/Checkbox';
-import IconButton from '@mui/material/IconButton';
-import SvgIcon from '@mui/material/SvgIcon';
-import TextField from '@mui/material/TextField';
+import React, { useState } from "react";
+import { Grid, Autocomplete, TextField, InputAdornment, Checkbox, IconButton, Tooltip, SvgIcon } from '@mui/material';
+import CheckIcon from '@mui/icons-material/Check';
 import { ReactComponent as CheckDoubleIcon } from "./../icons/check-double.svg";
-import Box from '@mui/material/Box';
+import { styled } from '@mui/system';
 
-// Icons for the Autocomplete component
-const icon = <Checkbox />;
-const checkedIcon = <Checkbox checked />;
+/* const StyledIconButton = styled(IconButton)({
+  padding: 0,
 
-function CustomAutocomplete({
-  value,
-  onChange,
-  options,
-  getOptionLabel,
-  getOptionDisplay = getOptionLabel, // use getOptionLabel as default
-  required,
-  label,
-  placeholder
-}) {
+});  */
+
+const StyledIconButton = styled(IconButton)({
+  position: 'absolute',
+  right: 58, 
+  top: '50%',
+  transform: 'translateY(-50%)',
+  padding: 4, // Уменьшить размер кнопки, но оставить иконку того же размера
+});
+
+const LightTooltip = styled(({ className, ...props }) => (
+  <Tooltip {...props} classes={{ popper: className }} />
+))(({ theme }) => ({
+  [`& .MuiTooltip-tooltip`]: {
+    backgroundColor: theme.palette.common.white,
+    color: theme.palette.text.primary,
+    boxShadow: theme.shadows[1],
+    fontSize: 11,
+    borderRadius: 0, 
+    border: `1px solid ${theme.palette.grey[300]}`,
+  },
+  [`& .MuiTooltip-arrow`]: {
+    color: theme.palette.common.white,
+  },
+}));
+
+const CustomAutocomplete = ({ options, value, onChange, label, width, tooltipField, displayField }) => {
   const [searchValue, setSearchValue] = useState('');
-  
-  const filterOptions = createFilterOptions({
-    stringify: getOptionDisplay,
-  });
+
+  const filterOptions = (options, state) => {
+    return options.filter((option) =>
+      option[displayField] && option[displayField].toLowerCase().includes(state.inputValue.toLowerCase())
+    );
+  };
+
+  const icon = <Checkbox />;
+  const checkedIcon = <Checkbox checked />;
 
   return (
-    <Box display="flex" alignItems="center">
+    <Grid container spacing={1} style={{ width: `${width}px` }}>
+    <Grid item xs={11}>
       <Autocomplete
         size="small"
         value={value}
@@ -41,62 +59,87 @@ function CustomAutocomplete({
           }
         }}
         inputValue={searchValue}
+        onClose={() => { setSearchValue(""); }}
         multiple
         limitTags={7}
         id="autocomplete-isotope"
         options={options}
-        getOptionLabel={getOptionLabel}
+        getOptionLabel={(option) => option[displayField]}
         disableCloseOnSelect
         filterOptions={filterOptions}
         renderOption={(props, option, { selected }) => (
-          <Box 
-            {...props} 
-            sx={{ 
-              display: 'flex', 
-              alignItems: 'center', 
-              p: 1, 
-              height: 'auto',
-              lineHeight: 'normal',
-            }}
-          >
+          <li {...props} style={{ padding: '4px 8px' }}>
             <Checkbox
               size="small"
               icon={icon}
               checkedIcon={checkedIcon}
-              style={{ marginRight: 8 }}
+              style={{ marginRight: 8, height: 32, width: 32 }} 
               checked={selected}
             />
-            {getOptionDisplay(option)}
-          </Box>
+            <Tooltip title={option[tooltipField]}>
+              <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
+                <span>{option[displayField]}</span>
+                <span></span>
+              </div>
+            </Tooltip>
+          </li>
         )}
         renderInput={(params) => (
           <TextField
             {...params}
+            InputProps={{
+              ...params.InputProps,
+              endAdornment: (
+                <div>
+                  {searchValue && (
+                    <InputAdornment position="end">
+                      <LightTooltip title="Добавить найденные">
+                        <StyledIconButton
+                          onClick={() => {
+                            const filteredOptions = filterOptions(options, { inputValue: searchValue });
+                            const newValues = [...value, ...filteredOptions];
+                            onChange(null, newValues);
+                            setSearchValue("");
+                            params.inputProps.ref.current.blur();
+                          }}
+                        >
+                          <CheckIcon fontSize="small" />
+                        </StyledIconButton>
+                      </LightTooltip>
+                    </InputAdornment>
+                  )}
+                  {params.InputProps.endAdornment}
+                </div>
+              ),
+            }}
             inputProps={{
               ...params.inputProps,
               required: value.length === 0,
               value: options.length === 0 ? "Выбор отсутствует" : params.inputProps.value,
             }}
             label={label}
-            placeholder={placeholder}
-            required  
+            placeholder={label}
+            required
           />
         )}
       />
+    </Grid>
+    <Grid item xs={1} display="flex" alignItems="center">
       <IconButton
         onClick={() => {
-          const filtered = filterOptions(options, searchValue);
-          onChange({}, filtered);
-          setSearchValue('');  // очищаем поле ввода после нажатия на "Выбрать все"
-        }} 
-        color="primary" 
-        size="small" 
+          onChange(null, options);
+        }}
+        color="primary"
+        size="small"
         title="Выбрать все"
-      >  
+        style={{ marginLeft: -2 }}   
+      >
         <SvgIcon fontSize="small" component={CheckDoubleIcon} inheritViewBox />
       </IconButton>
-    </Box>
+ 
+      </Grid>
+    </Grid>
   );
-}
+};
 
 export default CustomAutocomplete;

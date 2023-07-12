@@ -21,6 +21,8 @@ import { ReactComponent as CollapseIcon } from "./../icons/chevron-double-right.
 import { ReactComponent as ExpandIcon } from "./../icons/chevron-double-down.svg";
 import { ReactComponent as SearchIcon } from "./../icons/search.svg";
 import { ReactComponent as TimesCircleIcon } from "./../icons/times-circle.svg";
+import { ReactComponent as FolderIcon } from "./../icons/folder.svg";
+import { ReactComponent as FileIcon } from "./../icons/file.svg";
 import TreeView from "@material-ui/lab/TreeView";
 import TreeItem from "@material-ui/lab/TreeItem";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
@@ -38,6 +40,9 @@ import Autocomplete from '@mui/material/Autocomplete';
 import Tooltip from '@mui/material/Tooltip';
 import { DataTableActionCriterion } from './dt_action_criterion';
 import { listToTree } from '../helpers/treeHelper';
+//import FolderIcon from '@material-ui/icons/Folder';
+//import DescriptionIcon from '@material-ui/icons/Description';
+//import { useTheme } from '@material-ui/core/styles';
 
 var alertText = "Сообщение";
 var alertSeverity = "info";
@@ -59,6 +64,8 @@ const DataTableCriterion = (props) => {
   const [tableChemCompGr, settableChemCompGr] = useState([]);
   const [tableAerosolAmad, settableAerosolAmad] = useState([]);
   const [tableDataSource, settableDataSource] = useState([]);
+  const [tableCriterionGr, settableCriterionGr] = useState([]);
+
   const [tableExpScenario, settableExpScenario] = useState([]); 
   const [valueCalcfunctionID, setValueCalcfunctionID] = useState(); 
   const [valueCrValue, setValueCrValue] = useState(); 
@@ -278,23 +285,6 @@ const DataTableCriterion = (props) => {
       }
     }, [ tableData] );
 
-    const getTreeItemsFromData = treeItems => {
-      return treeItems.map(treeItemData => {
-        let children = undefined;
-        if (treeItemData.children && treeItemData.children.length > 0) {
-          children = getTreeItemsFromData(treeItemData.children);
-        }
-        return ( 
-          <TreeItem
-            key={treeItemData.id}
-            nodeId={treeItemData.id?treeItemData.id.toString():0}
-            label={treeItemData.title}
-            children={children}
-          />
-        );
-      });
-    };
-
     const [expanded, setExpanded] = React.useState([]);
     const [selected, setSelected] = React.useState('');
 
@@ -310,6 +300,35 @@ const DataTableCriterion = (props) => {
     const [treeFilterString, setTreeFilterString] = React.useState('');
 
     const DataTreeView = ({ treeItems }) => {
+      //const theme = useTheme();
+
+      const getTreeItemsFromData = treeItems => {
+      
+        return treeItems.map(treeItemData => {
+          let children = undefined;
+          if (treeItemData.children && treeItemData.children.length > 0) {
+            children = getTreeItemsFromData(treeItemData.children);
+          }
+          return (
+            <TreeItem
+              key={treeItemData.id}
+              nodeId={treeItemData.id?treeItemData.id.toString():0}
+              label={
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  {treeItemData.crit === 0 ?
+                    <SvgIcon fontSize="small" style={{ color: '#4b77d1', fontSize: '19px' }} component={FolderIcon} inheritViewBox />: 
+                    <SvgIcon fontSize="small" style={{ color: '#4b77d1', fontSize: '19px' }} component={FileIcon} inheritViewBox />
+                  }
+                  <span style={{ marginLeft: '5px' }}>{treeItemData.title}</span>
+                </div>
+              }
+              children={children}
+            />
+          );
+        });
+      };
+  
+
       return (
         <div>
         <p></p>
@@ -590,6 +609,12 @@ const DataTableCriterion = (props) => {
     fetch(`/data_source`)
       .then((data) => data.json())
       .then((data) => settableDataSource(data)); 
+  }, [])
+
+  useEffect(() => {
+    fetch(`/criterion_gr`)
+      .then((data) => data.json())
+      .then((data) => settableCriterionGr(data)); 
   }, [])
 
   ///////////////////////////////////////////////////////////////////  Tree load functions and hook  /////////////////////
@@ -1325,17 +1350,17 @@ const DataTableCriterion = (props) => {
       &nbsp;&nbsp;&nbsp;&nbsp;
       <FormControl sx={{ width: '30ch' }} size="small">
         <InputLabel id="ch_parent_id"required>Группа критериев</InputLabel>
-          <Select labelId="ch_parent_id" id="ch_parent_id1" label="Группа критериев"  value={valueParentID  || ""  }  onChange={e => setValueParentID(e.target.value) }  >
+          <Select labelId="ch_parent_id" id="ch_parent_id1" label="Группа критериев" value={valueParentID  || "" } onChange={e => setValueParentID(e.target.value) }  >
           <MenuItem key={-1} value={-1}>
-                    {'Не задан'}
-                  </MenuItem>
-                  {tableData?.map(option => {
-                  return (
-                  <MenuItem key={option.id} value={option.id}>
-                    {option.title ?? option.id}
-                  </MenuItem>
-                  );
-                })}
+            {'Не задан'}
+            </MenuItem>
+            {tableCriterionGr?.map(option => {
+            return (
+            <MenuItem key={option.id} value={option.id}>
+              {option.title ?? option.id}
+            </MenuItem>
+            );
+          })}
         </Select>
       </FormControl>  
 

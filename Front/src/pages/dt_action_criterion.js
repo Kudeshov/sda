@@ -449,7 +449,7 @@ const formRef = React.useRef();
       </Dialog>
       <Dialog open={openDSInfo} onClose={handleCloseDSInfo} fullWidth={true}>
       <DialogTitle>
-          Источник данных <b>{valueTitle}</b>
+          Действие <b>{valueTitle}</b>
       </DialogTitle>
       <DialogContent>
           <DialogContentText>

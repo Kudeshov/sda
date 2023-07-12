@@ -8,7 +8,7 @@ import { ruRU } from '@mui/material/locale';
 const theme = createTheme(
   {
     palette: {
-      primary: { main: '#1976d2' },
+      primary: { main: '#4b77d1' }, 
     },
     components: {
       MuiTextField: {
