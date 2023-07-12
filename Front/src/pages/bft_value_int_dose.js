@@ -1458,7 +1458,7 @@ const reloadDataHandler = async () => {
           </Grid>
 
           <Grid item xs={3}>
-          <Box marginRight={4}>
+          <Grid item xs={11}>
             <Autocomplete
               size="small"
               value={currFlt.selDoseRatioValue}
@@ -1477,7 +1477,7 @@ const reloadDataHandler = async () => {
                   </Tooltip>
                 );
               }}            
-            /></Box>           
+            /></Grid><Grid item xs={1} display="flex" alignItems="center"></Grid>          
           </Grid>
           <Grid item xs={3}>
             { organVisible && ( 
@@ -1517,7 +1517,8 @@ const reloadDataHandler = async () => {
           </Grid>
           <Grid item xs={3}>
           </Grid>
-          <Grid item xs={3}><Box marginRight={4}>
+          <Grid item xs={3}>
+            <Grid item xs={11}>
             <Autocomplete
               size="small"
               value={currFlt.selIrradiationValue}
@@ -1532,7 +1533,8 @@ const reloadDataHandler = async () => {
                 };
                 return <TextField {...params} inputProps={inputProps} label="Тип облучения" placeholder="Тип облучения" required/>;
               }}                 
-            /></Box>            
+            />    
+            </Grid><Grid item xs={1} display="flex" alignItems="center"></Grid>         
           </Grid>
           <Grid item xs={3}>
             { substFormVisible && ( 
@@ -1551,8 +1553,8 @@ const reloadDataHandler = async () => {
               />              
             )}          
           </Grid>
-          <Grid item xs={3}>
-            {aerosolSolVisible && (
+          {aerosolSolVisible && (
+            <Grid item xs={3}>
               <CustomAutocomplete 
                 options={tableAerosolSolFiltered} 
                 value={currFlt.selAerosolSolValues} 
@@ -1566,8 +1568,7 @@ const reloadDataHandler = async () => {
                 displayField="name_rus"
                 tooltipField="name_eng"              
               />              
-            )}
-          </Grid>
+          </Grid>)}
           <Grid item xs={3}>
             {aerosolAmadVisible && (
               <CustomAutocomplete 
@@ -1585,6 +1586,11 @@ const reloadDataHandler = async () => {
               />              
             )}          
           </Grid>
+          {!aerosolSolVisible && (
+            <Grid item xs={3}>
+          </Grid>)}
+
+
           <Grid item xs={3}>
             <CustomAutocomplete 
               options={tablePeopleClassFiltered} 
