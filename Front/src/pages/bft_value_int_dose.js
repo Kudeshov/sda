@@ -42,8 +42,6 @@ import { table_names } from './table_names';
 import { ReactComponent as DownloadLightIcon } from "./../icons/download.svg";
 import Divider from '@mui/material/Divider';
 import { useGridScrollPagination } from './../helpers/gridScrollHelper';
-//import CustomAutocomplete from './../component/CustomAutocomplete';
-
 import Checkbox from '@mui/material/Checkbox';
 import CheckBoxOutlineBlankIcon from '@mui/icons-material/CheckBoxOutlineBlank';
 import CheckBoxIcon from '@mui/icons-material/CheckBox';
@@ -51,9 +49,6 @@ import { ReactComponent as CheckDoubleIcon } from "./../icons/check-double.svg";
 import { InputAdornment } from '@mui/material';
 import { styled } from '@mui/system';
 import CheckIcon from '@mui/icons-material/Check';
-
-let alertText = "Сообщение";
-let alertSeverity = "info";
 const MAX_ROWS = 50000;
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
@@ -127,6 +122,9 @@ const BigTableValueIntDose = (props) => {
   const [openAlert, setOpenAlert] = React.useState(false, '');
   
   const [lastOperationWasAdd, setLastOperationWasAdd] = useState(false);
+
+  const [alertText, setAlertText] = useState("Сообщение");
+  const [alertSeverity, setAlertSeverity] = useState("info");
 
   const [pageState] = useState({
     page: 0,
@@ -255,8 +253,6 @@ const BigTableValueIntDose = (props) => {
 
   // Применение текущего значения фильтра
   const applyFilter = () => {
-
-    console.log('applyFilter');
     setApplFlt(prevState => {
       // Копируем все свойства из currFlt
       let newState = {...currFlt};
@@ -316,7 +312,6 @@ const BigTableValueIntDose = (props) => {
       if (newState.selAerosolAMADValues[0] && newState.selAerosolAMADValues[0].id) {
         setValueAerosolAMADID(newState.selAerosolAMADValues[0].id);
       }
-      console.log(newState);     
       // Возвращаем новый объект, который будет новым состоянием
       return newState;
     });
@@ -481,8 +476,6 @@ const BigTableValueIntDose = (props) => {
   }, [tableIntDoseAttr, currFlt.selPeopleClassValues, currFlt.selDataSourceValues]);
 
   const handleChangeDataSource = (event, value) => {
-
-    //console.log("handleChangeDataSource called", value);
     // Обновление значения компонента Autocomplete
     const newFilter = {
       selDataSourceValues: value,
@@ -499,7 +492,6 @@ const BigTableValueIntDose = (props) => {
       selAerosolAMADValues: [],
       selExpScenarioValues: [],
     };
-    //console.log("Updating state with new filter", newFilter);
     updateCurrentFilter(newFilter);
   };  
   
@@ -669,7 +661,6 @@ const BigTableValueIntDose = (props) => {
 
   const handleClickEdit = () => {
 
-    console.log('setOpenEdit(true)');
     setOpenEdit(true);
   };
   const handleCloseEditYes = () => {
@@ -716,57 +707,52 @@ const BigTableValueIntDose = (props) => {
   
   ///////////////////////////////////////////////////////////////////  SAVE  /////////////////////
   const saveRec = async ( fromToolbar ) => {
-
-    if (formRefDialog.current.reportValidity() )
-    {
-    const js = JSON.stringify({
-      dose_ratio_id: valueDoseRatioID,
-      dr_value: valueDrValue,
-      chem_comp_gr_id: valueChemCompGrID    
-    });
-    if (!valueID) {
-      addRec();
-      return;
-    } 
-    setIsLoading(true);
-    try {
-      const response = await fetch(`/${props.table_name}/`+valueID, {
-       method: 'PUT',
-       body: js,
-       headers: {
-         'Content-Type': 'Application/json',
-         Accept: '*/*',
-       },
-     });
-     if (!response.ok) {
-        alertSeverity = 'error';
-        alertText = await response.text();
-        setOpenAlert(true);          
+    if (formRefDialog.current.reportValidity() ) {
+      const js = JSON.stringify({
+        dose_ratio_id: valueDoseRatioID,
+        dr_value: valueDrValue,
+        chem_comp_gr_id: valueChemCompGrID    
+      });
+  
+      if (!valueID) {
+        addRec();
+        return;
+      } 
+  
+      setIsLoading(true);
+  
+      try {
+        const response = await fetch(`/${props.table_name}/`+valueID, {
+          method: 'PUT',
+          body: js,
+          headers: {
+            'Content-Type': 'Application/json',
+            Accept: '*/*',
+          },
+        });
+  
+        const responseText = await response.text();
+  
+        setAlertSeverity(response.ok ? "success" : "error");
+        setAlertText(responseText);
+        setOpenAlert(true);
+      } catch (err) {
+        setAlertText(err.message);
+        setAlertSeverity('error');
+        setOpenAlert(true);
+      } finally {
+        setIsLoading(false);
+        reloadData();     
       }
-      else
-      {
-        alertSeverity = "success";
-        alertText = await response.text();
-        setOpenAlert(true);  
-      }
-   } catch (err) {
-     alertText = err.message;
-     alertSeverity = 'error';
-     setOpenAlert(true);
-   } finally {
-     setIsLoading(false);
-     console.log('Saverec finally reloaddata');
-     reloadData();     
-   }
-  }
+    }
   };
   
 /////////////////////////////////////////////////////////////////// ADDREC ///////////////////// 
-const addRec = async ()  => {
+const addRec = async () => {
   const js = JSON.stringify({
     dose_ratio_id: valueDoseRatioID,
     dr_value: valueDrValue,
-    chem_comp_gr_id: valueChemCompGrID,  
+    chem_comp_gr_id: valueChemCompGrID,
     people_class_id: valuePeopleClassID,
     isotope_id: valueIsotopeID,
     integral_period_id: valueIntegralPeriodID,
@@ -778,11 +764,11 @@ const addRec = async ()  => {
     aerosol_sol_id: valueAerosolSolID,
     aerosol_amad_id: valueAerosolAMADID,
     exp_scenario_id: valueExpScenarioID,
-    irradiation_id: valueIrradiationID
+    irradiation_id: valueIrradiationID,
   });
-  
+
   setIsLoading(true);
-  //console.log(js);
+
   try {
     const response = await fetch(`/${props.table_name}/`, {
       method: 'POST',
@@ -793,182 +779,102 @@ const addRec = async ()  => {
       },
     });
 
-    if (!response.ok) {
-      alertSeverity = 'error';
-      alertText = await response.text();
-
-      if (alertText.includes('value_int_dose_1_uidx')) {
-        alertText = 'Запись не добавлена. Запись с таким набором значений классификаторов уже существует';
-      }     
-      setOpenAlert(true);          
+    let responseText = await response.text();
+    
+    if (responseText.includes('value_int_dose_1_uidx')) {
+      responseText = 'Запись не добавлена. Запись с таким набором значений классификаторов уже существует';
+    } else if (response.ok) {
+      responseText = 'Запись добавлена';
     }
-    else
-    {
-      alertSeverity = "success";
-      alertText = `Запись добавлена`;
-      //setRecordAdded(true);
-      setOpenAlert(true);
-      console.log('Addrec reloaddata');
-      reloadData(); // Перезагрузка данных после успешного добавления записи  
+    
+    setAlertSeverity(response.ok ? "success" : "error");
+    setAlertText(responseText);
+    setOpenAlert(true);
+
+    if (response.ok) {
+      reloadData(); // Перезагрузка данных после успешного добавления записи
     }
   } catch (err) {
-    if (err.message.includes('value_int_dose_1_uidx')) {
-      alertText = 'Запись не добавлена. Запись с таким набором значений классификаторов уже существует';
-    } else {
-      alertText = err.message;
-    }
-    alertSeverity = 'error';
+    const errorMessage = err.message.includes('value_int_dose_1_uidx') 
+      ? 'Запись не добавлена. Запись с таким набором значений классификаторов уже существует'
+      : err.message;
+
+    setAlertSeverity('error');
+    setAlertText(errorMessage);
     setOpenAlert(true);
   } finally {
     setIsLoading(false);
     setLastOperationWasAdd(true);
-    if (valueIDInitial)
-    {
+    
+    if (valueIDInitial) {
       const originalRow = tableValueIntDose.find(row => row.id === valueIDInitial);
       handleRowClick({ row: originalRow });
     }
   }
 };
-
 /////////////////////////////////////////////////////////////////// DELETE /////////////////////
-const delRec =  async () => {
-  const js = JSON.stringify({
-      id: valueID,
-  });
+
+const delRec = async () => {
   setIsLoading(true);
+
   try {
-    const response = await fetch(`/${props.table_name}/`+valueID, {
+    const response = await fetch(`/${props.table_name}/` + valueID, {
       method: 'DELETE',
-      body: js,
       headers: {
         'Content-Type': 'Application/json',
         Accept: '*/*',
       },
     });
-    if (!response.ok) {
-      alertSeverity = 'error';
-      alertText = await response.text();
-      setOpenAlert(true);          
-    }
-    else
-    {
-      alertSeverity = "success";
-      alertText = await response.text();
-      console.log(alertText);
-      setOpenAlert(true); 
+
+    const responseText = await response.text();
+
+    setAlertSeverity(response.ok ? "success" : "error");
+    setAlertText(responseText);
+    setOpenAlert(true); 
+
+    if (response.ok) {
       reloadData();
-      if (tableValueIntDose && tableValueIntDose.length > 0) 
-        handleRowClick({ row: tableValueIntDose.find(row => row.id === tableValueIntDose[0].id) });
+      if (tableValueIntDose && tableValueIntDose.length > 0) {
+        handleRowClick({ row: tableValueIntDose[0] });
+      }
     }
   } catch (err) {
-    alertText = err.message;
-    alertSeverity = 'error';
+    setAlertText(err.message);
+    setAlertSeverity('error');
     setOpenAlert(true);
   } finally {
     setIsLoading(false);
   }
-};  
+};
 
-  // загрузка справочников   
-  useEffect( () => {
-    async function fetchData() {
-      await fetch(`/data_source`)
-      .then((data) => data.json())
-      .then((data) => setTableDataSource(data));
-    }
-    fetchData();
-  },[]);
+const fetchData = async (url, setStateFunc) => {
+  try {
+    const response = await fetch(url);
+    const data = await response.json();
+    setStateFunc(data);
+  } catch (error) {
+    console.error(`Failed to fetch data from ${url}: ${error.message}`);
+  }
+}
 
-  useEffect(() => {
-    fetch(`/data_source_class_min`)
-      .then((data) => data.json())
-      .then((data) => setTableDataSourceClass(data)); 
-  }, [props.table_name])
-
-  useEffect(() => {
-    fetch(`/organ`)
-      .then((data) => data.json())
-      .then((data) => setTableOrgan(data)); 
-  }, [props.table_name])
-
-  useEffect(() => {
-    fetch(`/irradiation`)
-      .then((data) => data.json())
-      .then((data) => setTableIrradiation(data)); 
-  }, [props.table_name])
-
-  useEffect(() => {
-    fetch(`/isotope_min`)
-      .then((data) => data.json())
-      .then((data) => setTableIsotope(data)); 
-  }, [props.table_name])
-
-  useEffect(() => {
-    fetch(`/integral_period/`)
-      .then((data) => data.json())
-      .then((data) => setTableIntegralPeriod(data)); 
-  }, [props.table_name])
-
-  useEffect(() => {
-    fetch(`/dose_ratio/`)
-      .then((data) => data.json())
-      .then((data) => setTableDoseRatio(data)); 
-  }, [props.table_name])
-
-  useEffect(() => {
-    fetch(`/let_level/`)
-      .then((data) => data.json())
-      .then((data) => setTableLetLevel(data)); 
-  }, [props.table_name])
-
-  useEffect(() => {
-    fetch(`/agegroup/`)
-      .then((data) => data.json())
-      .then((data) => setTableAgeGroup(data)); 
-  }, [props.table_name])
-
-  useEffect(() => {
-    fetch(`/subst_form/`)
-      .then((data) => data.json())
-      .then((data) => setTableSubstForm(data)); 
-  }, [props.table_name])
-
-  useEffect(() => {
-    fetch(`/aerosol_sol/`)
-      .then((data) => data.json())
-      .then((data) => setTableAerosolSol(data)); 
-  }, [props.table_name])
-
-  useEffect(() => {
-    fetch(`/aerosol_amad/`)
-      .then((data) => data.json())
-      .then((data) => setTableAerosolAMAD(data)); 
-  }, [props.table_name])
-
-  useEffect(() => {
-    fetch(`/exp_scenario/`)
-      .then((data) => data.json())
-      .then((data) => setTableExpScenario(data)); 
-  }, [props.table_name])
- 
-  useEffect(() => {
-    fetch(`/people_class/`)
-      .then((data) => data.json())
-      .then((data) => setTablePeopleClass(data)); 
-  }, [props.table_name])
-
-  useEffect(() => {
-    fetch(`/chem_comp_gr_min/`)
-      .then((data) => data.json())
-      .then((data) => setTableChemCompGr(data)); 
-  }, [props.table_name])
-
-   useEffect(() => {
-    fetch(`/int_dose_attr`)
-      .then((data) => data.json())
-      .then((data) => setTableIntDoseAttr(data)); 
-  }, [props.table_name]) 
-
+useEffect(() => {
+  fetchData('/data_source', setTableDataSource);
+  fetchData(`/data_source_class_min`, setTableDataSourceClass);
+  fetchData(`/organ`, setTableOrgan);
+  fetchData(`/irradiation`, setTableIrradiation);
+  fetchData(`/isotope_min`, setTableIsotope);
+  fetchData(`/integral_period/`, setTableIntegralPeriod);
+  fetchData(`/dose_ratio/`, setTableDoseRatio);
+  fetchData(`/let_level/`, setTableLetLevel);
+  fetchData(`/agegroup/`, setTableAgeGroup);
+  fetchData(`/subst_form/`, setTableSubstForm);
+  fetchData(`/aerosol_sol/`, setTableAerosolSol);
+  fetchData(`/aerosol_amad/`, setTableAerosolAMAD);
+  fetchData(`/exp_scenario/`, setTableExpScenario);
+  fetchData(`/people_class/`, setTablePeopleClass);
+  fetchData(`/chem_comp_gr_min/`, setTableChemCompGr);
+  fetchData(`/int_dose_attr`, setTableIntDoseAttr);
+}, [props.table_name]);
 
   const checkColumns = React.useCallback((data, flt) => {
     let columnsToShow = {
@@ -1011,12 +917,10 @@ const delRec =  async () => {
         const noFilterValues = !flt[currFltName] || flt[currFltName].length === 0;
         if (noFilterValues) {
           columnsToShow[colName] = false; // скрываем колонку, если в фильтре не выбрано ни одного значения
-          //console.log(colName, noFilterValues, columnsToShow[colName]);
         } else {
           const onlyOneFilterValue = flt[currFltName] && flt[currFltName].length === 1;
           const allColumnValuesSame = onlyOneFilterValue && data.every((row) => row[colName] === data[0][colName]);
           columnsToShow[colName] = !allColumnValuesSame;
-          //console.log(colName, noFilterValues, columnsToShow[colName]);
         }
       } else {
         columnsToShow[colName] = false;
@@ -1027,96 +931,65 @@ const delRec =  async () => {
   
   const [vidColumnVisibilityModel, setVidColumnVisibilityModel] = useState();
 
-    //загрузка данных в основную таблицу
-    const reloadData = React.useCallback(async () =>  {
-      if ((!applFlt.selDataSourceValues)|| (applFlt.selDataSourceValues.length===0))
-      {
-        setTableValueIntDose([]);
-        return;
-      }
-
-      setIsLoading(true);
-      try {
-        const  idsDS =  applFlt.selDataSourceValues.map(item => item.id).join(','); //список ids
-        const  idsOrgan =  applFlt.selOrganValues.map(item => item.id).join(',');
-        const  idsIrradiation = applFlt.selIrradiationValue?[applFlt.selIrradiationValue.id]:[]; //одно значение - поэтому приводим его к массиву []
-        const  idsDoseRatio =  applFlt.selDoseRatioValue?[applFlt.selDoseRatioValue.id]:[]; 
-        const  idsIsotope =  applFlt.selIsotopeValues.map(item => item.id).join(',');
-        const  idsIntegralPeriod =  applFlt.selIntegralPeriodValues.map(item => item.id).join(',');
-        const  idsLetLevel =  applFlt.selLetLevelValues.map(item => item.id).join(',');
-        const  idsAgeGroup =  applFlt.selAgeGroupValues.map(item => item.id).join(',');
-        const  idsSubstForm =  applFlt.selSubstFormValues.map(item => item.id).join(',');
-        const  idsAerosolSol =  applFlt.selAerosolSolValues.map(item => item.id).join(',');
-        const  idsAerosolAMAD =  applFlt.selAerosolAMADValues.map(item => item.id).join(',');
-        const  idsExpScenario =  applFlt.selExpScenarioValues.map(item => item.id).join(',');
-        const  idsPeopleClass =  applFlt.selPeopleClassValues.map(item => item.id).join(',');
-  
-        const response = await fetch(`/value_int_dose?data_source_id=`+idsDS+`&organ_id=`+idsOrgan+
-        `&irradiation_id=`+idsIrradiation+`&isotope_id=`+idsIsotope+
-        `&integral_period_id=`+idsIntegralPeriod+`&dose_ratio_id=`+idsDoseRatio+
-        `&let_level_id=`+idsLetLevel+`&agegroup_id=`+idsAgeGroup+`&subst_form_id=`+idsSubstForm+
-        `&aerosol_sol_id=`+idsAerosolSol+`&aerosol_amad_id=`+idsAerosolAMAD+`&exp_scenario_id=`+idsExpScenario+
-        `&people_class_id=`+idsPeopleClass+
-        `&page=`+(pageState.page + 1)+`&pagesize=`+pageState.pageSize
-        );   
-
-        if (!response.ok) {
-          alertText = `Ошибка при обновлении данных: ${response.status}`;
-          alertSeverity = "false";
-          const error = response.status + ' (' +response.statusText+')';  
-          throw new Error(`${error}`);
-        }
-        else
-        {  
-          const result = await response.json();
-          const vidColumnVisibilityModel = checkColumns(result, applFlt);
-          setTableValueIntDose(result);
-          //console.log('applFlt', applFlt);
-          //console.log('vidColumnVisibilityModel', vidColumnVisibilityModel);
-          setVidColumnVisibilityModel(vidColumnVisibilityModel);
-          if (result && result.length >= MAX_ROWS) {
-            alertText = `Внимание, отобрано первые ${MAX_ROWS} строк. Укажите более строгий фильтр, чтобы уточнить результат.`;
-            alertSeverity = "warning";
-          } 
-          if (result && result.length > 0) {
-            if (lastOperationWasAdd) {
-              scrollToIndexRef.current = Math.max(...result.map(item => item.id));
-              setLastOperationWasAdd(false);  // Сбрасываем состояние, так как мы уже прокрутили до новой строки
-            }
-          }
-        }
-      } catch (err) {
-        throw err;
-      } finally {
-        setIsLoading(false);
-      }
-    }, [applFlt, pageState, scrollToIndexRef, checkColumns, lastOperationWasAdd]);
-
-// Создаем эффект для вызова reloadData() при изменении состояния фильтра
-/* useEffect(() => {
-  if ((!applFlt.selDataSourceValues)|| (applFlt.selDataSourceValues.length===0))
-  {
-    setTableValueIntDose([]);
-    return;
-  }  
-  const fetchData = async () => {
-    try {
-      //console.log('reload data');
-      console.log('Filter change reloaddata');
-
-      await reloadData();
-      setOpenAlert(true);
-      setIsTableExpanded(true);
-    } catch (e) {
-      alertSeverity = "error";
-      alertText = 'Ошибка при обновлении данных: ' + e.message;
-      setOpenAlert(true);
-    }
+  const getIdList = (item) => {
+    return Array.isArray(item) ? item.map(item => item.id).join(',') : item?.id || [];
   }
-
-  fetchData();
-}, [applFlt, reloadData]); // Зависимость от состояния фильтра  , reloadData */
-
+  
+  const reloadData = React.useCallback(async () => {
+    if ((!applFlt.selDataSourceValues) || (applFlt.selDataSourceValues.length === 0)) {
+      setTableValueIntDose([]);
+      return;
+    }
+  
+    setIsLoading(true);
+    try {
+      const params = new URLSearchParams({
+        data_source_id: getIdList(applFlt.selDataSourceValues),
+        organ_id: getIdList(applFlt.selOrganValues),
+        irradiation_id: getIdList(applFlt.selIrradiationValue),
+        isotope_id: getIdList(applFlt.selIsotopeValues),
+        integral_period_id: getIdList(applFlt.selIntegralPeriodValues),
+        dose_ratio_id: getIdList(applFlt.selDoseRatioValue),
+        let_level_id: getIdList(applFlt.selLetLevelValues),
+        agegroup_id: getIdList(applFlt.selAgeGroupValues),
+        subst_form_id: getIdList(applFlt.selSubstFormValues),
+        aerosol_sol_id: getIdList(applFlt.selAerosolSolValues),
+        aerosol_amad_id: getIdList(applFlt.selAerosolAMADValues),
+        exp_scenario_id: getIdList(applFlt.selExpScenarioValues),
+        people_class_id: getIdList(applFlt.selPeopleClassValues),
+        page: pageState.page + 1,
+        pagesize: pageState.pageSize
+      });
+  
+      const response = await fetch(`/value_int_dose?${params}`); 
+  
+      if (!response.ok) {
+        setAlertSeverity("false");
+        setAlertText(`Ошибка при обновлении данных: ${response.status}`);
+        throw new Error(`${response.status} (${response.statusText})`);
+      }
+      
+      const result = await response.json();
+      const vidColumnVisibilityModel = checkColumns(result, applFlt);
+      setTableValueIntDose(result);
+      setVidColumnVisibilityModel(vidColumnVisibilityModel);
+      if (result && result.length >= MAX_ROWS) {
+        setAlertSeverity("warning");
+        setAlertText(`Внимание, отобрано первые ${MAX_ROWS} строк. Укажите более строгий фильтр, чтобы уточнить результат.`);
+      } 
+      if (result && result.length > 0) {
+        if (lastOperationWasAdd) {
+          scrollToIndexRef.current = Math.max(...result.map(item => item.id));
+          setLastOperationWasAdd(false);  // Сбрасываем состояние, так как мы уже прокрутили до новой строки
+        }
+      }
+    } catch (err) {
+      throw err;
+    } finally {
+      setIsLoading(false);
+    }
+  }, [applFlt, pageState, scrollToIndexRef, checkColumns, lastOperationWasAdd]);
+  
 const [shouldReload, setShouldReload] = useState(false);
 
 useEffect(() => {
@@ -1132,21 +1005,21 @@ useEffect(() => {
   if (shouldReload) {  // Если shouldReload равен true, вызываем reloadData
     const fetchData = async () => {
       try {
-        console.log('Filter change reloaddata');
         await reloadData();
-        setOpenAlert(true);
+        setAlertSeverity("info");
+        setAlertText('Данные успешно загружены');
         setIsTableExpanded(true);
-        setShouldReload(false);  // Устанавливаем shouldReload обратно в false после загрузки данных
       } catch (e) {
-        alertSeverity = "error";
-        alertText = 'Ошибка при обновлении данных: ' + e.message;
+        setAlertSeverity("error");
+        setAlertText(`Ошибка при обновлении данных: ${e.message}`);
+      } finally {
         setOpenAlert(true);
+        setShouldReload(false);  // Устанавливаем shouldReload обратно в false после загрузки данных
       }
     }
     fetchData();
   }
 }, [shouldReload, reloadData]);
-
 
 const [tableSubstFormFilteredEdit, settableSubstFormFilteredEdit] = useState([]);
 const [tableAerosolSolFilteredEdit, settableAerosolSolFilteredEdit] = useState([]);
@@ -1160,25 +1033,6 @@ const [tableOrganFilteredEdit, settableOrganFilteredEdit] = useState([]); //сп
 const [tableLetLevelFilteredEdit, settableLetLevelFilteredEdit] = useState([]); //уровни ЛПЭ в окне редактирования записи
 const [tableIsotopeFilteredEdit, settableIsotopeFilteredEdit] = useState([]);
 
-/* useEffect(() => {
-  if (!valueDataSourceID && tableDataSourceFilteredEdit.length > 0) {
-    setValueDataSourceID(tableDataSourceFilteredEdit[0].id); 
-  }
-}, [valueDataSourceID, tableDataSourceFilteredEdit]);
-
-useEffect(() => {
-  if (!valueDoseRatioID && applFlt.selDoseRatioValue && applFlt.selDoseRatioValue.id) {
-    setValueDoseRatioID(applFlt.selDoseRatioValue.id);
-  }
-}, [valueDoseRatioID, applFlt.selDoseRatioValue]);
-
-useEffect(() => {
-  console.log('valueIrradiationID', valueIrradiationID, applFlt.selIrradiationValue, applFlt.selIrradiationValue.id);
-  if (!valueIrradiationID && applFlt.selIrradiationValue && applFlt.selIrradiationValue.id) {
-    setValueIrradiationID(applFlt.selIrradiationValue.id);
-  }
-}, [valueIrradiationID, applFlt.selIrradiationValue]); */
-
 useEffect(() => { settableDataSourceFilteredEdit(applFlt.selDataSourceValues); }, [applFlt.selDataSourceValues]);
 useEffect(() => { settableOrganFilteredEdit(applFlt.selOrganValues); }, [applFlt.selOrganValues]);
 useEffect(() => { settableLetLevelFilteredEdit(applFlt.selLetLevelValues); }, [applFlt.selLetLevelValues]);
@@ -1190,7 +1044,6 @@ useEffect(() => { settableAgeGroupFilteredEdit(applFlt.selAgeGroupValues); }, [a
 useEffect(() => { settableExpScenarioFilteredEdit(applFlt.selExpScenarioValues); }, [applFlt.selExpScenarioValues]);
 useEffect(() => { settableIntegralPeriodFilteredEdit(applFlt.selIntegralPeriodValues); }, [applFlt.selIntegralPeriodValues]);
 useEffect(() => { settableIsotopeFilteredEdit(applFlt.selIsotopeValues); }, [applFlt.selIsotopeValues]);
-
 
 useEffect(() => {
   if (!valueDataSourceID) 
@@ -1204,47 +1057,25 @@ useEffect(() => {
       )
     );
 
-/*   const filteredTableOrgan = filterTable('organ', tableOrgan);
-  const filteredTableLetLevel = filterTable('let_level', tableLetLevel);
-  const filteredTableSubstForm = filterTable('subst_form', tableSubstForm);
-  const filteredTableAerosolSol = filterTable('aerosol_sol', tableAerosolSol);
-  const filteredTableAerosolAMAD = filterTable('aerosol_amad', tableAerosolAMAD);
-  const filteredTablePeopleClass = filterTable('people_class', tablePeopleClass);
-  const filteredTableAgeGroup = filterTable('agegroup', tableAgeGroup);
-
-  const filteredTableExpScenario = filterTable('exp_scenario', tableExpScenario);
-  const filteredTableIntegralPeriod = filterTable('integral_period', tableIntegralPeriod); */
   const filteredTableChemCompGr = filterTable('chem_comp_gr', tableChemCompGr);
 
-/*   settableOrganFilteredEdit(filteredTableOrgan);
-  settableLetLevelFilteredEdit(filteredTableLetLevel);
-  settableSubstFormFilteredEdit(filteredTableSubstForm);
-  settableAerosolSolFilteredEdit(filteredTableAerosolSol);
-  settableAerosolAMADFilteredEdit(filteredTableAerosolAMAD);
-  settablePeopleClassFilteredEdit(filteredTablePeopleClass);
-  settableAgeGroupFilteredEdit(filteredTableAgeGroup);
-  settableExpScenarioFilteredEdit(filteredTableExpScenario);
-  settableIntegralPeriodFilteredEdit(filteredTableIntegralPeriod); */
   settableChemCompGrFilteredEdit(filteredTableChemCompGr);
      
-}, [tableDataSourceClass, valueDataSourceID,/* valueID, valueDataSourceID, tableDataSourceClass, tableOrgan, tableLetLevel, tableSubstForm, tableAerosolSol, tableAerosolAMAD, tablePeopleClass, tableAgeGroup, tableExpScenario, tableIntegralPeriod, */ tableChemCompGr]);
+}, [tableDataSourceClass, valueDataSourceID, tableChemCompGr]);
 
 const reloadDataHandler = async () => {
-  if (formRef.current.reportValidity() )
-  {  
-    console.log('reloadDataHandler');
-    alertSeverity = "info";
-    alertText = 'Данные успешно загружены';
+  if (formRef.current.reportValidity()) {
     try {
       await applyFilter();
-    } 
-    catch (e) {
-      alertSeverity = "error";
-      alertText = 'Ошибка при загрузке данных данных: ' + e.message;
+      setAlertSeverity("info");
+      setAlertText('Данные успешно загружены');
+      setIsFilterExpanded(false);
+    } catch (e) {
+      setAlertSeverity("error");
+      setAlertText(`Ошибка при загрузке данных: ${e.message}`);
+    } finally {
       setOpenAlert(true);
-      return;
     }
-    setIsFilterExpanded(false);
   }
 }
 
@@ -1358,7 +1189,7 @@ const reloadDataHandler = async () => {
         <IconButton onClick={()=>handleClickDelete()} disabled={(!valueID || !tableValueIntDose || tableValueIntDose.length === 0 )} color="primary" size="small" title="Удалить запись">
           <SvgIcon fontSize="small" component={TrashLightIcon} inheritViewBox /></IconButton>
 
-        <IconButton onClick={()=>reloadData()} color="primary" size="small" title="Обновить данные">
+        <IconButton onClick={()=>setShouldReload(true)} color="primary" size="small" title="Обновить данные">
           <SvgIcon fontSize="small" component={RepeatLightIcon} inheritViewBox /></IconButton>
         {/* тут кастомное сохранение в CSV - добавлен заголовок */}
         <IconButton
@@ -1379,75 +1210,6 @@ const reloadDataHandler = async () => {
       </GridToolbarContainer>
     );
   }
-
-  /*  function GetFilterCaption() {
-    if (JSON.stringify(currFlt) !== JSON.stringify(applFlt) )  {
-      return (
-        <div>Нажмите кнопку "Получить данные", чтобы отобразить таблицу.</div>
-      );
-    }
-    return (
-      <>
-        {applFlt.selDoseRatioValue && (
-          <>
-            <div>
-              Параметр: {applFlt.selDoseRatioValue.title}, {applFlt.selDoseRatioValue.name_rus}
-              , ед.измерения (базовая) {applFlt.selDoseRatioValue.sign}
-              {applFlt.selOrganValues.length === 1 ? `, ${applFlt.selOrganValues[0].name_rus}` : ''}
-              {applFlt.selLetLevelValues.length === 1 ? `, ${applFlt.selLetLevelValues[0].name_rus}` : ''}
-            </div>
-         
-          </>
-        )}
-        {applFlt.selIrradiationValue && (
-          <>
-            <div>
-              Тип облучения: {applFlt.selIrradiationValue.name_rus}
-              {applFlt.selSubstFormValues.length === 1 ? `, ${applFlt.selSubstFormValues[0].name_rus}` : ''}
-              {applFlt.selAerosolSolValues.length === 1 ? `, ${applFlt.selAerosolSolValues[0].name_rus}` : ''}
-              {applFlt.selAerosolAMADValues.length === 1 ? `, ${applFlt.selAerosolAMADValues[0].name_rus}` : ''}
-            </div>
-         
-          </>
-        )}
-        {applFlt.selPeopleClassValues.length === 1 && (
-          <>
-            <div>
-              Тип облучаемых лиц: {applFlt.selPeopleClassValues[0].name_rus}
-              {applFlt.selAgeGroupValues.length === 1 ? `, ${applFlt.selAgeGroupValues[0].name_rus}` : ''}
-              {applFlt.selExpScenarioValues.length === 1 ? `, ${applFlt.selExpScenarioValues[0].name_rus}` : ''}
-            </div>
-          
-          </>
-        )}
-        {applFlt.selDataSourceValues.length === 1 && (
-          <>
-            <div>
-              Источник данных: {applFlt.selDataSourceValues[0].shortname}
-            </div>
-          
-          </>
-        )}
-        {applFlt.selIsotopeValues.length === 1 && (
-          <>
-            <div>
-              Нуклид: {applFlt.selIsotopeValues[0].title}
-            </div>
-         
-          </>
-        )}
-        {applFlt.selIntegralPeriodValues.length === 1 && (
-          <>
-            <div>
-              Период интегрирования: {applFlt.selIntegralPeriodValues[0].name_rus}
-            </div>
-          
-          </>
-        )}
-      </>
-    );
-  } */
-
 
   const GetFilterCaption = useCallback(() => {
 
@@ -3010,7 +2772,7 @@ const reloadDataHandler = async () => {
               size="small"
               disabled={(valueID !== null)||(applFlt.selPeopleClassValues.length===1)}
               value={tablePeopleClassFilteredEdit.find((option) => option.id === valuePeopleClassID)  }
-              onChange={(event, newValueAC) => { console.log('aaa '+newValueAC?newValueAC.id:-1); setValuePeopleClassID(newValueAC?newValueAC.id:-1) } }
+              onChange={(event, newValueAC) => { setValuePeopleClassID(newValueAC?newValueAC.id:-1) } }
               id="autocomplete-people_class_edit"
               options={ tablePeopleClassFilteredEdit }
               getOptionLabel={(option) => option.name_rus}
@@ -3025,7 +2787,7 @@ const reloadDataHandler = async () => {
               size="small"
               disabled={(valueID !== null)||(applFlt.selAgeGroupValues.length===1)}
               value={tableAgeGroupFilteredEdit.find((option) => option.id === valueAgeGroupID) }
-              onChange={(event, newValueAC) => { console.log('aaa '+newValueAC?newValueAC.id:-1); setValueAgeGroupID(newValueAC?newValueAC.id:-1) } }
+              onChange={(event, newValueAC) => { setValueAgeGroupID(newValueAC?newValueAC.id:-1) } }
               id="autocomplete-agegroup_edit"
               options={ tableAgeGroupFilteredEdit }
               getOptionLabel={(option) => option.name_rus}
@@ -3041,7 +2803,7 @@ const reloadDataHandler = async () => {
               size="small"
               disabled={(valueID !== null)||(applFlt.selExpScenarioValues.length===1)}
               value={tableExpScenarioFilteredEdit.find((option) => option.id === valueExpScenarioID)  }
-              onChange={(event, newValueAC) => { console.log('aaa '+newValueAC?newValueAC.id:-1); setValueExpScenarioID(newValueAC?newValueAC.id:-1) } }
+              onChange={(event, newValueAC) => { setValueExpScenarioID(newValueAC?newValueAC.id:-1) } }
               id="autocomplete-exp_scenario_edit"
               options={ tableExpScenarioFilteredEdit }
               getOptionLabel={(option) => option.name_rus}
@@ -3057,7 +2819,7 @@ const reloadDataHandler = async () => {
               size="small"
               disabled={(valueID !== null)  ||(applFlt.selDataSourceValues.length===1)  }
               value={tableDataSourceFilteredEdit.find((option) => option.id === valueDataSourceID) }
-              onChange={(event, newValueAC) => { console.log('data_source_edit '+newValueAC?newValueAC.id:-1); setValueDataSourceID(newValueAC?newValueAC.id:-1) } }
+              onChange={(event, newValueAC) => { setValueDataSourceID(newValueAC?newValueAC.id:-1) } }
               id="autocomplete-data_source_edit"
               options={ tableDataSourceFilteredEdit }
               getOptionLabel={(option) => option.title}
