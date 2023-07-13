@@ -44,13 +44,22 @@ const CustomAutocomplete = ({ options, value, onChange, label, width, tooltipFie
 
   const icon = <Checkbox />;
   const checkedIcon = <Checkbox checked />;
-
+  const MemoCheckbox = React.memo(({ selected, icon, checkedIcon }) => (
+    <Checkbox
+        size="small"
+        icon={icon}
+        checkedIcon={checkedIcon}
+        style={{ marginRight: 8, height: 32, width: 32 }}
+        checked={selected}
+    />
+));
   return (
+
     <Grid container spacing={1} style={{ width: `${width}px` }}>
     <Grid item xs={11}>
       <Autocomplete
         size="small"
-        value={value}
+        value={value||[]}
         isOptionEqualToValue={(option, value) => option.id === value.id}
         onChange={onChange}
         onInputChange={(event, newInputValue, reason) => {
@@ -67,14 +76,50 @@ const CustomAutocomplete = ({ options, value, onChange, label, width, tooltipFie
         getOptionLabel={(option) => option[displayField]}
         disableCloseOnSelect
         filterOptions={filterOptions}
+
+/*         renderOption={(props, option, { selected }) => (
+          <li {...props} key={option.id} style={{ padding: '4px 8px' }}>
+              <Checkbox
+                  size="small"
+                  icon={icon}
+                  checkedIcon={checkedIcon}
+                  style={{ marginRight: 8, height: 32, width: 32 }} 
+                  checked={selected}
+              />
+              <Tooltip title={option[tooltipField]}>
+                  <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
+                      <span>{option[displayField]}</span>
+                      <span></span>
+                  </div>
+              </Tooltip>
+          </li>
+        )} */
+        
         renderOption={(props, option, { selected }) => (
+          <li {...props} key={option.id} style={{ padding: '4px 8px' }}>
+              <MemoCheckbox
+                  selected={selected}
+                  icon={icon}
+                  checkedIcon={checkedIcon}
+              />
+              <Tooltip title={option[tooltipField]}>
+                  <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
+                      <span>{option[displayField]}</span>
+                      <span></span>
+                  </div>
+              </Tooltip>
+          </li>
+      )}   
+       /*  renderOption={(props, option, { selected }) => (
           <li {...props} style={{ padding: '4px 8px' }}>
             <Checkbox
               size="small"
               icon={icon}
               checkedIcon={checkedIcon}
               style={{ marginRight: 8, height: 32, width: 32 }} 
-              checked={selected}
+              //defaultChecked={selected}
+              checked={selected || false}
+              //checked={selected}  <Checkbox checked={selected || false} />
             />
             <Tooltip title={option[tooltipField]}>
               <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
@@ -83,8 +128,8 @@ const CustomAutocomplete = ({ options, value, onChange, label, width, tooltipFie
               </div>
             </Tooltip>
           </li>
-        )}
-        renderInput={(params) => (
+          )} */
+         renderInput={(params) => (
           <TextField
             {...params}
             InputProps={{
@@ -140,6 +185,6 @@ const CustomAutocomplete = ({ options, value, onChange, label, width, tooltipFie
       </Grid>
     </Grid>
   );
-};
+}; 
 
 export default CustomAutocomplete;
