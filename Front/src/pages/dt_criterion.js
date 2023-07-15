@@ -308,107 +308,28 @@ const DataTableCriterion = (props) => {
         const node = nodeRefs.current[selected];
         const scrollContainer = scrollContainerRef.current;
 
-        //const scrollToNode = () => {
-          if (node && scrollContainer) {
-            //const nodePosition = node.getBoundingClientRect().top + window.scrollY;
-            //const scrollContainerPosition = scrollContainer.getBoundingClientRect().top + window.scrollY;
-/*             console.log('Node getBoundingClientRect:', node.getBoundingClientRect());
-            console.log('Node title:', node.innerText);
-            console.log('Node position:', nodePosition);
-            console.log('Scroll container position:', scrollContainerPosition);
-            console.log('Scroll container client height:', scrollContainer.clientHeight); */
-
-            const nodePosition = node.offsetTop;
-            const scrollContainerPosition = scrollContainer.offsetTop;
-            
-            console.log('Node position:', nodePosition);
-            console.log('Scroll container position:', scrollContainerPosition);
-            console.log('Scroll container client height:', scrollContainer.clientHeight);
-            
-            if (nodePosition < scrollContainer.scrollTop || nodePosition > (scrollContainer.scrollTop + scrollContainer.clientHeight)) {
-                console.log('Node is outside of the visible scroll container area. Scrolling...');
-
-                scrollContainer.scrollTop = nodePosition - scrollContainer.clientHeight / 2;
-                //scrollContainer.scrollTop = nodePosition ;
-                console.log('New scroll container scrollTop value:', scrollContainer.scrollTop);
-            } else {
-                console.log('Node is within the visible scroll container area. No scrolling needed.');
-            }
-
-/*             if (nodePosition < scrollContainerPosition || nodePosition > (scrollContainerPosition + scrollContainer.clientHeight)) {
-              console.log('Node is outside of the visible scroll container area. Scrolling...');
-              scrollContainer.scrollTop = nodePosition - scrollContainerPosition;
-              console.log('New scroll container scrollTop value:', scrollContainer.scrollTop);
-            } else {
-              console.log('Node is within the visible scroll container area. No scrolling needed.');
-            } */
-          }
-          setUpdated(false); // Reset the updated state to false after scrolling
-        //}
-    
-        //const timeoutId = setTimeout(scrollToNode, 0); // Delay of 1 second
-    
-        //return () => clearTimeout(timeoutId); // Clear the timer when the component unmounts
-      }
-    }, [updated, selected]);
-    
-
-/*     useEffect(() => {
-
-      console.log('selected', selected);
-      
-      console.log('updated', updated);
-      if (updated && selected && nodeRefs.current[selected]) {
-        const node = nodeRefs.current[selected];
-
-        console.log('node', node);
-
-        const scrollContainer = scrollContainerRef.current;
-    
-        //const scrollToNode = () => {
-          if (node && scrollContainer) {
-            const nodePosition = node.offsetTop;
-            const nodeHeight = node.offsetHeight;
-            const scrollPosition = scrollContainer.scrollTop;
-            const containerHeight = scrollContainer.clientHeight;
-      
-            console.log('Node position:', nodePosition);
-            console.log('Node height:', nodeHeight);
-            console.log('Scroll position:', scrollPosition);
-            console.log('Container height:', containerHeight);
-
-            console.log('Scrolling to node position:', nodePosition);
-            scrollContainer.scrollTop = nodePosition;
- 
-          }
-    
-          setUpdated(false);
- 
-      }
-    }, [updated, selected]);   */  
-
- /*    useEffect(() => {
-      console.log('scroll 0');
-      if (updated && selected && nodeRefs.current[selected]) {
-        const node = nodeRefs.current[selected];
-        const scrollContainer = scrollContainerRef.current;
-        console.log('scroll 1');
         if (node && scrollContainer) {
-          const nodePosition = node.getBoundingClientRect().top;
-          const containerPosition = scrollContainer.getBoundingClientRect().top;
-          console.log('scroll 2 nodePosition', nodePosition , ' containerPosition ', containerPosition, ' scrollContainer.clientHeight ' , scrollContainer.clientHeight);
-          console.log('scrollContainer.scrollTop', scrollContainer.scrollTop);
 
-          if (nodePosition < containerPosition || nodePosition > containerPosition + scrollContainer.clientHeight) {
-            console.log('scroll 3 node.offsetTop - containerPosition', node.offsetTop - containerPosition, ' scrollContainer.scrollTop ', scrollContainer.scrollTop);
-            scrollContainer.scrollTop = node.offsetTop - containerPosition;
-            console.log('scrollContainer.scrollTop ', scrollContainer.scrollTop);
+          const nodePosition = node.offsetTop;
+          const scrollContainerPosition = scrollContainer.offsetTop;
+          
+          //console.log('Node position:', nodePosition);
+          //console.log('Scroll container position:', scrollContainerPosition);
+          //console.log('Scroll container client height:', scrollContainer.clientHeight);
+          
+          if (nodePosition < scrollContainer.scrollTop || nodePosition > (scrollContainer.scrollTop + scrollContainer.clientHeight)) {
+              //console.log('Node is outside of the visible scroll container area. Scrolling...');
+
+            scrollContainer.scrollTop = nodePosition - scrollContainer.clientHeight / 2;
+              // console.log('New scroll container scrollTop value:', scrollContainer.scrollTop);
+          } else {
+              //console.log('Node is within the visible scroll container area. No scrolling needed.');
           }
         }
-        setUpdated(false);
+        setUpdated(false); // Reset the updated state to false after scrolling
       }
     }, [updated, selected]);
-  */
+    
 
     const DataTreeView = ({ treeItems }) => {
       const getTreeItemsFromData = treeItems => {
@@ -824,11 +745,13 @@ const DataTableCriterion = (props) => {
         console.log(treeData);
 
         if (valueParentID) {
-          const parentIds = getParentIds(treeData, valueId).map(String); // получите список всех родительских элементов
+          const parentIds = getParentIds(treeData, valueParentID).map(String); // получите список всех родительских элементов
           const newExpanded = new Set([...expanded, ...parentIds]); // добавьте их к уже раскрытым элементам, убрав дубликаты
           setExpanded(Array.from(newExpanded)); // преобразуйте обратно в массив и установите как новое состояние
         }  
-
+        if (valueParentID && !expanded.includes(valueParentID.toString())) {
+          setExpanded(prevExpanded => [...prevExpanded, valueParentID.toString()]);
+        }
 /*         if (valueParentID && !expanded.includes(valueParentID.toString())) {
           console.log('setExpanded', valueParentID); 
           setExpanded(prevExpanded => [...prevExpanded, valueParentID.toString()]);
