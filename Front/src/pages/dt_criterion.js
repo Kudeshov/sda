@@ -40,11 +40,7 @@ import Autocomplete from '@mui/material/Autocomplete';
 import Tooltip from '@mui/material/Tooltip';
 import { DataTableActionCriterion } from './dt_action_criterion';
 import { listToTree } from '../helpers/treeHelper';
-//import FolderIcon from '@material-ui/icons/Folder';
-//import DescriptionIcon from '@material-ui/icons/Description';
-//import { useTheme } from '@material-ui/core/styles';
 import TreeSelect, {
-//  FreeSoloNode,
   DefaultOption,
   getDefaultOptionProps,  
 } from "mui-tree-select";
@@ -305,70 +301,54 @@ const DataTableCriterion = (props) => {
 
     const [treeFilterString, setTreeFilterString] = React.useState('');
     const nodeRefs = React.useRef({}); 
-    const treeViewRef = React.useRef();
     const scrollContainerRef = React.useRef();
-
-/*     useEffect(() => {
-      if (updated && selected && nodeRefs.current[selected]) {
-        const node = nodeRefs.current[selected];
-        const scrollContainer = scrollContainerRef.current;
-    
-        if (node && scrollContainer) {
-          const nodePosition = node.offsetTop;
-          const nodeHeight = node.offsetHeight;
-          const scrollPosition = scrollContainer.scrollTop;
-          const containerHeight = scrollContainer.clientHeight;
-    
-          console.log('Node position:', nodePosition);
-          console.log('Node height:', nodeHeight);
-          console.log('Scroll position:', scrollPosition);
-          console.log('Container height:', containerHeight);
-          console.log('scrollContainer.scrollTop:', scrollContainer.scrollTop);
-          
-          if (nodePosition < scrollPosition || (nodePosition + nodeHeight) > (scrollPosition + containerHeight)) {
-            console.log('Scrolling to node position:', nodePosition);
-            scrollContainer.scrollTop = nodePosition;
-          }
-        }
-    
-        setUpdated(false);
-      }
-    }, [updated, selected]);
- */
 
     useEffect(() => {
       if (updated && selected && nodeRefs.current[selected]) {
         const node = nodeRefs.current[selected];
         const scrollContainer = scrollContainerRef.current;
 
-        const node1 = nodeRefs.current['26'];
-        if (node1)
-          console.log('Node 26 getBoundingClientRect:', node1.getBoundingClientRect());
-        const scrollToNode = () => {
+        //const scrollToNode = () => {
           if (node && scrollContainer) {
-            const nodePosition = node.getBoundingClientRect().top + window.scrollY;
-            const scrollContainerPosition = scrollContainer.getBoundingClientRect().top + window.scrollY;
-            console.log('Node getBoundingClientRect:', node.getBoundingClientRect());
+            //const nodePosition = node.getBoundingClientRect().top + window.scrollY;
+            //const scrollContainerPosition = scrollContainer.getBoundingClientRect().top + window.scrollY;
+/*             console.log('Node getBoundingClientRect:', node.getBoundingClientRect());
             console.log('Node title:', node.innerText);
             console.log('Node position:', nodePosition);
             console.log('Scroll container position:', scrollContainerPosition);
+            console.log('Scroll container client height:', scrollContainer.clientHeight); */
+
+            const nodePosition = node.offsetTop;
+            const scrollContainerPosition = scrollContainer.offsetTop;
+            
+            console.log('Node position:', nodePosition);
+            console.log('Scroll container position:', scrollContainerPosition);
             console.log('Scroll container client height:', scrollContainer.clientHeight);
-    
-            if (nodePosition < scrollContainerPosition || nodePosition > (scrollContainerPosition + scrollContainer.clientHeight)) {
+            
+            if (nodePosition < scrollContainer.scrollTop || nodePosition > (scrollContainer.scrollTop + scrollContainer.clientHeight)) {
+                console.log('Node is outside of the visible scroll container area. Scrolling...');
+
+                scrollContainer.scrollTop = nodePosition - scrollContainer.clientHeight / 2;
+                //scrollContainer.scrollTop = nodePosition ;
+                console.log('New scroll container scrollTop value:', scrollContainer.scrollTop);
+            } else {
+                console.log('Node is within the visible scroll container area. No scrolling needed.');
+            }
+
+/*             if (nodePosition < scrollContainerPosition || nodePosition > (scrollContainerPosition + scrollContainer.clientHeight)) {
               console.log('Node is outside of the visible scroll container area. Scrolling...');
               scrollContainer.scrollTop = nodePosition - scrollContainerPosition;
               console.log('New scroll container scrollTop value:', scrollContainer.scrollTop);
             } else {
               console.log('Node is within the visible scroll container area. No scrolling needed.');
-            }
+            } */
           }
-    
           setUpdated(false); // Reset the updated state to false after scrolling
-        }
+        //}
     
-        const timeoutId = setTimeout(scrollToNode, 0); // Delay of 1 second
+        //const timeoutId = setTimeout(scrollToNode, 0); // Delay of 1 second
     
-        return () => clearTimeout(timeoutId); // Clear the timer when the component unmounts
+        //return () => clearTimeout(timeoutId); // Clear the timer when the component unmounts
       }
     }, [updated, selected]);
     
@@ -397,6 +377,7 @@ const DataTableCriterion = (props) => {
             console.log('Scroll position:', scrollPosition);
             console.log('Container height:', containerHeight);
 
+            console.log('Scrolling to node position:', nodePosition);
             scrollContainer.scrollTop = nodePosition;
  
           }
@@ -404,7 +385,7 @@ const DataTableCriterion = (props) => {
           setUpdated(false);
  
       }
-    }, [updated, selected]);  */   
+    }, [updated, selected]);   */  
 
  /*    useEffect(() => {
       console.log('scroll 0');
@@ -464,7 +445,7 @@ const DataTableCriterion = (props) => {
         <div>
         <p></p>
         <TreeView
-          ref={treeViewRef}
+ //         ref={treeViewRef}
           aria-label="Tree navigator"
           defaultCollapseIcon={<ExpandMoreIcon />}
           defaultExpandIcon={<ChevronRightIcon />}
@@ -767,6 +748,22 @@ const DataTableCriterion = (props) => {
     setTreeData(arr);
   }, [tableData, treeFilterString]);
 
+  function getParentIds(tree, targetId) {
+    const result = [];
+    for (const item of tree) {
+      if (item.id === targetId) {
+        return [item.id]; // Если это целевой элемент, возвращаем его id в массиве
+      } else if (item.children) {
+        const childResult = getParentIds(item.children, targetId); // Если есть дети, ищем в детях
+        if (childResult.length > 0) {
+          // Если нашли в детях, добавляем текущий id в результат и возвращаем
+          return [item.id, ...childResult];
+        }
+      }
+    }
+    return result; // Если не нашли, возвращаем пустой массив
+  }
+
   ///////////////////////////////////////////////////////////////////  SAVE  /////////////////////
   const saveRec = async ( fromToolbar ) => {
     if (formRef.current.reportValidity() )
@@ -824,10 +821,18 @@ const DataTableCriterion = (props) => {
         alertText = await response.text();
         setOpenAlert(true);
         console.log('reloadData');
-        if (valueParentID && !expanded.includes(valueParentID.toString())) {
+        console.log(treeData);
+
+        if (valueParentID) {
+          const parentIds = getParentIds(treeData, valueId).map(String); // получите список всех родительских элементов
+          const newExpanded = new Set([...expanded, ...parentIds]); // добавьте их к уже раскрытым элементам, убрав дубликаты
+          setExpanded(Array.from(newExpanded)); // преобразуйте обратно в массив и установите как новое состояние
+        }  
+
+/*         if (valueParentID && !expanded.includes(valueParentID.toString())) {
           console.log('setExpanded', valueParentID); 
           setExpanded(prevExpanded => [...prevExpanded, valueParentID.toString()]);
-        }
+        } */
         
         await reloadData();
         
@@ -1558,24 +1563,15 @@ class Node {
       </td>
       <td style={{ height: 550, width: 900, verticalAlign: 'top' }}>
 
-      <Button variant="contained" color="primary" onClick={() => 
-          
-          {setExpanded(prevExpanded => [...prevExpanded, "30377"]);}
-          
-          
-          }>
-      Scroll to selected node
-    </Button>
       {( valueCrit === 1) &&
       <>
       <form ref={formRef}> 
       <TextField  id="ch_id" disabled={true} label="Код" sx={{ width: '12ch' }} variant="outlined" value={ valueId ||''} size="small" /* onChange={e => setValueID(e.target.value)} *//>
       &nbsp;&nbsp;&nbsp;&nbsp;
-{/*       <TextField  id="ch_name" sx={{ width: '40ch' }} label="Обозначение" required size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
-      &nbsp;&nbsp;&nbsp;&nbsp; */}
+      <TextField  id="ch_name" sx={{ width: '40ch' }} label="Обозначение" required size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
+      &nbsp;&nbsp;&nbsp;&nbsp;
 
-
-      <FormControl sx={{ width: '45ch' }} size="small">
+      <FormControl sx={{ width: '44ch' }} size="small">
         <TreeSelect
           size="small"
           enterText=""
@@ -1589,7 +1585,7 @@ class Node {
           //renderInput={(params) => <TextField {...params} />}
           renderInput={(params) => 
             <Tooltip enterDelay={1000} title={selectedNode?.name_rus || ""}>
-              <TextField {...params} />
+              <TextField label="Группа критериев" {...params} />
             </Tooltip>
           }
           getOptionLabel={option => option ? option.title : ""}
