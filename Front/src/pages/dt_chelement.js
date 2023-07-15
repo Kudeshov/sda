@@ -71,6 +71,8 @@ const DataTableChelement = (props) => {
        valueAtomicNumInitial, valueAtomicNum]);  
 
   useEffect(() => {
+
+    setReportValid(true);
     if ((!isLoading) && (tableData) && (tableData.length)) {
       if (!lastId) 
       {

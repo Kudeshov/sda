@@ -43,6 +43,11 @@ import { listToTree } from '../helpers/treeHelper';
 //import FolderIcon from '@material-ui/icons/Folder';
 //import DescriptionIcon from '@material-ui/icons/Description';
 //import { useTheme } from '@material-ui/core/styles';
+import TreeSelect, {
+//  FreeSoloNode,
+  DefaultOption,
+  getDefaultOptionProps,  
+} from "mui-tree-select";
 
 var alertText = "Сообщение";
 var alertSeverity = "info";
@@ -283,10 +288,11 @@ const DataTableCriterion = (props) => {
           if (lastId!==0)
             updateCurrentRec(lastId); 
       }
-    }, [ tableData] );
+    }, [tableData] );
 
     const [expanded, setExpanded] = React.useState([]);
     const [selected, setSelected] = React.useState('');
+    const [updated, setUpdated] = React.useState(false);  
 
     const handleToggle = (event, nodeIds) => {
       setExpanded(nodeIds);
@@ -298,10 +304,132 @@ const DataTableCriterion = (props) => {
     };  
 
     const [treeFilterString, setTreeFilterString] = React.useState('');
+    const nodeRefs = React.useRef({}); 
+    const treeViewRef = React.useRef();
+    const scrollContainerRef = React.useRef();
+
+/*     useEffect(() => {
+      if (updated && selected && nodeRefs.current[selected]) {
+        const node = nodeRefs.current[selected];
+        const scrollContainer = scrollContainerRef.current;
+    
+        if (node && scrollContainer) {
+          const nodePosition = node.offsetTop;
+          const nodeHeight = node.offsetHeight;
+          const scrollPosition = scrollContainer.scrollTop;
+          const containerHeight = scrollContainer.clientHeight;
+    
+          console.log('Node position:', nodePosition);
+          console.log('Node height:', nodeHeight);
+          console.log('Scroll position:', scrollPosition);
+          console.log('Container height:', containerHeight);
+          console.log('scrollContainer.scrollTop:', scrollContainer.scrollTop);
+          
+          if (nodePosition < scrollPosition || (nodePosition + nodeHeight) > (scrollPosition + containerHeight)) {
+            console.log('Scrolling to node position:', nodePosition);
+            scrollContainer.scrollTop = nodePosition;
+          }
+        }
+    
+        setUpdated(false);
+      }
+    }, [updated, selected]);
+ */
+
+    useEffect(() => {
+      if (updated && selected && nodeRefs.current[selected]) {
+        const node = nodeRefs.current[selected];
+        const scrollContainer = scrollContainerRef.current;
+
+        const node1 = nodeRefs.current['26'];
+        if (node1)
+          console.log('Node 26 getBoundingClientRect:', node1.getBoundingClientRect());
+        const scrollToNode = () => {
+          if (node && scrollContainer) {
+            const nodePosition = node.getBoundingClientRect().top + window.scrollY;
+            const scrollContainerPosition = scrollContainer.getBoundingClientRect().top + window.scrollY;
+            console.log('Node getBoundingClientRect:', node.getBoundingClientRect());
+            console.log('Node title:', node.innerText);
+            console.log('Node position:', nodePosition);
+            console.log('Scroll container position:', scrollContainerPosition);
+            console.log('Scroll container client height:', scrollContainer.clientHeight);
+    
+            if (nodePosition < scrollContainerPosition || nodePosition > (scrollContainerPosition + scrollContainer.clientHeight)) {
+              console.log('Node is outside of the visible scroll container area. Scrolling...');
+              scrollContainer.scrollTop = nodePosition - scrollContainerPosition;
+              console.log('New scroll container scrollTop value:', scrollContainer.scrollTop);
+            } else {
+              console.log('Node is within the visible scroll container area. No scrolling needed.');
+            }
+          }
+    
+          setUpdated(false); // Reset the updated state to false after scrolling
+        }
+    
+        const timeoutId = setTimeout(scrollToNode, 0); // Delay of 1 second
+    
+        return () => clearTimeout(timeoutId); // Clear the timer when the component unmounts
+      }
+    }, [updated, selected]);
+    
+
+/*     useEffect(() => {
+
+      console.log('selected', selected);
+      
+      console.log('updated', updated);
+      if (updated && selected && nodeRefs.current[selected]) {
+        const node = nodeRefs.current[selected];
+
+        console.log('node', node);
+
+        const scrollContainer = scrollContainerRef.current;
+    
+        //const scrollToNode = () => {
+          if (node && scrollContainer) {
+            const nodePosition = node.offsetTop;
+            const nodeHeight = node.offsetHeight;
+            const scrollPosition = scrollContainer.scrollTop;
+            const containerHeight = scrollContainer.clientHeight;
+      
+            console.log('Node position:', nodePosition);
+            console.log('Node height:', nodeHeight);
+            console.log('Scroll position:', scrollPosition);
+            console.log('Container height:', containerHeight);
+
+            scrollContainer.scrollTop = nodePosition;
+ 
+          }
+    
+          setUpdated(false);
+ 
+      }
+    }, [updated, selected]);  */   
+
+ /*    useEffect(() => {
+      console.log('scroll 0');
+      if (updated && selected && nodeRefs.current[selected]) {
+        const node = nodeRefs.current[selected];
+        const scrollContainer = scrollContainerRef.current;
+        console.log('scroll 1');
+        if (node && scrollContainer) {
+          const nodePosition = node.getBoundingClientRect().top;
+          const containerPosition = scrollContainer.getBoundingClientRect().top;
+          console.log('scroll 2 nodePosition', nodePosition , ' containerPosition ', containerPosition, ' scrollContainer.clientHeight ' , scrollContainer.clientHeight);
+          console.log('scrollContainer.scrollTop', scrollContainer.scrollTop);
+
+          if (nodePosition < containerPosition || nodePosition > containerPosition + scrollContainer.clientHeight) {
+            console.log('scroll 3 node.offsetTop - containerPosition', node.offsetTop - containerPosition, ' scrollContainer.scrollTop ', scrollContainer.scrollTop);
+            scrollContainer.scrollTop = node.offsetTop - containerPosition;
+            console.log('scrollContainer.scrollTop ', scrollContainer.scrollTop);
+          }
+        }
+        setUpdated(false);
+      }
+    }, [updated, selected]);
+  */
 
     const DataTreeView = ({ treeItems }) => {
-      //const theme = useTheme();
-
       const getTreeItemsFromData = treeItems => {
       
         return treeItems.map(treeItemData => {
@@ -311,9 +439,12 @@ const DataTableCriterion = (props) => {
           }
           return (
             <TreeItem
+              
               key={treeItemData.id}
               nodeId={treeItemData.id?treeItemData.id.toString():0}
+              ref={(el) => (nodeRefs.current[treeItemData.id] = el)}
               label={
+                <Tooltip title={treeItemData.name_rus}>
                 <div style={{ display: 'flex', alignItems: 'center' }}>
                   {treeItemData.crit === 0 ?
                     <SvgIcon fontSize="small" style={{ color: '#4b77d1', fontSize: '19px' }} component={FolderIcon} inheritViewBox />: 
@@ -321,6 +452,7 @@ const DataTableCriterion = (props) => {
                   }
                   <span style={{ marginLeft: '5px' }}>{treeItemData.title}</span>
                 </div>
+                </Tooltip>
               }
               children={children}
             />
@@ -328,11 +460,11 @@ const DataTableCriterion = (props) => {
         });
       };
   
-
       return (
         <div>
         <p></p>
         <TreeView
+          ref={treeViewRef}
           aria-label="Tree navigator"
           defaultCollapseIcon={<ExpandMoreIcon />}
           defaultExpandIcon={<ChevronRightIcon />}
@@ -347,6 +479,11 @@ const DataTableCriterion = (props) => {
         </TreeView></div>
       );
     };
+
+  useEffect(() => {
+    // Здесь код, который будет выполняться после каждого обновления treeData
+    setUpdated(true);
+  }, [treeData]);    
 
   const handleItemClick = (id) => {
     setOpenAlert(false);  
@@ -412,6 +549,12 @@ const DataTableCriterion = (props) => {
       setValuePeopleClassInitial(res[0].people_class_id);
       setValueCrValueInitial(res[0].cr_value);
       setValueTimeendInitial(res[0].timeend);
+
+
+      const newNode = nodes.find(node => node.value === res[0].parent_id);
+      // Обновляем selectedNode
+      setSelectedNode(newNode);
+      // setBranch(newNode);
     }   
   }; 
 
@@ -679,7 +822,16 @@ const DataTableCriterion = (props) => {
       {
         alertSeverity = "success";
         alertText = await response.text();
-        setOpenAlert(true);  
+        setOpenAlert(true);
+        console.log('reloadData');
+        if (valueParentID && !expanded.includes(valueParentID.toString())) {
+          console.log('setExpanded', valueParentID); 
+          setExpanded(prevExpanded => [...prevExpanded, valueParentID.toString()]);
+        }
+        
+        await reloadData();
+        
+        //setUpdated(true);          
       }
     } catch (err) {
       alertText = err.message;
@@ -738,7 +890,7 @@ const DataTableCriterion = (props) => {
         setValueCrValueInitial(valueCrValue);
         setValueTimeendInitial(valueTimeend);
      }
-    reloadData();     
+    
    }
   }
  };
@@ -958,6 +1110,7 @@ const DataTableCriterion = (props) => {
   }
 
   const reloadData = async () => {
+    
     try {
       const response = await fetch(`/${props.table_name}/`);
       if (!response.ok) {
@@ -970,6 +1123,7 @@ const DataTableCriterion = (props) => {
       {  
         const result = await response.json();
         setTableData(result);
+        console.log('after reload');
       }
     } catch (err) {
       throw err;
@@ -1140,6 +1294,11 @@ const DataTableCriterion = (props) => {
       setValuePeopleClassInitial(selectedRowData[0].people_class_id);
       setValueCrValueInitial(selectedRowData[0].cr_value);
       setValueTimeendInitial(selectedRowData[0].timeend);
+
+      const newNode = nodes.find(node => node.value === selectedRowData[0].parent_id);
+      // Обновляем selectedNode
+      setSelectedNode(newNode);
+      //setBranch(newNode);      
     }
   }
 
@@ -1264,6 +1423,65 @@ const DataTableCriterion = (props) => {
     setExpanded(expandedNew);
   }, [expanded, tableData]);
 
+
+///////////////////////////////////// список в виде дерева
+  const [nodes, setNodes] = useState([]);
+
+  useEffect(() => {
+    console.log(tableCriterionGr);
+    if (tableCriterionGr) {
+      const newNodes = tableCriterionGr.map(item => new Node(
+        item.id, 
+        item.parent_id,
+        tableCriterionGr
+          .filter(child => child.parent_id === item.id)
+          .map(child => child.id),
+        item.title,
+        item.name_rus
+      ));
+      setNodes(newNodes);
+    }// eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [tableCriterionGr]); // useEffect будет вызываться каждый раз, когда tableCriterionGr изменяется 
+
+
+const initialValue = nodes.find(node => node.value === valueParentID);
+const [selectedNode, setSelectedNode] = React.useState(initialValue);
+const [branch, setBranch] = React.useState(initialValue); // Новое состояни
+
+class Node {
+  constructor(value, parent = null, children = null, title = null, name_rus = null) {
+    this.value = value;
+    this.parent = parent;
+    this.children = children;
+    this.title = title;
+    this.name_rus = name_rus;
+  }
+
+  getParent() {
+    return nodes.find(item => item.value === this.parent);
+  }
+
+  getChildren() {
+    if(this.children) {
+      return nodes.filter(item => item.parent === this.value);
+    } else {
+      return null;
+    }
+  }
+
+  isBranch() {
+    return this.children && this.children.length > 0;
+  }
+
+  isEqual(node) {
+    return this.value === node.value;
+  }
+  
+  toString() {
+    return this.title;
+  }
+}
+
   const formRef = React.useRef();
   return (
 
@@ -1308,7 +1526,7 @@ const DataTableCriterion = (props) => {
           <Backdrop sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }} open={true}>
             <CircularProgress color="inherit" />
           </Backdrop> } 
-          <Box sx={{ height: 415, flexGrow: 1, overflowY: 'auto' }} >     
+          <Box ref={scrollContainerRef} sx={{ height: 415, flexGrow: 1, overflowY: 'auto' }} >     
             <DataTreeView treeItems={treeData} />
           </Box> 
         </Box>
@@ -1340,15 +1558,65 @@ const DataTableCriterion = (props) => {
       </td>
       <td style={{ height: 550, width: 900, verticalAlign: 'top' }}>
 
-    
+      <Button variant="contained" color="primary" onClick={() => 
+          
+          {setExpanded(prevExpanded => [...prevExpanded, "30377"]);}
+          
+          
+          }>
+      Scroll to selected node
+    </Button>
       {( valueCrit === 1) &&
       <>
       <form ref={formRef}> 
       <TextField  id="ch_id" disabled={true} label="Код" sx={{ width: '12ch' }} variant="outlined" value={ valueId ||''} size="small" /* onChange={e => setValueID(e.target.value)} *//>
       &nbsp;&nbsp;&nbsp;&nbsp;
-      <TextField  id="ch_name" sx={{ width: '40ch' }} label="Обозначение" required size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
-      &nbsp;&nbsp;&nbsp;&nbsp;
-      <FormControl sx={{ width: '30ch' }} size="small">
+{/*       <TextField  id="ch_name" sx={{ width: '40ch' }} label="Обозначение" required size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
+      &nbsp;&nbsp;&nbsp;&nbsp; */}
+
+
+      <FormControl sx={{ width: '45ch' }} size="small">
+        <TreeSelect
+          size="small"
+          enterText=""
+          exitText=""
+          currentPath= "" 
+          valuePath= ""
+          getChildren={(node) => node ? node.getChildren() : nodes.filter(node => node.parent === null)}
+          getParent={(node) => node.getParent()}
+          isBranch={(node) => node.isBranch()}
+          //isOptionEqualToValue={(option, value) => option.isEqual(value)}
+          //renderInput={(params) => <TextField {...params} />}
+          renderInput={(params) => 
+            <Tooltip enterDelay={1000} title={selectedNode?.name_rus || ""}>
+              <TextField {...params} />
+            </Tooltip>
+          }
+          getOptionLabel={option => option ? option.title : ""}
+          onChange={(event, newValue) => {
+            setSelectedNode(newValue);
+            //setBranch(newValue);
+            if (newValue) {
+              setValueParentID(newValue.value);
+            } else {
+              setValueParentID(null);
+            }
+          }}
+          renderOption={(props, option, state) => (
+            <Tooltip enterDelay={1000} title={option.name_rus}> 
+              <li {...props} style={{ margin: 0, padding: 0 }}>
+                <DefaultOption {...getDefaultOptionProps(props, option, state)} />
+              </li>
+            </Tooltip>  
+          )}
+          disableClearable={true}
+          value={selectedNode}
+          branch={branch}
+          onBranchChange={(_, branch) => void setBranch(branch)} 
+        />
+
+      </FormControl> 
+      {/* <FormControl sx={{ width: '30ch' }} size="small">
         <InputLabel id="ch_parent_id"required>Группа критериев</InputLabel>
           <Select labelId="ch_parent_id" id="ch_parent_id1" label="Группа критериев" value={valueParentID  || "" } onChange={e => setValueParentID(e.target.value) }  >
           <MenuItem key={-1} value={-1}>
@@ -1363,7 +1631,7 @@ const DataTableCriterion = (props) => {
           })}
         </Select>
       </FormControl>  
-
+ */}
       <p></p> 
       <div>
       {(() => {

@@ -24,17 +24,19 @@ pool.on(`error`, function (err, client) {
 const getCriterion = (request, response, table_name ) => {
   console.log('getCriterion');
   pool.query(`WITH RECURSIVE tree AS (
-    SELECT DISTINCT id, title, parent_id
-    FROM nucl.criterion_gr
-    WHERE id IN (SELECT DISTINCT criterion_gr_id FROM nucl.criterion)
+    SELECT DISTINCT gr.id, gr.title, gr.parent_id, nls.name AS name_rus
+    FROM nucl.criterion_gr gr
+    LEFT JOIN nucl.criterion_gr_nls nls ON gr.id = nls.criterion_gr_id AND nls.lang_id = 1
+    WHERE gr.id IN (SELECT DISTINCT criterion_gr_id FROM nucl.criterion)
     UNION
-    SELECT DISTINCT g.id, g.title, g.parent_id
+    SELECT DISTINCT g.id, g.title, g.parent_id, nls.name AS name_rus
     FROM nucl.criterion_gr g
     JOIN tree t ON g.id = t.parent_id
+    LEFT JOIN nucl.criterion_gr_nls nls ON g.id = nls.criterion_gr_id AND nls.lang_id = 1
     )
-    SELECT DISTINCT id, title, parent_id, 0 AS crit, 0 AS calcfunction_id, 0 AS irradiation_id, 0 AS people_class_id, 0 AS integral_period_id, 0 AS organ_id,
+    SELECT DISTINCT tree.id, tree.title, tree.parent_id, 0 AS crit, 0 AS calcfunction_id, 0 AS irradiation_id, 0 AS people_class_id, 0 AS integral_period_id, 0 AS organ_id,
       0 AS agegroup_id, 0 AS exp_scenario_id, 0 AS isotope_id, 0 AS subst_form_id, 0 AS chem_comp_gr_id, 0 AS aerosol_sol_id, 0 AS aerosol_amad_id, 0 AS timeend,
-        0 AS action_level_id, 0 AS data_source_id, 0 AS cr_value, null as name_rus, null as name_eng, null as descr_rus, null as descr_eng
+        0 AS action_level_id, 0 AS data_source_id, 0 AS cr_value, tree.name_rus, null as name_eng, null as descr_rus, null as descr_eng
     FROM tree
     UNION
     SELECT DISTINCT c.id, c.title, c.criterion_gr_id, 1 AS crit, c.calcfunction_id, c.irradiation_id, c.people_class_id, c.integral_period_id, c.organ_id, c.agegroup_id, c.exp_scenario_id, c.isotope_id, c.subst_form_id, c.chem_comp_gr_id, c.aerosol_sol_id, c.aerosol_amad_id, c.timeend, c.action_level_id, c.data_source_id, c.cr_value, pcn1.name name_rus, pcn2.name name_eng, pcn1.descr descr_rus, pcn2.descr descr_eng
