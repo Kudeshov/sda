@@ -86,9 +86,24 @@ function DataTableDataSourceClass(props)  {
     setOpenAlert(false);
     setlastSrcClassID(0);
     setIsLoading(true);
-    fetch(`/data_source_class?table_name=${props.table_name}&rec_id=${props.rec_id||0}`)
+
+    if (props.rec_id === null || props.rec_id === undefined || props.rec_id === '') {
+      setTableData([]); // загружаем пустой результат
+    } else {
+      fetch(`/data_source_class?table_name=${props.table_name}&rec_id=${props.rec_id||0}`)
       .then((data) => data.json())
-      .then((data) => setTableData(data));
+      .then((data) => {
+        setTableData(data);
+        // Если массив данных не пустой, обновляем состояния
+        console.log('После загрузки выставляем ', data[0].id, addedId)
+        if (data.length > 0 && !addedId) {
+          setAddedId(data[0].id);
+          setValueID(data[0].id);
+          console.log('После загрузки выставили ', data[0].id)
+        }
+      
+      });
+    }
     setlastSrcClassID(0);
     setIsLoading(false);
   }, [props.table_name, props.rec_id])
@@ -230,21 +245,24 @@ const saveRec = async () => {
         throw new Error(await response.text());
       }
 
-      const responseBody = await response.json();
+      //const responseBody = await response.json();
       let msg;
 
       if (method === 'POST') {
-        const { id } = responseBody;
+        const { id } = await response.json();
         msg = `Добавлена запись с кодом ${id}`;
+        
         setAddedId(id);
         setValueID(id);
       } else {
-        msg = `Запись обновлена`;
+        console.log('отредактировали запись', valueId);
+        setAddedId(valueId);
+        msg = `Запись с кодом ${valueId} обновлена`;
       }
 
       setAlertText(msg);
       setAlertSeverity('success');
-
+      setOpenAlert(true);
     } catch (err) {
       setAlertText(err.message);
       setAlertSeverity('error');

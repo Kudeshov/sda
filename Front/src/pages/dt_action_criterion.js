@@ -1,5 +1,5 @@
 import React,  { useState, useEffect } from 'react'
-import { DataGrid, ruRU } from '@mui/x-data-grid'
+import { DataGrid, useGridApiRef, ruRU } from '@mui/x-data-grid'
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -10,7 +10,7 @@ import { FormControl } from "@mui/material";
 import { InputLabel } from "@mui/material";
 import { Select } from "@mui/material";
 import { MenuItem } from "@mui/material";
-import { Box, IconButton } from '@mui/material';
+import { Box, Grid, IconButton } from '@mui/material';
 import Alert from '@mui/material/Alert';
 import Collapse from '@mui/material/Collapse';
 import CloseIcon from '@mui/icons-material/Close';
@@ -20,20 +20,29 @@ import { ReactComponent as PlusLightIcon } from "./../icons/plus.svg";
 import { ReactComponent as InfoLightIcon } from "./../icons/info.svg";
 import { ReactComponent as TrashLightIcon } from "./../icons/trash.svg";
 import { table_names } from './table_names';
-
-
-var lastRecID = 0;
-var lastID = 0;
+import { useGridScrollPagination } from './../helpers/gridScrollHelper';
+import { Typography } from '@mui/material';
+//var lastRecID = 0;
+//var lastID = 0;
 
 function DataTableActionCriterion(props)  {
+  const apiRef = useGridApiRef(); // init DataGrid API for scrolling
   const [open, setOpen] = React.useState(false);
+  const [alertText, setAlertText] = useState("Сообщение");
+  const [alertSeverity, setAlertSeverity] = useState("info");
+  const [addedId, setAddedId] = useState(0);
+  const [tableAction, setTableAction] = useState([]);
+  const [tableData, setTableData] = useState([]);
+  const [rowSelectionModel, setRowSelectionModel] = React.useState([]);   
+  const {paginationModel, setPaginationModel, scrollToIndexRef} = useGridScrollPagination(apiRef, tableData, setRowSelectionModel);
+  const [clickedRowId, setClickedRowId] = useState(null);
 
   const handleClickEdit = () => {
     setOpen(true);
   };
 
   const handleClickAdd = () => {
-    setValueActionCriterionId(null);
+    setValueID(null);
     setValueActionId(null);
     setOpen(true);
   };
@@ -45,43 +54,17 @@ function DataTableActionCriterion(props)  {
 
   const handleCloseNo = () => {
     setOpen(false);
-  
-    var filteredData = tableDataSrcClass.filter(function(element) {
-      return element.id === lastID;
-    });
-    if (filteredData.length > 0) {
-      setValueActionCriterionId(lastID);
-      setValueTitle(filteredData[0].title);    
-      setValueNameRus(filteredData[0].name_rus);    
-      setValueNameEng(filteredData[0].name_eng);    
-      setValueDescrRus(filteredData[0].descr_rus);    
-      setValueDescrEng(filteredData[0].descr_eng);    
-    }    
+    setValueID(clickedRowId);
   };
-
-  const [tableDataSrcClass, setTableDataSrcClass] = useState([]);
-  const [tableAction, setTableAction] = useState([]);
+ 
   useEffect(() => {
-    lastRecID = props.rec_id||0;
-    if (props.rec_id==='') {
-      lastRecID = -1;
+    if (addedId !== null){  
+        scrollToIndexRef.current = addedId;
+        setAddedId(null);
+        setRowSelectionModel([addedId]);
     }
-    setOpenAlert(false);
-    setlastSrcClassID(0);
-    setIsLoading(true);
-    fetch(`/action_criterion?criterion_id=${lastRecID}`)
-      .then((data) => data.json())
-      .then((data) => setTableDataSrcClass(data));
-    setlastSrcClassID(0);
-    setIsLoading(false);
-    }, [props.table_name, props.rec_id])
+  }, [addedId, scrollToIndexRef]);
 
-
-  useEffect(() => {
-    fetch(`/action`)
-      .then((data) => data.json())
-      .then((data) => setTableAction(data));
-  }, [])
 
 const columns_src = [
   { field: 'id', headerName: 'Код', width: 60 },
@@ -94,59 +77,61 @@ const columns_src = [
   { field: 'descr_eng', headerName: 'Описание (англ)', width: 250 },
 ];
 
+useEffect(() => {
+  setOpenAlert(false);
+  setlastSrcClassID(0);
+  setIsLoading(true);
+  fetch(`/action_criterion?criterion_id=${props.rec_id||0}`)
+    .then((data) => data.json())
+    .then((data) => setTableData(data));
+  setlastSrcClassID(0);
+  setIsLoading(false);
+}, [props.table_name, props.rec_id])
+
+
+useEffect(() => {
+  fetch(`/action`)
+    .then((data) => data.json())
+    .then((data) => setTableAction(data));
+}, [])
+
+const [valueId,  setValueID] = React.useState();
 const [valueTitle, setValueTitle] = React.useState();
 const [valueNameRus, setValueNameRus] = React.useState();
 const [valueNameEng, setValueNameEng] = React.useState();
 const [valueDescrRus, setValueDescrRus] = React.useState();
 const [valueDescrEng, setValueDescrEng] = React.useState();
-
+const [valueActionId,  setValueActionId] = React.useState();
 const [isLoading, setIsLoading] = React.useState(false);
 const [openAlert, setOpenAlert] = React.useState(false, '');
 const [selectionModel, setSelectionModel] = React.useState([]);
 const [lastSrcClassID, setlastSrcClassID] = React.useState([0]);
-const [valueActionCriterionId,  setValueActionCriterionId] = React.useState();
-const [valueActionId,  setValueActionId] = React.useState();
-
-const [alertText, setAlertText] = useState("Сообщение");
-const [alertSeverity, setAlertSeverity] = useState("info");
 
 useEffect(() => {
-  if ((!isLoading) && (tableDataSrcClass) && (tableDataSrcClass.length))
-  {
-    setSelectionModel([tableDataSrcClass[0].id]); //выбрать первую строку при перегрузке таблицы
-    lastID = tableDataSrcClass[0].id;
-    setValueActionCriterionId(tableDataSrcClass[0].id);   //обновить переменные
-    setValueTitle(tableDataSrcClass[0].title);    
-    setValueNameRus(tableDataSrcClass[0].name_rus);    
-    setValueNameEng(tableDataSrcClass[0].name_eng);    
-    setValueDescrRus(tableDataSrcClass[0].descr_rus);    
-    setValueDescrEng(tableDataSrcClass[0].descr_eng);   
-  }
-  if ((!isLoading) && (tableDataSrcClass) )
+  if ((!isLoading) && (tableData) )
   {
     //обновить блокировку кнопок "Редактировать" и "Удалить" в зависимости от наличия записей в таблице
-    setNoRecords(!tableDataSrcClass.length);
+    setNoRecords(!tableData.length);
   }
-}, [isLoading, tableDataSrcClass, lastSrcClassID]); 
+}, [isLoading, tableData, lastSrcClassID]); 
 
-const reloadDataSrcClass = async () => {
+const reloadData = async () => {
   setIsLoading(true);
   try {
-    lastRecID = props.rec_id;
-    const response = await fetch(`/action_criterion?criterion_id=${lastRecID}`);
+    const response = await fetch(`/action_criterion?criterion_id=${props.rec_id||0}`);
     if (!response.ok) {
       setAlertText('Ошибка при обновлении данных');
-      setAlertSeverity("error");
+      setAlertSeverity('error');
       setOpenAlert(true);  
       throw new Error(`Error! status: ${response.status}`);
     }  
     const result = await response.json();
     setlastSrcClassID(0);
-    setTableDataSrcClass(result);
+    setTableData(result);
   } catch (err) {
-    setAlertText(err.message);
-    setAlertSeverity("error");
-    setOpenAlert(true); 
+    setAlertText('Ошибка при обновлении данных');
+    setAlertSeverity('error')
+    setOpenAlert(true);     
   } finally {
     setIsLoading(false);
   }
@@ -179,7 +164,7 @@ const delRec = async () => {
   setIsLoading(true);
 
   try {
-    const response = await fetch('/action_criterion/'+valueActionCriterionId, {
+    const response = await fetch('/action_criterion/'+valueId, {
       method: 'DELETE',
       headers: {
         'Content-Type': 'Application/json',
@@ -187,134 +172,119 @@ const delRec = async () => {
       },
     });
 
-    let aSeverity = response.ok ? 'success' : 'error';
-    let aText = await response.text();
-
-    setAlertText(aText);
-    setAlertSeverity(aSeverity);
-
     if (!response.ok) {
-      throw new Error(alertText);
+      throw new Error(await response.text());
     }
 
+    setAlertSeverity('success');
+    setAlertText(await response.text());
+    // Переключаемся на первую запись после удаления
+    if (tableData[0]) {
+      setValueID(tableData[0].id);
+      setAddedId(tableData[0].id);
+    }      
   } catch (err) {
-    console.error(err);
-    setAlertText(err.message);
-    setAlertSeverity( 'error');    
-    //alertSeverity = 'error';
-    //alertText = err.message;
-
-  } finally {
-    setOpenAlert(true);
-    setIsLoading(false);
-    reloadDataSrcClass();
-  }
-};
-///////////////////////////////////////////////////////////////////  SAVE  /////////////////////
-const saveRec = async () => {
-
-  if (formRef.current.reportValidity() )
-    {
-
-  const js = JSON.stringify({
-    action_criterion_id: valueActionCriterionId,
-    action_id: valueActionId,
-
-  });
-  if (!valueActionCriterionId) { //если значение не задано - добавить запись
-    addRec();
-    return;
-  }
-  setIsLoading(true);
-  try {
-    const response = await fetch('/action_criterion/'+valueActionCriterionId, {
-      method: 'PUT',
-      body: js,
-      headers: {
-        'Content-Type': 'Application/json',
-        Accept: '*/*',
-     },
-   });
-   let aSeverity;
-   let aText;
-   if (!response.ok) {
-      aSeverity = 'error';
-      aText = await response.text();
-    }
-    else
-    {
-      aSeverity = "success";
-      aText = await response.text();
-    }
-    setAlertText(aText);
-    setAlertSeverity(aSeverity);
-    setOpenAlert(true); 
- } catch (err) {
-  setAlertText(err.message);
-  setAlertSeverity('error');
-  setOpenAlert(true);
- } finally {
-   setIsLoading(false);
-   reloadDataSrcClass();      
- }
-}
-};
-/////////////////////////////////////////////////////////////////// ADDREC ///////////////////// 
-const addRec = async ()  => {
-  const js = JSON.stringify({
-    action_id: valueActionId,
-    criterion_id: props.rec_id     
-  });
-  setIsLoading(true);
-  try {
-    const response = await fetch('/action_criterion/', {
-      method: 'POST',
-      body: js,
-      headers: {
-        'Content-Type': 'Application/json',
-        Accept: '*/*',
-      },
-    });
-    let aSeverity;
-    let aText;
-    if (!response.ok) {
-      aSeverity = 'error';
-      aText = await response.text();
-    }
-    else
-    {
-      const { id } = await response.json();
-      aSeverity = "success";
-      aText = `Добавлена запись с кодом ${id}`;
-      let lastAddedId =  id; 
-      setValueActionCriterionId(lastAddedId);
-    }
-    setAlertText(aText);
-    setAlertSeverity(aSeverity);
-    setOpenAlert(true);
-  } catch (err) {
-    setAlertText(err.message);
     setAlertSeverity('error');
-    setOpenAlert(true);
+    setAlertText(err.message);
   } finally {
     setIsLoading(false);
-    reloadDataSrcClass(); 
+    setOpenAlert(true);
+    reloadData(); 
+  }
+};
+
+const saveRec = async () => {
+  if (formRef.current.reportValidity()) {
+    // Объявляем переменные, которые изменятся в зависимости от наличия valueId
+    let url;
+    let method;
+    let data;
+
+    if (valueId) {
+      // Если valueId существует, будем выполнять запрос PUT
+      url = '/action_criterion/' + valueId;
+      method = 'PUT';
+      data = {
+        action_criterion_id: valueId,
+        action_id: valueActionId,
+      };
+    } else {
+      // Если valueId не существует, будем выполнять запрос POST
+      url = '/action_criterion/';
+      method = 'POST';
+      data = {
+        action_id: valueActionId,
+        criterion_id: props.rec_id,
+      };
+    }
+
+    setIsLoading(true);
+
+    try {
+      const response = await fetch(url, {
+        method: method,
+        body: JSON.stringify(data),
+        headers: {
+          'Content-Type': 'Application/json',
+          Accept: '*/*',
+        },
+      });
+
+      let aSeverity;
+      let aText;
+
+      if (!response.ok) {
+        aSeverity = 'error';
+        aText = await response.text();
+      } else {
+        if (method === 'POST') {
+          const { id } = await response.json();
+          aSeverity = "success";
+          aText = `Добавлена запись с кодом ${id}`;
+          setValueID(id);
+        } else {
+          aSeverity = "success";
+          aText = await response.text();
+        }
+      }
+
+      setAlertText(aText);
+      setAlertSeverity(aSeverity);
+      setOpenAlert(true);
+
+    } catch (err) {
+      setAlertText(err.message);
+      setAlertSeverity('error');
+      setOpenAlert(true);
+    } finally {
+      setIsLoading(false);
+      reloadData(); 
+    }
   }
 };
 
 const handleRowClick = (params) => {
   setOpenAlert(false);
-  setValueActionCriterionId(params.row.id);
-  setValueActionId(params.row.action_id);
-  setValueTitle(params.row.title);    
-  setValueNameRus(params.row.name_rus);    
-  setValueNameEng(params.row.name_eng);    
-  setValueDescrRus(params.row.descr_rus);    
-  setValueDescrEng(params.row.descr_eng);   
-
-//  console.log(params.row.id);
-//  console.log(params.row.action_id);
+  setValueID(params.row.id);
+  setClickedRowId(params.row.id);
+  setRowSelectionModel([params.row.id]);
 }; 
+
+const setValues = (row) => {
+  setValueActionId(row.action_id);
+  setValueTitle(row.title);    
+  setValueNameRus(row.name_rus);    
+  setValueNameEng(row.name_eng);    
+  setValueDescrRus(row.descr_rus);    
+  setValueDescrEng(row.descr_eng);   
+};
+
+useEffect(() => {
+  const rowData = tableData.find(row => row.id === valueId);
+  if (rowData) {
+    setValues(rowData);
+  }
+}, [tableData, valueId]);
 
 const [noRecords, setNoRecords] = useState(true);
 
@@ -324,21 +294,38 @@ const formRef = React.useRef();
     
     <div style={{ height: 270, width: 886 }}>
       <form ref={formRef}>  
-      <table cellSpacing={0} cellPadding={0} style={{ height: 270, width: 886, verticalAlign: 'top' }} border="0"><tbody><tr>
-        <td style={{ height: 270, width: 800, verticalAlign: 'top' }}>
-      <DataGrid
-        localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
-        rowHeight={25}
-        columns={columns_src}
-        rows={tableDataSrcClass}
-        disableMultipleSelection={true}
-        onRowClick={handleRowClick} {...tableDataSrcClass} 
-        hideFooterSelectedRowCount={true}
-        selectionModel={selectionModel}
-        onSelectionModelChange={(newSelectionModel) => {
-          setSelectionModel(newSelectionModel);
-        }}
-        loading={isLoading}        
+      <Box sx={{ border: '0px solid purple', height: 250, width: 886 }}>
+        <Grid container spacing={1}>
+          <Grid item sx={{ width: 780, border: '0px solid black', ml: 0 }}>
+            <DataGrid
+              sx={{
+                border: '1px solid rgba(0, 0, 0, 0.23)',
+                borderRadius: '4px',
+                "& .MuiDataGrid-row.Mui-selected": {
+                  backgroundColor: ((valueId || '')==='') ? "transparent" : "rgba(0, 0, 0, 0.11)",
+                },
+                "& .MuiDataGrid-cell:focus-within": {
+                  outline: "none !important",
+                },
+              }}                 
+              localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
+              rowHeight={25}
+              apiRef={apiRef}              
+              columns={columns_src}
+              rows={tableData}
+              disableMultipleSelection={true}
+              onPaginationModelChange={setPaginationModel}
+              onRowClick={handleRowClick} {...tableData} 
+              hideFooterSelectedRowCount={true}
+              selectionModel={selectionModel}
+              paginationModel={paginationModel}
+              onSelectionModelChange={(newSelectionModel) => {
+                setSelectionModel(newSelectionModel);
+              }}
+              rowSelectionModel={rowSelectionModel}
+              loading={isLoading}
+              pageSize={25} // number of rows per page
+              style={{ height: '270px', width: '786px' }} // set height of the DataGrid              
         initialState={{
           columns: {
             columnVisibilityModel: {
@@ -353,23 +340,29 @@ const formRef = React.useRef();
             },
           },
         }}             
+            />
+          </Grid>
+          <Grid item sx={{width: 45, border: '0px solid green', ml: 1 }}> 
+            <Box sx={{ border: '0px solid purple', display: 'flex', flexDirection: 'column', gap: 0.1, alignItems: 'center', justifyContent: 'center' }}>
+      <IconButton onClick={()=>handleClickAdd()}  disabled={false} color="primary" size="small" title="Добавить связь с источником данных">
+                <SvgIcon fontSize="small" component={PlusLightIcon} inheritViewBox />
+              </IconButton>
+        <IconButton onClick={()=>handleClickEdit()} disabled={noRecords} color="primary" size="small" title="Редактировать связь с источником данных">
+                <SvgIcon fontSize="small" component={EditLightIcon} inheritViewBox />
+              </IconButton>
+        <IconButton onClick={()=>handleClickDelete()} disabled={noRecords} color="primary" size="small" title="Удалить связь с источником данных">
+                <SvgIcon fontSize="small" component={TrashLightIcon} inheritViewBox />
+              </IconButton>
+              <IconButton onClick={()=>handleOpenDSInfo()} disabled={noRecords} color="primary" size="small" title="Информация по источнику данных">
+                <SvgIcon fontSize="small" component={InfoLightIcon} inheritViewBox />
+              </IconButton>
+            </Box>
+          </Grid>
+        </Grid>
 
-      /></td>
-      <td style={{ height: 270, width: 100, verticalAlign: 'top' }}>
-      &nbsp;<IconButton onClick={()=>handleClickAdd()} disabled={(lastRecID===-1)||(props.rec_id==='-1000000')} color="primary" size="small" title="Добавить связь с источником данных">
-        <SvgIcon fontSize="small" component={PlusLightIcon} inheritViewBox /></IconButton><br/>
-      &nbsp;<IconButton onClick={()=>handleClickEdit()} disabled={noRecords} color="primary" size="small" title="Редактировать связь с источником данных">
-        <SvgIcon fontSize="small" component={EditLightIcon} inheritViewBox /></IconButton><br/>
-      &nbsp;<IconButton onClick={()=>handleClickDelete()} disabled={noRecords} color="primary" size="small" title="Удалить связь с источником данных">
-        <SvgIcon fontSize="small" component={TrashLightIcon} inheritViewBox /></IconButton><br/>
-      &nbsp;<IconButton onClick={()=>handleOpenDSInfo()} disabled={noRecords} color="primary" size="small" title="Информация по источнику данных">
-        <SvgIcon fontSize="small" component={InfoLightIcon} inheritViewBox /></IconButton>
-      </td></tr>
-      <tr>
-        <td>
-        <Box sx={{ width: '100%' }}>
         <Collapse in={openAlert}>
           <Alert
+            style={{ width: '786px' }}
             severity={alertSeverity}
             action={
               <IconButton
@@ -383,26 +376,18 @@ const formRef = React.useRef();
                 <CloseIcon fontSize="inherit" />
               </IconButton>
             }
-            sx={{ mb: 2 }}
           >
             {alertText}
           </Alert>
         </Collapse>
-        <div style={{
-        marginLeft: '40%',
-        }}>
-        </div>
       </Box>
-        </td>
-      </tr>
-      </tbody></table>
 
       <Dialog open={open} onClose={handleCloseNo} fullWidth={false} maxWidth="800px">
       <DialogTitle>Действие</DialogTitle>  
         <DialogContent style={{height:'280px', width: '700px'}}>
-{/*           <DialogContentText>
+          <DialogContentText>
             Задать действие
-          </DialogContentText> */}
+          </DialogContentText>
         <p></p>        
         <FormControl fullWidth>
             <InputLabel id="demo-controlled-open-select-label" required >Действие</InputLabel>
@@ -437,23 +422,30 @@ const formRef = React.useRef();
       </DialogTitle>
       <DialogContent>
           <DialogContentText>
-              В таблице "{table_names['data_source_class']}" предложена к удалению следующая запись:<p></p><b>{valueTitle}</b>; Код в БД = <b>{valueActionCriterionId}</b><p></p>
-              Вы желаете удалить указанную запись?        
-          </DialogContentText>
-      </DialogContent>
-      <DialogActions>
-          <Button variant="outlined" onClick={handleCloseConfirmDelete} autoFocus>Нет</Button>
-          <Button variant="outlined" onClick={handleCloseConfirmDeleteYes} >Да</Button>
-      </DialogActions>
+                <Typography variant="body1" style={{marginBottom: "1em"}}>
+              В таблице "{table_names['data_source_class']}" предложена к удалению следующая запись:<p></p><b>{valueTitle}</b>; Код в БД = <b>{valueId}</b><p></p>
+                </Typography>
+                <Typography variant="body1" style={{fontWeight: "bold", marginBottom: "1em"}}>
+                  Код в БД = {valueId}
+                </Typography>
+                <Typography variant="body1">
+                  Вы желаете удалить указанную запись?        
+                </Typography>
+              </DialogContentText>
+          </DialogContent>
+          <DialogActions>
+            <Button variant="outlined" onClick={handleCloseConfirmDeleteYes} >Да</Button>
+            <Button variant="outlined" onClick={handleCloseConfirmDelete} autoFocus>Нет</Button>
+          </DialogActions>
+          </Dialog>
 
-      </Dialog>
-      <Dialog open={openDSInfo} onClose={handleCloseDSInfo} fullWidth={true}>
-      <DialogTitle>
-          Действие <b>{valueTitle}</b>
+          <Dialog open={openDSInfo} onClose={handleCloseDSInfo} fullWidth={true}>
+            <DialogTitle>
+          <Typography variant="h6">Действие {valueTitle}</Typography>
       </DialogTitle>
       <DialogContent>
           <DialogContentText>
-              Код: <b>{valueActionCriterionId}</b><p></p>
+              Код: <b>{valueId}</b><p></p>
               Обозначение: <b>{valueTitle}</b><p></p>
               Название (рус.яз): <b>{valueNameRus}</b><p></p> 
               Название (англ.яз): <b>{valueNameEng}</b><p></p> 

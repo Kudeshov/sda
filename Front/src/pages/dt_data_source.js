@@ -73,8 +73,8 @@ const DataTableDataSource = (props) => {
     }, [ valueTitle, valueShortName, valueFullName, valueDescr, valueExternalDS]); 
 
     useEffect(() => {
-
-      if (!currentId) {
+      
+      if (typeof currentId !== 'number') {
         setEditStarted(false);
         return;
       }  
@@ -101,7 +101,7 @@ const DataTableDataSource = (props) => {
 
   useEffect(() => {
     if ((!isLoading) && (tableData) && (tableData.length) && tableData[0].id) {
-      if (!currentId)  
+      if (typeof currentId !== 'number')
       {
         console.log('Выбрано ', tableData[0].id);
         setRowSelectionModel([tableData[0].id]);
@@ -590,29 +590,39 @@ const delRec = async () => {
             </Alert>
           </Collapse>
         </Grid>
-        <Grid item xs={7} sx={{ border: '0px solid blue' }}>
-          <form ref={formRef}>
-          <Box sx={{ border: '0px solid red', padding: 0, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-            <Box sx={{ display: 'flex', flexDirection: 'row', gap: 1.5 }}>
-              <TextField id="ch_id" disabled={true} label="Код" sx={{ width: '12ch' }} variant="outlined" value={valueId || ''} size="small" />
-              <TextField id="ch_name" sx={{ width: '50ch' }} label="Обозначение" required size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)} inputRef={inputRef} />
-            </Box>
-            <TextField id="ch_shortname" sx={{ width: '785px' }} label="Краткое название" required size="small" variant="outlined" value={valueShortName || ''} onChange={e => setValueShortName(e.target.value)} />
-            <TextField id="ch_fullname" sx={{ width: '785px' }} label="Полное название" size="small" variant="outlined" value={valueFullName || ''} onChange={e => setValueFullName(e.target.value)} />
-            <FormControl sx={{ width: '30ch' }} size="small">
-              <InputLabel required id="demo-controlled-open-select-label">Тип источника</InputLabel>
-              <Select labelId="demo-controlled-open-select-label" id="demo-controlled-open-select" required value={valueExternalDS} label="Тип источника" defaultValue={true} onChange={e => setValueExternalDS(e.target.value)}>
-                {valuesExtDS?.map(option => {
-                  return (
-                    <MenuItem key={option.value} value={option.value}>
-                      {option.label ?? option.value}
-                    </MenuItem>
-                  );
-                })}
-              </Select>
-            </FormControl>  
-            <TextField id="ch_descr" sx={{ width: '785px' }} size="small" label="Комментарий" multiline rows={4} variant="outlined" value={valueDescr || ''} onChange={e => setValueDescr(e.target.value)} />
-          </Box>
+        <Grid sx={{ width: 801, padding: 1 }}>
+        <form ref={formRef}>
+          <Grid container spacing={1.5}>
+            <Grid item xs={2}>
+              <TextField id="ch_id" disabled={true} label="Код" variant="outlined" value={valueId || ''} size="small" />
+            </Grid>  
+            <Grid item xs={10}>
+              <TextField id="ch_name" fullWidth label="Обозначение" required size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)} inputRef={inputRef} />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField id="ch_shortname" fullWidth label="Краткое название" required size="small" variant="outlined" value={valueShortName || ''} onChange={e => setValueShortName(e.target.value)} />
+            </Grid>            
+            <Grid item xs={12}>
+              <TextField id="ch_fullname" fullWidth label="Полное название" size="small" variant="outlined" value={valueFullName || ''} onChange={e => setValueFullName(e.target.value)} />
+            </Grid>  
+            <Grid item xs={12}>
+              <FormControl sx={{ width: '30ch' }} size="small">
+                <InputLabel required id="demo-controlled-open-select-label">Тип источника</InputLabel>
+                <Select labelId="demo-controlled-open-select-label" id="demo-controlled-open-select" required value={valueExternalDS} label="Тип источника" defaultValue={true} onChange={e => setValueExternalDS(e.target.value)}>
+                  {valuesExtDS?.map(option => {
+                    return (
+                      <MenuItem key={option.value} value={option.value}>
+                        {option.label ?? option.value}
+                      </MenuItem>
+                    );
+                  })}
+                </Select>
+              </FormControl>     
+            </Grid>             
+            <Grid item xs={12}>
+              <TextField id="ch_descr" fullWidth size="small" label="Комментарий" multiline rows={4} variant="outlined" value={valueDescr || ''} onChange={e => setValueDescr(e.target.value)} />
+            </Grid>  
+          </Grid>  
           </form>
           <Box sx={{ marginTop: '0.4rem' }}>
             Связанные с источником классификаторы<br/>

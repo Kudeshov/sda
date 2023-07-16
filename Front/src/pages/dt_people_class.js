@@ -13,11 +13,10 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import { Box, IconButton } from '@mui/material';
+import { Grid, Box, IconButton } from '@mui/material';
 import Alert from '@mui/material/Alert';
 import Collapse from '@mui/material/Collapse';
 import CloseIcon from '@mui/icons-material/Close';
-import { DataTableDataSourceClass } from './dt_data_source_class';
 import SvgIcon from '@mui/material/SvgIcon';
 import { ReactComponent as SaveLightIcon } from "./../icons/save.svg";
 import { ReactComponent as PlusLightIcon } from "./../icons/plus.svg";
@@ -26,15 +25,14 @@ import { ReactComponent as DownloadLightIcon } from "./../icons/download.svg";
 import { ReactComponent as TrashLightIcon } from "./../icons/trash.svg";
 import { ReactComponent as RepeatLightIcon } from "./../icons/repeat.svg";
 import { table_names } from './table_names';
+import CircularProgress from '@mui/material/CircularProgress';
+import Backdrop from '@mui/material/Backdrop';
 import { useGridScrollPagination } from './../helpers/gridScrollHelper';
-
-
-var alertText = "Сообщение";
-var alertSeverity = "info";
-var lastId = 0;
+import { DataTableDataSourceClass } from './dt_data_source_class';
 
 const DataTablePeopleClass = (props) => {
   const apiRef = useGridApiRef(); // init DataGrid API for scrolling
+
   const [valueId, setValueID] = React.useState();
   const [valueTitle, setValueTitle] = React.useState();
   const [valueTitleInitial, setValueTitleInitial] = React.useState();
@@ -49,70 +47,91 @@ const DataTablePeopleClass = (props) => {
   const [isLoading, setIsLoading] = React.useState(false);
   const [tableData, setTableData] = useState([]); 
   const [rowSelectionModel, setRowSelectionModel] = React.useState([]);
-  const [editStarted, setEditStarted] = useState([false]);
-  const [isEmpty, setIsEmpty] = useState([false]);
+  const [editStarted, setEditStarted] = useState(false);
+  //const [isEmpty, setIsEmpty] = useState([false]);
 
+  const [alertText, setAlertText] = useState("Сообщение");
+  const [alertSeverity, setAlertSeverity] = useState("info");
+  const [currentId, setCurrentId] = useState(null);  
 
-  useEffect(() => {
+  const [addedId, setAddedId] = useState(null);  
+
+/*   useEffect(() => {
     setIsEmpty((''===valueTitle)&&(''===valueNameRus)&&(''===valueNameEng)&&(''===valueDescrEng)&&(''===valueDescrRus));
     }, [ valueTitle, valueNameRus, valueNameEng, valueDescrEng, valueDescrRus, ]); 
-      
+     */
+        
+  useEffect(() => {
 
+    console.log('editStarted currentId', currentId)
+
+    if (typeof currentId !== 'number') {
+      setEditStarted(false);
+      return;
+    }  
+
+    const editStarted1 = (valueTitleInitial!==valueTitle)||(valueNameRusInitial!==valueNameRus)||(valueNameEngInitial!==valueNameEng)
+    ||(valueDescrEngInitial!==valueDescrEng)||(valueDescrRusInitial!==valueDescrRus);
+    console.log('editStarted1', editStarted1)
+    
+    setEditStarted(editStarted1);      
+
+  }, [valueTitleInitial, valueTitle, valueNameRusInitial, valueNameRus, valueNameEngInitial, valueNameEng, 
+      valueDescrEngInitial, valueDescrEng, valueDescrRusInitial, valueDescrRus, currentId]); 
 
   useEffect(() => {
-    setEditStarted((valueTitleInitial!==valueTitle)||(valueNameRusInitial!==valueNameRus)||(valueNameEngInitial!==valueNameEng)
-      ||(valueDescrEngInitial!==valueDescrEng)||(valueDescrRusInitial!==valueDescrRus));
-    }, [valueTitleInitial, valueTitle, valueNameRusInitial, valueNameRus, valueNameEngInitial, valueNameEng, 
-        valueDescrEngInitial, valueDescrEng, valueDescrRusInitial, valueDescrRus]); 
-
-  useEffect(() => {
-    if ((!isLoading) && (tableData) && (tableData.length)) {
-      if (!lastId) 
+    if ((!isLoading) && (tableData) && (tableData.length) && tableData[0].id>-1) {
+      if (typeof currentId !== 'number') 
       {
-        lastId = tableData[0].id;
+        console.log('Выбрано ', tableData[0].id);
         setRowSelectionModel([tableData[0].id]);
+        setCurrentId(tableData[0].id);
         setValueID(tableData[0].id);
-        setValueTitle(tableData[0].title);
-        setValueNameRus(tableData[0].name_rus);
-        setValueNameEng(tableData[0].name_eng);
-        setValueDescrRus(tableData[0].descr_rus);
-        setValueDescrEng(tableData[0].descr_eng);
-        setValueTitleInitial(tableData[0].title);       
-        setValueNameRusInitial(tableData[0].name_rus);
-        setValueNameEngInitial(tableData[0].name_eng);
-        setValueDescrRusInitial(tableData[0].descr_rus);
-        setValueDescrEngInitial(tableData[0].descr_eng);
       }
     }
-    }, [ isLoading, tableData] );
+    }, [ isLoading, tableData, currentId] );
+
+  const [prevRowSelectionModel, setPrevRowSelectionModel] = useState([]);
+  const [clickedRowId, setClickedRowId] = useState(null);
+
+   useEffect(() => {
+    // Если редактирование начато, не меняем выбранную строку
+    if (editStarted) {
+      setRowSelectionModel(prevRowSelectionModel);
+    } else {
+      // Здесь сохраняем предыдущую выбранную строку
+      setPrevRowSelectionModel(rowSelectionModel);
+    }
+  }, [rowSelectionModel, prevRowSelectionModel, editStarted]);    
 
   const handleRowClick = (params) => {
+
+    console.log('handleRowClick', params.row.id, valueId);
+    if (params.row.id === valueId  ) {
+      // Если данные не изменились, просто выходим из функции
+      return;
+    }
     setOpenAlert(false);
-    console.log( 'isEmpty = '+isEmpty);
-    if (editStarted&&(!isEmpty))
+
+    //console.log('editStarted isEmpty', editStarted, isEmpty);
+    //if (editStarted&&(!isEmpty))
+    if (editStarted)
     {
-      handleClickSave(params);
+      setClickedRowId(params.row.id);
+      setDialogType('save');
     } 
     else 
     {
       setValueID(params.row.id);
-      setValueTitle(params.row.title);
-      setValueNameRus(params.row.name_rus);
-      setValueNameEng(params.row.name_eng);
-      setValueDescrRus(params.row.descr_rus);
-      setValueDescrEng(params.row.descr_eng);
-      setValueTitleInitial(params.row.title);
-      setValueNameRusInitial(params.row.name_rus);
-      setValueNameEngInitial(params.row.name_eng);
-      setValueDescrRusInitial(params.row.descr_rus);
-      setValueDescrEngInitial(params.row.descr_eng);
     }
   }; 
 
+  const inputRef = React.useRef();
+
   const handleClearClick = (params) => {
-    if (editStarted&&(!isEmpty))
+    if (editStarted/* &&(!isEmpty) */)
     {
-      handleClickSaveWhenNew(params);
+      setDialogType('save');
     } 
     else 
     {
@@ -122,191 +141,154 @@ const DataTablePeopleClass = (props) => {
       setValueNameEng(``);
       setValueDescrRus(``);
       setValueDescrEng(`` );
+      // Даем фокус TextField после обновления состояния
+      inputRef.current.focus();
     }
   }; 
 
   useEffect(() => {
     fetch(`/${props.table_name}`)
       .then((data) => data.json())
-      .then((data) => setTableData(data))
-      .then((data) => { lastId = 0;} ); 
+      .then((data) => setTableData(data)); 
   }, [props.table_name])
 
-  ///////////////////////////////////////////////////////////////////  SAVE  /////////////////////
-  const saveRec = async ( fromToolbar ) => {
-
-    if (formRef.current.reportValidity() )
-    {
-
-    const js = JSON.stringify({
+const saveRec = async () => {
+  if (formRef.current.reportValidity()) {
+    const data = {
       id: valueId,
       title: valueTitle,
       name_rus: valueNameRus,
       name_eng: valueNameEng,
       descr_rus: valueDescrRus,
-      descr_eng: valueDescrEng         
-    });
-    if (!valueId) {
-      addRec();
-      return;
-    }
+      descr_eng: valueDescrEng,
+    };
+    
     setIsLoading(true);
+    
+    const url = `/${props.table_name}/` + (valueId ? valueId : '');
+    const method = valueId ? 'PUT' : 'POST';
+    
     try {
-      const response = await fetch(`/${props.table_name}/`+valueId, {
-       method: 'PUT',
-       body: js,
-       headers: {
-         'Content-Type': 'Application/json',
-         Accept: '*/*',
-       },
-     });
-     if (!response.ok) {
-        alertSeverity = 'error';
-        alertText = await response.text();
-        setOpenAlert(true);          
+      const response = await fetch(url, {
+        method,
+        body: JSON.stringify(data),
+        headers: {
+          'Content-Type': 'Application/json',
+          Accept: '*/*',
+        },
+      });
+      
+      // Проверяем тип контента
+      const contentType = response.headers.get('content-type');
+      const isJson = contentType && contentType.includes('application/json');
+      
+      let responseData;
+      
+      // Обрабатываем ответ в зависимости от типа контента
+      if (isJson) {
+        responseData = await response.json();
+      } else {
+        responseData = await response.text();
       }
-      else
-      {
-        alertSeverity = "success";
-        alertText = await response.text();
-        setOpenAlert(true);  
+      
+      // Обрабатываем ответ в зависимости от статуса
+      if (!response.ok) {
+        throw new Error(responseData);
       }
-   } catch (err) {
-     alertText = err.message;
-     alertSeverity = 'error';
-     setOpenAlert(true);
-   } finally {
-     setIsLoading(false);
-     if (fromToolbar) 
-     {
-       setValueTitleInitial(valueTitle);       
-       setValueNameRusInitial(valueNameRus); 
-       setValueNameEngInitial(valueNameEng);
-       setValueDescrRusInitial(valueDescrRus);
-       setValueDescrEngInitial(valueDescrEng);           
-     }
-    reloadData();     
-   }
+      
+      setAlertSeverity('success');
+      
+      // Если это POST запрос, получаем и устанавливаем новый ID
+      if (method === 'POST') {
+        const newId = responseData.id;
+        
+        if (clickedRowId===null) {
+          setValueID(newId);
+          setAddedId(newId);
+        }
+        else {
+          setValueID(clickedRowId);
+        }
+          
+        setAlertText(`Добавлена запись с кодом ${newId}`);
+
+      } else {
+        if (clickedRowId) {
+          setValueID(clickedRowId);
+        }
+        setAlertText(responseData || 'Success');
+      }
+      
+    } catch (err) {
+      setAlertSeverity('error');
+      setAlertText(err.message);
+
+      if (clickedRowId!==null) {
+        setValueID(clickedRowId);
+      }
+    } finally {
+      setIsLoading(false);
+      setOpenAlert(true);
+
+      await reloadData();
+    }
   }
- };
-/////////////////////////////////////////////////////////////////// ADDREC ///////////////////// 
-  const addRec = async ()  => {
-    const js = JSON.stringify({
-      id: valueId,
-      title: valueTitle,
-      name_rus: valueNameRus,
-      name_eng: valueNameEng,
-      descr_rus: valueDescrRus,
-      descr_eng: valueDescrEng         
-    });
-    setIsLoading(true);
-    try {
-      const response = await fetch(`/${props.table_name}/`, {
-        method: 'POST',
-        body: js,
-        headers: {
-          'Content-Type': 'Application/json',
-          Accept: '*/*',
-        },
-      });
+}
 
-      if (!response.ok) {
-        alertSeverity = 'error';
-        alertText = await response.text();
-        setOpenAlert(true);          
-      }
-      else
-      {
-        alertSeverity = "success";
-        const { id } = await response.json();
-        alertText = `Добавлена запись с кодом ${id}`;
-        lastId = id;  
-        setValueID(lastId);
-        setOpenAlert(true);  
-      }
-    } catch (err) {
-      alertText = err.message;
-      alertSeverity = 'error';
-      setOpenAlert(true);
-    } finally {
-      setIsLoading(false);
-      reloadData();
-      setRowSelectionModel([lastId]);
-      scrollToIndexRef.current = lastId;  
-      //Refresh initial state
-      setValueTitle(valueTitle);
-      setValueNameRus(valueNameRus);
-      setValueNameEng(valueNameEng);
-      setValueDescrRus(valueDescrRus);
-      setValueDescrEng(valueDescrEng); 
-      setValueTitleInitial(valueTitle);
-      setValueNameRusInitial(valueNameRus);
-      setValueNameEngInitial(valueNameEng);
-      setValueDescrRusInitial(valueDescrRus);
-      setValueDescrEngInitial(valueDescrEng);           
-    }
-  };
+useEffect(() => {
+  const rowData = tableData.find(row => row.id === valueId);
+  if (rowData) {
+    setValues(rowData);
+  }
+}, [tableData, valueId]);
 
-/////////////////////////////////////////////////////////////////// DELETE /////////////////////
-  const delRec =  async () => {
-    const js = JSON.stringify({
-        id: valueId,
-        title: valueTitle,
+// Функция delRec
+const delRec = async () => {
+  setIsLoading(true);
+
+  try {
+    const response = await fetch(`/${props.table_name}/${valueId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'Application/json',
+        Accept: '*/*',
+      },
     });
-    setIsLoading(true);
-    try {
-      const response = await fetch(`/${props.table_name}/`+valueId, {
-        method: 'DELETE',
-        body: js,
-        headers: {
-          'Content-Type': 'Application/json',
-          Accept: '*/*',
-        },
-      });
-      if (!response.ok) {
-        alertSeverity = 'error';
-        alertText = await response.text();
-        setOpenAlert(true);          
-      }
-      else
-      {
-        alertSeverity = "success";
-        alertText = await response.text();
-        setOpenAlert(true); 
-        reloadData();
-        setRowSelectionModel([tableData[0].id]);  
-        setValueID(tableData[0].id);
-        setValueTitle(tableData[0].title);
-        setValueNameRus(tableData[0].name_rus);
-        setValueNameEng(tableData[0].name_eng);
-        setValueDescrRus(tableData[0].descr_rus);
-        setValueDescrEng(tableData[0].descr_eng);
-        setValueTitleInitial(tableData[0].title);
-        setValueNameRusInitial(tableData[0].name_rus);
-        setValueNameEngInitial(tableData[0].name_eng);
-        setValueDescrRusInitial(tableData[0].descr_rus);
-        setValueDescrEngInitial(tableData[0].descr_eng);
-      }
-    } catch (err) {
-      alertText = err.message;
-      alertSeverity = 'error';
-      setOpenAlert(true);
-    } finally {
-      setIsLoading(false);
+
+    if (!response.ok) {
+      throw new Error(await response.text());
     }
-  };  
+
+    setAlertSeverity('success');
+    setAlertText(await response.text());
+
+  } catch (err) {
+    setAlertSeverity('error');
+    setAlertText(err.message);
+  } finally {
+    setIsLoading(false);
+    setOpenAlert(true);
+    
+    // Переключаемся на первую запись после удаления
+    if (tableData[0]) {
+      setValueID(tableData[0].id);
+      setAddedId(tableData[0].id);
+    } 
+    reloadData();
+  }
+};
 
   /////////////////////////////////////////////////////////////////// RELOAD /////////////////////
   const reloadDataAlert =  async () => {
-    alertSeverity = "info";
-    alertText =  'Данные успешно обновлены';
+    setAlertSeverity('info');
+    setAlertText('Данные успешно обновлены');
     try 
     {
       await reloadData();
     } catch(e)
     {
-      alertSeverity = "error";
-      alertText =  'Ошибка при обновлении данных: '+e.message;      
+      setAlertSeverity('error');
+      setAlertText('Ошибка при обновлении данных: '+e.message);      
       setOpenAlert(true);
       return;
     }
@@ -314,84 +296,151 @@ const DataTablePeopleClass = (props) => {
   }
 
   const reloadData = async () => {
+    setIsLoading(true);  // запускаем индикатор загрузки
     try {
       const response = await fetch(`/${props.table_name}/`);
-       if (!response.ok) {
-        alertText = `Ошибка при обновлении данных: ${response.status}`;
-        alertSeverity = "false";
-        const error = response.status + ' (' +response.statusText+')';  
+  
+      if (!response.ok) {
+        setAlertSeverity('error');
+        setAlertText(`Ошибка при обновлении данных: ${response.status}`);
+        const error = response.status + ' (' + response.statusText + ')';
         throw new Error(`${error}`);
-      }
-      else
-      {  
+      } else {
         const result = await response.json();
         setTableData(result);
       }
     } catch (err) {
       throw err;
     } finally {
-      setIsLoading(false);
+      setIsLoading(false);  // останавливаем индикатор загрузки
     }
   };
 
-  /////////////////////////////////////////
-  const [openDel, setOpenDel] = React.useState(false); 
-  const [openSave, setOpenSave] = React.useState(false); 
-  const [openSaveWhenNew, setOpenSaveWhenNew] = React.useState(false); 
+  ///////////////////////////////////////// DIALOG
+  const [dialogType, setDialogType] = useState('');
 
-  const handleClickDelete = () => {
-    setOpenDel(true);
+  const getDialogContentText = () => {
+    const allRequiredFieldsFilled = formRef.current?.checkValidity();
+    switch (dialogType) {
+      case 'delete':
+        return (
+          <>
+            В таблице "{table_names[props.table_name]}" предложена к удалению следующая запись: 
+            <br />
+            {valueTitle}; Код в БД = {valueId}. 
+            <br />
+            Вы желаете удалить указанную запись?
+          </>);
+      case 'save':
+        if (!valueId) { // если это новая запись
+          if (allRequiredFieldsFilled) {
+            return `Создана новая запись, сохранить?`;
+          } else {
+            return (
+              <>
+                Не заданы обязательные поля, запись не будет создана.
+                <br />
+                Перейти без сохранения изменений?
+              </>
+            );
+          }
+        } else { // если это редактируемая запись
+          if (allRequiredFieldsFilled) {
+            return `В запись внесены изменения, сохранить изменения?`;
+          } else {
+            return (
+              <>
+                Не заданы обязательные поля, изменения не будут сохранены
+                <br />
+                Перейти без сохранения изменений?
+              </>
+            );            
+          }
+        }
+      default:
+        return '';
+    }
   };
 
-  const handleCloseDelNo = () => {
-    setOpenDel(false);
+  const setValues = (row) => {
+    setValueTitle(row.title);
+    setValueTitleInitial(row.title);
+    setValueNameRus(row.name_rus);
+    setValueNameRusInitial(row.name_rus);
+    setValueNameEng(row.name_eng);
+    setValueNameEngInitial(row.name_eng);
+    setValueDescrRus(row.descr_rus);
+    setValueDescrRusInitial(row.descr_rus);
+    setValueDescrEng(row.descr_eng);
+    setValueDescrEngInitial(row.descr_eng);
   };
 
-  const handleCloseDelYes = () => {
-    setOpenDel(false);
-    delRec();
+  const handleCloseNo = () => {
+    switch (dialogType) {
+      case 'save':
+        setEditStarted(false);
+        setValueID(clickedRowId);
+        setRowSelectionModel([clickedRowId]);
+        break;
+      default:
+        break;
+    }
+    setDialogType('');
+};
+
+  const handleCloseCancel = () => {
+    switch (dialogType) {
+      case 'save':
+        break;
+      default:
+        break;
+    }
+    setDialogType('');
+  };
+  
+  const handleCloseYes = () => {
+    switch (dialogType) {
+      case 'delete':
+        delRec();
+        break;
+      case 'save':
+        saveRec(false);
+        break;
+      default:
+        break;
+    }
+    
+    setDialogType('');
+
+    if (clickedRowId>0) {
+      setEditStarted(false);
+      setRowSelectionModel([clickedRowId]);
+      const rowData = tableData.find(row => row.id === clickedRowId);
+      setValues(rowData);
+      setEditStarted(false);
+    }
   };
 
-  const handleClickSave = () => {
-    setOpenSave(true);
-  };
-
-  const handleCloseSaveNo = () => {
-    setOpenSave(false);
-    handleCancelClick();
-  };
-
-  const handleCloseSaveYes = () => {
-    setOpenSave(false);
-    saveRec(false);
-    handleCancelClick();
-  };
-
-  const handleClickSaveWhenNew = () => {
-    setOpenSaveWhenNew(true);
-  };
-
-  const handleCloseSaveWhenNewNo = () => {
-    setOpenSaveWhenNew(false);
-
-    setValueID(``);
-    setValueTitle(``);
-    setValueNameRus(``);
-    setValueNameEng(``);
-    setValueDescrRus(``);
-    setValueDescrEng(`` );
-  };
-
-  const handleCloseSaveWhenNewYes = () => {
-    setOpenSaveWhenNew(false);
-    saveRec(true);
-    setValueID(``);
-    setValueTitle(``);
-    setValueNameRus(``);
-    setValueNameEng(``);
-    setValueDescrRus(``);
-    setValueDescrEng(`` );
-  };
+  function DialogButtons() {
+    const allRequiredFieldsFilled = formRef.current?.checkValidity();
+  
+    if (dialogType === 'save' && !allRequiredFieldsFilled) {
+      return (
+        <>
+          <Button variant="outlined" onClick={handleCloseNo} >Да</Button>
+          <Button variant="outlined" onClick={handleCloseCancel} >Отмена</Button>
+        </>
+      );
+    } else {
+      return (
+        <>
+          <Button variant="outlined" onClick={handleCloseYes} >Да</Button>
+          <Button variant="outlined" onClick={handleCloseNo} >Нет</Button>
+          {dialogType !== 'delete' && <Button variant="outlined" onClick={handleCloseCancel} >Отмена</Button>}
+        </>
+      );
+    }
+  }
 
   //////////////////////////////////////////////////////// ACTIONS ///////////////////////////////
   const columns = [
@@ -406,10 +455,10 @@ const DataTablePeopleClass = (props) => {
   const [openAlert, setOpenAlert] = React.useState(false, '');
   const handleCancelClick = () => 
   {
-    const selectedIDs = new Set(rowSelectionModel);
-    console.log('selectedIDs ' + selectedIDs);
+    console.log(rowSelectionModel);
+    
+    const selectedIDs = new Set(rowSelectionModel.map(Number));
     const selectedRowData = tableData.filter((row) => selectedIDs.has(row.id));
-    console.log('selectedRowData ' + selectedRowData);
     if (selectedRowData.length)
     {
       setValueID(selectedRowData[0].id);
@@ -429,22 +478,30 @@ const DataTablePeopleClass = (props) => {
   // Scrolling and positionning
   const { paginationModel, setPaginationModel, scrollToIndexRef } = useGridScrollPagination(apiRef, tableData, setRowSelectionModel);
 
-  function CustomToolbar1() {
-  //const apiRef = useGridApiRef(); // init DataGrid API for scrolling
+  useEffect(() => {
+    if (addedId !== null){  
+        scrollToIndexRef.current = addedId;
+        setAddedId(null);
+        setEditStarted(false);
+        setRowSelectionModel([addedId]);
+    }
+  }, [addedId, scrollToIndexRef]);
+
+  function GridToolbar() {
     const handleExport = (options) =>
-      apiRef.current.exportDataAsCsv(options);
+       apiRef.current.exportDataAsCsv(options);
 
     return (
       <GridToolbarContainer>
-        <IconButton onClick={()=>handleClearClick()}  color="primary" size="small" title="Создать запись">
+        <IconButton onClick={()=>handleClearClick()} disabled={editStarted} color="primary" size="small" title="Создать запись">
           <SvgIcon fontSize="small" component={PlusLightIcon} inheritViewBox /></IconButton>
-        <IconButton onClick={()=>saveRec(true)}  color="primary" size="small" title="Сохранить запись в БД">
+        <IconButton onClick={()=>{setClickedRowId(null); saveRec(true)}}  color="primary" size="small" title="Сохранить запись в БД">
           <SvgIcon fontSize="small" component={SaveLightIcon} inheritViewBox/></IconButton>
-        <IconButton onClick={()=>handleClickDelete()}  color="primary" size="small" title="Удалить запись">
+        <IconButton onClick={()=>setDialogType('delete')}  color="primary" size="small" title="Удалить запись">
           <SvgIcon fontSize="small" component={TrashLightIcon} inheritViewBox /></IconButton>
         <IconButton onClick={()=>handleCancelClick()} disabled={!editStarted} color="primary" size="small" title="Отменить редактирование">
           <SvgIcon fontSize="small" component={UndoLightIcon} inheritViewBox /></IconButton>
-        <IconButton onClick={()=>reloadDataAlert()} color="primary" size="small" title="Обновить данные">
+        <IconButton onClick={()=>reloadDataAlert(valueId)} color="primary" size="small" title="Обновить данные">
           <SvgIcon fontSize="small" component={RepeatLightIcon} inheritViewBox /></IconButton>
         <IconButton onClick={()=>handleExport({ delimiter: ';', utf8WithBom: true, getRowsToExport: () => gridFilteredSortedRowIdsSelector(apiRef) })} color="primary" 
             size="small" title="Сохранить в формате CSV">
@@ -452,145 +509,117 @@ const DataTablePeopleClass = (props) => {
       </GridToolbarContainer>
     );
   }
+
   const formRef = React.useRef();
   return (
-    <div style={{ height: 640, width: 1500 }}>
-    <form ref={formRef}>  
- 
-    <table border = "0" style={{ height: 550, width: 1500 }} ><tbody>
-    <tr>
-      <td style={{ height: 640, width: 600, verticalAlign: 'top' }}>
-      <div style={{ height: 486, width: 585 }}>
-
-      <DataGrid
-        components={{ Toolbar: CustomToolbar1 }}
-        apiRef={apiRef}
-        hideFooterSelectedRowCount={true}
-        localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
-        rowHeight={25}
-        rows={tableData}
-        loading={isLoading}
-        columns={columns}
-        paginationModel={paginationModel}
-        onPaginationModelChange={setPaginationModel}
-        onRowSelectionModelChange={(newRowSelectionModel) => {
-          setRowSelectionModel(newRowSelectionModel);
-        }}
-        rowSelectionModel={rowSelectionModel}    
-        initialState={{
-          columns: {
+    <Box sx={{ border: '0px solid purple', width: 1445, height: 650, padding: 1 }}>
+      <Grid container spacing={1}>
+        <Grid item sx={{width: 583, border: '0px solid green', ml: 1 }}>
+          <DataGrid
+            components={{ Toolbar: GridToolbar }}
+            apiRef={apiRef}
+            hideFooterSelectedRowCount={true}
+            localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
+            rowHeight={25}
+            pageSize={5}
+            rows={tableData}
+            columns={columns}
+            paginationModel={paginationModel}
+            onPaginationModelChange={setPaginationModel}
+            onRowSelectionModelChange={(newRowSelectionModel) => {
+              setRowSelectionModel(newRowSelectionModel);
+            }}
+            rowSelectionModel={rowSelectionModel}
+            initialState={{
+              columns: {
             columnVisibilityModel: {
               name_eng: false,
               descr_rus: false,
               descr_eng: false,
             },
-          },
-        }}        
-        onRowClick={handleRowClick} {...tableData} 
-      />
-      </div>
-      <Box sx={{ width: 585 }}>
-      <Collapse in={openAlert}>
-        <Alert
-          severity={alertSeverity}
-          action={
-            <IconButton
-              aria-label="close"
-              color="inherit"
-              size="small"
-              onClick={() => {
-                setOpenAlert(false);
-              }}
+              },
+            }}        
+            onRowClick={handleRowClick} {...tableData}
+            style={{ width: 570, height: 500, border: '1px solid rgba(0, 0, 0, 0.23)', borderRadius: '4px' }}
+            sx={{
+              "& .MuiDataGrid-row.Mui-selected": {
+                backgroundColor: dialogType !== ''||((typeof valueId === 'number' || '')==='') ? "transparent" : "rgba(0, 0, 0, 0.11)",
+              },
+              "& .MuiDataGrid-cell:focus-within": {
+                outline: "none !important",
+              },
+            }}
+          />
+
+          <Collapse in={openAlert}>
+            <Alert
+              item sx={{width: 571}}
+              severity={alertSeverity}
+              action={
+                <IconButton
+                  aria-label="close"
+                  color="inherit"
+                  size="small"
+                  onClick={() => {
+                    setOpenAlert(false);
+                  }}
+                >
+                  <CloseIcon fontSize="inherit" />
+                </IconButton>
+              }
             >
-              <CloseIcon fontSize="inherit" />
-            </IconButton>
-          }
-        >
-          {alertText}
-        </Alert>
-      </Collapse>
-      </Box>
-      
-      </td>
-      <td style={{ height: 550, width: 900, verticalAlign: 'top' }}>
-      <TextField  id="ch_id"  disabled={true} label="Код" sx={{ width: '12ch' }} variant="outlined" value={valueId || ''} size="small"  onChange={e => setValueID(e.target.value)}/>
-      &nbsp;&nbsp;&nbsp;&nbsp;
-      <TextField  id="ch_name" sx={{ width: '40ch' }} label="Обозначение" required size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
-      <p></p>
-      <TextField  id="ch_name_rus" sx={{ width: '49ch' }}  size="small" label="Название (рус.яз)" required variant="outlined"  value={valueNameRus || ''} onChange={e => setValueNameRus(e.target.value)} />
-      &nbsp;&nbsp;&nbsp;&nbsp;
-      <TextField  id="ch_name_eng" sx={{ width: '49ch' }} size="small" label="Название (англ.яз)"  variant="outlined" value={valueNameEng || ''} onChange={e => setValueNameEng(e.target.value)}/>
-      <p></p>
-      <TextField  id="ch_descr_rus" sx={{ width: '100ch' }} label="Комментарий (рус.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrRus || ''} onChange={e => setValueDescrRus(e.target.value)}/>
-      <p></p> 
-      <TextField  id="ch_descr_rus" sx={{ width: '100ch' }} label="Комментарий (англ.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrEng || ''} onChange={e => setValueDescrEng(e.target.value)}/>
-      <p></p>
-      
-      <div style={{ height: 300, width: 800 }}>
-        <td>Источники данных<br/>
-        <DataTableDataSourceClass table_name={props.table_name} rec_id={valueId} />
-        </td>
-      </div>
-      <p></p> 
-    </td>
-  </tr>
-  </tbody>
-  </table>
+              {alertText}
+            </Alert>
+          </Collapse>
+        </Grid>
+        <Grid sx={{ width: 801, padding: 1 }}>
+        <form ref={formRef}>
+          <Grid container spacing={1.5}>
+            <Grid item xs={2}>
+              <TextField id="ch_id" disabled={true} fullWidth label="Код"  variant="outlined" value={valueId || ''} size="small" />
+            </Grid>  
+            <Grid item xs={10}>
+              <TextField id="ch_name" inputRef={inputRef} fullWidth label="Обозначение" required size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
+            </Grid>
+            <Grid item xs={12}>
+              <TextField  id="ch_name_rus" fullWidth size="small" label="Название (рус.яз)" required variant="outlined"  value={valueNameRus || ''} onChange={e => setValueNameRus(e.target.value)} />
+            </Grid>            
+            <Grid item xs={12}>
+              <TextField  id="ch_name_eng" fullWidth size="small" label="Название (англ.яз)"  variant="outlined" value={valueNameEng || ''} onChange={e => setValueNameEng(e.target.value)}/>
+            </Grid>            
+            <Grid item xs={12}>
+              <TextField  id="ch_descr_rus" fullWidth label="Комментарий (рус.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrRus || ''} onChange={e => setValueDescrRus(e.target.value)}/>
+            </Grid>            
+            <Grid item xs={12}>
+              <TextField  id="ch_descr_rus" fullWidth label="Комментарий (англ.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrEng || ''} onChange={e => setValueDescrEng(e.target.value)}/>
+            </Grid>            
+          </Grid>
+        </form>
+          <Box sx={{ marginTop: '0.4rem' }}>
+            Источники данных<br/>
+              <DataTableDataSourceClass table_name={props.table_name} rec_id={valueId} />
+          </Box>
+        </Grid>
+      </Grid>
+      {(isLoading) && 
+        <Backdrop sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }} open={isLoading}>
+          <CircularProgress color="inherit" />
+        </Backdrop> 
+      } 
 
-  <Dialog open={openDel} onClose={handleCloseDelNo} fullWidth={true}>
-      <DialogTitle>
-          Внимание
-      </DialogTitle>
-      <DialogContent>
+      <Dialog open={dialogType !== ''} onClose={handleCloseCancel} fullWidth={true}>
+        <DialogTitle>Внимание</DialogTitle>
+        <DialogContent>
           <DialogContentText>
-          В таблице "{table_names[props.table_name]}" предложена к удалению следующая запись:<p></p><b>{valueTitle}</b>;Код в БД = <b>{valueId}</b><p></p>
-          Вы желаете удалить указанную запись?
+            {getDialogContentText()}
           </DialogContentText>
-      </DialogContent>
-      <DialogActions>
-          <Button variant="outlined" onClick={handleCloseDelNo} autoFocus>Нет</Button>
-          <Button variant="outlined" onClick={handleCloseDelYes} >Да</Button>
-      </DialogActions>
-  </Dialog>
-
-  <Dialog open={openSave} onClose={handleCloseSaveNo} fullWidth={true}>
-    <DialogTitle>
-        Внимание
-    </DialogTitle>
-    <DialogContent>
-        <DialogContentText>
-        {valueId?
-          `В запись таблицы "${table_names[props.table_name]}" внесены изменения.`:
-          `В таблицу "${table_names[props.table_name]}" внесена новая несохраненная запись.`} 
-            <br/>Вы желаете сохранить указанную запись?
-        </DialogContentText>
-    </DialogContent>
-    <DialogActions>
-        <Button variant="outlined" onClick={handleCloseSaveNo} autoFocus>Нет</Button>
-        <Button variant="outlined" onClick={handleCloseSaveYes} >Да</Button>
-    </DialogActions>
-  </Dialog>
-
-  <Dialog open={openSaveWhenNew} onClose={handleCloseSaveWhenNewNo} fullWidth={true}>
-    <DialogTitle>
-        Внимание
-    </DialogTitle>
-    <DialogContent>
-        <DialogContentText>
-        {valueId?
-          `В запись таблицы "${table_names[props.table_name]}" внесены изменения.`:
-          `В таблицу "${table_names[props.table_name]}" внесена новая несохраненная запись.`} 
-            <br/>Вы желаете сохранить указанную запись?
-        </DialogContentText>
-    </DialogContent>
-    <DialogActions>
-        <Button variant="outlined" onClick={handleCloseSaveWhenNewNo} autoFocus>Нет</Button>
-        <Button variant="outlined" onClick={handleCloseSaveWhenNewYes} >Да</Button>
-    </DialogActions>
-  </Dialog>
-  </form>
- </div>     
+        </DialogContent>
+        <DialogActions>
+          <DialogButtons />
+        </DialogActions>
+      </Dialog>
+    </Box>
   )
-}
+  }
 
-export { DataTablePeopleClass, lastId }
+export { DataTablePeopleClass }
