@@ -22,8 +22,6 @@ import { ReactComponent as TrashLightIcon } from "./../icons/trash.svg";
 import { table_names } from './table_names';
 import { useGridScrollPagination } from './../helpers/gridScrollHelper';
 import { Typography } from '@mui/material';
-//var lastRecID = 0;
-//var lastID = 0;
 
 function DataTableActionCriterion(props)  {
   const apiRef = useGridApiRef(); // init DataGrid API for scrolling

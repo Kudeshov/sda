@@ -50,7 +50,7 @@ import HierarchicalAutocomplete, { transformData } from '../component/Hierarchic
 
 
 var lastId = 0;
-var clickedId = 0;
+//var clickedId = 0;
 var clickAfterReload = false;
 
 const DataTableCriterion = (props) => {
@@ -119,17 +119,16 @@ const DataTableCriterion = (props) => {
   const [valueNormativInitial, setValueNormativInitial] = React.useState();
   const [isLoading, setIsLoading] = React.useState("false");
   const [tableData, setTableData] = useState([]); 
-  const [tableNormativ, setNormativ] = useState([]); 
   const [treeData, setTreeData] = useState([]); 
   const [editStarted, setEditStarted] = useState(false);
-  const [isEmpty, setIsEmpty] = useState([false]);
+  //const [isEmpty, setIsEmpty] = useState([false]);
   const [valueCrit, setValueCrit] = React.useState(0);
 
   const [alertText, setAlertText] = useState("Сообщение");
   const [alertSeverity, setAlertSeverity] = useState("info");
 
 
-
+/* 
    useEffect(() => {
     setIsEmpty((''===valueTitle)&&(''===valueNameRus)&&(''===valueNameEng)&&(''===valueDescrEng)&&(''===valueDescrRus)   
       &&(''===valueParentID)&&(''===valueCalcfunctionID)(''===valueCrValue)&&(''===valueTimeend)&&(''===valuePeopleClass)&&(''===valueIrradiation)&&(''===valueAgegroup)   
@@ -151,8 +150,8 @@ const DataTableCriterion = (props) => {
       valueOrgan, valueDataSource, valueChemCompGr, valueAerosolSol, valueAerosolAmad, valueSubstForm, valueIsotope
     ]);
     
-
-  useEffect(() => {
+ */
+/*   useEffect(() => {
     setEditStarted(       
        (valueTitleInitial!==valueTitle)||(valueNameRusInitial!==valueNameRus)||(valueNameEngInitial!==valueNameEng)
       ||(valueDescrRusInitial!==valueDescrRus)||(valueDescrEngInitial!==valueDescrEng) ||(valueCrValueInitial!==valueCrValue)||(valueParentIDInitial!==valueParentID)||(valueParentIDInitial!==valueParentID)||(valueNormativ!==valueNormativInitial)
@@ -169,6 +168,57 @@ const DataTableCriterion = (props) => {
     valueExpScenario, valueExpScenarioInitial, valueIntegralPeriod, valueIntegralPeriodInitial, valueOrgan, valueOrganInitial,valueDataSource,
     valueDataSourceInitial, valueChemCompGr, valueChemCompGrInitial, valueAerosolSol,
     valueAerosolSolInitial, valueAerosolAmad, valueAerosolAmadInitial, valueSubstForm, valueSubstFormInitial, valueIsotope, valueIsotopeInitial,]); 
+ */
+    useEffect(() => {
+      const fields = [
+        ['valueTitleInitial', valueTitleInitial, 'valueTitle', valueTitle],
+        ['valueNameRusInitial', valueNameRusInitial, 'valueNameRus', valueNameRus],
+        ['valueNameEngInitial', valueNameEngInitial, 'valueNameEng', valueNameEng],
+        ['valueDescrRusInitial', valueDescrRusInitial, 'valueDescrRus', valueDescrRus],
+        ['valueDescrEngInitial', valueDescrEngInitial, 'valueDescrEng', valueDescrEng],
+        ['valueCrValueInitial', valueCrValueInitial, 'valueCrValue', valueCrValue],
+        ['valueParentIDInitial', valueParentIDInitial, 'valueParentID', valueParentID],
+/*         ['valueNormativInitial', valueNormativInitial, 'valueNormativ', valueNormativ], */
+        ['valueCalcfunctionIDInitial', valueCalcfunctionIDInitial, 'valueCalcfunctionID', valueCalcfunctionID],
+        ['valueTimeendInitial', valueTimeendInitial, 'valueTimeend', valueTimeend],
+        ['valueExpScenarioInitial', valueExpScenarioInitial, 'valueExpScenario', valueExpScenario],
+        ['valueIntegralPeriodInitial', valueIntegralPeriodInitial, 'valueIntegralPeriod', valueIntegralPeriod],
+        ['valueOrganInitial', valueOrganInitial, 'valueOrgan', valueOrgan],
+        ['valueDataSourceInitial', valueDataSourceInitial, 'valueDataSource', valueDataSource],
+        ['valueChemCompGrInitial', valueChemCompGrInitial, 'valueChemCompGr', valueChemCompGr],
+        ['valueAerosolSolInitial', valueAerosolSolInitial, 'valueAerosolSol', valueAerosolSol],
+        ['valueAerosolAmadInitial', valueAerosolAmadInitial, 'valueAerosolAmad', valueAerosolAmad],
+        ['valueSubstFormInitial', valueSubstFormInitial, 'valueSubstForm', valueSubstForm],
+        ['valueIsotopeInitial', valueIsotopeInitial, 'valueIsotope', valueIsotope],
+        ['valueActionLevelInitial', valueActionLevelInitial, 'valueActionLevel', valueActionLevel],
+        ['valueAgegroupInitial', valueAgegroupInitial, 'valueAgegroup', valueAgegroup],
+        ['valuePeopleClassInitial', valuePeopleClassInitial, 'valuePeopleClass', valuePeopleClass],
+      ];
+
+      let editStarted = false;
+      
+      for (let i = 0; i < fields.length; i++) {
+        const [initialName, initialValue, currentName, currentValue] = fields[i];
+        
+        if (initialValue !== currentValue) {
+          console.log(`Variable ${currentName} changed from ${initialValue} to ${currentValue}`);
+          editStarted = true;
+        }
+      }
+
+      setEditStarted(editStarted);
+      }, [
+      valueTitleInitial, valueTitle, valueNameRusInitial, valueNameRus, valueNameEngInitial, valueNameEng, 
+      valueDescrEngInitial, valueDescrEng, valueDescrRusInitial, valueDescrRus, valueParentID, valueParentIDInitial, 
+      valueNormativ, valueNormativInitial, valueCalcfunctionID, valueCalcfunctionIDInitial,
+      valueCrValueInitial, valueCrValue,  valueTimeend, valueTimeendInitial, 
+      valueExpScenario, valueExpScenarioInitial, valueIntegralPeriod, valueIntegralPeriodInitial, 
+      valueOrgan, valueOrganInitial, valueDataSource, valueDataSourceInitial, 
+      valueChemCompGr, valueChemCompGrInitial, valueAerosolSol, valueAerosolSolInitial, 
+      valueAerosolAmad, valueAerosolAmadInitial, valueSubstForm, valueSubstFormInitial, 
+      valueIsotope, valueIsotopeInitial, valueActionLevel, valueActionLevelInitial,
+      valueAgegroup, valueAgegroupInitial
+      ]); 
 
   useEffect(() => {
     if ((!isLoading) && (tableData) && (tableData.length)) {
@@ -187,8 +237,6 @@ const DataTableCriterion = (props) => {
         setValueDescrEngInitial(tableData[0].descr_eng);
         setValueParentID(tableData[0].parent_id||-1);
         setValueParentIDInitial(tableData[0].parent_id||-1);
-        setValueNormativ(tableData[0].normativ_id);
-        setValueNormativInitial(tableData[0].normativ_id);  
 
         setValueCalcfunctionID(tableData[0].calcfunction_id);
         setValueIrradiation(tableData[0].irradiation_id);
@@ -243,14 +291,12 @@ const DataTableCriterion = (props) => {
               setValueDescrRus(res[0].descr_rus);
               setValueDescrEng(res[0].descr_eng);    
               setValueParentID(res[0].parent_id||-1);    
-              setValueNormativ(res[0].normativ_id);      
               setValueTitleInitial(res[0].title);
               setValueNameRusInitial(res[0].name_rus);
               setValueNameEngInitial(res[0].name_eng);
               setValueDescrRusInitial(res[0].descr_rus);
               setValueDescrEngInitial(res[0].descr_eng);
               setValueParentIDInitial(res[0].parent_id||-1); 
-              setValueNormativInitial(res[0].normativ_id);      
               setValueCalcfunctionID(res[0].calcfunction_id);
               setValueIrradiation(res[0].irradiation_id);
               setValueAgegroup(res[0].agegroup_id);
@@ -422,7 +468,6 @@ const DataTableCriterion = (props) => {
       descr_rus: setValueDescrRus,
       descr_eng: setValueDescrEng,
       parent_id: setValueParentID,
-      normativ_id: setValueNormativ,
       calcfunction_id: setValueCalcfunctionID,
       irradiation_id: setValueIrradiation,
       agegroup_id: setValueAgegroup,
@@ -449,7 +494,6 @@ const DataTableCriterion = (props) => {
       descr_rus: setValueDescrRusInitial,
       descr_eng: setValueDescrEngInitial,
       parent_id: setValueParentIDInitial,
-      normativ_id: setValueNormativInitial,
       calcfunction_id: setValueCalcfunctionIDInitial,
       irradiation_id: setValueIrradiationInitial,
       agegroup_id: setValueAgegroupInitial,
@@ -470,12 +514,20 @@ const DataTableCriterion = (props) => {
 
     Object.keys(valueSetters).forEach((key) => {
         const setValue = valueSetters[key];
-        setValue(row[key]);
+        if(key in row) { // проверить, существует ли ключ в объекте row
+            setValue(row[key]);
+        } else { // если ключ не существует
+            console.log("Ключа " + key + " не существует в объекте row"); // выводим имя ключа в консоль
+        }
     });
-
+    
     Object.keys(initialValueSetters).forEach((key) => {
         const setValueInitial = initialValueSetters[key];
-        setValueInitial(row[key]);
+        if(key in row) { // проверить, существует ли ключ в объекте row
+            setValueInitial(row[key]);
+        } else { // если ключ не существует
+            console.log("Ключа " + key + " не существует в объекте row"); // выводим имя ключа в консоль
+        }
     });
   };
 
@@ -490,12 +542,15 @@ const DataTableCriterion = (props) => {
   const handleSelect = (event, nodeIds) => {
     setSelected(nodeIds);
     setOpenAlert(false);  
-    console.log('isEmpty = ' + isEmpty);
     const id = Number(nodeIds); // преобразуем id в число
-    clickedId = id;
+    //clickedId = id;
+    console.log('setClickedRowId id = ' + id);
+    setClickedRowId(id);
   
-    if (editStarted && (!isEmpty)) {
-      handleClickSave(id);
+    if (editStarted /* && (!isEmpty) */) {
+
+      setDialogType('save');
+      //handleClickSave(id);
     } else {
       if (id) {
         lastId = id;
@@ -514,6 +569,8 @@ const DataTableCriterion = (props) => {
 
   //const treeDataCriterionGr = transformData(tableCriterionGr);
   const treeDataCriterionGr = React.useMemo(() => transformData(tableCriterionGr), [tableCriterionGr]);
+  const treeDataOrgan = React.useMemo(() => transformData(tableOrgan), [tableOrgan]);
+  //const treeDataChemCompGr = React.useMemo(() => transformData(tableChemCompGr), [tableChemCompGr]);
   //const [selectedValueCriterionGr, setSelectedValueCriterionGr] = useState(null); 
 /* 
   const handleSelect = (event, nodeIds) => {
@@ -543,84 +600,13 @@ const DataTableCriterion = (props) => {
       // setBranch(newNode);
     }   
   };  */
-/* 
-  const handleItemClick = (id) => {
-    setOpenAlert(false);  
-    console.log( 'isEmpty = '+isEmpty);
-    clickedId = id;
-    if (editStarted&&(!isEmpty))
-    {
-      handleClickSave(id);
-    } 
-    else 
-    {
-      if (id)
-        lastId = id;
-      var res = tableData.filter(function(item) {
-        return item.id.toString() === id;
-      });
-      setValueID(res[0].id); 
-      setValueTitle(res[0].title);
-      setValueNameRus(res[0].name_rus);
-      setValueNameEng(res[0].name_eng);
-      setValueDescrRus(res[0].descr_rus);
-      setValueDescrEng(res[0].descr_eng);    
-      setValueParentID(res[0].parent_id||-1);    
-      setValueNormativ(res[0].normativ_id);      
-      setValueTitleInitial(res[0].title);
-      setValueNameRusInitial(res[0].name_rus);
-      setValueNameEngInitial(res[0].name_eng);
-      setValueDescrRusInitial(res[0].descr_rus);
-      setValueDescrEngInitial(res[0].descr_eng);
-      setValueParentIDInitial(res[0].parent_id||-1); 
-      setValueNormativInitial(res[0].normativ_id);
-      setValueCalcfunctionID(res[0].calcfunction_id);
-      setValueIrradiation(res[0].irradiation_id);
-      setValueAgegroup(res[0].agegroup_id);
-      setValueExpScenario(res[0].exp_scenario_id);
-      setValueIntegralPeriod(res[0].integral_period_id);
-      setValueOrgan(res[0].organ_id);
-      setValueDataSource(res[0].data_source_id);
-      setValueAerosolAmad(res[0].aerosol_amad_id);
-      setValueAerosolSol(res[0].aerosol_sol_id);
-      setValueChemCompGr(res[0].chem_comp_gr_id);
-      setValueSubstForm(res[0].subst_form_id);
-      setValueIsotope(res[0].isotope_id);
-      setValueActionLevel(res[0].action_level_id);
-      setValuePeopleClass(res[0].people_class_id);
-      setValueCrValue(res[0].cr_value);
-      setValueTimeend(res[0].timeend);
-      setValueCrit(res[0].crit);
-
-      setValueCalcfunctionIDInitial(res[0].calcfunction_id);
-      setValueIrradiationInitial(res[0].irradiation_id);
-      setValueAgegroupInitial(res[0].agegroup_id);
-      setValueExpScenarioInitial(res[0].exp_scenario_id);
-      setValueIntegralPeriodInitial(res[0].integral_period_id);
-      setValueOrganInitial(res[0].organ_id);
-      setValueDataSourceInitial(res[0].data_source_id);
-      setValueAerosolAmadInitial(res[0].aerosol_amad_id);
-      setValueAerosolSolInitial(res[0].aerosol_sol_id);
-      setValueChemCompGrInitial(res[0].chem_comp_gr_id);
-      setValueSubstFormInitial(res[0].subst_form_id);
-      setValueIsotopeInitial(res[0].isotope_id);
-      setValueActionLevelInitial(res[0].action_level_id);
-      setValuePeopleClassInitial(res[0].people_class_id);
-      setValueCrValueInitial(res[0].cr_value);
-      setValueTimeendInitial(res[0].timeend);
+ 
 
 
-      const newNode = nodes.find(node => node.value === res[0].parent_id);
-      // Обновляем selectedNode
-      setSelectedNode(newNode);
-      // setBranch(newNode);
-    }   
-  }; 
- */
   const handleClearClick = (params) => {
-    if (editStarted&&(!isEmpty))
+    if (editStarted/* &&(!isEmpty) */)
     {
-      handleClickSaveWhenNew(params);
+      setDialogType('save');
     } 
     else 
     {
@@ -673,14 +659,12 @@ const DataTableCriterion = (props) => {
       setValueDescrRus(res[0].descr_rus);
       setValueDescrEng(res[0].descr_eng);    
       setValueParentID(res[0].parent_id||-1);    
-      setValueNormativ(res[0].normativ_id);      
       setValueTitleInitial(res[0].title);
       setValueNameRusInitial(res[0].name_rus);
       setValueNameEngInitial(res[0].name_eng);
       setValueDescrRusInitial(res[0].descr_rus);
       setValueDescrEngInitial(res[0].descr_eng);
       setValueParentIDInitial(res[0].parent_id||-1); 
-      setValueNormativInitial(res[0].normativ_id);      
       setValueCalcfunctionID(res[0].calcfunction_id);
       setValueIrradiation(res[0].irradiation_id);
       setValueAgegroup(res[0].agegroup_id);
@@ -711,7 +695,7 @@ const DataTableCriterion = (props) => {
       setValueSubstFormInitial(res[0].subst_form_id);
       setValueIsotopeInitial(res[0].isotope_id);
       setValueActionLevelInitial(res[0].action_level_id);
-      setValuePeopleClassInitial(res[0].people_class_id);
+      //setValuePeopleClassInitial(res[0].people_class_id);
       setValueCrValueInitial(res[0].cr_value);
       setValueTimeendInitial(res[0].timeend);
     }; 
@@ -733,7 +717,6 @@ const DataTableCriterion = (props) => {
   };
 
   useEffect(() => {
-    fetchData('/normativ', setNormativ);
     fetchData('/calcfunction', settableCalcfunction);
     fetchData('/action_level', settableActionLevel);
     fetchData('/irradiation', settableIrradiation);
@@ -1061,8 +1044,6 @@ const DataTableCriterion = (props) => {
         setValueDescrEngInitial(tableData[0].descr_eng);
         setValueParentID(tableData[0].parent_id||-1);
         setValueParentIDInitial(tableData[0].parent_id||-1);
-        setValueNormativ(tableData[0].normativ_id);
-        setValueNormativInitial(tableData[0].normativ_id);
         setValueCalcfunctionID(tableData[0].calcfunction_id);
         setValueIrradiation(tableData[0].irradiation_id);
         setValueAgegroup(tableData[0].agegroup_id);
@@ -1149,7 +1130,7 @@ const DataTableCriterion = (props) => {
   };
 
   /////////////////////////////////////////
-  const [openDel, setOpenDel] = React.useState(false); 
+  /* const [openDel, setOpenDel] = React.useState(false); 
   const [openSave, setOpenSave] = React.useState(false); 
   const [openSaveWhenNew, setOpenSaveWhenNew] = React.useState(false); 
 
@@ -1183,7 +1164,7 @@ const DataTableCriterion = (props) => {
     setValueDescrRus(res[0].descr_rus);
     setValueDescrEng(res[0].descr_eng);    
     setValueParentID(res[0].parent_id||-1);    
-    setValueNormativ(res[0].normativ_id);      
+ 
     setValueTitleInitial(res[0].title);
     setValueNameRusInitial(res[0].name_rus);
     setValueNameEngInitial(res[0].name_eng);
@@ -1225,11 +1206,144 @@ const DataTableCriterion = (props) => {
     setValuePeopleClassInitial(res[0].people_class_id);
     setValueCrValueInitial(res[0].cr_value);
     setValueTimeendInitial(res[0].timeend);
-    
+  };
+   */
+  ///////////////////////////////////////// DIALOG
+  const [dialogType, setDialogType] = useState('');
+  const [clickedRowId, setClickedRowId] = useState(null);
 
-    
-  }; 
+  const setValuesById = (id) => {
+    //console.log( 'id = '+id);
+    //if (id)
+    //  lastId = id;
+    var res = tableData.filter(function(item) {
+      return item.id === id;
+    });
+    console.log('console ', id, res[0]);
+    setValues(res[0]);
+  };   
 
+  const getDialogContentText = () => {
+    const allRequiredFieldsFilled = formRef.current?.checkValidity();
+    switch (dialogType) {
+      case 'delete':
+        return (
+          <>
+            В таблице "{table_names[props.table_name]}" предложена к удалению следующая запись: 
+            <br />
+            {valueTitle}; Код в БД = {valueId}. 
+            <br />
+            Вы желаете удалить указанную запись?
+          </>);
+      case 'save':
+        if (!valueId) { // если это новая запись
+          if (allRequiredFieldsFilled) {
+            return `Создана новая запись, сохранить?`;
+          } else {
+            return (
+              <>
+                Не заданы обязательные поля, запись не будет создана.
+                <br />
+                Перейти без сохранения изменений?
+              </>
+            );
+          }
+        } else { // если это редактируемая запись
+          if (allRequiredFieldsFilled) {
+            return `В запись внесены изменения, сохранить изменения?`;
+          } else {
+            return (
+              <>
+                Не заданы обязательные поля, изменения не будут сохранены
+                <br />
+                Перейти без сохранения изменений?
+              </>
+            );            
+          }
+        }
+      default:
+        return '';
+    }
+  };
+
+  const handleCloseNo = () => {
+    switch (dialogType) {
+      case 'save':
+        //console.log('no save ', clickedRowId, clickedId);
+        setEditStarted(false);
+        setValueID(clickedRowId);
+        //setValuesById(clickedRowId);
+        setSelected(clickedRowId.toString());
+        // setRowSelectionModel([clickedRowId]);
+        break;
+      default:
+    }
+    setDialogType('');
+  };
+
+  const handleCloseCancel = () => {
+    switch (dialogType) {
+      case 'save':
+        //console.log('no save 1 clickedRowId valueId', clickedRowId, valueId);
+        //setClickedRowId( valueId );
+        //console.log('no save 2 clickedRowId valueId', clickedRowId, valueId);
+        setSelected(valueId.toString());
+        //setValueID(valueId);        
+        break;
+      default:
+        break;
+    }
+    setDialogType('');
+  };
+  
+  const handleCloseYes = () => {
+    switch (dialogType) {
+      case 'delete':
+        delRec();
+        break;
+      case 'save':
+        saveRec(false);
+        break;
+      default:
+        break;
+    }
+    
+    setDialogType('');
+
+    if (clickedRowId>0) {
+      setEditStarted(false);
+      console.log('yes', clickedRowId);
+      setSelected(clickedRowId.toString());
+      //setRowSelectionModel([clickedRowId]);
+      const rowData = tableData.find(row => row.id === clickedRowId);
+      setValues(rowData);
+      setValueID(clickedRowId);
+      setEditStarted(false);
+    }
+  };
+
+  function DialogButtons() {
+    const allRequiredFieldsFilled = formRef.current?.checkValidity();
+  
+    if (dialogType === 'save' && !allRequiredFieldsFilled) {
+      return (
+        <>
+          <Button variant="outlined" onClick={handleCloseNo} >Да</Button>
+          <Button variant="outlined" onClick={handleCloseCancel} >Отмена</Button>
+        </>
+      );
+    } else {
+      return (
+        <>
+          <Button variant="outlined" onClick={handleCloseYes} >Да</Button>
+          <Button variant="outlined" onClick={handleCloseNo} >Нет</Button>
+          {dialogType !== 'delete' && <Button variant="outlined" onClick={handleCloseCancel} >Отмена</Button>}
+        </>
+      );
+    }
+  }
+  
+/* 
   const handleCloseSaveNo = () => {
     setOpenSave(false);
     updateCurrentRecHandles(clickedId);
@@ -1252,12 +1366,16 @@ const DataTableCriterion = (props) => {
   const handleCloseSaveWhenNewYes = () => {
     setOpenSaveWhenNew(false);
     saveRec(true);
-  };
+  }; */
 
   //////////////////////////////////////////////////////// ACTIONS ///////////////////////////////
   const [openAlert, setOpenAlert] = React.useState(false, '');
   const handleCancelClick = () => 
   {
+    setEditStarted(false);
+    setValuesById(valueId);
+    //setValueID(valueId);
+/* 
     const selectedIDs = selected;
     const selectedRowData = tableData.filter((row) => selectedIDs===row.id.toString());
     if (selectedRowData.length)
@@ -1275,8 +1393,6 @@ const DataTableCriterion = (props) => {
       setValueDescrEngInitial(selectedRowData[0].descr_eng);
       setValueParentID(selectedRowData[0].parent_id||-1);
       setValueParentIDInitial(selectedRowData[0].parent_id||-1);
-      setValueNormativ(selectedRowData[0].normativ_id);
-      setValueNormativInitial(selectedRowData[0].normativ_id);
       setValueCalcfunctionID(selectedRowData[0].calcfunction_id);
       setValueIrradiation(selectedRowData[0].irradiation_id);
       setValueAgegroup(selectedRowData[0].agegroup_id);
@@ -1315,7 +1431,7 @@ const DataTableCriterion = (props) => {
       // Обновляем selectedNode
       //setSelectedNode(newNode);
       //setBranch(newNode);      
-    }
+    } */
   }
 
   function getHeaders(atable)
@@ -1387,7 +1503,6 @@ const DataTableCriterion = (props) => {
         }
 
         item.irradiation_title = findInArrayById(tableIrradiation, item.irradiation_id);
-        item.normativ_title = findInArrayById(tableNormativ, item.normativ_id);
         item.calcfunction_title = findInArrayById(tableCalcfunction, item.calcfunction_id);
         item.agegroup_title = findInArrayById(tableAgegroup, item.agegroup_id);
         item.exp_scenario_title = findInArrayById(tableExpScenario, item.exp_scenario_id);
@@ -1440,66 +1555,8 @@ const DataTableCriterion = (props) => {
   }, [expanded, tableData]);
 
 
-///////////////////////////////////// список в виде дерева
-  /* const [nodes, setNodes] = useState([]);
-
-  useEffect(() => {
-    console.log(tableCriterionGr);
-    if (tableCriterionGr) {
-      const newNodes = tableCriterionGr.map(item => new Node(
-        item.id, 
-        item.parent_id,
-        tableCriterionGr
-          .filter(child => child.parent_id === item.id)
-          .map(child => child.id),
-        item.title,
-        item.name_rus
-      ));
-      setNodes(newNodes);
-    }// eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [tableCriterionGr]); // useEffect будет вызываться каждый раз, когда tableCriterionGr изменяется  */
-
-
-/* const initialValue = nodes.find(node => node.value === valueParentID);
-const [selectedNode, setSelectedNode] = React.useState(initialValue);
-const [branch, setBranch] = React.useState(initialValue); // Новое состояни
-
-class Node {
-  constructor(value, parent = null, children = null, title = null, name_rus = null) {
-    this.value = value;
-    this.parent = parent;
-    this.children = children;
-    this.title = title;
-    this.name_rus = name_rus;
-  }
-
-  getParent() {
-    return nodes.find(item => item.value === this.parent);
-  }
-
-  getChildren() {
-    if(this.children) {
-      return nodes.filter(item => item.parent === this.value);
-    } else {
-      return null;
-    }
-  }
-
-  isBranch() {
-    return this.children && this.children.length > 0;
-  }
-
-  isEqual(node) {
-    return this.value === node.value;
-  }
-  
-  toString() {
-    return this.title;
-  }
-}
- */
   const formRef = React.useRef();
-  return ( /*     <div style={{ height: 650, width: 1500 }}>   */ 
+  return (
     <>
     
     <Box sx={{ width: 1445, height: 650, padding: 1 }}>
@@ -1507,11 +1564,11 @@ class Node {
         <Grid item sx={{width: 570, border: '0px solid green', ml: 1 }}>
         <div style={{ height: 500, width: 570 }}>
           <Box sx={{ border: 1, borderRadius: '4px', borderColor: 'rgba(0, 0, 0, 0.23)', height: 500, p: '4px' }} >
-            <IconButton onClick={()=>handleClearClick()} disabled={valueCrit===0} color="primary" size="small" title="Создать запись">
+            <IconButton onClick={()=>handleClearClick()} disabled={valueCrit===0||editStarted} color="primary" size="small" title="Создать запись">
               <SvgIcon fontSize="small" component={PlusLightIcon} inheritViewBox /></IconButton>
             <IconButton onClick={()=>saveRec(true)} disabled={valueCrit===0} color="primary" size="small" title="Сохранить запись в БД">
               <SvgIcon fontSize="small" component={SaveLightIcon} inheritViewBox/></IconButton>
-            <IconButton onClick={()=>handleClickDelete()} disabled={valueCrit===0} color="primary" size="small" title="Удалить запись">
+            <IconButton onClick={()=>setDialogType('delete')} disabled={valueCrit===0} color="primary" size="small" title="Удалить запись">
               <SvgIcon fontSize="small" component={TrashLightIcon} inheritViewBox /></IconButton>
             <IconButton onClick={()=>handleCancelClick()} disabled={!editStarted} color="primary" size="small" title="Отменить редактирование">
               <SvgIcon fontSize="small" component={UndoLightIcon} inheritViewBox /></IconButton>
@@ -1590,6 +1647,7 @@ class Node {
           <Box sx={{ width: 583 }}>
           <Collapse in={openAlert}>
             <Alert
+              item sx={{width: 571}}
               severity={alertSeverity}
               action={
                 <IconButton
@@ -1648,6 +1706,8 @@ class Node {
                 onChange={(event, newValue) => setValueParentID(newValue ? newValue.id : null)}
                 size="small"
                 fullWidth
+                label="Группа критериев"
+                placeholder="Группа критериев"
               />
             </Grid>
 
@@ -1954,7 +2014,16 @@ class Node {
               />  
             </Grid>
             <Grid item xs={6}>
-              <Autocomplete
+              <HierarchicalAutocomplete
+                data={treeDataOrgan}
+                value={treeDataOrgan.find(item => item.id === valueOrgan) || null}
+                onChange={(event, newValue) => setValueOrgan(newValue ? newValue.id : null)}
+                size="small"
+                fullWidth
+                label="Орган / ткань" 
+                placeholder="Орган / ткань" 
+              />              
+{/*               <Autocomplete
                 fullWidth
                 size="small"
                 disablePortal
@@ -1975,7 +2044,7 @@ class Node {
                     </Tooltip>
                   </li>
                 )}
-              />  
+              />   */}
             </Grid>
             <Grid item xs={6}>
               <Autocomplete
@@ -2026,6 +2095,16 @@ class Node {
               />  
             </Grid>
             <Grid item xs={6}>
+
+{/*               <HierarchicalAutocomplete
+                data={treeDataChemCompGr}
+                value={treeDataChemCompGr.find(item => item.id === valueChemCompGr) || null}
+                onChange={(event, newValue) => setValueChemCompGr(newValue ? newValue.id : null)}
+                size="small"
+                fullWidth
+                label="Химические соединения (группа)" 
+                placeholder="Химические соединения (группа)" 
+              />    */}             
               <Autocomplete
                 fullWidth
                 size="small"
@@ -2140,9 +2219,21 @@ class Node {
           </>}
         </Grid>
       </Grid>
-    </Box>  
+    </Box>
 
-  <Dialog open={openDel}  onClose={handleCloseDelNo} fullWidth={true}>
+    <Dialog open={dialogType !== ''} onClose={handleCloseCancel} fullWidth={true}>
+      <DialogTitle>Внимание</DialogTitle>
+      <DialogContent>
+        <DialogContentText>
+          {getDialogContentText()}
+        </DialogContentText>
+      </DialogContent>
+      <DialogActions>
+        <DialogButtons />
+      </DialogActions>
+    </Dialog>      
+
+{/*   <Dialog open={openDel}  onClose={handleCloseDelNo} fullWidth={true}>
       <DialogTitle>
           Внимание
       </DialogTitle>
@@ -2192,7 +2283,7 @@ class Node {
         <Button variant="outlined" onClick={handleCloseSaveWhenNewNo} autoFocus>Нет</Button>
         <Button variant="outlined" onClick={handleCloseSaveWhenNewYes} >Да</Button>
     </DialogActions>
-  </Dialog>
+  </Dialog> */}
  </>     
   )
 }
