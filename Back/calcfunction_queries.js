@@ -22,10 +22,13 @@ pool.on(`error`, function (err, client) {
 });
 
 const getCalcFunction = (request, response, table_name ) => {
-  pool.query(`SELECT pc.*, pcn1.name name_rus, pcn2.name name_eng, pcn1.descr descr_rus, pcn2.descr descr_eng, null children FROM nucl.${table_name} pc `+
-  `left join nucl.${table_name}_nls pcn1 on pc.id=pcn1.${table_name}_id and pcn1.lang_id=1 `+
-  `left join nucl.${table_name}_nls pcn2 on pc.id=pcn2.${table_name}_id and pcn2.lang_id=2 `+
-  `ORDER BY pc.id ASC`, (error, results) => {
+  pool.query(`SELECT pc.*, pcn1.name name_rus, pcn2.name name_eng, pcn1.descr descr_rus, pcn2.descr descr_eng, null children,
+  pn.sign, pn.name as unitname FROM nucl.calcfunction pc
+  left join public.physunit p2 on p2.physparam_id = pc.physparam_id and p2.basic_id is null
+  left join public.physunit_nls pn on pn.physunit_id = p2.id and pn.lang_id = 1 
+  left join nucl.calcfunction_nls pcn1 on pc.id=pcn1.calcfunction_id and pcn1.lang_id=1 
+  left join nucl.calcfunction_nls pcn2 on pc.id=pcn2.calcfunction_id and pcn2.lang_id=2 
+  ORDER BY pc.id ASC`, (error, results) => {
     if (error) {
       throw error
     }
@@ -35,10 +38,13 @@ const getCalcFunction = (request, response, table_name ) => {
 
 const getCalcFunctionById = (request, response, table_name ) => {
   const id = parseInt(request.params.id||0);
-  pool.query(`SELECT pc.*, pcn1.name name_rus, pcn2.name name_eng, pcn1.descr descr_rus, pcn2.descr descr_eng FROM nucl.${table_name} pc `+
-  `left join nucl.${table_name}_nls pcn1 on pc.id=pcn1.${table_name}_id and pcn1.lang_id=1 `+
-  `left join nucl.${table_name}_nls pcn2 on pc.id=pcn2.${table_name}_id and pcn2.lang_id=2 `+
-  `where pc.id = $1`, [id], (error, results) => {
+  pool.query(`SELECT pc.*, pcn1.name name_rus, pcn2.name name_eng, pcn1.descr descr_rus, pcn2.descr descr_eng, 
+  pn.sign, pn.name as unitname FROM nucl.calcfunction pc 
+  left join public.physunit p2 on p2.physparam_id = c .physparam_id and p2.basic_id is null
+  left join public.physunit_nls pn on pn.physunit_id = p2.id and pn.lang_id = 1 
+  left join nucl.${table_name}_nls pcn1 on pc.id=pcn1.${table_name}_id and pcn1.lang_id=1  
+  left join nucl.${table_name}_nls pcn2 on pc.id=pcn2.${table_name}_id and pcn2.lang_id=2  
+  where pc.id = $1`, [id], (error, results) => {
     if (error) {
       throw error
     }

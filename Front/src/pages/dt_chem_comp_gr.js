@@ -10,7 +10,6 @@ import { Box, IconButton } from '@mui/material';
 import Alert from '@mui/material/Alert';
 import Collapse from '@mui/material/Collapse';
 import CloseIcon from '@mui/icons-material/Close';
-import { DataTableDataSourceClass } from './dt_data_source_class';
 import SvgIcon from '@mui/material/SvgIcon';
 import { ReactComponent as SaveLightIcon } from "./../icons/save.svg";
 import { ReactComponent as PlusLightIcon } from "./../icons/plus.svg";
@@ -22,25 +21,29 @@ import { ReactComponent as CollapseIcon } from "./../icons/chevron-double-right.
 import { ReactComponent as ExpandIcon } from "./../icons/chevron-double-down.svg";
 import { ReactComponent as SearchIcon } from "./../icons/search.svg";
 import { ReactComponent as TimesCircleIcon } from "./../icons/times-circle.svg";
+import { ReactComponent as FolderIcon } from "./../icons/folder.svg";
+import { ReactComponent as FileIcon } from "./../icons/file.svg";
 import TreeView from "@material-ui/lab/TreeView";
 import TreeItem from "@material-ui/lab/TreeItem";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
-import { Select } from "@mui/material";
+/* import { Select } from "@mui/material";
 import { MenuItem } from "@mui/material";
 import { FormControl } from "@mui/material";
-import { InputLabel } from "@mui/material";
+import { InputLabel } from "@mui/material"; */
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { ExportToCsv } from 'export-to-csv-fix-source-map';
 import { table_names } from './table_names';
 import Backdrop from '@mui/material/Backdrop';
 import { InputAdornment } from "@material-ui/core";
+import Autocomplete from '@mui/material/Autocomplete';
+import Tooltip from '@mui/material/Tooltip';
+import { DataTableDataSourceClass } from './dt_data_source_class';
 import { listToTree } from '../helpers/treeHelper';
+import { Grid } from '@mui/material';
 
-var alertText = "Сообщение";
-var alertSeverity = "info";
 var lastId = 0;
-var clickedId = 0;
+//var clickedId = 0;
 var clickAfterReload = false;
 
 const DataTableChemCompGr = (props) => {
@@ -64,22 +67,21 @@ const DataTableChemCompGr = (props) => {
   const [tableData, setTableData] = useState([]); 
   const [tableChelement, setChelement] = useState([]); 
   const [treeData, setTreeData] = useState([]); 
-  const [editStarted, setEditStarted] = useState([false]);
+  const [editStarted, setEditStarted] = useState(false);
   //const [isEmpty, setIsEmpty] = useState([false]);
+  const [valueCrit, setValueCrit] = React.useState(0);
 
+  const [alertText, setAlertText] = useState("Сообщение");
+  const [alertSeverity, setAlertSeverity] = useState("info");
 
-/*   useEffect(() => {
-    setIsEmpty((''===valueTitle)&&(''===valueNameRus)&&(''===valueNameEng)&&(''===valueDescrEng)&&(''===valueDescrRus)   
-      &&(''===valueParentID)&&(''===valueFormula));
-    }, [ valueTitle, valueNameRus, valueNameEng, valueDescrEng, valueDescrRus, 
-      valueParentID, valueFormula]);  */
-      
   useEffect(() => {
     setEditStarted(       
        (valueTitleInitial!==valueTitle)||(valueNameRusInitial!==valueNameRus)||(valueNameEngInitial!==valueNameEng)
-      ||(valueDescrEngInitial!==valueDescrEng) ||(valueDescrRusInitial!==valueDescrRus)||(valueParentIDInitial!==valueParentID)/*||(valueFormulaInitial!==valueFormula)*/);
+      ||(valueDescrEngInitial!==valueDescrEng) ||(valueDescrRusInitial!==valueDescrRus)||(valueParentIDInitial!==valueParentID)
+      ||(valueFormulaInitial!==valueFormula));
     }, [valueTitleInitial, valueTitle, valueNameRusInitial, valueNameRus, valueNameEngInitial, valueNameEng, 
-        valueDescrEngInitial, valueDescrEng, valueDescrRusInitial, valueDescrRus, valueParentID, valueParentIDInitial, valueFormula, valueFormulaInitial]); 
+        valueDescrEngInitial, valueDescrEng, valueDescrRusInitial, valueDescrRus, valueParentID, valueParentIDInitial, 
+        valueFormula, valueFormulaInitial]); 
 
   useEffect(() => {
     if ((!isLoading) && (tableData) && (tableData.length)) {
@@ -98,6 +100,7 @@ const DataTableChemCompGr = (props) => {
         setValueDescrEngInitial(tableData[0].descr_eng);
         setValueParentID(tableData[0].parent_id||-1);
         setValueParentIDInitial(tableData[0].parent_id||-1);
+ 
         setValueFormula(tableData[0].formula);
         setValueFormulaInitial(tableData[0].formula);
       }
@@ -120,14 +123,14 @@ const DataTableChemCompGr = (props) => {
               setValueDescrRus(res[0].descr_rus);
               setValueDescrEng(res[0].descr_eng);    
               setValueParentID(res[0].parent_id||-1);    
-              setValueFormula(res[0].formula);      
               setValueTitleInitial(res[0].title);
               setValueNameRusInitial(res[0].name_rus);
               setValueNameEngInitial(res[0].name_eng);
               setValueDescrRusInitial(res[0].descr_rus);
               setValueDescrEngInitial(res[0].descr_eng);
               setValueParentIDInitial(res[0].parent_id||-1); 
-              setValueFormulaInitial(res[0].formula);      
+              setValueFormula(res[0].formula);
+              setValueFormulaInitial(res[0].formula);              
           }; 
         
       if (clickAfterReload) {
@@ -135,42 +138,90 @@ const DataTableChemCompGr = (props) => {
           if (lastId!==0)
             updateCurrentRec(lastId); 
       }
-    }, [ tableData] );
-
-    const getTreeItemsFromData = treeItems => {
-      return treeItems.map(treeItemData => {
-        let children = undefined;
-        //console.log('перегружается дерево')
-        if (treeItemData.children && treeItemData.children.length > 0) {
-          children = getTreeItemsFromData(treeItemData.children);
-        }
-        return ( 
-          <TreeItem
-            key={treeItemData.id}
-            nodeId={treeItemData.id?treeItemData.id.toString():"0"} //
-            label={treeItemData.title}
-            children={children}
-          />
-        );
-      });
-    };
+    }, [tableData] );
 
     const [expanded, setExpanded] = React.useState([]);
     const [selected, setSelected] = React.useState('');
+    const [updated, setUpdated] = React.useState(false);  
 
     const handleToggle = (event, nodeIds) => {
       setExpanded(nodeIds);
     };
   
-    const handleSelect = (event, nodeIds) => {
-      setSelected(nodeIds);
-      handleItemClick(nodeIds);
-      //console.log('handleSelect ' + nodeIds );
-    };  
-
     const [treeFilterString, setTreeFilterString] = React.useState('');
+    const nodeRefs = React.useRef({}); 
+    const scrollContainerRef = React.useRef();
+
+    useEffect(() => {
+      if (updated && selected && nodeRefs.current[selected]) {
+        const node = nodeRefs.current[selected];
+        const scrollContainer = scrollContainerRef.current;
+
+        if (node && scrollContainer) {
+
+          const nodePosition = node.offsetTop;
+          //const scrollContainerPosition = scrollContainer.offsetTop;
+          
+          //console.log('Node position:', nodePosition);
+          //console.log('Scroll container position:', scrollContainerPosition);
+          //console.log('Scroll container client height:', scrollContainer.clientHeight);
+          
+          if (nodePosition < scrollContainer.scrollTop || nodePosition > (scrollContainer.scrollTop + scrollContainer.clientHeight)) {
+              //console.log('Node is outside of the visible scroll container area. Scrolling...');
+
+            scrollContainer.scrollTop = nodePosition - scrollContainer.clientHeight / 2;
+              // console.log('New scroll container scrollTop value:', scrollContainer.scrollTop);
+          } else {
+              //console.log('Node is within the visible scroll container area. No scrolling needed.');
+          }
+        }
+        setUpdated(false); // Reset the updated state to false after scrolling
+      }
+    }, [updated, selected]);
+    
 
     const DataTreeView = ({ treeItems }) => {
+      const getTreeItemsFromData = treeItems => {
+      
+        return treeItems.map(treeItemData => {
+          let children = undefined;
+          if (treeItemData.children && treeItemData.children.length > 0) {
+            children = getTreeItemsFromData(treeItemData.children);
+          }
+          return (
+            <TreeItem
+            sx={{ 
+              '&.Mui-selected': {
+                '& .MuiTreeItem-label': {
+                  backgroundColor: 'rgba(0, 0, 0, 0.11)',
+                },
+              },
+              '&.Mui-selected:focus': {
+                '& .MuiTreeItem-label': {
+                  backgroundColor: 'rgba(0, 0, 0, 0.11)',
+                },
+              },
+            }}              
+              key={treeItemData.id}
+              nodeId={treeItemData.id?treeItemData.id.toString():0}
+              ref={(el) => (nodeRefs.current[treeItemData.id] = el)}
+              label={
+                <Tooltip title={treeItemData.name_rus}>
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  {treeItemData.crit === 0 ?
+                    <SvgIcon fontSize="small" style={{ color: '#4b77d1', fontSize: '19px' }} component={FolderIcon} inheritViewBox />: 
+                    <SvgIcon fontSize="small" style={{ color: '#4b77d1', fontSize: '19px' }} component={FileIcon} inheritViewBox />
+                  }
+                  <span style={{ marginLeft: '5px' }}>{treeItemData.title}</span>
+                </div>
+                </Tooltip>
+              }
+              children={children}
+            />
+          );
+        });
+      };
+  
       return (
         <div>
         <p></p>
@@ -178,61 +229,155 @@ const DataTableChemCompGr = (props) => {
           aria-label="Tree navigator"
           defaultCollapseIcon={<ExpandMoreIcon />}
           defaultExpandIcon={<ChevronRightIcon />}
-          sx={{ height: 240, flexGrow: 1, maxWidth: 400, overflowY: 'auto' }}
+          sx={{ 
+            height: 240, 
+            flexGrow: 1, 
+            maxWidth: 400, 
+            overflowY: 'auto',
+            '& .MuiTreeItem-root.Mui-selected > .MuiTreeItem-content': {
+              backgroundColor: 'rgba(0, 0, 0, 0.11)',
+            },
+            '& .MuiTreeItem-root.Mui-selected:focus > .MuiTreeItem-content': {
+              backgroundColor: 'rgba(0, 0, 0, 0.11)',
+            },
+          }}
           onNodeToggle={handleToggle}
           onNodeSelect={handleSelect}
           expanded={expanded}
           selected={selected}          
-          //onNodeToggle={handleChange}
-          //defaultExpanded={[1,2]}
-          //expanded={true}
           loading={isLoading}
-          //defaultExpanded={ids}
         >
           {getTreeItemsFromData(treeItems)}
         </TreeView></div>
       );
     };
 
+  useEffect(() => {
+    // Здесь код, который будет выполняться после каждого обновления treeData
+    setUpdated(true);
+  }, [treeData]);    
+
+
+  const setValues = (row) => {
+
+    const valueSetters = {
+      title: setValueTitle,
+      name_rus: setValueNameRus,
+      name_eng: setValueNameEng,
+      descr_rus: setValueDescrRus,
+      descr_eng: setValueDescrEng,
+      parent_id: setValueParentID,
+      formula: setValueFormula,
+      crit: setValueCrit
+    }
+    
+    const initialValueSetters = {
+      title: setValueTitleInitial,
+      name_rus: setValueNameRusInitial,
+      name_eng: setValueNameEngInitial,
+      descr_rus: setValueDescrRusInitial,
+      descr_eng: setValueDescrEngInitial,
+      parent_id: setValueParentIDInitial,
+      formula: setValueFormulaInitial
+    }
+
+    Object.keys(valueSetters).forEach((key) => {
+        const setValue = valueSetters[key];
+        if(key in row) { // проверить, существует ли ключ в объекте row
+            setValue(row[key]);
+        } else { // если ключ не существует
+            console.log("Ключа " + key + " не существует в объекте row"); // выводим имя ключа в консоль
+        }
+    });
+    
+    Object.keys(initialValueSetters).forEach((key) => {
+        const setValueInitial = initialValueSetters[key];
+        if(key in row) { // проверить, существует ли ключ в объекте row
+            setValueInitial(row[key]);
+            console.log(key, row[key]);
+        } else { // если ключ не существует
+            console.log("Ключа " + key + " не существует в объекте row"); // выводим имя ключа в консоль
+        }
+    });
+
+    
+  };
+
+  useEffect(() => {
+    const rowData = tableData.find(row => row.id === valueId);
+    console.log('if (rowData) {', valueId, rowData);
+    if (rowData) {
+      setValues(rowData);
+    }
+  }, [tableData, valueId]);
+
+  const handleSelect = (event, nodeIds) => {
+    setSelected(nodeIds);
+    setOpenAlert(false);  
+    const id = Number(nodeIds); // преобразуем id в число
+    //clickedId = id;
+    console.log('setClickedRowId id = ' + id);
+    setClickedRowId(id);
+  
+    if (editStarted && valueCrit===1/* && (!isEmpty) */) {
+
+      setDialogType('save');
+      //handleClickSave(id);
+    } else {
+      if (id) {
+        lastId = id;
+      }
+  
+/*       var res = tableData.filter(function(item) {
+        return item.id === id;
+      });
+      const newNode = nodes.find(node => node.value === res[0].parent_id);
+      setSelectedNode(newNode);
+ */
+      console.log('handleSelect setValueID', id);
+      setValueID(id);
+      // setBranch(newNode);
+    }
+  };
+
+  //const treeDataCriterionGr = transformData(tableCriterionGr);
+  //const treeDataChemCompGr = React.useMemo(() => transformData(tableChemCompGr), [tableChemCompGr]);
+  //const [selectedValueCriterionGr, setSelectedValueCriterionGr] = useState(null); 
+/* 
+  const handleSelect = (event, nodeIds) => {
+    setSelected(nodeIds);
+    handleItemClick(nodeIds);
+  };  
+
   const handleItemClick = (id) => {
     setOpenAlert(false);  
-    //console.log('handleItemClick = ' + id);
+    console.log( 'isEmpty = '+isEmpty);
     clickedId = id;
-    if (editStarted)
-    {
+    if (editStarted&&(!isEmpty)) {
       handleClickSave(id);
-    } 
-    else 
-    {
+    } else {
       if (id)
         lastId = id;
+  
       var res = tableData.filter(function(item) {
         return item.id.toString() === id;
       });
-      //console.log('res.length = ' + res.length);
-      //console.log(tableData);
-      setValueID(res[0].id); 
-      setValueTitle(res[0].title);
-      setValueNameRus(res[0].name_rus);
-      setValueNameEng(res[0].name_eng);
-      setValueDescrRus(res[0].descr_rus);
-      setValueDescrEng(res[0].descr_eng);    
-      setValueParentID(res[0].parent_id||-1);    
-      setValueFormula(res[0].formula);      
-      setValueTitleInitial(res[0].title);
-      setValueNameRusInitial(res[0].name_rus);
-      setValueNameEngInitial(res[0].name_eng);
-      setValueDescrRusInitial(res[0].descr_rus);
-      setValueDescrEngInitial(res[0].descr_eng);
-      setValueParentIDInitial(res[0].parent_id||-1); 
-      setValueFormulaInitial(res[0].formula);
+      console.log('id', id);
+      console.log('type of id:', typeof id);
+      setValueID(id);
+  
+      const newNode = nodes.find(node => node.value === res[0].parent_id);
+      setSelectedNode(newNode);
+      // setBranch(newNode);
     }   
-  }; 
+  };  */
+ 
+
 
   const handleClearClick = (params) => {
-    if (editStarted)
+    if (editStarted/* &&(!isEmpty) */)
     {
-      handleClickSaveWhenNew(params);
+      setDialogType('save');
     } 
     else 
     {
@@ -242,11 +387,7 @@ const DataTableChemCompGr = (props) => {
       setValueNameEng(``);
       setValueDescrRus(``);
       setValueDescrEng(``);
-      //console.log('valueParentID ' + valueParentID + ' valueId ' + valueId)
-      if (valueId > 999999)
-        setValueParentID(valueParentID)
-      else
-        setValueParentID(valueId);
+      setValueParentID(valueParentID);  
       setValueFormula(``);
     }
   }; 
@@ -254,12 +395,10 @@ const DataTableChemCompGr = (props) => {
   useEffect(() => {
     fetch(`/${props.table_name}`)
       .then((data) => data.json())
-      .then((data) => setTableData(data))
-      .then((data) => { /* console.log('fetch main');  lastId = 0;   lastId = null;*/ } ); 
-  }, [props.table_name]);
+      .then((data) => setTableData(data)); 
+  }, [props.table_name])
 
-   useEffect(() => {
-
+  useEffect(() => {
     function updateCurrentRec (id)  {
       if (id)
         lastId = id;
@@ -267,41 +406,60 @@ const DataTableChemCompGr = (props) => {
         return item.id.toString() === id;
       });
 
-      //console.log('res.length ' + res.length);
       setValueID(res[0].id); 
       setValueTitle(res[0].title);
       setValueNameRus(res[0].name_rus);
       setValueNameEng(res[0].name_eng);
       setValueDescrRus(res[0].descr_rus);
       setValueDescrEng(res[0].descr_eng);    
-      setValueParentID(res[0].parent_id||-1);    
-      setValueFormula(res[0].formula);        
+        
       setValueTitleInitial(res[0].title);
       setValueNameRusInitial(res[0].name_rus);
       setValueNameEngInitial(res[0].name_eng);
       setValueDescrRusInitial(res[0].descr_rus);
       setValueDescrEngInitial(res[0].descr_eng);
+
+      setValueParentID(res[0].parent_id||-1);  
       setValueParentIDInitial(res[0].parent_id||-1); 
-      setValueFormulaInitial(res[0].formula);      
+
+      setValueFormula(res[0].formula);      
+      setValueFormulaInitial(res[0].formula);
     }; 
-
-    //console.log( 'selected = ' + selected + ' tableData.length ' + tableData.length );
-    if ((!selected)&&(treeData.length))
+    if ((!selected)&&(tableData.length))
     {
-      //console.log( 'setSelected(treeData[0].id.toString()); = ' + treeData[0].id.toString()  );
-
-      setSelected(treeData[0].id.toString());
-      updateCurrentRec(treeData[0].id.toString());
+      setSelected(tableData[0].id.toString());
+      updateCurrentRec(tableData[0].id.toString());
     }      
-  }, [treeData, tableData, selected])
-  
-  useEffect(() => {
-    fetch(`/chelement`)
-      .then((data) => data.json())
-      .then((data) => setChelement(data))
-      .then((data) => { lastId = 0;} ); 
-  }, [valueParentID]);
+  }, [tableData, selected])
 
+  const fetchData = async (url, setStateFunc) => {
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+      setStateFunc(data);
+      console.log('chelement', data);
+      return Promise.resolve(); // добавляем эту строку
+    } catch (error) {
+      console.error(`Failed to fetch data from ${url}: ${error.message}`);
+      return Promise.reject(error); // и эту
+    }
+  };
+
+  useEffect(() => {
+    fetchData('/chelement', setChelement).then(() => {
+      setChelement(chelement => [
+        {
+          id: 1000000,
+          title: "Не определено",
+          atomic_num: null,
+          name_rus: null,
+          name_eng: null,
+          mass_numbers: null
+        },
+        ...chelement
+      ]);
+    });
+  }, []);
   ///////////////////////////////////////////////////////////////////  Tree load functions and hook  /////////////////////
   useEffect(() => {
     // Преобразуем tableData из списка в структуру дерева и обновляем состояние treeData
@@ -309,20 +467,33 @@ const DataTableChemCompGr = (props) => {
     setTreeData(arr);
   }, [tableData, treeFilterString]);
 
+  function getParentIds(tree, targetId) {
+    const result = [];
+    for (const item of tree) {
+      if (item.id === targetId) {
+        return [item.id]; // Если это целевой элемент, возвращаем его id в массиве
+      } else if (item.children) {
+        const childResult = getParentIds(item.children, targetId); // Если есть дети, ищем в детях
+        if (childResult.length > 0) {
+          // Если нашли в детях, добавляем текущий id в результат и возвращаем
+          return [item.id, ...childResult];
+        }
+      }
+    }
+    return result; // Если не нашли, возвращаем пустой массив
+  }
+
   ///////////////////////////////////////////////////////////////////  SAVE  /////////////////////
   const saveRec = async ( fromToolbar ) => {
-
     if (formRef.current.reportValidity() )
     {
-
     let myId, myParentID;
-    //myParentID = valueParentID ? valueParentID-1000000 : null;
     if (valueId)
-      myId = valueId - 1000000;    
+      myId = valueId-1000000;    
     if (valueParentID)
       myParentID = valueParentID;
     if (valueParentID===1000000)
-      myParentID = null;
+      myParentID = null;  
     const js = JSON.stringify({
       id: myId,
       title: valueTitle,
@@ -330,11 +501,11 @@ const DataTableChemCompGr = (props) => {
       name_eng: valueNameEng,
       descr_rus: valueDescrRus,
       descr_eng: valueDescrEng,
-      parent_id: myParentID,    
-      formula: valueFormula     
+      parent_id: myParentID, 
+      formula: valueFormula
     });
 
-//    console.log(js);
+    console.log('saverec', js);
 
     if (!valueId) {
       addRec();
@@ -342,7 +513,7 @@ const DataTableChemCompGr = (props) => {
     }
     setIsLoading("true");
     try {
-      const response = await fetch(`/${props.table_name}/`+myId, {
+      const response = await fetch(`/${props.table_name}/${myId}`, {
        method: 'PUT',
        body: js,
        headers: {
@@ -351,61 +522,67 @@ const DataTableChemCompGr = (props) => {
        },
      });
      if (!response.ok) {
-        alertSeverity = 'error';
-        alertText = await response.text();
-        setOpenAlert(true);          
+        setAlertSeverity('error');
+        setAlertText(await response.text());
       }
       else
       {
-        alertSeverity = "success";
-        alertText = await response.text();
-        setOpenAlert(true);  
+        setAlertSeverity('success');
+        setAlertText(await response.text());        
+        //console.log('reloadData');
+        //console.log(treeData);
+        if (valueParentID) {
+          const parentIds = getParentIds(treeData, valueParentID).map(String); // получите список всех родительских элементов
+          const newExpanded = new Set([...expanded, ...parentIds]); // добавьте их к уже раскрытым элементам, убрав дубликаты
+          setExpanded(Array.from(newExpanded)); // преобразуйте обратно в массив и установите как новое состояние
+        }  
+        if (valueParentID && !expanded.includes(valueParentID.toString())) {
+          setExpanded(prevExpanded => [...prevExpanded, valueParentID.toString()]);
+        }
+        await reloadData();
       }
-   } catch (err) {
-     alertText = err.message;
-     alertSeverity = 'error';
-     setOpenAlert(true);
-   } finally {
-     setIsLoading('false');
-     if (fromToolbar) 
-     {
-      reloadData();
-      //console.log('кнопа нажата') 
-      setValueTitle(valueTitle);       
-      setValueNameRus(valueNameRus); 
-      setValueNameEng(valueNameEng);
-      setValueDescrRus(valueDescrRus);
-      setValueDescrEng(valueDescrEng);    
-      setValueParentID(valueParentID);
-      setValueFormula(valueFormula);
-
-      setValueTitleInitial(valueTitle);       
-      setValueNameRusInitial(valueNameRus); 
-      setValueNameEngInitial(valueNameEng);
-      setValueDescrRusInitial(valueDescrRus);
-      setValueDescrEngInitial(valueDescrEng);    
-      setValueParentIDInitial(valueParentID);
-      setValueFormulaInitial(valueFormula);
-    }
-    //reloadData();   
-    //handleItemClick(valueId);
+      setOpenAlert(true); 
+    } catch (err) {
+      setAlertSeverity('error');
+      setAlertText(err.message);
+      setOpenAlert(true);
+    } finally {
+      setIsLoading('false');
+      if (fromToolbar) 
+      {
+        setValueTitleInitial(valueTitle);       
+        setValueNameRusInitial(valueNameRus); 
+        setValueNameEngInitial(valueNameEng);
+        setValueDescrRusInitial(valueDescrRus);
+        setValueDescrEngInitial(valueDescrEng);    
+        setValueParentIDInitial(valueParentID);
+        setValueFormulaInitial(valueFormula);     
+     }
    }
   }
- };
+};
+
+
 /////////////////////////////////////////////////////////////////// ADDREC ///////////////////// 
   const addRec = async ()  => {
-    let myParentID;
-    myParentID = valueParentID === -1 ? null : valueParentID;
+    
+/*     if !(formRef.current.reportValidity() )
+    { 
+      return; 
+    }   */
+
+    let myParentID = valueParentID;
+    if (valueParentID===1000000)
+      myParentID = null;
 
     const js = JSON.stringify({
-      id: valueId,
       title: valueTitle,
       name_rus: valueNameRus,
       name_eng: valueNameEng,
       descr_rus: valueDescrRus,
-      descr_eng: valueDescrEng,
       parent_id: myParentID,
-      formula: valueFormula        
+      descr_eng: valueDescrEng,
+      formula: valueFormula,
     });
     setIsLoading("true");
     try {
@@ -419,41 +596,47 @@ const DataTableChemCompGr = (props) => {
       });
 
       if (!response.ok) {
-        alertSeverity = 'error';
-        alertText = await response.text();
-        setOpenAlert(true);          
+        setAlertSeverity('error');
+        setAlertText(await response.text());        
       }
       else
       {
-        alertSeverity = "success";
         const { id } = await response.json();
-        alertText = `Добавлена запись с кодом ${id}`;
-//        const parsed = parseInt(id);
-//        if (isNaN(parsed)) { return 0; }
-        lastId = parseInt(id)+1000000; 
-        //console.log('setSelected lastId' + lastId );
+        setAlertSeverity('success');
+        setAlertText(`Добавлена запись с кодом ${id}`);        
+        lastId = Number(id)+1000000;         
+        console.log('setSelected lastId' + lastId);
         setValueID(lastId);
-        //console.log('setSelected lastId toString' + lastId.toString());
-        setSelected((lastId).toString());
+        console.log('setSelected toString' + lastId.toString());
+        setSelected(lastId.toString());
+
+        if (valueParentID) {
+          const parentIds = getParentIds(treeData, valueParentID).map(String); // получите список всех родительских элементов
+          const newExpanded = new Set([...expanded, ...parentIds]); // добавьте их к уже раскрытым элементам, убрав дубликаты
+          setExpanded(Array.from(newExpanded)); // преобразуйте обратно в массив и установите как новое состояние
+        }  
+        if (valueParentID && !expanded.includes(valueParentID.toString())) {
+          setExpanded(prevExpanded => [...prevExpanded, valueParentID.toString()]);
+        }
         setValueTitle(valueTitle);       
         setValueNameRus(valueNameRus); 
         setValueNameEng(valueNameEng);
         setValueDescrRus(valueDescrRus);
         setValueDescrEng(valueDescrEng);    
         setValueParentID(valueParentID);
-        setValueFormula(valueFormula);         
+        setValueFormula(valueFormula);
+        setValueFormulaInitial(valueFormula);             
         setValueTitleInitial(valueTitle);       
         setValueNameRusInitial(valueNameRus); 
         setValueNameEngInitial(valueNameEng);
         setValueDescrRusInitial(valueDescrRus);
         setValueDescrEngInitial(valueDescrEng);    
         setValueParentIDInitial(valueParentID);
-        setValueFormulaInitial(valueFormula);        
-        setOpenAlert(true);  
       }
+      setOpenAlert(true);
     } catch (err) {
-      alertText = err.message;
-      alertSeverity = 'error';
+      setAlertSeverity('error');
+      setAlertText(err.message);
       setOpenAlert(true);
     } finally {
       setIsLoading("false");
@@ -463,34 +646,34 @@ const DataTableChemCompGr = (props) => {
 
 /////////////////////////////////////////////////////////////////// DELETE /////////////////////
   const delRec =  async () => {
-    const js = JSON.stringify({
-        id: valueId-1000000,
+
+    let myId;
+    if (valueId)
+      myId = valueId-1000000;   
+
+/*     const js = JSON.stringify({
+        id: valueId,
         title: valueTitle,
-    });
+    }); */
+    
     setIsLoading("true");
     try {
-      const response = await fetch(`/${props.table_name}/`+(valueId-1000000).toString(), {
+      const response = await fetch(`/${props.table_name}/${myId}`, {
         method: 'DELETE',
-        body: js,
         headers: {
           'Content-Type': 'Application/json',
           Accept: '*/*',
         },
       });
       if (!response.ok) {
-        //console.log('response not OK');
-        alertSeverity = 'error';
-        alertText = await response.text();
-        setOpenAlert(true);          
+        setAlertSeverity('error');
+        setAlertText(await response.text());
       }
       else
       {
-        //console.log('response OK');
-        alertSeverity = "success";
-        alertText = await response.text();
-        setOpenAlert(true); 
+        setAlertSeverity('success');
+        setAlertText(await response.text());        
         reloadData();
-        //setSelectionModel(tableData[0].id );  
         setValueID(tableData[0].id);
         setValueTitle(tableData[0].title);
         setValueNameRus(tableData[0].name_rus);
@@ -507,9 +690,10 @@ const DataTableChemCompGr = (props) => {
         setValueFormula(tableData[0].formula);
         setValueFormulaInitial(tableData[0].formula);
       }
+      setOpenAlert(true);  
     } catch (err) {
-      alertText = err.message;
-      alertSeverity = 'error';
+      setAlertSeverity('error');
+      setAlertText(err.message);
       setOpenAlert(true);
     } finally {
       setIsLoading("false");
@@ -517,20 +701,17 @@ const DataTableChemCompGr = (props) => {
   };  
 
   /////////////////////////////////////////////////////////////////// RELOAD /////////////////////
-  const handleClickReload =  async () => {
-    alertSeverity = "info";
-    alertText =  'Данные успешно обновлены';
+  const handleClickReload = async () => {
+    setAlertSeverity('info');
+    setAlertText('Данные успешно обновлены');
     try 
     {
-      //console.log('handleClickReload await reloadData();');
       clickAfterReload = true;
       await reloadData().then( console.log('after reload, title = '+tableData[0].title) ) ;
-      //console.log('handleClickReload handleItemClick(lastId); lastId= '+lastId);
-      //handleItemClick(lastId);
     } catch(e)
     {
-      alertSeverity = "error";
-      alertText =  'Ошибка при обновлении данных: '+e.message;      
+      setAlertSeverity('error');
+      setAlertText('Ошибка при обновлении данных: '+e.message);
       setOpenAlert(true);
       return;
     }    
@@ -538,11 +719,12 @@ const DataTableChemCompGr = (props) => {
   }
 
   const reloadData = async () => {
+    
     try {
       const response = await fetch(`/${props.table_name}/`);
       if (!response.ok) {
-        alertText = `Ошибка при обновлении данных: ${response.status}`;
-        alertSeverity = "false";
+        setAlertSeverity('error');
+        setAlertText(`Ошибка при обновлении данных: ${response.status}`);
         const error = response.status + ' (' +response.statusText+')';  
         throw new Error(`${error}`);
       }
@@ -550,6 +732,7 @@ const DataTableChemCompGr = (props) => {
       {  
         const result = await response.json();
         setTableData(result);
+        console.log('after reload');
       }
     } catch (err) {
       throw err;
@@ -558,52 +741,142 @@ const DataTableChemCompGr = (props) => {
     }
   };
 
-  /////////////////////////////////////////
-  const [openDel, setOpenDel] = React.useState(false); 
-  const [openSave, setOpenSave] = React.useState(false); 
-  const [openSaveWhenNew, setOpenSaveWhenNew] = React.useState(false); 
+  ///////////////////////////////////////// DIALOG
+  const [dialogType, setDialogType] = useState('');
+  const [clickedRowId, setClickedRowId] = useState(null);
 
-  const handleClickDelete = () => {
-    setOpenDel(true);
-  };
-
-  const handleCloseDelNo = () => {
-    setOpenDel(false);
-  };
-
-  const handleCloseDelYes = () => {
-    setOpenDel(false);
-    delRec();
-  };
-
-  const handleClickSave = () => {
-    setOpenSave(true);
-  };
-
-  function updateCurrentRecHandles (id)  {
-    if (id)
-      lastId = id;
+  const setValuesById = (id) => {
+    //console.log( 'id = '+id);
+    //if (id)
+    //  lastId = id;
     var res = tableData.filter(function(item) {
-      return item.id.toString() === id;
+      return item.id === id;
     });
-    //console.log('res.length ' + res.length);
-    setValueID(res[0].id); 
-    setValueTitle(res[0].title);
-    setValueNameRus(res[0].name_rus);
-    setValueNameEng(res[0].name_eng);
-    setValueDescrRus(res[0].descr_rus);
-    setValueDescrEng(res[0].descr_eng);    
-    setValueParentID(res[0].parent_id||-1);    
-    setValueFormula(res[0].formula);      
-    setValueTitleInitial(res[0].title);
-    setValueNameRusInitial(res[0].name_rus);
-    setValueNameEngInitial(res[0].name_eng);
-    setValueDescrRusInitial(res[0].descr_rus);
-    setValueDescrEngInitial(res[0].descr_eng);
-    setValueParentIDInitial(res[0].parent_id||-1); 
-    setValueFormulaInitial(res[0].formula);      
-  }; 
+    console.log('console ', id, res[0]);
+    setValues(res[0]);
+  };   
 
+  const getDialogContentText = () => {
+    const allRequiredFieldsFilled = formRef.current?.checkValidity();
+    switch (dialogType) {
+      case 'delete':
+        return (
+          <>
+            В таблице "{table_names[props.table_name]}" предложена к удалению следующая запись: 
+            <br />
+            {valueTitle}; Код в БД = {valueId-1000000}. 
+            <br />
+            Вы желаете удалить указанную запись?
+          </>);
+      case 'save':
+        if (!valueId) { // если это новая запись
+          if (allRequiredFieldsFilled) {
+            return `Создана новая запись, сохранить?`;
+          } else {
+            return (
+              <>
+                Не заданы обязательные поля, запись не будет создана.
+                <br />
+                Перейти без сохранения изменений?
+              </>
+            );
+          }
+        } else { // если это редактируемая запись
+          if (allRequiredFieldsFilled) {
+            return `В запись внесены изменения, сохранить изменения?`;
+          } else {
+            return (
+              <>
+                Не заданы обязательные поля, изменения не будут сохранены
+                <br />
+                Перейти без сохранения изменений?
+              </>
+            );            
+          }
+        }
+      default:
+        return '';
+    }
+  };
+
+  const handleCloseNo = () => {
+    switch (dialogType) {
+      case 'save':
+        //console.log('no save ', clickedRowId, clickedId);
+        setEditStarted(false);
+        setValueID(clickedRowId);
+        //setValuesById(clickedRowId);
+        setSelected(clickedRowId.toString());
+        // setRowSelectionModel([clickedRowId]);
+        break;
+      default:
+    }
+    setDialogType('');
+  };
+
+  const handleCloseCancel = () => {
+    switch (dialogType) {
+      case 'save':
+        //console.log('no save 1 clickedRowId valueId', clickedRowId, valueId);
+        //setClickedRowId( valueId );
+        //console.log('no save 2 clickedRowId valueId', clickedRowId, valueId);
+        setSelected(valueId.toString());
+        //setValueID(valueId);        
+        break;
+      default:
+        break;
+    }
+    setDialogType('');
+  };
+  
+  const handleCloseYes = () => {
+    switch (dialogType) {
+      case 'delete':
+        delRec();
+        break;
+      case 'save':
+        saveRec(false);
+        break;
+      default:
+        break;
+    }
+    
+    setDialogType('');
+
+    if (clickedRowId>0) {
+      setEditStarted(false);
+      console.log('yes', clickedRowId);
+      setSelected(clickedRowId.toString());
+      //setRowSelectionModel([clickedRowId]);
+      const rowData = tableData.find(row => row.id === clickedRowId);
+      setValues(rowData);
+      setValueID(clickedRowId);
+      setEditStarted(false);
+    }
+  };
+
+  function DialogButtons() {
+    const allRequiredFieldsFilled = formRef.current?.checkValidity();
+  
+    if (dialogType === 'save' && !allRequiredFieldsFilled) {
+      return (
+        <>
+          <Button variant="outlined" onClick={handleCloseNo} >Да</Button>
+          <Button variant="outlined" onClick={handleCloseCancel} >Отмена</Button>
+        </>
+      );
+    } else {
+      return (
+        <>
+          <Button variant="outlined" onClick={handleCloseYes} >Да</Button>
+          <Button variant="outlined" onClick={handleCloseNo} >Нет</Button>
+          {dialogType !== 'delete' && <Button variant="outlined" onClick={handleCloseCancel} >Отмена</Button>}
+        </>
+      );
+    }
+  }
+  
+/* 
   const handleCloseSaveNo = () => {
     setOpenSave(false);
     updateCurrentRecHandles(clickedId);
@@ -621,21 +894,21 @@ const DataTableChemCompGr = (props) => {
 
   const handleCloseSaveWhenNewNo = () => {
     setOpenSaveWhenNew(false);
-    updateCurrentRecHandles(clickedId);    
   };
 
   const handleCloseSaveWhenNewYes = () => {
-    //console.log('handleCloseSaveWhenNewYes');
     setOpenSaveWhenNew(false);
     saveRec(true);
-    //console.log('handleCloseSaveWhenNewYes lastId = '+lastId);
-    //updateCurrentRec(lastId);    
-  };
+  }; */
 
   //////////////////////////////////////////////////////// ACTIONS ///////////////////////////////
   const [openAlert, setOpenAlert] = React.useState(false, '');
   const handleCancelClick = () => 
   {
+    setEditStarted(false);
+    setValuesById(valueId);
+    //setValueID(valueId);
+/* 
     const selectedIDs = selected;
     const selectedRowData = tableData.filter((row) => selectedIDs===row.id.toString());
     if (selectedRowData.length)
@@ -653,10 +926,47 @@ const DataTableChemCompGr = (props) => {
       setValueDescrEngInitial(selectedRowData[0].descr_eng);
       setValueParentID(selectedRowData[0].parent_id||-1);
       setValueParentIDInitial(selectedRowData[0].parent_id||-1);
-      setValueFormula(selectedRowData[0].formula);
-      setValueFormulaInitial(selectedRowData[0].formula);
-    }
+      setValueCalcfunctionID(selectedRowData[0].calcfunction_id);
+      setValueIrradiation(selectedRowData[0].irradiation_id);
+      setValueAgegroup(selectedRowData[0].agegroup_id);
+      setValueExpScenario(selectedRowData[0].exp_scenario_id);
+      setValueIntegralPeriod(selectedRowData[0].integral_period_id);
+      setValueOrgan(selectedRowData[0].organ_id);
+      setValueDataSource(selectedRowData[0].data_source_id);
+      setValueAerosolAmad(selectedRowData[0].aerosol_amad_id);
+      setValueAerosolSol(selectedRowData[0].aerosol_sol_id);
+      setValueChemCompGr(selectedRowData[0].chem_comp_gr_id);
+      setValueSubstForm(selectedRowData[0].subst_form_id);
+      setValueIsotope(selectedRowData[0].isotope_id);
+      setValueActionLevel(selectedRowData[0].action_level_id);
+      setValuePeopleClass(selectedRowData[0].people_class_id);
+      setValueCrValue(selectedRowData[0].cr_value);
+      setValueTimeend(selectedRowData[0].timeend);
+
+      setValueCalcfunctionIDInitial(selectedRowData[0].calcfunction_id);
+      setValueIrradiationInitial(selectedRowData[0].irradiation_id);
+      setValueAgegroupInitial(selectedRowData[0].agegroup_id);
+      setValueExpScenarioInitial(selectedRowData[0].exp_scenario_id);
+      setValueIntegralPeriodInitial(selectedRowData[0].integral_period_id);
+      setValueOrganInitial(selectedRowData[0].organ_id);
+      setValueDataSourceInitial(selectedRowData[0].data_source_id);
+      setValueAerosolAmadInitial(selectedRowData[0].aerosol_amad_id);
+      setValueAerosolSolInitial(selectedRowData[0].aerosol_sol_id);
+      setValueChemCompGrInitial(selectedRowData[0].chem_comp_gr_id);
+      setValueSubstFormInitial(selectedRowData[0].subst_form_id);
+      setValueIsotopeInitial(selectedRowData[0].isotope_id);
+      setValueActionLevelInitial(selectedRowData[0].action_level_id);
+      setValuePeopleClassInitial(selectedRowData[0].people_class_id);
+      setValueCrValueInitial(selectedRowData[0].cr_value);
+      setValueTimeendInitial(selectedRowData[0].timeend);
+
+      //const newNode = nodes.find(node => node.value === selectedRowData[0].parent_id);
+      // Обновляем selectedNode
+      //setSelectedNode(newNode);
+      //setBranch(newNode);      
+    } */
   }
+
 
   const optionsCSV = {
     filename: table_names[props.table_name],
@@ -716,7 +1026,7 @@ const DataTableChemCompGr = (props) => {
       expandedNew=[]; 
     setExpanded(expandedNew);
   }; */
-
+      
   const setTreeFilter = (e) => { 
     const value = e;
     const filter = value.trim();
@@ -748,183 +1058,254 @@ const DataTableChemCompGr = (props) => {
     const expandedNew = expanded.length ? [] : hasChild;
     setExpanded(expandedNew);
   }, [expanded, tableData]);
+
+
   const formRef = React.useRef();
   return (
-    <div style={{ height: 650, width: 1500 }}>
-   <form ref={formRef}>  
-    <table border = "0" style={{ height: 650, width: 1500 }} ><tbody>
-    <tr>
-      <td style={{ height: 550, width: 600, verticalAlign: 'top' }}>
-      <div style={{ height: 500, width: 585 }}>
-      <Box sx={{ border: 1, borderRadius: '4px', borderColor: 'grey.300', height: 500, p: '4px' }} >
-        <IconButton onClick={()=>handleClearClick()}  color="primary" size="small" title="Создать запись">
-          <SvgIcon fontSize="small" component={PlusLightIcon} inheritViewBox /></IconButton>
-        <IconButton onClick={()=>saveRec(true)}  color="primary" size="small" title="Сохранить запись в БД" disabled={!((valueId > 1000000 )||(!valueId))}>
-          <SvgIcon fontSize="small" component={SaveLightIcon} inheritViewBox/></IconButton>
-        <IconButton onClick={()=>handleClickDelete()}  color="primary" size="small" title="Удалить запись" disabled={!((valueId > 1000000 )||(!valueId))}>
-          <SvgIcon fontSize="small" component={TrashLightIcon} inheritViewBox /></IconButton>
-        <IconButton onClick={()=>handleCancelClick()} disabled={!editStarted} color="primary" size="small" title="Отменить редактирование">
-          <SvgIcon fontSize="small" component={UndoLightIcon} inheritViewBox /></IconButton>
-        <IconButton onClick={()=>handleClickReload()} color="primary" size="small" title="Обновить данные">
-          <SvgIcon fontSize="small" component={RepeatLightIcon} inheritViewBox /></IconButton>
-        <IconButton onClick={()=>exportDataCSV()} color="primary" size="small" title="Сохранить в формате CSV">
-          <SvgIcon fontSize="small" component={DownloadLightIcon} inheritViewBox /></IconButton>
-        <IconButton onClick={()=>expandTree()} color="primary" size="small" title={expanded.length !== 0?"Свернуть все":"Развернуть все"} >
-          <SvgIcon fontSize="small" component={expanded.length !== 0?CollapseIcon:ExpandIcon} inheritViewBox /></IconButton>
-          <br/><TextField label="Фильтр ..." size = "small" variant="standard" value={filter}
-                onChange={(e) => setFilter(e.target.value)} 
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton onClick={applyFilter} edge="end" size="small" color="primary" disabled={!filter} title="Применить фильтр">
-                        <SvgIcon fontSize="small" component={SearchIcon} inheritViewBox />
-                      </IconButton>
-                      <IconButton onClick={clearFilter} edge="end" size="small" color="primary" disabled={!filter && !filterApplied} title={filterApplied ? "Сбросить фильтр" : "Очистить поле ввода"}>
-                        <SvgIcon fontSize="small" component={TimesCircleIcon} inheritViewBox />
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-        />
-        <Box sx={{ height: 415, overflowY: 'false' }}>
-
-          {(isLoading==="true") && 
-          <Backdrop
-            sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }} open={true}>
-            <CircularProgress color="inherit" />
-          </Backdrop> } 
-
-          <Box sx={{ height: 415, flexGrow: 1, overflowY: 'auto' }} >     
-            <DataTreeView treeItems={treeData} />
-          </Box> 
-        </Box>
-      </Box>
-      </div>
-      <Box sx={{ width: 585 }}>
-      <Collapse in={openAlert}>
-        <Alert
-          severity={alertSeverity}
-          action={
-            <IconButton
-              aria-label="close"
-              color="inherit"
+    <>
+    <Box sx={{ width: 1445, height: 650, padding: 1 }}>
+      <Grid container spacing={1}>
+        <Grid item sx={{width: 570, border: '0px solid green', ml: 1 }}>
+        <div style={{ height: 500, width: 570 }}>
+          <Box sx={{ border: 1, borderRadius: '4px', borderColor: 'rgba(0, 0, 0, 0.23)', height: 500, p: '4px' }} >
+            <IconButton onClick={()=>handleClearClick()} disabled={valueCrit===0||editStarted} color="primary" size="small" title="Создать запись">
+              <SvgIcon fontSize="small" component={PlusLightIcon} inheritViewBox /></IconButton>
+            <IconButton onClick={()=>saveRec(true)} disabled={valueCrit===0} color="primary" size="small" title="Сохранить запись в БД">
+              <SvgIcon fontSize="small" component={SaveLightIcon} inheritViewBox/></IconButton>
+            <IconButton onClick={()=>setDialogType('delete')} disabled={valueCrit===0} color="primary" size="small" title="Удалить запись">
+              <SvgIcon fontSize="small" component={TrashLightIcon} inheritViewBox /></IconButton>
+            <IconButton onClick={()=>handleCancelClick()} disabled={!editStarted} color="primary" size="small" title="Отменить редактирование">
+              <SvgIcon fontSize="small" component={UndoLightIcon} inheritViewBox /></IconButton>
+            <IconButton onClick={()=>handleClickReload()} color="primary" size="small" title="Обновить данные">
+              <SvgIcon fontSize="small" component={RepeatLightIcon} inheritViewBox /></IconButton>
+            <IconButton onClick={()=>exportDataCSV()} color="primary" size="small" title="Сохранить в формате CSV">
+              <SvgIcon fontSize="small" component={DownloadLightIcon} inheritViewBox /></IconButton>
+            <IconButton onClick={()=>expandTree()} color="primary" size="small" title={expanded.length !== 0?"Свернуть все":"Развернуть все"} >
+              <SvgIcon fontSize="small" component={expanded.length !== 0?CollapseIcon:ExpandIcon} inheritViewBox /></IconButton>
+            <br/>
+            <TextField
+              label="Фильтр ..."
               size="small"
-              onClick={() => {
-                setOpenAlert(false);
+              variant="standard"
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  applyFilter();
+                }
               }}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={applyFilter}
+                      edge="end"
+                      size="small"
+                      color="primary"
+                      disabled={!filter}
+                      title="Применить фильтр"
+                    >
+                      <SvgIcon fontSize="small" component={SearchIcon} inheritViewBox />
+                    </IconButton>
+                    <IconButton
+                      onClick={clearFilter}
+                      edge="end"
+                      size="small"
+                      color="primary"
+                      disabled={!filter && !filterApplied}
+                      title={filterApplied ? "Сбросить фильтр" : "Очистить поле ввода"}
+                    >
+                      <SvgIcon fontSize="small" component={TimesCircleIcon} inheritViewBox />
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+            <Box sx={{ height: 415, overflowY: 'false' }}>
+              {(isLoading==="true") && 
+              <Backdrop sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }} open={true}>
+                <CircularProgress color="inherit" />
+              </Backdrop> } 
+              <Box ref={scrollContainerRef} sx={{ height: 415, flexGrow: 1, overflowY: 'auto' }} >     
+                <DataTreeView treeItems={treeData} />
+              </Box> 
+            </Box>
+          </Box>
+          </div>
+          <Box sx={{ width: 583 }}>
+          <Collapse in={openAlert}>
+            <Alert
+              item sx={{width: 571}}
+              severity={alertSeverity}
+              action={
+                <IconButton
+                  aria-label="close"
+                  color="inherit"
+                  size="small"
+                  onClick={() => {
+                    setOpenAlert(false);
+                  }}
+                >
+                  <CloseIcon fontSize="inherit" />
+                </IconButton>
+              }
             >
-              <CloseIcon fontSize="inherit" />
-            </IconButton>
-          }
-        >
-          {alertText}
-        </Alert>
-      </Collapse>
-      
-      </Box>
-      
-      </td>
-      <td style={{ height: 550, width: 900, verticalAlign: 'top' }}>
-      {((valueId > 1000000 )||(!valueId)) &&
-      <div id="right part">
-      <TextField  id="ch_id" disabled={true} label="Код" sx={{ width: '12ch' }} variant="outlined" value={ ((valueId||0)<=999999)?valueId:valueId-1000000 ||''} size="small" /* onChange={e => setValueID(e.target.value)} *//>
-      &nbsp;&nbsp;&nbsp;
-      <TextField  id="ch_name" sx={{ width: '40ch' }} label="Обозначение" required size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
-      &nbsp;&nbsp;&nbsp;
+              {alertText}
+            </Alert>
+          </Collapse>
+          
+          </Box>
+        </Grid>
+        {/* <Grid item > */}
+        <Grid sx={{ width: 801, padding: 1, ml: 1.5 }}>
+        {/* <Grid item xs={7}   sx={{ ml: 1.5 }}> */}
+        {( valueCrit === 1) &&
+          <>
+          <form ref={formRef}> 
+          <Grid container spacing={1.5}>
+            <Grid item xs={2}>
+              <TextField  
+                id="ch_id" 
+                disabled={true} 
+                label="Код" 
+                variant="outlined" 
+                value={ (valueId-1000000)<=0?'':(valueId-1000000)} 
+                size="small"
+                fullWidth
+              />
+            </Grid>
+            <Grid item xs={7}>
+              <TextField  
+                id="ch_name" 
+                label="Обозначение" 
+                required 
+                size="small" 
+                variant="outlined" 
+                value={valueTitle || ''} 
+                onChange={e => setValueTitle(e.target.value)}
+                fullWidth
+              />
+            </Grid>
+            <Grid item xs={3}>
+              <Autocomplete
+                  id="ch_parent_id"
+                  value={tableChelement.find(option => option.id === valueParentID) || ""}
+                  size="small"
+                  onChange={(event, newValue) => {
+                    setValueParentID(newValue ? newValue.id : null);
+                  }}
+                  options={ tableChelement }
+                  renderOption={(props, option) => (
+                    <li {...props}>
+                      <Tooltip title={option.name_rus}>
+                        <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
+                          <span>{option.title}</span>
+                          <span></span>
+                        </div>
+                      </Tooltip>
+                    </li>
+                  )}                  
+                  getOptionLabel={option => (option && option.title) ? option.title : ""}
+                  fullWidth
+                  disableClearable
+                  renderInput={(params) => <TextField {...params} label="Химический элемент" variant="outlined" />}
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField  
+                id="ch_formula" 
+                size="small" 
+                label="Формула" 
+                variant="outlined"  
+                value={valueFormula||''} 
+                onChange={e => setValueFormula(e.target.value)}
+                fullWidth
+              />                   
+            </Grid>            
+            <Grid item xs={12}>
+              <TextField  
+                id="ch_name_rus" 
+                size="small" 
+                label="Название (рус.яз)" 
+                required 
+                variant="outlined"  
+                value={valueNameRus || ''} 
+                onChange={e => setValueNameRus(e.target.value)}
+                fullWidth
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField  
+                id="ch_name_eng" 
+                size="small" 
+                label="Название (англ.яз)"  
+                variant="outlined" 
+                value={valueNameEng || ''} 
+                onChange={e => setValueNameEng(e.target.value)}
+                fullWidth
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField  
+                id="ch_descr_rus" 
+                label="Комментарий (рус.яз)"  
+                size="small" 
+                multiline 
+                maxRows={4} 
+                variant="outlined" 
+                value={valueDescrRus || ''} 
+                onChange={e => setValueDescrRus(e.target.value)}
+                fullWidth
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField  
+                id="ch_descr_eng" 
+                label="Комментарий (англ.яз)"  
+                size="small" 
+                multiline 
+                maxRows={4} 
+                variant="outlined" 
+                value={valueDescrEng || ''} 
+                onChange={e => setValueDescrEng(e.target.value)}
+                fullWidth
+              />
+            </Grid>
+    {/*         <Grid item xs={6}>
+            </Grid>
+    */}
+          </Grid>
+          </form>
+       
+          <div style={{ height: 300, width: 800 }}>
+            <td>Источники данных<br/>
+            <DataTableDataSourceClass table_name={props.table_name} rec_id={valueId-1000000||0} />
+            </td>
+          </div>
+          </>}
+        </Grid>
+      </Grid>
+    </Box>
 
+    <Dialog open={dialogType !== ''} onClose={handleCloseCancel} fullWidth={true}>
+      <DialogTitle>Внимание</DialogTitle>
+      <DialogContent>
+        <DialogContentText>
+          {getDialogContentText()}
+        </DialogContentText>
+      </DialogContent>
+      <DialogActions>
+        <DialogButtons />
+      </DialogActions>
+    </Dialog>      
 
-      <p></p> 
-{/*       <Autocomplete
-        fullWidth
-        sx={{ width: '30ch' }} size="small" 
-        disablePortal
-        id="combo-box-child-isotope"
-        value={tableChelement.find((option) => option.id === valueParentID)||'' }
-        disableClearable
-        isOptionEqualToValue={(option, value) => option.id === value.id }  
-        onChange={(event, newValueAC) => { setValueParentID(newValueAC?newValueAC.id:-1) } }
-        options={tableChelement}
-        getOptionLabel={option => option?option.title:""} 
-        renderInput={(params) => <TextField {...params} label="Химический элемент" required />}
-      />
-        <p></p>  
- */}
-
-
-      <FormControl  sx={{ width: '30ch' }} size="small">
-        <InputLabel id="ch_parent_id">Химический элемент</InputLabel>
-          <Select labelId="ch_parent_id" id="ch_parent_id1" label="Родительский класс" value={valueParentID || "" } onChange={e => setValueParentID(e.target.value)} >
-          <MenuItem key={1000000} value={1000000}>
-                    {'Не определено'}
-                  </MenuItem> 
-                  {tableChelement?.map(option => {
-                  return (
-                  <MenuItem key={option.id} value={option.id}>
-                    {option.title ?? option.id}
-                  </MenuItem>
-                  );
-                })}
-        </Select>
-      </FormControl>  
-
- 
-      <p></p> 
-      <div>
-      {(() => {
-        if (props.table_name==='criterion_gr') {
-          return (
-            <div>
-
-              <FormControl sx={{ width: '30ch' }} size="small">
-                <InputLabel id="ch_formula">Нормативная база</InputLabel>
-                  <Select labelId="ch_formula" id="ch_formula1" label="Нормативная база" value={valueFormula  || "" } onChange={e => setValueFormula(e.target.value)} >
-                          {tableChelement?.map(option => {
-                          return (
-                          <MenuItem key={option.id} value={option.id}>
-                            {option.title ?? option.id}
-                          </MenuItem>
-                          );
-                        })}
-                </Select>
-              </FormControl>   
-              
-            </div>
-            
-          )
-        } 
-      })()}
-      </div>
-
-      <p></p> 
-      <TextField  id="ch_formula" sx={{ width: '100ch' }}  size="small" label="Формула"  variant="outlined"  value={valueFormula || ''} onChange={e => setValueFormula(e.target.value)} />
-      <p></p> 
-      <TextField  id="ch_name_rus" sx={{ width: '100ch' }}  size="small" label="Название (рус.яз)" required variant="outlined"  value={valueNameRus || ''} onChange={e => setValueNameRus(e.target.value)} />
-      <p></p>
-      <TextField  id="ch_name_eng" sx={{ width: '100ch' }} size="small" label="Название (англ.яз)"  variant="outlined" value={valueNameEng || ''} onChange={e => setValueNameEng(e.target.value)}/>
-      <p></p>
-      <TextField  id="ch_descr_rus" sx={{ width: '100ch' }} label="Комментарий (рус.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrRus || ''} onChange={e => setValueDescrRus(e.target.value)}/>
-      <p></p> 
-      <TextField  id="ch_descr_rus" sx={{ width: '100ch' }} label="Комментарий (англ.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrEng || ''} onChange={e => setValueDescrEng(e.target.value)}/>
-      <p></p>
-      <div style={{ height: 300, width: 800 }}>
-      <td>Источники данных<br/>
-        <DataTableDataSourceClass table_name={props.table_name} rec_id={(valueId?valueId-1000000:null)} />
-        </td>
-      </div>
-
-      </div>} {/* right part */}
-    </td>
-  </tr>
-  </tbody>
-  </table>
-
-  <Dialog open={openDel} onClose={handleCloseDelNo} fullWidth={true}>
+{/*   <Dialog open={openDel}  onClose={handleCloseDelNo} fullWidth={true}>
       <DialogTitle>
           Внимание
       </DialogTitle>
       <DialogContent>
           <DialogContentText>
-          В таблице "{table_names[props.table_name]}" предложена к удалению следующая запись:<b><p></p>{valueTitle}</b>; Код в БД = <b>{valueId-1000000}<p></p></b>
+          В таблице "{table_names[props.table_name]}" предложена к удалению следующая запись:<p></p><b>{valueTitle}</b>; Код в БД = <b>{valueId}</b><p></p>
           Вы желаете удалить указанную запись?
           </DialogContentText>
       </DialogContent>
@@ -959,7 +1340,7 @@ const DataTableChemCompGr = (props) => {
     <DialogContent>
     <DialogContentText>
           {valueId?
-          `В запись таблицы "${table_names[props.table_name]}"/*  с кодом ${valueId} */ внесены изменения.`:
+          `В запись таблицы "${table_names[props.table_name]}" внесены изменения.`:
           `В таблицу "${table_names[props.table_name]}" внесена новая несохраненная запись.`}
           <br/>Вы желаете сохранить указанную запись?
         </DialogContentText>
@@ -968,9 +1349,8 @@ const DataTableChemCompGr = (props) => {
         <Button variant="outlined" onClick={handleCloseSaveWhenNewNo} autoFocus>Нет</Button>
         <Button variant="outlined" onClick={handleCloseSaveWhenNewYes} >Да</Button>
     </DialogActions>
-  </Dialog>
-  </form>
- </div>     
+  </Dialog> */}
+ </>     
   )
 }
 

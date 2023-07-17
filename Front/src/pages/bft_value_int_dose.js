@@ -1305,7 +1305,7 @@ const reloadDataHandler = async () => {
       {/* аккордеон по страницам */} 
       <Accordion expanded={isFilterExpanded} onChange={() => setIsFilterExpanded(!isFilterExpanded)}>
         <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel1a-content" id="panel1a-header">
-          <Typography variant="body2">{table_names['value_int_dose']}. Фильтр</Typography>
+          <Typography variant="body2">{/* {table_names['value_int_dose']}.  */}Фильтр</Typography>
         </AccordionSummary>
 
         <AccordionDetails>
@@ -2540,13 +2540,9 @@ const reloadDataHandler = async () => {
           <Button variant="outlined" onClick={handleClearFilter}>Очистить фильтр</Button>  
         </AccordionDetails>
       </Accordion>
-
- 
       <Accordion expanded={isTableExpanded}  onChange={() => {setIsTableExpanded(!isTableExpanded); }}>
         <AccordionSummary expandIcon={<ExpandMoreIcon />} aria-controls="panel2a-content" id="panel2a-header">
           <Typography variant="body2">Таблица значений { filterCaption }<br/> 
-          
-          
           </Typography>
         </AccordionSummary>
         <AccordionDetails>
@@ -2647,6 +2643,7 @@ const reloadDataHandler = async () => {
               fullWidth
               label="Органы и ткани"
               placeholder="Органы и ткани"
+              getOptionDisabled={(option) => !tableOrganFilteredEdit.some(item => item.id === option.id)}
               />
 {/* 
               <Autocomplete
@@ -2825,7 +2822,17 @@ const reloadDataHandler = async () => {
                 fullWidth
                 label="Сценарий поступления"
                 placeholder="Сценарий поступления"
-              />              
+                getOptionDisabled={(option) => !tableExpScenarioFilteredEdit.some(item => item.id === option.id)}
+              />
+{/*               <HierarchicalAutocomplete
+                data={treeDataExpScenarioFilteredEdit}
+                value={treeDataExpScenarioFilteredEdit.find(item => item.id === valueExpScenarioID) || null}
+                onChange={(event, newValue) => setValueExpScenarioID(newValue ? newValue.id : null)}
+                size="small"
+                fullWidth
+                label="Сценарий поступления"
+                placeholder="Сценарий поступления"
+              />   */}            
 {/*              <Autocomplete
               size="small"
               disabled={(valueID !== null)||(applFlt.selExpScenarioValues.length===1)}

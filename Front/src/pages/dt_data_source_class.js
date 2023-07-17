@@ -25,7 +25,6 @@ import { useGridScrollPagination } from './../helpers/gridScrollHelper';
 import { Typography } from '@mui/material';
 import Tooltip from '@mui/material/Tooltip';
 
-
 function DataTableDataSourceClass(props)  {
   const apiRef = useGridApiRef(); // init DataGrid API for scrolling
   const [open, setOpen] = React.useState(false);

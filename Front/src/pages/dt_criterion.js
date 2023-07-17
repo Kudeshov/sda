@@ -41,11 +41,7 @@ import Tooltip from '@mui/material/Tooltip';
 import { DataTableActionCriterion } from './dt_action_criterion';
 import { listToTree } from '../helpers/treeHelper';
 import { Grid } from '@mui/material';
-/* import TreeSelect, {
-  DefaultOption,
-  getDefaultOptionProps,  
-} from "mui-tree-select"; */
-
+import Typography from '@mui/material/Typography';
 import HierarchicalAutocomplete, { transformData } from '../component/HierarchicalAutocomplete';
 
 
@@ -127,48 +123,22 @@ const DataTableCriterion = (props) => {
   const [alertText, setAlertText] = useState("Сообщение");
   const [alertSeverity, setAlertSeverity] = useState("info");
 
+  //для отображения единицы измерения
+  const [valueSign, setValueSign] = useState('');
+  const [valueUnitName, setValueUnitName] = useState('');
 
-/* 
-   useEffect(() => {
-    setIsEmpty((''===valueTitle)&&(''===valueNameRus)&&(''===valueNameEng)&&(''===valueDescrEng)&&(''===valueDescrRus)   
-      &&(''===valueParentID)&&(''===valueCalcfunctionID)(''===valueCrValue)&&(''===valueTimeend)&&(''===valuePeopleClass)&&(''===valueIrradiation)&&(''===valueAgegroup)   
-      &&(''===valueActionLevel)&&(''===valueExpScenario)(''===valueIntegralPeriod)&&(''===valueOrgan)&&(''===valueDataSource)&&(''===valueChemCompGr)&&(''===valueAerosolSol)   
-      &&(''===valueAerosolAmad)&&(''===valueSubstForm)&&(''===valueIsotope));
-    }, [ valueTitle, valueNameRus, valueNameEng, valueDescrEng, valueDescrRus, valueParentID, valueNormativ, valueCalcfunctionID,
-      valueCrValue, valueTimeend, valuePeopleClass, valueIrradiation, valueAgegroup, valueActionLevel, valueExpScenario, valueIntegralPeriod,
-      valueOrgan, valueDataSource, valueChemCompGr, valueAerosolSol, valueAerosolAmad, valueSubstForm, valueIsotope]);    
-
-    useEffect(() => {
-      setIsEmpty(('' === valueTitle) && ('' === valueNameRus) && ('' === valueNameEng) && ('' === valueDescrEng) && ('' === valueDescrRus)
-        && ('' === valueParentID) && ('' === valueNormativ) && ('' === valueCalcfunctionID) && ('' === valueCrValue) && ('' === valueTimeend)
-        && ('' === valuePeopleClass) && ('' === valueIrradiation) && ('' === valueAgegroup) && ('' === valueActionLevel) && ('' === valueExpScenario)
-        && ('' === valueIntegralPeriod) && ('' === valueOrgan) && ('' === valueDataSource) && ('' === valueChemCompGr) && ('' === valueAerosolSol)
-        && ('' === valueAerosolAmad) && ('' === valueSubstForm) && ('' === valueIsotope));
-    }, [
-      valueTitle, valueNameRus, valueNameEng, valueDescrEng, valueDescrRus, valueParentID, valueNormativ, valueCalcfunctionID,
-      valueCrValue, valueTimeend, valuePeopleClass, valueIrradiation, valueAgegroup, valueActionLevel, valueExpScenario, valueIntegralPeriod,
-      valueOrgan, valueDataSource, valueChemCompGr, valueAerosolSol, valueAerosolAmad, valueSubstForm, valueIsotope
-    ]);
+  useEffect(() => {
+    const foundItem = tableCalcfunction.find(item => item.id === valueCalcfunctionID);
     
- */
-/*   useEffect(() => {
-    setEditStarted(       
-       (valueTitleInitial!==valueTitle)||(valueNameRusInitial!==valueNameRus)||(valueNameEngInitial!==valueNameEng)
-      ||(valueDescrRusInitial!==valueDescrRus)||(valueDescrEngInitial!==valueDescrEng) ||(valueCrValueInitial!==valueCrValue)||(valueParentIDInitial!==valueParentID)||(valueParentIDInitial!==valueParentID)||(valueNormativ!==valueNormativInitial)
-      ||(valueCalcfunctionIDInitial!==valueCalcfunctionID)||(valueTimeendInitial!==valueTimeend)||(valueExpScenarioInitial!==valueExpScenario)||(valueIntegralPeriodInitial!==valueIntegralPeriod)
-      ||(valueOrganInitial!==valueOrgan)||(valueDataSourceInitial!==valueDataSource)||(valueChemCompGrInitial!==valueChemCompGr)||(valueAerosolSolInitial!==valueAerosolSol)||(valueAerosolAmadInitial!==valueAerosolAmad)
-      ||(valueDataSourceInitial!==valueDataSource)||(valueChemCompGrInitial!==valueChemCompGr)||(valueAerosolAmadInitial!==valueAerosolAmad)
-      ||(valueSubstFormInitial!==valueSubstForm)
-      ||(valueIsotopeInitial!==valueIsotope)||(valueAerosolAmadInitial!==valueAerosolAmad)||(valueActionLevelInitial!==valueActionLevel)|(valueAgegroupInitial!==valueAgegroup));
+    if (foundItem) {
+      setValueSign(foundItem.sign);
+      setValueUnitName(foundItem.unitname);
+    } else {
+      setValueSign('');
+      setValueUnitName('');
+    }
+  }, [valueCalcfunctionID, tableCalcfunction]);
 
-    }, [valueTitleInitial, valueTitle, valueNameRusInitial, valueNameRus, valueNameEngInitial, valueNameEng, 
-        valueDescrEngInitial, valueDescrEng, valueDescrRusInitial, valueDescrRus, valueParentID, valueParentIDInitial, valueNormativ, valueNormativInitial, valueCalcfunctionID, valueCalcfunctionIDInitial,
-      valueCrValueInitial, valueCrValue,  valueTimeend,valueTimeendInitial,valuePeopleClass, valuePeopleClassInitial,
-       valueIrradiation, valueIrradiationInitial, valueAgegroup, valueAgegroupInitial, valueActionLevel, valueActionLevelInitial,
-    valueExpScenario, valueExpScenarioInitial, valueIntegralPeriod, valueIntegralPeriodInitial, valueOrgan, valueOrganInitial,valueDataSource,
-    valueDataSourceInitial, valueChemCompGr, valueChemCompGrInitial, valueAerosolSol,
-    valueAerosolSolInitial, valueAerosolAmad, valueAerosolAmadInitial, valueSubstForm, valueSubstFormInitial, valueIsotope, valueIsotopeInitial,]); 
- */
     useEffect(() => {
       const fields = [
         ['valueTitleInitial', valueTitleInitial, 'valueTitle', valueTitle],
@@ -1857,11 +1827,20 @@ const DataTableCriterion = (props) => {
                 )}
               />          
             </Grid>
-            <Grid item xs={4}>
+            <Grid item xs={3}>
               <TextField fullWidth id="ch_name" label="Значение" required size="small" variant="outlined" 
                 value={valueCrValue || ''} onChange={e => setValueCrValue(e.target.value)}/>
             </Grid>
-            <Grid item xs={4}>
+            <Grid item xs={2}>
+              <Box display="flex" alignItems="center" justifyContent="left" height="100%">
+                <Tooltip title={valueUnitName}>
+                  <Typography variant="body1">
+                    {valueSign}
+                  </Typography>
+                </Tooltip>
+              </Box>
+            </Grid>            
+            <Grid item xs={3}>
               <TextField fullWidth id="timeend" label="Время облучения, сек" required size="small" variant="outlined" 
                 value={valueTimeend || ''} onChange={e => setValueTimeend(e.target.value)}/>
             </Grid>
@@ -2232,58 +2211,6 @@ const DataTableCriterion = (props) => {
         <DialogButtons />
       </DialogActions>
     </Dialog>      
-
-{/*   <Dialog open={openDel}  onClose={handleCloseDelNo} fullWidth={true}>
-      <DialogTitle>
-          Внимание
-      </DialogTitle>
-      <DialogContent>
-          <DialogContentText>
-          В таблице "{table_names[props.table_name]}" предложена к удалению следующая запись:<p></p><b>{valueTitle}</b>; Код в БД = <b>{valueId}</b><p></p>
-          Вы желаете удалить указанную запись?
-          </DialogContentText>
-      </DialogContent>
-      <DialogActions>
-          <Button variant="outlined" onClick={handleCloseDelNo} autoFocus>Нет</Button>
-          <Button variant="outlined" onClick={handleCloseDelYes} >Да</Button>
-      </DialogActions>
-  </Dialog>
- 
-  <Dialog open={openSave} onClose={handleCloseSaveNo} fullWidth={true}>
-    <DialogTitle>
-        Внимание
-    </DialogTitle>
-    <DialogContent>
-        <DialogContentText>
-          {valueId?
-          `В запись таблицы "${table_names[props.table_name]}" внесены изменения.`:
-          `В таблицу "${table_names[props.table_name]}" внесена новая несохраненная запись.`}
-          <br/>Вы желаете сохранить указанную запись?
-        </DialogContentText>
-    </DialogContent>
-    <DialogActions>
-        <Button variant="outlined" onClick={handleCloseSaveNo} autoFocus>Нет</Button>
-        <Button variant="outlined" onClick={handleCloseSaveYes} >Да</Button>
-    </DialogActions>
-  </Dialog>
-
-  <Dialog open={openSaveWhenNew} onClose={handleCloseSaveWhenNewNo} fullWidth={true}>
-    <DialogTitle>
-        Внимание
-    </DialogTitle>
-    <DialogContent>
-    <DialogContentText>
-          {valueId?
-          `В запись таблицы "${table_names[props.table_name]}" внесены изменения.`:
-          `В таблицу "${table_names[props.table_name]}" внесена новая несохраненная запись.`}
-          <br/>Вы желаете сохранить указанную запись?
-        </DialogContentText>
-    </DialogContent>
-    <DialogActions>
-        <Button variant="outlined" onClick={handleCloseSaveWhenNewNo} autoFocus>Нет</Button>
-        <Button variant="outlined" onClick={handleCloseSaveWhenNewYes} >Да</Button>
-    </DialogActions>
-  </Dialog> */}
  </>     
   )
 }

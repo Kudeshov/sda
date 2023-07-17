@@ -22,16 +22,58 @@ pool.on(`error`, function (err, client) {
 });
 
 const getChemCompGr = (request, response ) => {
-  pool.query(`SELECT * from (  
-    SELECT ccg.id+1000000 as id, title, COALESCE(chelement_id,1000000) as parent_id, formula, ccgn1.name name_rus, ccgn2.name name_eng, ccgn1.descr descr_rus, ccgn2.descr descr_eng FROM nucl.chem_comp_gr ccg  
-    left join nucl.chem_comp_gr_nls ccgn1 on ccg.id=ccgn1.chem_comp_gr_id and ccgn1.lang_id=1  
-    left join nucl.chem_comp_gr_nls ccgn2 on ccg.id=ccgn2.chem_comp_gr_id and ccgn2.lang_id=2  
-    UNION  
-    SELECT id, title, null as parent_id, null as formula, null as name_rus, null as name_eng, null as descr_rus, null as descr_eng FROM nucl.chelement 
-    WHERE id in (SELECT distinct chelement_id from nucl.chem_comp_gr)  
-    UNION SELECT 1000000 as id, 'Не определено' as Title, null as parent_id, null as formula, null as name_rus, null as name_eng, null as descr_rus, null as descr_eng  
+  pool.query(`
+    SELECT * from (  
+      SELECT 
+        ccg.id+1000000 as id, 
+        title, 
+        COALESCE(chelement_id,1000000) as parent_id, 
+        formula, 
+        ccgn1.name name_rus, 
+        ccgn2.name name_eng, 
+        ccgn1.descr descr_rus, 
+        ccgn2.descr descr_eng, 
+        1 as crit 
+      FROM 
+        nucl.chem_comp_gr ccg  
+      left join 
+        nucl.chem_comp_gr_nls ccgn1 on ccg.id=ccgn1.chem_comp_gr_id and ccgn1.lang_id=1  
+      left join 
+        nucl.chem_comp_gr_nls ccgn2 on ccg.id=ccgn2.chem_comp_gr_id and ccgn2.lang_id=2  
+      
+      UNION  
+      
+      SELECT 
+        pc.id, 
+        title, 
+        null as parent_id, 
+        null as formula, 
+        pcn1.name name_rus, 
+        null as name_eng, 
+        null as descr_rus, 
+        null as descr_eng, 
+        1 as crit 
+      FROM 
+        nucl.chelement pc
+        left join nucl.chelement_nls pcn1 on pc.id=pcn1.chelement_id and pcn1.lang_id=1  
+      WHERE 
+        pc.id in (SELECT distinct chelement_id from nucl.chem_comp_gr)
+      
+      UNION 
+      
+      SELECT 
+        1000000 as id, 
+        'Не определено' as Title, 
+        null as parent_id, 
+        null as formula, 
+        null as name_rus, 
+        null as name_eng, 
+        null as descr_rus, 
+        null as descr_eng, 
+        0 as crit
     ) as chelement_chem  
-     order by title `, (error, results) => {
+    order by title 
+  `, (error, results) => {
     if (error) {
       throw error
     }
@@ -52,8 +94,6 @@ const getChemCompGrMin = (request, response ) => {
     response.status(200).json(results.rows)
   })
 }
-
-
 
 const createChemCompGr = (request, response, table_name )=> {
   pool.connect((err, client, done) => {
