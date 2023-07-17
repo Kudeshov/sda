@@ -1,4 +1,4 @@
-import { DataTableAgeGroup } from './dt_agegroup';
+import { DataTablePeopleClass } from './dt_people_class';
 import { table_names } from './table_names';
 import { useEffect } from 'react';
 import { Box, Typography } from '@mui/material';
@@ -15,7 +15,7 @@ function AgeGroup() {
     <Typography variant="subtitle1" sx={{ paddingLeft: '1rem' }}>
       {table_names['agegroup']}
     </Typography>
-    <DataTableAgeGroup table_name="agegroup"/>
+    <DataTablePeopleClass table_name="agegroup"/>
     </Box>
   );
 }

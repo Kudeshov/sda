@@ -178,7 +178,7 @@ const DataTableCriterion = (props) => {
         ['valueDescrEngInitial', valueDescrEngInitial, 'valueDescrEng', valueDescrEng],
         ['valueCrValueInitial', valueCrValueInitial, 'valueCrValue', valueCrValue],
         ['valueParentIDInitial', valueParentIDInitial, 'valueParentID', valueParentID],
-/*         ['valueNormativInitial', valueNormativInitial, 'valueNormativ', valueNormativ], */
+        ['valueIrradiationInitial', valueIrradiationInitial, 'valueIrradiation', valueIrradiation],
         ['valueCalcfunctionIDInitial', valueCalcfunctionIDInitial, 'valueCalcfunctionID', valueCalcfunctionID],
         ['valueTimeendInitial', valueTimeendInitial, 'valueTimeend', valueTimeend],
         ['valueExpScenarioInitial', valueExpScenarioInitial, 'valueExpScenario', valueExpScenario],
@@ -199,25 +199,27 @@ const DataTableCriterion = (props) => {
       
       for (let i = 0; i < fields.length; i++) {
         const [initialName, initialValue, currentName, currentValue] = fields[i];
-        
+        console.log(initialName);
         if (initialValue !== currentValue) {
           console.log(`Variable ${currentName} changed from ${initialValue} to ${currentValue}`);
           editStarted = true;
         }
+
       }
 
       setEditStarted(editStarted);
       }, [
-      valueTitleInitial, valueTitle, valueNameRusInitial, valueNameRus, valueNameEngInitial, valueNameEng, 
-      valueDescrEngInitial, valueDescrEng, valueDescrRusInitial, valueDescrRus, valueParentID, valueParentIDInitial, 
-      valueNormativ, valueNormativInitial, valueCalcfunctionID, valueCalcfunctionIDInitial,
-      valueCrValueInitial, valueCrValue,  valueTimeend, valueTimeendInitial, 
-      valueExpScenario, valueExpScenarioInitial, valueIntegralPeriod, valueIntegralPeriodInitial, 
-      valueOrgan, valueOrganInitial, valueDataSource, valueDataSourceInitial, 
-      valueChemCompGr, valueChemCompGrInitial, valueAerosolSol, valueAerosolSolInitial, 
-      valueAerosolAmad, valueAerosolAmadInitial, valueSubstForm, valueSubstFormInitial, 
-      valueIsotope, valueIsotopeInitial, valueActionLevel, valueActionLevelInitial,
-      valueAgegroup, valueAgegroupInitial
+        valueTitleInitial, valueTitle, valueNameRusInitial, valueNameRus, valueNameEngInitial, valueNameEng, 
+        valueDescrEngInitial, valueDescrEng, valueDescrRusInitial, valueDescrRus, valueParentID, valueParentIDInitial, 
+        valueNormativ, valueNormativInitial, valueCalcfunctionID, valueCalcfunctionIDInitial,
+        valueCrValueInitial, valueCrValue,  valueTimeend, valueTimeendInitial, 
+        valueExpScenario, valueExpScenarioInitial, valueIntegralPeriod, valueIntegralPeriodInitial, 
+        valueOrgan, valueOrganInitial, valueDataSource, valueDataSourceInitial, 
+        valueChemCompGr, valueChemCompGrInitial, valueAerosolSol, valueAerosolSolInitial, 
+        valueAerosolAmad, valueAerosolAmadInitial, valueSubstForm, valueSubstFormInitial, 
+        valueIsotope, valueIsotopeInitial, valueActionLevel, valueActionLevelInitial,
+        valueAgegroup, valueAgegroupInitial, valueIrradiation, valueIrradiationInitial, 
+        valuePeopleClass, valuePeopleClassInitial
       ]); 
 
   useEffect(() => {
@@ -545,7 +547,7 @@ const DataTableCriterion = (props) => {
     console.log('setClickedRowId id = ' + id);
     setClickedRowId(id);
   
-    if (editStarted /* && (!isEmpty) */) {
+    if (editStarted && valueCrit===1/* && (!isEmpty) */) {
 
       setDialogType('save');
       //handleClickSave(id);

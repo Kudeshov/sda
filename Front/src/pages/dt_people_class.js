@@ -33,6 +33,7 @@ import { DataTableDataSourceClass } from './dt_data_source_class';
 const DataTablePeopleClass = (props) => {
   const apiRef = useGridApiRef(); // init DataGrid API for scrolling
 
+  // Поля БД
   const [valueId, setValueID] = React.useState();
   const [valueTitle, setValueTitle] = React.useState();
   const [valueTitleInitial, setValueTitleInitial] = React.useState();
@@ -44,32 +45,89 @@ const DataTablePeopleClass = (props) => {
   const [valueDescrEngInitial, setValueDescrEngInitial] = React.useState();
   const [valueDescrRus, setValueDescrRus] = React.useState();
   const [valueDescrRusInitial, setValueDescrRusInitial] = React.useState();
-  const [isLoading, setIsLoading] = React.useState(false);
-  const [tableData, setTableData] = useState([]); 
-  const [rowSelectionModel, setRowSelectionModel] = React.useState([]);
-  const [editStarted, setEditStarted] = useState(false);
-  //const [isEmpty, setIsEmpty] = useState([false]);
+
+  //Возрастные группы - перенес сюда
+  const [valueRespRate, setValueRespRate] = React.useState();
+  const [valueRespRateInitial, setValueRespRateInitial] = React.useState();
+  const [valueRespRateNight, setValueRespRateNight] = React.useState();
+  const [valueRespRateNightInitial, setValueRespRateNightInitial] = React.useState();
+  const [valueRespRateDay, setValueRespRateDay] = React.useState();
+  const [valueRespRateDayInitial, setValueRespRateDayInitial] = React.useState();
+  const [valueRespYear, setValueRespYear] = React.useState();
+  const [valueRespYearInitial, setValueRespYearInitial] = React.useState();
+  const [valueIndoor, setValueIndoor] = React.useState();
+  const [valueIndoorInitial, setValueIndoorInitial] = React.useState();
+  const [valueExtCloud, setValueExtCloud] = React.useState();
+  const [valueExtCloudInitial, setValueExtCloudInitial] = React.useState();
+  const [valueExtGround, setValueExtGround] = React.useState();
+  const [valueExtGroundInitial, setValueExtGroundInitial] = React.useState();
 
   const [alertText, setAlertText] = useState("Сообщение");
   const [alertSeverity, setAlertSeverity] = useState("info");
   const [currentId, setCurrentId] = useState(null);  
 
+  const [isLoading, setIsLoading] = React.useState(false);
+  const [tableData, setTableData] = useState([]); 
+  const [rowSelectionModel, setRowSelectionModel] = React.useState([]);
+  const [editStarted, setEditStarted] = useState(false);  
+
   const [addedId, setAddedId] = useState(null);  
 
-/*   useEffect(() => {
+  /* const [isEmpty, setIsEmpty] = useState([false]); // я думаю это ненужно
+   useEffect(() => {
     setIsEmpty((''===valueTitle)&&(''===valueNameRus)&&(''===valueNameEng)&&(''===valueDescrEng)&&(''===valueDescrRus));
     }, [ valueTitle, valueNameRus, valueNameEng, valueDescrEng, valueDescrRus, ]); 
      */
-        
+      
   useEffect(() => {
-
     console.log('editStarted currentId', currentId)
-
     if (typeof currentId !== 'number') {
       setEditStarted(false);
       return;
     }  
+  
+    const fields = [
+      ['valueTitleInitial', valueTitleInitial, 'valueTitle', valueTitle],
+      ['valueNameRusInitial', valueNameRusInitial, 'valueNameRus', valueNameRus],
+      ['valueNameEngInitial', valueNameEngInitial, 'valueNameEng', valueNameEng],
+      ['valueDescrRusInitial', valueDescrRusInitial, 'valueDescrRus', valueDescrRus],
+      ['valueDescrEngInitial', valueDescrEngInitial, 'valueDescrEng', valueDescrEng],
+      ['valueRespRateInitial', valueRespRateInitial, 'valueRespRate', valueRespRate],
+      ['valueRespRateNightInitial', valueRespRateNightInitial, 'valueRespRateNight', valueRespRateNight],
+      ['valueRespRateDayInitial', valueRespRateDayInitial, 'valueRespRateDay', valueRespRateDay],
+      ['valueRespYearInitial', valueRespYearInitial, 'valueRespYear', valueRespYear],
+      ['valueIndoorInitial', valueIndoorInitial, 'valueIndoor', valueIndoor],
+      ['valueExtCloudInitial', valueExtCloudInitial, 'valueExtCloud', valueExtCloud],
+      ['valueExtGroundInitial', valueExtGroundInitial, 'valueExtGround', valueExtGround],
+    ];
+    
+    let editStarted = false;
+    
+    for (let i = 0; i < fields.length; i++) {
+      const [initialName, initialValue, currentName, currentValue] = fields[i];
+      
+      if (initialValue !== currentValue) {
+        console.log(`Variable ${currentName} ${initialName} changed from ${initialValue} to ${currentValue}`);
+        editStarted = true;
+      }
+    }
+  
+    console.log('editStarted', editStarted)
+    setEditStarted(editStarted);      
+  
+  }, [valueTitleInitial, valueTitle, valueNameRusInitial, valueNameRus, valueNameEngInitial, valueNameEng, 
+      valueDescrEngInitial, valueDescrEng, valueDescrRusInitial, valueDescrRus, currentId, 
+      valueRespRateInitial, valueRespRate, valueRespRateNightInitial, valueRespRateNight,
+      valueRespRateDayInitial, valueRespRateDay, valueRespYearInitial, valueRespYear,
+      valueIndoorInitial, valueIndoor, valueExtCloudInitial, valueExtCloud,
+      valueExtGroundInitial, valueExtGround]);
 
+/*   useEffect(() => {
+    console.log('editStarted currentId', currentId)
+    if (typeof currentId !== 'number') {
+      setEditStarted(false);
+      return;
+    }  
     const editStarted1 = (valueTitleInitial!==valueTitle)||(valueNameRusInitial!==valueNameRus)||(valueNameEngInitial!==valueNameEng)
     ||(valueDescrEngInitial!==valueDescrEng)||(valueDescrRusInitial!==valueDescrRus);
     console.log('editStarted1', editStarted1)
@@ -77,7 +135,7 @@ const DataTablePeopleClass = (props) => {
     setEditStarted(editStarted1);      
 
   }, [valueTitleInitial, valueTitle, valueNameRusInitial, valueNameRus, valueNameEngInitial, valueNameEng, 
-      valueDescrEngInitial, valueDescrEng, valueDescrRusInitial, valueDescrRus, currentId]); 
+      valueDescrEngInitial, valueDescrEng, valueDescrRusInitial, valueDescrRus, currentId]);  */
 
   useEffect(() => {
     if ((!isLoading) && (tableData) && (tableData.length) && tableData[0].id>-1) {
@@ -129,18 +187,29 @@ const DataTablePeopleClass = (props) => {
   const inputRef = React.useRef();
 
   const handleClearClick = (params) => {
-    if (editStarted/* &&(!isEmpty) */)
-    {
+    if (editStarted/* &&(!isEmpty) */) {
       setDialogType('save');
-    } 
-    else 
-    {
+    } else {
       setValueID(``);
       setValueTitle(``);
       setValueNameRus(``);
       setValueNameEng(``);
       setValueDescrRus(``);
-      setValueDescrEng(`` );
+      setValueDescrEng(``);
+      setValueRespRate(``);
+      setValueRespRateInitial(``);
+      setValueRespRateNight(``);
+      setValueRespRateNightInitial(``);
+      setValueRespRateDay(``);
+      setValueRespRateDayInitial(``);
+      setValueRespYear(``);
+      setValueRespYearInitial(``);
+      setValueIndoor(``);
+      setValueIndoorInitial(``);
+      setValueExtCloud(``);
+      setValueExtCloudInitial(``);
+      setValueExtGround(``);
+      setValueExtGroundInitial(``);
       // Даем фокус TextField после обновления состояния
       inputRef.current.focus();
     }
@@ -161,6 +230,15 @@ const saveRec = async () => {
       name_eng: valueNameEng,
       descr_rus: valueDescrRus,
       descr_eng: valueDescrEng,
+      ...props.table_name === 'agegroup' && {
+        resp_rate: valueRespRate,
+        resp_rate_night: valueRespRateNight,
+        resp_rate_day: valueRespRateDay,
+        resp_year: valueRespYear,
+        indoor: valueIndoor,
+        ext_cloud: valueExtCloud,
+        ext_ground: valueExtGround,
+      }
     };
     
     setIsLoading(true);
@@ -373,7 +451,25 @@ const delRec = async () => {
     setValueDescrRusInitial(row.descr_rus);
     setValueDescrEng(row.descr_eng);
     setValueDescrEngInitial(row.descr_eng);
+  
+    if (props.table_name === 'agegroup') {
+      setValueRespRate(row.resp_rate);
+      setValueRespRateInitial(row.resp_rate);
+      setValueRespRateNight(row.resp_rate_night);
+      setValueRespRateNightInitial(row.resp_rate_night);
+      setValueRespRateDay(row.resp_rate_day);
+      setValueRespRateDayInitial(row.resp_rate_day);
+      setValueRespYear(row.resp_year);
+      setValueRespYearInitial(row.resp_year);
+      setValueIndoor(row.indoor);
+      setValueIndoorInitial(row.indoor);
+      setValueExtCloud(row.ext_cloud);
+      setValueExtCloudInitial(row.ext_cloud);
+      setValueExtGround(row.ext_ground);
+      setValueExtGroundInitial(row.ext_ground);
+    }
   };
+  
 
   const handleCloseNo = () => {
     switch (dialogType) {
@@ -443,16 +539,29 @@ const delRec = async () => {
   }
 
   //////////////////////////////////////////////////////// ACTIONS ///////////////////////////////
-  const columns = [
+  let columns = [
     { field: 'id', headerName: 'Код', width: 80 },
     { field: 'title', headerName: 'Обозначение', width: 180, hideable: false },
     { field: 'name_rus', headerName: 'Название (рус.яз)', width: 250 },
     { field: 'name_eng', headerName: 'Название (англ.яз)', width: 180 },
     { field: 'descr_rus', headerName: 'Комментарий (рус.яз)', width: 180 },
-    { field: 'descr_eng', headerName: 'Комментарий (англ.яз)', width: 180 },
-  ]
+    { field: 'descr_eng', headerName: 'Комментарий (англ.яз)', width: 180 }
+  ];
+  
+  if (props.table_name === 'agegroup') {
+    columns.push({
+      field: 'resp_rate',
+      headerName: 'Скорость дыхания',
+      width: 180,
+      valueGetter: (params) => {
+        const value = Number(params.value); // приводим значение к числу
+        return isNaN(value) ? '' : value.toExponential(); // возвращаем значение в экспоненциальной форме с двумя знаками после запятой, если возможно, иначе пустую строку
+      }
+    });
+  }
 
   const [openAlert, setOpenAlert] = React.useState(false, '');
+
   const handleCancelClick = () => 
   {
     console.log(rowSelectionModel);
@@ -471,9 +580,27 @@ const delRec = async () => {
       setValueNameRusInitial(selectedRowData[0].name_rus);
       setValueNameEngInitial(selectedRowData[0].name_eng );
       setValueDescrRusInitial(selectedRowData[0].descr_rus);
-      setValueDescrEngInitial(selectedRowData[0].descr_eng);       
+      setValueDescrEngInitial(selectedRowData[0].descr_eng);   
+
+      if (props.table_name === 'agegroup') {
+        setValueRespRate(selectedRowData[0].resp_rate);
+        setValueRespRateInitial(selectedRowData[0].resp_rate);
+        setValueRespRateNight(selectedRowData[0].resp_rate_night);
+        setValueRespRateNightInitial(selectedRowData[0].resp_rate_night);
+        setValueRespRateDay(selectedRowData[0].resp_rate_day);
+        setValueRespRateDayInitial(selectedRowData[0].resp_rate_day);
+        setValueRespYear(selectedRowData[0].resp_year);
+        setValueRespYearInitial(selectedRowData[0].resp_year);
+        setValueIndoor(selectedRowData[0].indoor);
+        setValueIndoorInitial(selectedRowData[0].indoor);
+        setValueExtCloud(selectedRowData[0].ext_cloud);
+        setValueExtCloudInitial(selectedRowData[0].ext_cloud);
+        setValueExtGround(selectedRowData[0].ext_ground);
+        setValueExtGroundInitial(selectedRowData[0].ext_ground);
+      }
     }
   }
+
 
   // Scrolling and positionning
   const { paginationModel, setPaginationModel, scrollToIndexRef } = useGridScrollPagination(apiRef, tableData, setRowSelectionModel);
@@ -581,10 +708,10 @@ const delRec = async () => {
             <Grid item xs={10}>
               <TextField id="ch_name" inputRef={inputRef} fullWidth label="Обозначение" required size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
             </Grid>
-            <Grid item xs={12}>
+            <Grid item xs={6}>
               <TextField  id="ch_name_rus" fullWidth size="small" label="Название (рус.яз)" required variant="outlined"  value={valueNameRus || ''} onChange={e => setValueNameRus(e.target.value)} />
             </Grid>            
-            <Grid item xs={12}>
+            <Grid item xs={6}>
               <TextField  id="ch_name_eng" fullWidth size="small" label="Название (англ.яз)"  variant="outlined" value={valueNameEng || ''} onChange={e => setValueNameEng(e.target.value)}/>
             </Grid>            
             <Grid item xs={12}>
@@ -592,7 +719,70 @@ const delRec = async () => {
             </Grid>            
             <Grid item xs={12}>
               <TextField  id="ch_descr_rus" fullWidth label="Комментарий (англ.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrEng || ''} onChange={e => setValueDescrEng(e.target.value)}/>
-            </Grid>            
+            </Grid>
+            {props.table_name === 'agegroup' && (
+            <>
+              <Grid item xs={4}>
+                <TextField  
+                  id="ch_resp_rate" 
+                  label="Скорость дыхания, куб.м/сек" 
+                  required  
+                  size="small" 
+                  variant="outlined" 
+                  fullWidth 
+                  value={valueRespRate || ''}  
+                  onChange={e => setValueRespRate(e.target.value)}  
+                />
+              </Grid>
+              <Grid item xs={4}>
+                <TextField  
+                  id="ch_resp_rate_day" 
+                  label="Скорость дыхания днем, куб.м/сек" 
+                  required  
+                  size="small" 
+                  variant="outlined" 
+                  fullWidth 
+                  value={valueRespRateDay || ''}  
+                  onChange={e => setValueRespRateDay(e.target.value)}  
+                />
+              </Grid>
+              <Grid item xs={4}>
+                <TextField  
+                  id="ch_resp_rate_night" 
+                  label="Скорость дыхания ночью, куб.м/сек" 
+                  required  
+                  size="small" 
+                  variant="outlined" 
+                  fullWidth 
+                  value={valueRespRateNight || ''}  
+                  onChange={e => setValueRespRateNight(e.target.value)}  
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField  
+                  id="ch_resp_year" 
+                  label="Годовой объем вдыхаемого воздуха, куб.м"  
+                  size="small" 
+                  variant="outlined" 
+                  fullWidth 
+                  value={valueRespYear || ''} 
+                  onChange={e => setValueRespYear(e.target.value)}
+                />
+              </Grid>
+              <Grid item xs={6}>
+                <TextField  
+                  id="ch_indoor" 
+                  label="Доля времени, проводимая индивидуумом в помещении" 
+                  required 
+                  size="small" 
+                  variant="outlined" 
+                  fullWidth 
+                  value={valueIndoor || ''} 
+                  onChange={e => setValueIndoor(e.target.value)}
+                />
+              </Grid>
+            </>
+          )}
           </Grid>
         </form>
           <Box sx={{ marginTop: '0.4rem' }}>
