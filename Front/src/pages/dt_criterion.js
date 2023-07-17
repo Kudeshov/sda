@@ -1313,95 +1313,15 @@ const DataTableCriterion = (props) => {
     }
   }
   
-/* 
-  const handleCloseSaveNo = () => {
-    setOpenSave(false);
-    updateCurrentRecHandles(clickedId);
-  };
-
-  const handleCloseSaveYes = () => {
-    setOpenSave(false);
-    saveRec(false);
-    updateCurrentRecHandles(clickedId);
-  };
-
-  const handleClickSaveWhenNew = () => {
-    setOpenSaveWhenNew(true);
-  };
-
-  const handleCloseSaveWhenNewNo = () => {
-    setOpenSaveWhenNew(false);
-  };
-
-  const handleCloseSaveWhenNewYes = () => {
-    setOpenSaveWhenNew(false);
-    saveRec(true);
-  }; */
-
   //////////////////////////////////////////////////////// ACTIONS ///////////////////////////////
   const [openAlert, setOpenAlert] = React.useState(false, '');
   const handleCancelClick = () => 
   {
-    setEditStarted(false);
-    setValuesById(valueId);
-    //setValueID(valueId);
-/* 
-    const selectedIDs = selected;
-    const selectedRowData = tableData.filter((row) => selectedIDs===row.id.toString());
-    if (selectedRowData.length)
-    {
-      setValueID(selectedRowData[0].id);
-      setValueTitle(selectedRowData[0].title);
-      setValueNameRus(selectedRowData[0].name_rus);
-      setValueNameEng(selectedRowData[0].name_eng );
-      setValueDescrRus(selectedRowData[0].descr_rus);
-      setValueDescrEng(selectedRowData[0].descr_eng );
-      setValueTitleInitial(selectedRowData[0].title);
-      setValueNameRusInitial(selectedRowData[0].name_rus);
-      setValueNameEngInitial(selectedRowData[0].name_eng );
-      setValueDescrRusInitial(selectedRowData[0].descr_rus);
-      setValueDescrEngInitial(selectedRowData[0].descr_eng);
-      setValueParentID(selectedRowData[0].parent_id||-1);
-      setValueParentIDInitial(selectedRowData[0].parent_id||-1);
-      setValueCalcfunctionID(selectedRowData[0].calcfunction_id);
-      setValueIrradiation(selectedRowData[0].irradiation_id);
-      setValueAgegroup(selectedRowData[0].agegroup_id);
-      setValueExpScenario(selectedRowData[0].exp_scenario_id);
-      setValueIntegralPeriod(selectedRowData[0].integral_period_id);
-      setValueOrgan(selectedRowData[0].organ_id);
-      setValueDataSource(selectedRowData[0].data_source_id);
-      setValueAerosolAmad(selectedRowData[0].aerosol_amad_id);
-      setValueAerosolSol(selectedRowData[0].aerosol_sol_id);
-      setValueChemCompGr(selectedRowData[0].chem_comp_gr_id);
-      setValueSubstForm(selectedRowData[0].subst_form_id);
-      setValueIsotope(selectedRowData[0].isotope_id);
-      setValueActionLevel(selectedRowData[0].action_level_id);
-      setValuePeopleClass(selectedRowData[0].people_class_id);
-      setValueCrValue(selectedRowData[0].cr_value);
-      setValueTimeend(selectedRowData[0].timeend);
-
-      setValueCalcfunctionIDInitial(selectedRowData[0].calcfunction_id);
-      setValueIrradiationInitial(selectedRowData[0].irradiation_id);
-      setValueAgegroupInitial(selectedRowData[0].agegroup_id);
-      setValueExpScenarioInitial(selectedRowData[0].exp_scenario_id);
-      setValueIntegralPeriodInitial(selectedRowData[0].integral_period_id);
-      setValueOrganInitial(selectedRowData[0].organ_id);
-      setValueDataSourceInitial(selectedRowData[0].data_source_id);
-      setValueAerosolAmadInitial(selectedRowData[0].aerosol_amad_id);
-      setValueAerosolSolInitial(selectedRowData[0].aerosol_sol_id);
-      setValueChemCompGrInitial(selectedRowData[0].chem_comp_gr_id);
-      setValueSubstFormInitial(selectedRowData[0].subst_form_id);
-      setValueIsotopeInitial(selectedRowData[0].isotope_id);
-      setValueActionLevelInitial(selectedRowData[0].action_level_id);
-      setValuePeopleClassInitial(selectedRowData[0].people_class_id);
-      setValueCrValueInitial(selectedRowData[0].cr_value);
-      setValueTimeendInitial(selectedRowData[0].timeend);
-
-      //const newNode = nodes.find(node => node.value === selectedRowData[0].parent_id);
-      // Обновляем selectedNode
-      //setSelectedNode(newNode);
-      //setBranch(newNode);      
-    } */
+    //setValuesById(valueId);
+    //setValueID(null);
+    //setValueID(valueId); handleCancelClick
+    setValueID(clickedRowId);
+    //setBranch(newNode);
   }
 
   function getHeaders(atable)
