@@ -142,12 +142,12 @@ const createAgeGroup = (request, response, table_name) => {
     };
 
     // Извлекаем данные из тела запроса
-    const { title, name_rus, name_eng, descr_rus, descr_eng, resp_rate, resp_year, indoor } = request.body;
+    const { title, name_rus, name_eng, descr_rus, descr_eng, resp_rate, resp_year, indoor, resp_rate_day, resp_rate_night } = request.body;
 
     client.query('BEGIN', err => {
       if (shouldAbort(err, response)) return;
-      const query = `INSERT INTO nucl.${table_name}(title, resp_rate, resp_year, indoor) VALUES ($1,$2,$3,$4) RETURNING id`;
-      const values = [title, resp_rate || null, resp_year || null, indoor || 1];
+      const query = `INSERT INTO nucl.${table_name}(title, resp_rate, resp_year, indoor, resp_rate_day, resp_rate_night) VALUES ($1,$2,$3,$4,$5,$6) RETURNING id`;
+      const values = [title, resp_rate || null, resp_year || null, indoor || 1, resp_rate_day, resp_rate_night];
       client.query(query, values, (err, res) => {
         if (shouldAbort(err, response)) return;
 
@@ -277,14 +277,14 @@ const updateAgeGroup = (request, response, table_name ) => {
     //id
     const id = parseInt(request.params.id);
  
-    var { title, name_rus, name_eng, descr_rus, descr_eng, resp_rate, resp_year, indoor } = request.body; //, ext_cloud, ext_ground
+    var { title, name_rus, name_eng, descr_rus, descr_eng, resp_rate, resp_year, indoor, resp_rate_day, resp_rate_night } = request.body; //, ext_cloud, ext_ground
     console.log(request.body) 
     if (indoor==="") indoor=1
     if (resp_year==="") resp_year=null
     if (resp_rate==="") resp_rate=null
     client.query(`BEGIN`, err => {
       if (shouldAbort(err, response)) return;
-      client.query(`UPDATE nucl.${table_name} SET title = $1, resp_rate=$3, resp_year=$4, indoor=$5 WHERE id = $2`, [title, id, resp_rate, resp_year, indoor], (err, res) => {
+      client.query(`UPDATE nucl.${table_name} SET title = $1, resp_rate=$3, resp_year=$4, indoor=$5, resp_rate_day=$6, resp_rate_night=$7 WHERE id = $2`, [title, id, resp_rate, resp_year, indoor, resp_rate_day, resp_rate_night], (err, res) => {
         if (shouldAbort(err, response)) return;   
         
         var s_q = c_c.getNLSQuery(name_rus||'', descr_rus||'', id, 1, table_name);

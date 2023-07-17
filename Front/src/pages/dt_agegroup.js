@@ -52,6 +52,15 @@ const DataTableAgeGroup = (props) => {
   const [isEmpty, setIsEmpty] = useState([false]);
   const [valueRespRate, setValueRespRate] = React.useState();
   const [valueRespRateInitial, setValueRespRateInitial] = React.useState();
+
+
+  const [valueRespRateNight, setValueRespRateNight] = React.useState();
+  const [valueRespRateNightInitial, setValueRespRateNightInitial] = React.useState();
+
+  
+  const [valueRespRateDay, setValueRespRateDay] = React.useState();
+  const [valueRespRateDayInitial, setValueRespRateDayInitial] = React.useState();
+
   const [valueRespYear, setValueRespYear] = React.useState();
   const [valueRespYearInitial, setValueRespYearInitial] = React.useState();
   const [valueIndoor, setValueIndoor] = React.useState();
@@ -65,16 +74,17 @@ const DataTableAgeGroup = (props) => {
     setEditStarted((valueTitleInitial!==valueTitle)||(valueNameRusInitial!==valueNameRus)||(valueNameEngInitial!==valueNameEng)
       ||(valueDescrEngInitial!==valueDescrEng)||(valueDescrRusInitial!==valueDescrRus)   
       ||(valueRespRateInitial!==valueRespRate)||(valueRespYearInitial!==valueRespYear)||(valueIndoorInitial!==valueIndoor)
-      ||(valueExtCloudInitial!==valueExtCloud)||(valueExtGroundInitial!==valueExtGround));
+      ||(valueExtCloudInitial!==valueExtCloud)||(valueExtGroundInitial!==valueExtGround)||(valueRespRateDayInitial!==valueRespRateDay)||(valueRespRateNightInitial!==valueRespRateNight));
     }, [valueTitleInitial, valueTitle, valueNameRusInitial, valueNameRus, valueNameEngInitial, valueNameEng, 
         valueDescrEngInitial, valueDescrEng, valueDescrRusInitial, valueDescrRus, 
-        valueRespRateInitial, valueRespRate, valueRespYearInitial, valueRespYear, valueIndoorInitial, valueIndoor, valueExtCloudInitial, valueExtCloud, valueExtGroundInitial, valueExtGround]); 
+        valueRespRateInitial, valueRespRate, valueRespYearInitial, valueRespYear, valueIndoorInitial, valueIndoor, valueExtCloudInitial, valueExtCloud, valueExtGroundInitial, valueExtGround, valueRespRateNight, valueRespRateNightInitial,
+        valueRespRateDayInitial, valueRespRateDay]); 
 
   useEffect(() => {
     setIsEmpty((''===valueTitle)&&(''===valueNameRus)&&(''===valueNameEng)&&(''===valueDescrEng)&&(''===valueDescrRus)   
-      &&(''===valueRespRate)&&(''===valueRespYear)&&(''===valueIndoor)&&(''===valueExtCloud)&&(''===valueExtGround));
+      &&(''===valueRespRate)&&(''===valueRespYear)&&(''===valueIndoor)&&(''===valueExtCloud)&&(''===valueExtGround)&&(''===valueRespRateNight)&&(''===valueRespRateDay));
     }, [ valueTitle, valueNameRus, valueNameEng, valueDescrEng, valueDescrRus, 
-        valueRespRate, valueRespYear,  valueIndoor, valueExtCloud, valueExtGround]); 
+        valueRespRate, valueRespYear,  valueIndoor, valueExtCloud, valueExtGround, valueRespRateDay,valueRespRateNight ]); 
       
 
   useEffect(() => {
@@ -110,6 +120,9 @@ const DataTableAgeGroup = (props) => {
         setValueIndoorInitial(tableData[0].indoor);
         setValueExtCloudInitial(tableData[0].ext_cloud);
         setValueExtGroundInitial(tableData[0].ext_ground);
+        setValueRespRateDayInitial(tableData[0].resp_rate_day);
+        setValueRespRateNightInitial(tableData[0].resp_rate_night);
+
       }
     }
     }, [ isLoading, tableData] );
@@ -142,6 +155,11 @@ const DataTableAgeGroup = (props) => {
       setValueIndoor(params.row.indoor );
       setValueExtCloud(params.row.ext_cloud );
       setValueExtGround(  params.row.ext_ground );
+       
+      setValueRespRateDay(params.row.resp_rate_day);
+      setValueRespRateNight(params.row.resp_rate_night);
+
+
       setValueTitleInitial(params.row.title);
       setValueNameRusInitial(params.row.name_rus);
       setValueNameEngInitial(params.row.name_eng);
@@ -151,6 +169,9 @@ const DataTableAgeGroup = (props) => {
       setValueIndoorInitial(params.row.indoor );
       setValueExtCloudInitial(params.row.ext_cloud );
       setValueExtGroundInitial(params.row.ext_ground );
+      
+      setValueRespRateDayInitial(params.row.resp_rate_day);
+      setValueRespRateNightInitial(params.row.resp_rate_night);
     }
   }; 
 
@@ -175,7 +196,9 @@ const DataTableAgeGroup = (props) => {
       console.log('after assign '+ valueRespYear);      
       setValueIndoor(``);
       setValueExtCloud(``);
-      setValueExtGround(``);      
+      setValueExtGround(``);    
+      setValueRespRateDay(``);    
+      setValueRespRateNight(``);    
     }
   }; 
 
@@ -203,7 +226,9 @@ const DataTableAgeGroup = (props) => {
       resp_year: valueRespYear,
       indoor: valueIndoor,
       ext_cloud: valueExtCloud,
-      ext_ground: valueExtGround
+      ext_ground: valueExtGround,
+      resp_rate_day: valueRespRateDay,
+      resp_rate_night: valueRespRateNight
     });
     if (!valueId) {
       addRec();
@@ -248,6 +273,9 @@ const DataTableAgeGroup = (props) => {
        setValueIndoorInitial(valueIndoor);
        setValueExtCloudInitial(valueExtCloud);
        setValueExtGroundInitial(valueExtGround);         
+       setValueRespRateDayInitial(valueRespRateDay);
+       setValueRespRateNightInitial(valueRespRateNight);
+
      }
     reloadData();   
   
@@ -268,7 +296,10 @@ const DataTableAgeGroup = (props) => {
       resp_year: valueRespYear,
       indoor: valueIndoor,
       ext_cloud: valueExtCloud,
-      ext_ground: valueExtGround        
+      ext_ground: valueExtGround,  
+      resp_rate_day: valueRespRateDay,
+      resp_rate_night: valueRespRateNight   
+
     });
     setIsLoading(true);
     //console.log(js);
@@ -314,8 +345,10 @@ const DataTableAgeGroup = (props) => {
       setValueRespYear(valueRespYear)
       setValueIndoor(valueIndoor)
       setValueExtCloud(valueExtCloud)          
-      setValueExtGround(valueExtGround)
-       
+      setValueExtGround(valueExtGround)  
+      setValueRespRateDay(valueRespRateDay);
+      setValueRespRateNight(valueRespRateNight);
+
       setValueTitleInitial(valueTitle);
       setValueNameRusInitial(valueNameRus);
       setValueNameEngInitial(valueNameEng);
@@ -326,6 +359,10 @@ const DataTableAgeGroup = (props) => {
       setValueIndoorInitial(valueIndoor)
       setValueExtCloudInitial(valueExtCloud)          
       setValueExtGroundInitial(valueExtGround)
+      
+      setValueRespRateDayInitial(valueRespRateDay);
+
+      setValueRespRateNightInitial(valueRespRateNight);
     }
   };
 
@@ -365,6 +402,11 @@ const DataTableAgeGroup = (props) => {
         setValueDescrEng(tableData[0].descr_eng);
 
         setValueRespRate(tableData[0].resp_rate);
+
+        setValueRespRateNight(tableData[0].resp_rate_night);
+
+        setValueRespRateDay(tableData[0].resp_rate_day);
+
         setValueRespYear(tableData[0].resp_year);
         setValueIndoor(tableData[0].indoor);
         setValueExtCloud(tableData[0].ext_cloud);
@@ -381,6 +423,11 @@ const DataTableAgeGroup = (props) => {
         setValueIndoorInitial(tableData[0].indoor);
         setValueExtCloudInitial(tableData[0].ext_cloud);
         setValueExtGroundInitial(tableData[0].ext_ground);
+
+        setValueRespRateNightInitial(tableData[0].resp_rate_night);
+
+        setValueRespRateDayInitial(tableData[0].resp_rate_day);
+
       }
     } catch (err) {
       alertText = err.message;
@@ -481,6 +528,9 @@ const DataTableAgeGroup = (props) => {
     setValueIndoor(``);
     setValueExtCloud(``);
     setValueExtGround(``);   
+    
+    setValueRespRateDay(``);
+    setValueRespRateNight(``);
 
   };
 
@@ -498,6 +548,10 @@ const DataTableAgeGroup = (props) => {
     setValueIndoor(``);
     setValueExtCloud(``);
     setValueExtGround(`` );
+    setValueRespRateDay(``);
+    setValueRespRateNight(``);
+
+
   };
 
 
@@ -541,6 +595,8 @@ const DataTableAgeGroup = (props) => {
       setValueIndoor(selectedRowData[0].indoor );
       setValueExtCloud(selectedRowData[0].ext_cloud );
       setValueExtGround(selectedRowData[0].ext_ground );
+      setValueRespRateDay(selectedRowData[0].resp_rate_day );
+      setValueRespRateNight(selectedRowData[0].resp_rate_night );
       //console.log('handleCancelClick Refresh initial '+selectedRowData[0].title+' '+selectedRowData[0].name_rus);
       setValueTitleInitial(selectedRowData[0].title);
       setValueNameRusInitial(selectedRowData[0].name_rus);
@@ -552,6 +608,9 @@ const DataTableAgeGroup = (props) => {
       setValueIndoorInitial(selectedRowData[0].indoor );
       setValueExtCloudInitial(selectedRowData[0].ext_cloud );
       setValueExtGroundInitial(selectedRowData[0].ext_ground );
+      setValueRespRateDayInitial(selectedRowData[0].resp_rate_day );
+      setValueRespRateNightInitial(selectedRowData[0].resp_rate_night );
+
     }
   }
   // Scrolling and positionning
@@ -652,6 +711,11 @@ const DataTableAgeGroup = (props) => {
       <TextField  id="ch_resp_rate" sx={{ width: '100ch' }} label="Скорость дыхания, куб.м/сек" required  size="small" variant="outlined" 
         value={valueRespRate || ''}  onChange={e => setValueRespRate(e.target.value)}  
       />
+       <p></p>
+      <TextField  id="ch_resp_rate_day" sx={{ width: '100ch' }} label="Скорость дыхания днем, куб.м/сек " required  size="small" variant="outlined" value={valueRespRateDay || ''}  onChange={e => setValueRespRateDay(e.target.value)}  
+      />
+       <p></p>
+      <TextField  id="ch_resp_rate_night" sx={{ width: '100ch' }} label="Скорость дыхания ночью, куб.м/сек" required  size="small" variant="outlined" value={valueRespRateNight || ''}  onChange={e => setValueRespRateNight(e.target.value)}  />
       <p></p> 
       <TextField  id="ch_resp_year" sx={{ width: '100ch' }} label="Годовой объем вдыхаемого воздуха, куб.м"  size="small" variant="outlined" value={valueRespYear || ''} onChange={e => setValueRespYear(e.target.value)}/>
       <p></p> 

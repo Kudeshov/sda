@@ -23,6 +23,8 @@ import { ReactComponent as TrashLightIcon } from "./../icons/trash.svg";
 import { table_names } from './table_names';
 import { useGridScrollPagination } from './../helpers/gridScrollHelper';
 import { Typography } from '@mui/material';
+import Tooltip from '@mui/material/Tooltip';
+
 
 function DataTableDataSourceClass(props)  {
   const apiRef = useGridApiRef(); // init DataGrid API for scrolling
@@ -520,9 +522,12 @@ return (
                 {tableDataSrc?.map(option => {
                     return (
                       <MenuItem key={option.id} value={option.id}>
-                        {option.title ?? option.id}
-                      </MenuItem>
+                      <Tooltip title={option.shortname ?? option.id} arrow>
+                        <span>{option.title ?? option.id}</span>
+                      </Tooltip>
+                    </MenuItem>
                     );
+                    
                 })}
                 </Select>
               </FormControl>  
