@@ -49,6 +49,8 @@ import { ReactComponent as CheckDoubleIcon } from "./../icons/check-double.svg";
 import { InputAdornment } from '@mui/material';
 import { styled } from '@mui/system';
 import CheckIcon from '@mui/icons-material/Check';
+import HierarchicalAutocomplete, { transformData } from '../component/HierarchicalAutocomplete';
+
 const MAX_ROWS = 50000;
 
 const icon = <CheckBoxOutlineBlankIcon fontSize="small" />;
@@ -1292,6 +1294,9 @@ const reloadDataHandler = async () => {
       window.removeEventListener('resize', handleResize);
     };
   }, []);
+
+  const treeDataOrganFilteredEdit = React.useMemo(() => transformData(tableOrgan), [tableOrgan]);
+  const treeDataExpScenarioFilteredEdit = React.useMemo(() => transformData(tableExpScenario), [tableExpScenario]);
 
   // основной генератор страницы
   return(
@@ -2633,6 +2638,17 @@ const reloadDataHandler = async () => {
           </Grid>
           <Grid item xs={4}>
             { organVisibleD && (
+              <>              
+              <HierarchicalAutocomplete
+              data={treeDataOrganFilteredEdit}
+              value={treeDataOrganFilteredEdit.find(item => item.id === valueOrganID) || null}
+              onChange={(event, newValue) => setValueOrganID(newValue ? newValue.id : null)}
+              size="small"
+              fullWidth
+              label="Органы и ткани"
+              placeholder="Органы и ткани"
+              />
+{/* 
               <Autocomplete
               size="small"
               disabled={(valueID !== null)||(applFlt.selOrganValues.length===1)}
@@ -2647,7 +2663,8 @@ const reloadDataHandler = async () => {
                 };
                 return <TextField {...params} inputProps={inputProps} label="Органы и ткани" placeholder="Органы и ткани"/>;
               }}                 
-              />        
+              /> */}  </>
+      
             )}
           </Grid>
           <Grid item xs={4}>            
@@ -2798,8 +2815,18 @@ const reloadDataHandler = async () => {
             )}             
           </Grid>
           <Grid item xs={4}>
-            {expScenarioVisibleD && (           
-            <Autocomplete
+            {expScenarioVisibleD && (         
+              <>
+              <HierarchicalAutocomplete
+                data={treeDataExpScenarioFilteredEdit}
+                value={treeDataExpScenarioFilteredEdit.find(item => item.id === valueExpScenarioID) || null}
+                onChange={(event, newValue) => setValueExpScenarioID(newValue ? newValue.id : null)}
+                size="small"
+                fullWidth
+                label="Сценарий поступления"
+                placeholder="Сценарий поступления"
+              />              
+{/*              <Autocomplete
               size="small"
               disabled={(valueID !== null)||(applFlt.selExpScenarioValues.length===1)}
               value={tableExpScenarioFilteredEdit.find((option) => option.id === valueExpScenarioID)  }
@@ -2809,8 +2836,9 @@ const reloadDataHandler = async () => {
               getOptionLabel={(option) => option.name_rus}
               renderInput={(params) => (
                 <TextField {...params} label="Сценарий поступления" placeholder="Сценарий поступления" />
-              )}
-            />
+              )} 
+            />*/}
+            </> 
             )}             
           </Grid>
           <Divider />

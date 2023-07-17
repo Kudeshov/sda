@@ -31,7 +31,7 @@ const getDataSourceClass = (request, response) => {
     'SELECT data_source_class.*, data_source.title, data_source.shortname, '+
     'data_source.fullname, data_source.descr, data_source.external_ds FROM nucl.data_source_class '+  
     'JOIN nucl.data_source on data_source.id = data_source_class.data_source_id ' +
-    'where table_name = $1 and rec_id = $2', [table_name, rec_id||0], (error, results) => {
+    'where table_name = $1 and rec_id = $2 order by id', [table_name, rec_id||0], (error, results) => {
     if (error) {
       throw error
     }
@@ -42,7 +42,7 @@ const getDataSourceClass = (request, response) => {
 const getDataSourceClassMin = (request, response) => {
   console.log( request.query );  
   pool.query(
-    'SELECT id, data_source_id, table_name, rec_id FROM nucl.data_source_class' , (error, results) => {
+    'SELECT id, data_source_id, table_name, rec_id FROM nucl.data_source_class order by id' , (error, results) => {
     if (error) {
       throw error
     }
@@ -52,7 +52,7 @@ const getDataSourceClassMin = (request, response) => {
 
 const getDataSourceClassById = (request, response) => {
   const id = parseInt(request.params.id)
-  pool.query('SELECT id, data_source_id, table_name, rec_id FROM nucl.data_source_class WHERE id = $1', [id], (error, results) => {
+  pool.query('SELECT id, data_source_id, table_name, rec_id FROM nucl.data_source_class WHERE id = $1 order by id', [id], (error, results) => {
     if (error) {
       throw error
     }
@@ -153,6 +153,7 @@ const deleteDataSourceClass = (request, response) => {
 
 const updateDataSourceClass = (request, response) => {
   const id = parseInt(request.params.id)
+  console.log( 'updateDataSourceClass request.body ',  request.body );
   const { data_source_id, table_name, title_src, name_src } = request.body;
 
   console.log( 'updateDataSourceClass id='+id );

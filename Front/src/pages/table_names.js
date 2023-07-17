@@ -22,7 +22,8 @@ export const table_names = {
   'criterion': 'Критерии',
   'value_int_dose': 'Внутреннее облучение',
   'value_ext_dose': 'Внешнее облучение',
-  'data_source_class': 'Связь с источником данных'
+  'data_source_class': 'Связь с источником данных',
+  'action_criterion': 'Действие критерия',
 }; 
   
 export default table_names;

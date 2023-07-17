@@ -9,7 +9,7 @@ const useDocumentTitle = (title) => {
   }, [title])
 }
 function CalcFunction() {
-  useDocumentTitle(table_names['dose_ratio']);
+  useDocumentTitle(table_names['calcfunction']);
   return (
     <Box sx={{ marginTop: '0.4rem' }}>
     <Typography variant="subtitle1" sx={{ paddingLeft: '1rem' }}>
@@ -21,4 +21,3 @@ function CalcFunction() {
 }
 
 export default CalcFunction;
-

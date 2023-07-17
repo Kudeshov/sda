@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect } from 'react';
 import {
   DataGrid, 
   ruRU,
@@ -18,7 +18,6 @@ import { Grid, Box, IconButton } from '@mui/material';
 import Alert from '@mui/material/Alert';
 import Collapse from '@mui/material/Collapse';
 import CloseIcon from '@mui/icons-material/Close';
-import { DataTableDataSourceClass } from './dt_data_source_class';
 import SvgIcon from '@mui/material/SvgIcon';
 import { ReactComponent as SaveLightIcon } from "./../icons/save.svg";
 import { ReactComponent as PlusLightIcon } from "./../icons/plus.svg";
@@ -26,20 +25,17 @@ import { ReactComponent as UndoLightIcon } from "./../icons/undo.svg";
 import { ReactComponent as DownloadLightIcon } from "./../icons/download.svg";
 import { ReactComponent as TrashLightIcon } from "./../icons/trash.svg";
 import { ReactComponent as RepeatLightIcon } from "./../icons/repeat.svg";
-import { Select } from "@mui/material";
-import { MenuItem } from "@mui/material";
-import { FormControl } from "@mui/material";
-import { InputLabel } from "@mui/material";
 import { table_names } from './table_names';
 import Autocomplete from '@mui/material/Autocomplete';
+import { FormControl } from "@mui/material";
+import { InputLabel } from "@mui/material";
+import { Select } from "@mui/material";
+import { MenuItem } from "@mui/material";
 import { ReactComponent as InfoLightIcon } from "./../icons/info.svg";
-import { useGridScrollPagination } from './../helpers/gridScrollHelper';
 import CircularProgress from '@mui/material/CircularProgress';
 import Backdrop from '@mui/material/Backdrop';
-
-var alertText = "Сообщение";
-var alertSeverity = "info";
-var lastId = 0;
+import { useGridScrollPagination } from './../helpers/gridScrollHelper';
+import { DataTableDataSourceClass } from './dt_data_source_class';
 
 const DataTableDoseRatio = (props) => {
   const apiRef = useGridApiRef(); // init DataGrid API for scrolling
@@ -58,7 +54,7 @@ const DataTableDoseRatio = (props) => {
   const [isLoading, setIsLoading] = React.useState(false);
   const [tableData, setTableData] = useState([]); 
   const [rowSelectionModel, setRowSelectionModel] = React.useState([]);
-  const [editStarted, setEditStarted] = useState([false]);
+  const [editStarted, setEditStarted] = useState(false);
 
   const [valueRespRate, setValueRespRate] = React.useState();
   const [valueRespRateInitial, setValueRespRateInitial] = React.useState();
@@ -81,16 +77,119 @@ const DataTableDoseRatio = (props) => {
   const [valueDrType, setValueDrType] = useState('e'); 
   const [valueDrTypeInitial, setValueDrTypeInitial] = useState('e'); 
   const [valueUsed, setValueUsed] = useState(true);
-  const [valueUsedInitial, setValueUsedInitial] = useState();
+  const [valueUsedInitial, setValueUsedInitial] = useState(true);
   const [valueParameters, setValueParameters] = useState();
   const [valueParametersInitial, setValueParametersInitial] = useState();
-/*   const [valueParametersDialog, setValueParametersDialog] = useState(); */
-  
+
   const [isEmpty, setIsEmpty] = useState([false]);
+
+  const [alertText, setAlertText] = useState("Сообщение");
+  const [alertSeverity, setAlertSeverity] = useState("info");
+  const [currentId, setCurrentId] = useState(null);  
+
+  const [addedId, setAddedId] = useState(null);  
+
+  const valuesDrTypeList = [
+    { label: 'e - внешнее облучение', value: 'e' },
+    { label: 'i - внутреннее облучение', value: 'i' },
+    { label: 'f - поглощение в ЖКТ', value: 'f' } ];
+
+  useEffect(() => {
+    setIsEmpty((''===valueTitle)&&(''===valueNameRus)&&(''===valueNameEng)&&(''===valueDescrEng)&&(''===valueDescrRus)   
+      &&(''===valueRespRate)&&(''===valueRespYear)&&(''===valueIndoor)&&(''===valueExtCloud)&&(''===valueExtGround)
+      &&(''===valuePhysParamID)&&(''===valueUsed)&&(''===valueParameters));
+
+      //console.log('setIsEmpty', isEmpty);
+
+    }, [ valueTitle, valueNameRus, valueNameEng, valueDescrEng, valueDescrRus, 
+        valueRespRate, valueRespYear,  valueIndoor, valueExtCloud, valueExtGround,
+        valuePhysParamID, valueUsed, valueParameters]); 
+    
+
+/*         useEffect(() => {
+
+          console.log('currentId ', currentId, 'Editstarted ', editStarted);
+        
+          if (!currentId) {
+            setEditStarted(false);
+            return;
+          }  
+        
+          const checkFields = (initialValue, value, fieldName) => {
+            if (initialValue !== value) {
+              console.log(`${fieldName} has changed.`, value, initialValue);
+              return true;
+            }
+            return false;
+          }
+        
+          const editStarted1 = checkFields(valueTitleInitial, valueTitle, 'valueTitle') ||
+              checkFields(valueNameRusInitial, valueNameRus, 'valueNameRus') ||
+              checkFields(valueNameEngInitial, valueNameEng, 'valueNameEng') ||
+              checkFields(valueDescrEngInitial, valueDescrEng, 'valueDescrEng') ||
+              checkFields(valueDescrRusInitial, valueDescrRus, 'valueDescrRus') ||
+              checkFields(valueRespRateInitial, valueRespRate, 'valueRespRate') ||
+              checkFields(valueRespYearInitial, valueRespYear, 'valueRespYear') ||
+              checkFields(valueIndoorInitial, valueIndoor, 'valueIndoor') ||
+              checkFields(valueExtCloudInitial, valueExtCloud, 'valueExtCloud') ||
+              checkFields(valueExtGroundInitial, valueExtGround, 'valueExtGround') ||
+              checkFields(valuePhysParamIDInitial, valuePhysParamID, 'valuePhysParamID') ||
+              checkFields(valueUsedInitial, valueUsed, 'valueUsed') ||
+              checkFields(valueParametersInitial, valueParameters, 'valueParameters') ||
+              checkFields(valueDrTypeInitial, valueDrType, 'valueDrType');
+        
+          console.log('currentId ', currentId, 'setEditStarted ', editStarted1);
+          setEditStarted(editStarted1);
+        
+        }, [valueTitleInitial, valueTitle, valueNameRusInitial, valueNameRus, valueNameEngInitial, valueNameEng, 
+          valueDescrEngInitial, valueDescrEng, valueDescrRusInitial, valueDescrRus, 
+          valueRespRateInitial, valueRespRate, valueRespYearInitial, valueRespYear, valueIndoorInitial, 
+          valueIndoor, valueExtCloudInitial, valueExtCloud, valueExtGroundInitial, valueExtGround,
+          valuePhysParamID, valuePhysParamIDInitial, valueUsed, valueUsedInitial, valueParameters, valueParametersInitial,
+          valueDrType, valueDrTypeInitial
+        ]); 
+   */
+        
+        
+    useEffect(() => {
+
+      if (!currentId) {
+        setEditStarted(false);
+        return;
+      }  
+        
+    const editStarted1 =(valueTitleInitial!==valueTitle)||(valueNameRusInitial!==valueNameRus)||(valueNameEngInitial!==valueNameEng)
+      ||(valueDescrEngInitial!==valueDescrEng)||(valueDescrRusInitial!==valueDescrRus)   
+      ||(valueRespRateInitial!==valueRespRate)||(valueRespYearInitial!==valueRespYear)||(valueIndoorInitial!==valueIndoor)
+      ||(valueExtCloudInitial!==valueExtCloud)||(valueExtGroundInitial!==valueExtGround)||(valuePhysParamIDInitial!==valuePhysParamID)
+      ||(valueUsedInitial!==valueUsed)||(valueParametersInitial!==valueParameters)||(valueDrTypeInitial!==valueDrType);
+
+      setEditStarted(editStarted1);
+
+    }, [valueTitleInitial, valueTitle, valueNameRusInitial, valueNameRus, valueNameEngInitial, valueNameEng, 
+        valueDescrEngInitial, valueDescrEng, valueDescrRusInitial, valueDescrRus, 
+        valueRespRateInitial, valueRespRate, valueRespYearInitial, valueRespYear, valueIndoorInitial, 
+        valueIndoor, valueExtCloudInitial, valueExtCloud, valueExtGroundInitial, valueExtGround,
+        valuePhysParamID, valuePhysParamIDInitial, valueUsed, valueUsedInitial, valueParameters, valueParametersInitial,
+        valueDrType, valueDrTypeInitial, currentId
+      ]); 
+
+  useEffect(() => {
+    if ((!isLoading) && (tableData) && (tableData.length) && tableData[0].id) {
+      if (!currentId)  
+      {
+        console.log('Выбрано ', tableData[0].id);
+        setRowSelectionModel([tableData[0].id]);
+        setCurrentId(tableData[0].id);
+        setValueID(tableData[0].id);
+      }
+    }
+    }, [ isLoading, tableData, currentId] );
+
   const [prevRowSelectionModel, setPrevRowSelectionModel] = useState([]);
   const [clickedRowId, setClickedRowId] = useState(null);
 
-  useEffect(() => {
+   useEffect(() => {
     // Если редактирование начато, не меняем выбранную строку
     if (editStarted) {
       setRowSelectionModel(prevRowSelectionModel);
@@ -98,13 +197,7 @@ const DataTableDoseRatio = (props) => {
       // Здесь сохраняем предыдущую выбранную строку
       setPrevRowSelectionModel(rowSelectionModel);
     }
-  }, [rowSelectionModel, prevRowSelectionModel, editStarted]);      
-
-  const valuesDrTypeList = [
-    { label: 'e - внешнее облучение', value: 'e' },
-    { label: 'i - внутреннее облучение', value: 'i' },
-    { label: 'f - поглощение в ЖКТ', value: 'f' } ];
-
+  }, [rowSelectionModel, prevRowSelectionModel, editStarted]);    
   useEffect(() => {
     setValuePhysParamCode(valuePhysParamID);
     let myLine = tablePhysParam.filter(item => ( Number(item.id) === Number(valuePhysParamID) ));
@@ -121,84 +214,28 @@ const DataTableDoseRatio = (props) => {
   }, [valuePhysParamID, tablePhysParam]);
 
 
-  useEffect(() => {
-    setIsEmpty((''===valueTitle)&&(''===valueNameRus)&&(''===valueNameEng)&&(''===valueDescrEng)&&(''===valueDescrRus)   
-      &&(''===valueRespRate)&&(''===valueRespYear)&&(''===valueIndoor)&&(''===valueExtCloud)&&(''===valueExtGround)
-      &&(''===valuePhysParamID)&&(''===valueUsed)&&(''===valueParameters));
-
-      console.log('setIsEmpty');
-
-    }, [ valueTitle, valueNameRus, valueNameEng, valueDescrEng, valueDescrRus, 
-        valueRespRate, valueRespYear,  valueIndoor, valueExtCloud, valueExtGround,
-        valuePhysParamID, valueUsed, valueParameters]); 
-      
-  useEffect(() => {
-    setEditStarted((valueTitleInitial!==valueTitle)||(valueNameRusInitial!==valueNameRus)||(valueNameEngInitial!==valueNameEng)
-      ||(valueDescrEngInitial!==valueDescrEng)||(valueDescrRusInitial!==valueDescrRus)   
-      ||(valueRespRateInitial!==valueRespRate)||(valueRespYearInitial!==valueRespYear)||(valueIndoorInitial!==valueIndoor)
-      ||(valueExtCloudInitial!==valueExtCloud)||(valueExtGroundInitial!==valueExtGround)||(valuePhysParamIDInitial!==valuePhysParamID)
-      ||(valueUsedInitial!==valueUsed)||(valueParametersInitial!==valueParameters)||(valueDrTypeInitial!==valueDrType)
-      );
-      console.log('compare valueDrType, valueDrTypeInitial');
-      console.log(valueDrType); console.log(valueDrTypeInitial);
-
-    }, [valueTitleInitial, valueTitle, valueNameRusInitial, valueNameRus, valueNameEngInitial, valueNameEng, 
-        valueDescrEngInitial, valueDescrEng, valueDescrRusInitial, valueDescrRus, 
-        valueRespRateInitial, valueRespRate, valueRespYearInitial, valueRespYear, valueIndoorInitial, 
-        valueIndoor, valueExtCloudInitial, valueExtCloud, valueExtGroundInitial, valueExtGround,
-        valuePhysParamID, valuePhysParamIDInitial, valueUsed, valueUsedInitial, valueParameters, valueParametersInitial,
-        valueDrType, valueDrTypeInitial
-      ]); 
-
-  useEffect(() => {
-    if ((!isLoading) && (tableData) && (tableData.length)) {
-      if (!lastId) 
-      {
-        //console.log('isLoading, tableData ON lastId  '+lastId);  
-        lastId = tableData[0].id;
-        setRowSelectionModel([tableData[0].id]);
-        setValueID(tableData[0].id);
-
-        setValueTitle(tableData[0].title);
-        setValueNameRus(tableData[0].name_rus);
-        setValueNameEng(tableData[0].name_eng);
-        setValueDescrRus(tableData[0].descr_rus);
-        setValueDescrEng(tableData[0].descr_eng);
-
-        setValueRespRate(tableData[0].resp_rate);
-        setValueRespYear(tableData[0].resp_year);
-        setValueIndoor(tableData[0].indoor);
-        setValueExtCloud(tableData[0].extcloud);
-        setValueExtGround(tableData[0].extground);
-
-        setValueTitleInitial(tableData[0].title);       
-        setValueNameRusInitial(tableData[0].name_rus);
-        setValueNameEngInitial(tableData[0].name_eng);
-        setValueDescrRusInitial(tableData[0].descr_rus);
-        setValueDescrEngInitial(tableData[0].descr_eng);
-
-        setValueRespRateInitial(tableData[0].resp_rate);
-        setValueRespYearInitial(tableData[0].resp_year);
-        setValueIndoorInitial(tableData[0].indoor);
-        setValueExtCloudInitial(tableData[0].extcloud);
-        setValueExtGroundInitial(tableData[0].extground);
-
-        setValuePhysParamId(tableData[0].physparam_id);
-        setValuePhysParamIdInitial(tableData[0].physparam_id);
-        setValueUsed(tableData[0].used);
-        setValueUsedInitial(tableData[0].used);
-        setValueParameters(tableData[0].parameters);
-        setValueParametersInitial(tableData[0].parameters);
-
-        setValueDrType(tableData[0].dr_type);
-        setValueDrTypeInitial(tableData[0].dr_type);
-        console.log('init tableData[0].dr_type');
-        console.log(tableData[0].dr_type);
-      }
-    }
-    }, [ isLoading, tableData] );
-
   const handleRowClick = (params) => {
+
+    console.log('handleRowClick', params.row.id, valueId);
+    if (params.row.id === valueId  ) {
+      // Если данные не изменились, просто выходим из функции
+      return;
+    }
+    setOpenAlert(false);
+
+    console.log('editStarted isEmpty', editStarted, isEmpty);
+    if (editStarted&&(!isEmpty))
+    {
+      setClickedRowId(params.row.id);
+      setDialogType('save');
+    } 
+    else 
+    {
+      setValueID(params.row.id);
+    }
+  }; 
+
+ /*  const handleRowClick = (params) => {
     if (params.row.id === valueId  ) {
       // Если данные не изменились, просто выходим из функции
       return;
@@ -213,7 +250,9 @@ const DataTableDoseRatio = (props) => {
     {
       setValueID(params.row.id);
     }
-  }; 
+  };  */
+
+  const inputRef = React.useRef();
 
   const handleClearClick = (params) => {
     if (editStarted&&(!isEmpty))
@@ -244,24 +283,18 @@ const DataTableDoseRatio = (props) => {
   useEffect(() => {
     fetch(`/${props.table_name}`)
       .then((data) => data.json())
-      .then((data) => setTableData(data))
-      .then((data) => { lastId = 0;} ); 
+      .then((data) => setTableData(data)); 
   }, [props.table_name])
 
   useEffect(() => {
     fetch(`/physparam`)
       .then((data) => data.json())
-      .then((data) => settablePhysParam(data))
-      .then((data) => { /* console.log('fetch PhysParam ok'); console.log(data);  */ lastId = 0;} ); 
+      .then((data) => settablePhysParam(data)); 
   }, [])
- 
-  ///////////////////////////////////////////////////////////////////  SAVE  /////////////////////
-  const saveRec = async ( fromToolbar ) => {
 
-    if (formRef.current.reportValidity() )
-    {
-
-    const js = JSON.stringify({
+const saveRec = async () => {
+  if (formRef.current.reportValidity()) {
+    const data = {
       id: valueId,
       title: valueTitle,
       name_rus: valueNameRus,
@@ -277,234 +310,141 @@ const DataTableDoseRatio = (props) => {
       dr_type: valueDrType,
       used: valueUsed,
       parameters: valueParameters
-    });
-    if (!valueId) {
-      addRec();
-      return;
-    }
+    };
+    
     setIsLoading(true);
+    
+    const url = `/${props.table_name}/` + (valueId ? valueId : '');
+    const method = valueId ? 'PUT' : 'POST';
+    
     try {
-      const response = await fetch(`/${props.table_name}/`+valueId, {
-       method: 'PUT',
-       body: js,
-       headers: {
-         'Content-Type': 'Application/json',
-         Accept: '*/*',
-       },
-     });
-     if (!response.ok) {
-        alertSeverity = 'error';
-        alertText = await response.text();
-        setOpenAlert(true);          
-      }
-      else
-      {
-        alertSeverity = "success";
-        alertText = await response.text();
-        setOpenAlert(true);  
-      }
-   } catch (err) {
-     alertText = err.message;
-     alertSeverity = 'error';
-     setOpenAlert(true);
-   } finally {
-     setIsLoading(false);
-     if (fromToolbar) 
-     {
-       setValueTitleInitial(valueTitle);       
-       setValueNameRusInitial(valueNameRus); 
-       setValueNameEngInitial(valueNameEng);
-       setValueDescrRusInitial(valueDescrRus);
-       setValueDescrEngInitial(valueDescrEng);  
-       setValueRespRateInitial(valueRespRate);
-       setValueRespYearInitial(valueRespYear);
-       setValueIndoorInitial(valueIndoor);
-       setValueExtCloudInitial(valueExtCloud);
-       setValueExtGroundInitial(valueExtGround);
-       setValuePhysParamIdInitial(valuePhysParamID);            
-       setValueUsedInitial(valueUsed);           
-       setValueParametersInitial(valueParameters);
-       setValueDrTypeInitial(valueDrType);
-     }
-    reloadData();     
-   }
-  }
- };
-/////////////////////////////////////////////////////////////////// ADDREC ///////////////////// 
-  const addRec = async ()  => {
-    const js = JSON.stringify({
-      id: valueId,
-      title: valueTitle,
-      name_rus: valueNameRus,
-      name_eng: valueNameEng,
-      descr_rus: valueDescrRus,
-      descr_eng: valueDescrEng,
-      resp_rate: valueRespRate,
-      resp_year: valueRespYear,
-      indoor: valueIndoor,
-      ext_cloud: valueExtCloud,
-      ext_ground: valueExtGround,
-      physparam_id: valuePhysParamID||0,
-      used: valueUsed,       
-      parameters: valueParameters,
-      dr_type: valueDrType,
-    });
-    setIsLoading(true);
-    try {
-      const response = await fetch(`/${props.table_name}/`, {
-        method: 'POST',
-        body: js,
+      const response = await fetch(url, {
+        method,
+        body: JSON.stringify(data),
         headers: {
           'Content-Type': 'Application/json',
           Accept: '*/*',
         },
       });
-
+      
+      // Проверяем тип контента
+      const contentType = response.headers.get('content-type');
+      const isJson = contentType && contentType.includes('application/json');
+      
+      let responseData;
+      
+      // Обрабатываем ответ в зависимости от типа контента
+      if (isJson) {
+        responseData = await response.json();
+      } else {
+        responseData = await response.text();
+      }
+      
+      // Обрабатываем ответ в зависимости от статуса
       if (!response.ok) {
-        alertSeverity = 'error';
-        alertText = await response.text();
-        setOpenAlert(true);          
+        throw new Error(responseData);
       }
-      else
-      {
-        alertSeverity = "success";
-        const { id } = await response.json();
-        alertText = `Добавлена запись с кодом ${id}`;
-        lastId = id;  
-        setValueID(lastId);
-        setOpenAlert(true);  
+      
+      setAlertSeverity('success');
+      
+      // Если это POST запрос, получаем и устанавливаем новый ID
+      if (method === 'POST') {
+        const newId = responseData.id;
+        
+        if (clickedRowId===null) {
+          setValueID(newId);
+          setAddedId(newId);
+        }
+        else {
+          setValueID(clickedRowId);
+        }
+          
+        setAlertText(`Добавлена запись с кодом ${newId}`);
+
+      } else {
+        if (clickedRowId) {
+          setValueID(clickedRowId);
+        }
+        setAlertText(responseData || 'Success');
       }
+      
     } catch (err) {
-      alertText = err.message;
-      alertSeverity = 'error';
-      setOpenAlert(true);
+      setAlertSeverity('error');
+      setAlertText(err.message);
+
+      if (clickedRowId!==null) {
+        setValueID(clickedRowId);
+      }
     } finally {
       setIsLoading(false);
-      reloadData();
-      setRowSelectionModel([lastId]);
-      console.log('addRec setScrollToIndex lastId = ' + lastId);
-      scrollToIndexRef.current = lastId;  
-      //Refresh initial state
-      setValueTitle(valueTitle);
-      setValueNameRus(valueNameRus);
-      setValueNameEng(valueNameEng);
-      setValueDescrRus(valueDescrRus);
-      setValueDescrEng(valueDescrEng); 
-      setValueRespRate(valueRespRate);
-      setValueRespYear(valueRespYear);
-      setValueIndoor(valueIndoor);
-      setValueExtCloud(valueExtCloud);          
-      setValueExtGround(valueExtGround);
-      setValuePhysParamId(valuePhysParamID);
-      setValueUsed(valueUsed); 
-      setValueParameters(valueParameters);
-      setValueDrType(valueDrType);
+      setOpenAlert(true);
 
-      setValueTitleInitial(valueTitle);
-      setValueNameRusInitial(valueNameRus);
-      setValueNameEngInitial(valueNameEng);
-      setValueDescrRusInitial(valueDescrRus);
-      setValueDescrEngInitial(valueDescrEng); 
-      setValueRespRateInitial(valueRespRate);
-      setValueRespYearInitial(valueRespYear);
-      setValueIndoorInitial(valueIndoor);
-      setValueExtCloudInitial(valueExtCloud);          
-      setValueExtGroundInitial(valueExtGround);
-      setValuePhysParamIdInitial(valuePhysParamID);
-      setValueUsedInitial(valueUsed); 
-      setValueParametersInitial(valueParameters);
-      setValueDrTypeInitial(valueDrType);
+      await reloadData();
     }
-  };
-
-//  const [openConfirmDelete, setOpenConfirmDelete] = React.useState(false); 
+  }
+}
 const [openDSInfo, setOpenDSInfo] = React.useState(false); 
 const handleOpenDSInfo = () => {
   setOpenDSInfo(true);
 };
-
 const handleCloseDSInfo = () => {
   setOpenDSInfo(false);
 };
 
-//const [noRecords, setNoRecords] = useState(true);
+useEffect(() => {
+  const rowData = tableData.find(row => row.id === valueId);
+  if (rowData) {
+    setValues(rowData);
+  }
+}, [tableData, valueId]);
 
+// Функция delRec
+const delRec = async () => {
+  setIsLoading(true);
 
-/////////////////////////////////////////////////////////////////// DELETE /////////////////////
-  const delRec =  async () => {
-    const js = JSON.stringify({
-        id: valueId,
-        title: valueTitle,
+  try {
+    const response = await fetch(`/${props.table_name}/${valueId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'Application/json',
+        Accept: '*/*',
+      },
     });
-    setIsLoading(true);
-    try {
-      const response = await fetch(`/${props.table_name}/`+valueId, {
-        method: 'DELETE',
-        body: js,
-        headers: {
-          'Content-Type': 'Application/json',
-          Accept: '*/*',
-        },
-      });
-      if (!response.ok) {
-        alertSeverity = 'error';
-        alertText = await response.text();
-        setOpenAlert(true);          
-      }
-      else
-      {
-        alertSeverity = "success";
-        alertText = await response.text();
-        setOpenAlert(true); 
-        reloadData();
-        setRowSelectionModel([tableData[0].id]);  
-        setValueID(tableData[0].id);
-        setValueTitle(tableData[0].title);
-        setValueNameRus(tableData[0].name_rus);
-        setValueNameEng(tableData[0].name_eng);
-        setValueDescrRus(tableData[0].descr_rus);
-        setValueDescrEng(tableData[0].descr_eng);
 
-        setValueRespRate(tableData[0].resp_rate);
-        setValueRespYear(tableData[0].resp_year);
-        setValueIndoor(tableData[0].indoor);
-        setValueExtCloud(tableData[0].ext_cloud);
-        setValueExtGround(tableData[0].ext_ground);
-
-        setValueTitleInitial(tableData[0].title);
-        setValueNameRusInitial(tableData[0].name_rus);
-        setValueNameEngInitial(tableData[0].name_eng);
-        setValueDescrRusInitial(tableData[0].descr_rus);
-        setValueDescrEngInitial(tableData[0].descr_eng);
-
-        setValueRespRateInitial(tableData[0].resp_rate);
-        setValueRespYearInitial(tableData[0].resp_year);
-        setValueIndoorInitial(tableData[0].indoor);
-        setValueExtCloudInitial(tableData[0].ext_cloud);
-        setValueExtGroundInitial(tableData[0].ext_ground);
-        setValuePhysParamId(tableData[0].physparam_id);
-        setValuePhysParamIdInitial(tableData[0].physparam_id); 
-      }
-    } catch (err) {
-      alertText = err.message;
-      alertSeverity = 'error';
-      setOpenAlert(true);
-    } finally {
-      setIsLoading(false);
+    if (!response.ok) {
+      throw new Error(await response.text());
     }
-  };  
+
+    setAlertSeverity('success');
+    setAlertText(await response.text());
+
+  } catch (err) {
+    setAlertSeverity('error');
+    setAlertText(err.message);
+  } finally {
+    setIsLoading(false);
+    setOpenAlert(true);
+    
+    // Переключаемся на первую запись после удаления
+    if (tableData[0]) {
+      setValueID(tableData[0].id);
+      setAddedId(tableData[0].id);
+    } 
+    reloadData();
+  }
+};
 
   /////////////////////////////////////////////////////////////////// RELOAD /////////////////////
   const reloadDataAlert =  async () => {
-    alertSeverity = "info";
-    alertText =  'Данные успешно обновлены';
+    setAlertSeverity('info');
+    setAlertText('Данные успешно обновлены');
     try 
     {
       await reloadData();
     } catch(e)
     {
-      alertSeverity = "error";
-      alertText =  'Ошибка при обновлении данных: '+e.message;      
+      setAlertSeverity('error');
+      setAlertText('Ошибка при обновлении данных: '+e.message);      
       setOpenAlert(true);
       return;
     }
@@ -512,44 +452,25 @@ const handleCloseDSInfo = () => {
   }
 
   const reloadData = async () => {
+    setIsLoading(true);  // запускаем индикатор загрузки
     try {
       const response = await fetch(`/${props.table_name}/`);
-       if (!response.ok) {
-        alertText = `Ошибка при обновлении данных: ${response.status}`;
-        alertSeverity = "false";
-        const error = response.status + ' (' +response.statusText+')';  
+  
+      if (!response.ok) {
+        setAlertSeverity('error');
+        setAlertText(`Ошибка при обновлении данных: ${response.status}`);
+        const error = response.status + ' (' + response.statusText + ')';
         throw new Error(`${error}`);
-      }
-      else
-      {  
+      } else {
         const result = await response.json();
         setTableData(result);
       }
     } catch (err) {
       throw err;
     } finally {
-      setIsLoading(false);
+      setIsLoading(false);  // останавливаем индикатор загрузки
     }
   };
-
-  /////////////////////////////////////////
-/*   const [openDel, setOpenDel] = React.useState(false); 
-  const [openSave, setOpenSave] = React.useState(false); 
-  const [openSaveWhenNew, setOpenSaveWhenNew] = React.useState(false); 
-  const [openEdit, setOpenView] = React.useState(false); */
-    
-/*   const handleClickView = () => {
-    setValueParametersDialog(valueParameters);
-    setOpenView(true);
-  }; */
-
-/*   const handleClickView = () => {
-    const xmlContent = valueParameters; // Переменная с содержимым файла XML
-    //const xmlData = encodeURIComponent(xmlContent); // Кодируем содержимое файла
-  
-    const blob = new Blob([xmlContent], { type: 'text/xml;charset=utf-8' });
-    saveAs(blob, 'file.xml');
-  }; */
 
   const handleClickView = () => {
     const xmlContent = valueParameters; // Переменная с содержимым файла XML
@@ -567,145 +488,51 @@ const handleCloseDSInfo = () => {
     document.body.removeChild(link);
   };
 
+  ///////////////////////////////////////// DIALOG
+  const [dialogType, setDialogType] = useState('');
 
-/*   const insertXmlLink = (xmlContent) => {
-    const xmlData = encodeURIComponent(xmlContent); // Кодируем содержимое файла
-  
-    const fileUrl = `data:text/xml;charset=utf-8,${xmlData}`;
-  
-    const link = document.createElement('a');
-    link.href = fileUrl;
-    link.innerText = 'Открыть файл XML';
-    link.target = '_blank';
-  
-    const parentElement = document.getElementById('parentElementId'); // Замените 'parentElementId' на идентификатор родительского элемента
-  
-    // Вставляем ссылку на файл XML перед TextField
-    parentElement.insertBefore(link, parentElement.firstChild);
-  }; */
-
-/*   const handleClickViewYes = () => {
-    setValueParameters(valueParametersDialog);
-    setOpenView(false);
-  };
-
-  const handleClickViewNo = () => {
-    setOpenView(false);
-  };
-
-  const handleClickDelete = () => {
-    setOpenDel(true);
-  };
-
-  const handleCloseDelNo = () => {
-    setOpenDel(false);
-  };
-
-  const handleCloseDelYes = () => {
-    setOpenDel(false);
-    delRec();
-  };
-
-  const handleClickSave = () => {
-    setOpenSave(true);
-  };
-
-  const handleCloseSaveNo = () => {
-    setOpenSave(false);
-    handleCancelClick();
-  };
-
-  const handleCloseSaveYes = () => {
-    setOpenSave(false);
-    saveRec(false);
-    handleCancelClick();
-  };
-
-  const handleClickSaveWhenNew = () => {
-    setOpenSaveWhenNew(true);
-  };
-
-  const handleCloseSaveWhenNewNo = () => {
-    setOpenSaveWhenNew(false);
-
-    setValueID(``);
-    setValueTitle(``);
-    setValueNameRus(``);
-    setValueNameEng(``);
-    setValueDescrRus(``);
-    setValueDescrEng(``);
-
-    setValueRespRate(``);
-    setValueRespYear(``);
-    setValueIndoor(``);
-    setValueExtCloud(``);
-    setValueExtGround(``);   
-    setValuePhysParamId(``);
-  };
-
-  const handleCloseSaveWhenNewYes = () => {
-    setOpenSaveWhenNew(false);
-    saveRec(true);
-    setValueID(``);
-    setValueTitle(``);
-    setValueNameRus(``);
-    setValueNameEng(``);
-    setValueDescrRus(``);
-    setValueDescrEng(`` );
-    setValueRespRate(``);
-    setValueRespYear(``);
-    setValueIndoor(``);
-    setValueExtCloud(``);
-    setValueExtGround(`` );
-    setValuePhysParamId(``);
-  };
- */
-
-    ///////////////////////////////////////// DIALOG
-    const [dialogType, setDialogType] = useState('');
-
-    const getDialogContentText = () => {
-      const allRequiredFieldsFilled = formRef.current?.checkValidity();
-      switch (dialogType) {
-        case 'delete':
-          return (
-            <>
-              В таблице "{table_names[props.table_name]}" предложена к удалению следующая запись: 
-              <br />
-              {valueTitle}; Код в БД = {valueId}. 
-              <br />
-              Вы желаете удалить указанную запись?
-            </>);
-        case 'save':
-          if (!valueId) { // если это новая запись
-            if (allRequiredFieldsFilled) {
-              return `Создана новая запись, сохранить?`;
-            } else {
-              return (
-                <>
-                  Не заданы обязательные поля, запись не будет создана.
-                  <br />
-                  Перейти без сохранения изменений?
-                </>
-              );
-            }
-          } else { // если это редактируемая запись
-            if (allRequiredFieldsFilled) {
-              return `В запись внесены изменения, сохранить изменения?`;
-            } else {
-              return (
-                <>
-                  Не заданы обязательные поля, изменения не будут сохранены
-                  <br />
-                  Перейти без сохранения изменений?
-                </>
-              );            
-            }
+  const getDialogContentText = () => {
+    const allRequiredFieldsFilled = formRef.current?.checkValidity();
+    switch (dialogType) {
+      case 'delete':
+        return (
+          <>
+            В таблице "{table_names[props.table_name]}" предложена к удалению следующая запись: 
+            <br />
+            {valueTitle}; Код в БД = {valueId}. 
+            <br />
+            Вы желаете удалить указанную запись?
+          </>);
+      case 'save':
+        if (!valueId) { // если это новая запись
+          if (allRequiredFieldsFilled) {
+            return `Создана новая запись, сохранить?`;
+          } else {
+            return (
+              <>
+                Не заданы обязательные поля, запись не будет создана.
+                <br />
+                Перейти без сохранения изменений?
+              </>
+            );
           }
-        default:
-          return '';
-      }
-    };
+        } else { // если это редактируемая запись
+          if (allRequiredFieldsFilled) {
+            return `В запись внесены изменения, сохранить изменения?`;
+          } else {
+            return (
+              <>
+                Не заданы обязательные поля, изменения не будут сохранены
+                <br />
+                Перейти без сохранения изменений?
+              </>
+            );            
+          }
+        }
+      default:
+        return '';
+    }
+  };
 
   const setValues = (row) => {
     setValueTitle(row.title);
@@ -738,15 +565,6 @@ const handleCloseDSInfo = () => {
     setValueDrTypeInitial(row.dr_type);
   };
 
-
-  useEffect(() => {
-    const rowData = tableData.find(row => row.id === valueId);
-    if (rowData) {
-      setValues(rowData);
-    }
-  }, [tableData, valueId]);    
-
-  
   const handleCloseNo = () => {
     switch (dialogType) {
       case 'save':
@@ -758,61 +576,62 @@ const handleCloseDSInfo = () => {
         break;
     }
     setDialogType('');
+};
+
+  const handleCloseCancel = () => {
+    switch (dialogType) {
+      case 'save':
+        break;
+      default:
+        break;
+    }
+    setDialogType('');
   };
   
-    const handleCloseCancel = () => {
-      switch (dialogType) {
-        case 'save':
-          break;
-        default:
-          break;
-      }
-      setDialogType('');
-    };
-    
-    const handleCloseYes = () => {
-      switch (dialogType) {
-        case 'delete':
-          delRec();
-          break;
-        case 'save':
-          saveRec(false);
-          break;
-        default:
-          break;
-      }
-      
-      setDialogType('');
-  
-      if (clickedRowId>0) {
-        setEditStarted(false);
-        setRowSelectionModel([clickedRowId]);
-        const rowData = tableData.find(row => row.id === clickedRowId);
-        setValues(rowData);
-        setEditStarted(false);
-      }
-    };
-  
-    function DialogButtons() {
-      const allRequiredFieldsFilled = formRef.current?.checkValidity();
-    
-      if (dialogType === 'save' && !allRequiredFieldsFilled) {
-        return (
-          <>
-            <Button variant="outlined" onClick={handleCloseNo} >Да</Button>
-            <Button variant="outlined" onClick={handleCloseCancel} >Отмена</Button>
-          </>
-        );
-      } else {
-        return (
-          <>
-            <Button variant="outlined" onClick={handleCloseYes} >Да</Button>
-            <Button variant="outlined" onClick={handleCloseNo} >Нет</Button>
-            {dialogType !== 'delete' && <Button variant="outlined" onClick={handleCloseCancel} >Отмена</Button>}
-          </>
-        );
-      }
+  const handleCloseYes = () => {
+    switch (dialogType) {
+      case 'delete':
+        delRec();
+        break;
+      case 'save':
+        saveRec(false);
+        break;
+      default:
+        break;
     }
+    
+    setDialogType('');
+
+    if (clickedRowId>0) {
+      setEditStarted(false);
+      setRowSelectionModel([clickedRowId]);
+      const rowData = tableData.find(row => row.id === clickedRowId);
+      setValues(rowData);
+      setEditStarted(false);
+    }
+  };
+
+  function DialogButtons() {
+    const allRequiredFieldsFilled = formRef.current?.checkValidity();
+  
+    if (dialogType === 'save' && !allRequiredFieldsFilled) {
+      return (
+        <>
+          <Button variant="outlined" onClick={handleCloseNo} >Да</Button>
+          <Button variant="outlined" onClick={handleCloseCancel} >Отмена</Button>
+        </>
+      );
+    } else {
+      return (
+        <>
+          <Button variant="outlined" onClick={handleCloseYes} >Да</Button>
+          <Button variant="outlined" onClick={handleCloseNo} >Нет</Button>
+          {dialogType !== 'delete' && <Button variant="outlined" onClick={handleCloseCancel} >Отмена</Button>}
+        </>
+      );
+    }
+  }
+
   //////////////////////////////////////////////////////// ACTIONS ///////////////////////////////
   const columns = [
     { field: 'id', headerName: 'Код', width: 70 },
@@ -827,9 +646,9 @@ const handleCloseDSInfo = () => {
   const [openAlert, setOpenAlert] = React.useState(false, '');
   const handleCancelClick = () => 
   {
-    console.log(rowSelectionModel);    
-    const selectedIDs = new Set(rowSelectionModel);
-    console.log(selectedIDs);
+    console.log(rowSelectionModel);
+    
+    const selectedIDs = new Set(rowSelectionModel.map(Number));
     const selectedRowData = tableData.filter((row) => selectedIDs.has(row.id));
     if (selectedRowData.length)
     {
@@ -870,21 +689,30 @@ const handleCloseDSInfo = () => {
   // Scrolling and positionning
   const { paginationModel, setPaginationModel, scrollToIndexRef } = useGridScrollPagination(apiRef, tableData, setRowSelectionModel);
 
-  function CustomToolbar1() {
+  useEffect(() => {
+    if (addedId !== null){  
+        scrollToIndexRef.current = addedId;
+        setAddedId(null);
+        setEditStarted(false);
+        setRowSelectionModel([addedId]);
+    }
+  }, [addedId, scrollToIndexRef]);
+
+  function GridToolbar() {
     const handleExport = (options) =>
-      apiRef.current.exportDataAsCsv(options);
+       apiRef.current.exportDataAsCsv(options);
 
     return (
       <GridToolbarContainer>
-        <IconButton onClick={()=>handleClearClick()} disabled={editStarted}  color="primary" size="small" title="Создать запись">
+        <IconButton onClick={()=>handleClearClick()} disabled={editStarted} color="primary" size="small" title="Создать запись">
           <SvgIcon fontSize="small" component={PlusLightIcon} inheritViewBox /></IconButton>
-        <IconButton onClick={()=>saveRec(true)}  color="primary" size="small" title="Сохранить запись в БД">
+        <IconButton onClick={()=>{setClickedRowId(null); saveRec(true)}}  color="primary" size="small" title="Сохранить запись в БД">
           <SvgIcon fontSize="small" component={SaveLightIcon} inheritViewBox/></IconButton>
         <IconButton onClick={()=>setDialogType('delete')}  color="primary" size="small" title="Удалить запись">
           <SvgIcon fontSize="small" component={TrashLightIcon} inheritViewBox /></IconButton>
         <IconButton onClick={()=>handleCancelClick()} disabled={!editStarted} color="primary" size="small" title="Отменить редактирование">
           <SvgIcon fontSize="small" component={UndoLightIcon} inheritViewBox /></IconButton>
-        <IconButton onClick={()=>reloadDataAlert()} color="primary" size="small" title="Обновить данные">
+        <IconButton onClick={()=>reloadDataAlert(valueId)} color="primary" size="small" title="Обновить данные">
           <SvgIcon fontSize="small" component={RepeatLightIcon} inheritViewBox /></IconButton>
         <IconButton onClick={()=>handleExport({ delimiter: ';', utf8WithBom: true, getRowsToExport: () => gridFilteredSortedRowIdsSelector(apiRef) })} color="primary" 
             size="small" title="Сохранить в формате CSV">
@@ -896,142 +724,119 @@ const handleCloseDSInfo = () => {
   const valuesYesNo = [
     { title: 'Нет', id: 'false' },
     { title: 'Да', id: 'true' } ];
-
-/*   function handleFileChange(event) {
-    var reader = new FileReader();
-    reader.readAsText(event.target.files[0]);
-    reader.onload = e => {
-      setValueParameters("" + e.target.result);
-      event.target.value = '';
-    };
-  } */
-
-
-  const inputRef = React.useRef();
   const formRef = React.useRef();
-  return (
 
+
+  return (
     <Box sx={{ border: '0px solid purple', width: 1445, height: 650, padding: 1 }}>
-    <Grid container spacing={1}>
-      <Grid item sx={{width: 583, border: '0px solid green', ml: 1 }}>
-      <DataGrid
-        components={{ Toolbar: CustomToolbar1 }}
-        apiRef={apiRef}
-        hideFooterSelectedRowCount={true}
-        localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
-        rowHeight={25}
-        rows={tableData}
-        loading={isLoading}
-        columns={columns}
-        paginationModel={paginationModel}
-        onPaginationModelChange={setPaginationModel}
-        onRowSelectionModelChange={(newRowSelectionModel) => {
-          setRowSelectionModel(newRowSelectionModel);
-        }}
-        rowSelectionModel={rowSelectionModel}
-     
-        initialState={{
-          columns: {
+      <Grid container spacing={1}>
+        <Grid item sx={{width: 583, border: '0px solid green', ml: 1 }}>
+          <DataGrid
+            components={{ Toolbar: GridToolbar }}
+            apiRef={apiRef}
+            hideFooterSelectedRowCount={true}
+            localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
+            rowHeight={25}
+            pageSize={5}
+            rows={tableData}
+            columns={columns}
+            paginationModel={paginationModel}
+            onPaginationModelChange={setPaginationModel}
+            onRowSelectionModelChange={(newRowSelectionModel) => {
+              setRowSelectionModel(newRowSelectionModel);
+            }}
+            rowSelectionModel={rowSelectionModel}
+            initialState={{
+              columns: {
             columnVisibilityModel: {
               name_eng: false,
               descr_rus: false,
               descr_eng: false,
             },
-          },
-        }}        
-        onRowClick={handleRowClick} {...tableData}
-        style={{ width: 570, height: 500, border: '1px solid rgba(0, 0, 0, 0.23)', borderRadius: '4px' }}
-        sx={{
-          "& .MuiDataGrid-row.Mui-selected": {
-            backgroundColor: dialogType !== ''||((valueId || '')==='') ? "transparent" : "rgba(0, 0, 0, 0.11)",
-          },
-          "& .MuiDataGrid-cell:focus-within": {
-            outline: "none !important",
-          },
-        }}       
-      />
+              },
+            }}        
+            onRowClick={handleRowClick} {...tableData}
+            style={{ width: 570, height: 500, border: '1px solid rgba(0, 0, 0, 0.23)', borderRadius: '4px' }}
+            sx={{
+              "& .MuiDataGrid-row.Mui-selected": {
+                backgroundColor: dialogType !== ''||((valueId || '')==='') ? "transparent" : "rgba(0, 0, 0, 0.11)",
+              },
+              "& .MuiDataGrid-cell:focus-within": {
+                outline: "none !important",
+              },
+            }}
+          />
 
-        <Collapse in={openAlert}>
-          <Alert
-            severity={alertSeverity}
-            action={
-              <IconButton
-                aria-label="close"
-                color="inherit"
-                size="small"
-                onClick={() => {
-                  setOpenAlert(false);
-                }}
-              >
-                <CloseIcon fontSize="inherit" />
-              </IconButton>
-            }
-          >
-            {alertText}
-          </Alert>
-        </Collapse>
-      </Grid>
-      <Grid item xs={7} sx={{ border: '0px solid blue' }}>
-        <form ref={formRef}>
-        <Box sx={{ border: '0px solid red', padding: 0, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-          <Box sx={{ display: 'flex', flexDirection: 'row', gap: 1.5 }}>
-            <TextField id="ch_id" disabled={true} label="Код" sx={{ width: '12ch' }} variant="outlined" value={valueId || ''} size="small" />
-            <TextField id="ch_name" inputRef={inputRef} sx={{ width: '50ch' }} label="Обозначение" required size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)} />
-          </Box>
-          <Box sx={{ display: 'flex', flexDirection: 'row', gap: 1.5 }}>
-            <TextField  id="ch_name_rus" sx={{ width: '49ch' }}  size="small" label="Название (рус.яз)" required variant="outlined"  value={valueNameRus || ''} onChange={e => setValueNameRus(e.target.value)} />
-            <TextField  id="ch_name_eng" sx={{ width: '49ch' }} size="small" label="Название (англ.яз)"  variant="outlined" value={valueNameEng || ''} onChange={e => setValueNameEng(e.target.value)}/>
-          </Box>
-
-        <TextField  id="ch_descr_rus" sx={{ width: '100ch' }} label="Комментарий (рус.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrRus || ''} onChange={e => setValueDescrRus(e.target.value)}/>
-        <TextField  id="ch_descr_rus" sx={{ width: '100ch' }} label="Комментарий (англ.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrEng || ''} onChange={e => setValueDescrEng(e.target.value)}/>
-
-        {(props.table_name==='dose_ratio') && 
-        <>
-        <FormControl sx={{ width: '40ch' }} size="small">
-          <InputLabel required id="demo-controlled-open-select-label">Тип дозового коэффициента</InputLabel>
-          <Select
-            labelId="dose-coeff-select"
-            id="dose-coeff-select"
-            required
-            value={valueDrType}
-            label="Тип дозового коэффициента"
-          // defaultValue="e"
-            onChange={e => setValueDrType(e.target.value)}
-          >
-          {valuesDrTypeList?.map(option => {
-              return (
-                <MenuItem key={option.value} value={option.value}>
-                  {option.label ?? option.value}
-                </MenuItem>
-              );
-          })}
-          </Select>
-        </FormControl>  
-        </>
-        }
-
-
-  {/*             <Button variant="contained" component="label">Загрузить из файла
-                <input hidden accept="text/xml" type="file" onChange={handleFileChange}/>
-              </Button><p></p> */}
-  {/*             <Button variant="contained" onClick={() => {setValueParameters(""); }}>Очистить</Button>   */}     
-            {/*  <label htmlFor="icon-button-file">
-                <IconButton color="primary" aria-label="upload xml file" component="span" size="small" title="Поиск и загрузка файла *.xml">
-                  <SvgIcon fontSize="small" component={FileImportLightIcon} inheritViewBox/>
+          <Collapse in={openAlert}>
+            <Alert
+              item sx={{width: 571}}
+              severity={alertSeverity}
+              action={
+                <IconButton
+                  aria-label="close"
+                  color="inherit"
+                  size="small"
+                  onClick={() => {
+                    setOpenAlert(false);
+                  }}
+                >
+                  <CloseIcon fontSize="inherit" />
                 </IconButton>
-              </label>
-              <br/>
-              &nbsp;<label htmlFor="icon-button-file1">
-              <IconButton onClick={()=>{setValueParameters("")}} color="primary" size="small" title="Очистить">
-                <SvgIcon fontSize="small" component={EraserLightIcon} inheritViewBox /></IconButton>
-              </label>
-              <br/> */}        
-         
+              }
+            >
+              {alertText}
+            </Alert>
+          </Collapse>
+        </Grid>
+        <Grid sx={{ width: 801, padding: 1 }}>
+        <form ref={formRef}>
+        <Grid container spacing={1.5}>
+          <Grid item xs={2}>
+            <TextField id="ch_id" disabled={true} fullWidth label="Код" variant="outlined" value={valueId || ''} size="small" />
+          </Grid>            
+          <Grid item xs={10}>
+            <TextField id="ch_name" inputRef={inputRef} fullWidth label="Обозначение" required size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)} />
+          </Grid>            
+          <Grid item xs={6}>
+            <TextField  id="ch_name_rus" fullWidth size="small" label="Название (рус.яз)" required variant="outlined"  value={valueNameRus || ''} onChange={e => setValueNameRus(e.target.value)} />
+          </Grid> 
+          <Grid item xs={6}>
+            <TextField  id="ch_name_eng" fullWidth size="small" label="Название (англ.яз)"  variant="outlined" value={valueNameEng || ''} onChange={e => setValueNameEng(e.target.value)}/>
+          </Grid>
 
-         
-        { (props.table_name==='calcfunction') && (
+          <Grid item xs={12}>
+            <TextField  id="ch_descr_rus" fullWidth label="Комментарий (рус.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrRus || ''} onChange={e => setValueDescrRus(e.target.value)}/>
+          </Grid> 
+          <Grid item xs={12}>
+            <TextField  id="ch_descr_eng" fullWidth label="Комментарий (англ.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrEng || ''} onChange={e => setValueDescrEng(e.target.value)}/>
+          </Grid>
+          {(props.table_name==='dose_ratio') && 
+          <Grid item xs={12}>
+            <FormControl sx={{ width: '40ch' }} size="small">
+              <InputLabel required id="demo-controlled-open-select-label">Тип дозового коэффициента</InputLabel>
+              <Select
+                labelId="dose-coeff-select"
+                id="dose-coeff-select"
+                required
+                value={valueDrType}
+                label="Тип дозового коэффициента"
+              // defaultValue="e"
+                onChange={e => setValueDrType(e.target.value)}
+              >
+              {valuesDrTypeList?.map(option => {
+                  return (
+                    <MenuItem key={option.value} value={option.value}>
+                      {option.label ?? option.value}
+                    </MenuItem>
+                  );
+              })}
+              </Select>
+            </FormControl>  
+          </Grid>}
+
+          { (props.table_name==='calcfunction') && 
           <>
+          <Grid item xs={12}>
             <Box sx={{ display: 'flex', flexDirection: 'row', gap: 1  }}>
               <TextField id="ch_parameters" sx={{ width: '100ch' }} label="Параметры функции"  size="small" multiline rows={4} variant="outlined" value={valueParameters || ''} onChange={e => setValueParameters(e.target.value)} disabled/>
               <label htmlFor="icon-button-file1">
@@ -1039,26 +844,25 @@ const handleCloseDSInfo = () => {
                   <SvgIcon fontSize="small" component={DownloadLightIcon} inheritViewBox /></IconButton>
               </label>
             </Box>
-          
-            
-              <FormControl sx={{ width: '40ch' }} size="small">
-              <InputLabel id="type"  >Используется расчетным модулем</InputLabel>
-                <Select labelId="type" id="type1"  label="Используется расчетным модулем"  defaultValue={true}  value={valueUsed} onChange={e => setValueUsed(e.target.value)}>
-                  {valuesYesNo?.map(option => {
-                      return (
-                        <MenuItem key={option.id} value={option.id}>
-                          {option.title ?? option.id}
-                        </MenuItem>
-                      );
-                      })}
-                </Select>
-              </FormControl>    
-              </>
-            )
-          } 
-        
-          <Box sx={{ display: 'flex', flexDirection: 'row', gap: 1  }}>
-          <Autocomplete
+          </Grid>                     
+          <Grid item xs={12}>
+            <FormControl sx={{ width: '40ch' }} size="small">
+            <InputLabel id="type"  >Используется расчетным модулем</InputLabel>
+              <Select labelId="type" id="type1"  label="Используется расчетным модулем"  defaultValue={true}  value={valueUsed} onChange={e => setValueUsed(e.target.value)}>
+                {valuesYesNo?.map(option => {
+                    return (
+                      <MenuItem key={option.id} value={option.id}>
+                        {option.title ?? option.id}
+                      </MenuItem>
+                    );
+                    })}
+              </Select>
+            </FormControl>    
+          </Grid></>}                     
+          <Grid item xs={12}>
+            <Box sx={{ display: 'flex', flexDirection: 'row', gap: 1  }}>
+
+            <Autocomplete
               fullWidth
               sx={{ width: '60ch' }}
               size="small"
@@ -1081,25 +885,39 @@ const handleCloseDSInfo = () => {
                   </Tooltip>
                 </li>
               )}
-          />
+            />
+            <IconButton onClick={()=>handleOpenDSInfo()} color="primary" size="small" title="Физический параметр">
+              <SvgIcon fontSize="small" component={InfoLightIcon} inheritViewBox /></IconButton>
+            </Box>              
+          </Grid>                     
+{/*           <Grid item xs={6}>
+          </Grid>                     
+          <Grid item xs={6}>
+          </Grid>                     
+          <Grid item xs={6}>
+          </Grid>  */}                    
+        </Grid>
 
-          <IconButton onClick={()=>handleOpenDSInfo()} color="primary" size="small" title="Физический параметр">
-            <SvgIcon fontSize="small" component={InfoLightIcon} inheritViewBox /></IconButton>
-          </Box>         
-        </Box>
+{/*         <Box sx={{ border: '0px solid red', padding: 0, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
+
+       
+
+
+
+                 
+        </Box> */}
         </form>
-        <Box sx={{ marginTop: '0.4rem' }}>
-          Источники данных<br/>
-          <DataTableDataSourceClass table_name={props.table_name} rec_id={valueId} />
-        </Box>
+          <Box sx={{ marginTop: '0.4rem' }}>
+            Источники данных<br/>
+              <DataTableDataSourceClass table_name={props.table_name} rec_id={valueId} />
+          </Box>
+        </Grid>
       </Grid>
-    </Grid>
-    {(isLoading) && 
-      <Backdrop sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }} open={isLoading}>
-        <CircularProgress color="inherit" />
-      </Backdrop> 
-    } 
-
+      {(isLoading) && 
+        <Backdrop sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }} open={isLoading}>
+          <CircularProgress color="inherit" />
+        </Backdrop> 
+      } 
     <Dialog open={openDSInfo} onClose={handleCloseDSInfo} fullWidth={true}>
       <DialogTitle>
         Физический параметр <b>{(tablePhysParam.find((option) => option.id === valuePhysParamID)||'').title }</b> 
@@ -1116,89 +934,19 @@ const handleCloseDSInfo = () => {
       </DialogActions>
     </Dialog>
 
-
-    <Dialog open={dialogType !== ''} onClose={handleCloseCancel} fullWidth={true}>
-      <DialogTitle>Внимание</DialogTitle>
-      <DialogContent>
-        <DialogContentText>
-          {getDialogContentText()}
-        </DialogContentText>
-      </DialogContent>
-      <DialogActions>
-        <DialogButtons />
-      </DialogActions>
-    </Dialog>
-
-{/*     <Dialog open={openDel} onClose={handleCloseDelNo} fullWidth={true}>
-      <DialogTitle>
-          Внимание
-      </DialogTitle>
-      <DialogContent>
+      <Dialog open={dialogType !== ''} onClose={handleCloseCancel} fullWidth={true}>
+        <DialogTitle>Внимание</DialogTitle>
+        <DialogContent>
           <DialogContentText>
-          В таблице "{table_names[props.table_name]}" предложена к удалению следующая запись:<p></p><b>{valueTitle}</b>; Код в БД = <b>{valueId}</b><p></p>
-          Вы желаете удалить указанную запись?
+            {getDialogContentText()}
           </DialogContentText>
-      </DialogContent>
-      <DialogActions>
-          <Button variant="outlined" onClick={handleCloseDelNo} autoFocus>Нет</Button>
-          <Button variant="outlined" onClick={handleCloseDelYes} >Да</Button>
-      </DialogActions>
-  </Dialog>
-
-  <Dialog open={openEdit} onClose={handleClickViewNo} maxWidth="700">
-      <DialogTitle>
-          Параметры функции
-      </DialogTitle>
-      <DialogContent>
-          <DialogContentText>
-             <TextField  id="ch_parameters1" sx={{ width: '100ch' }}size="small" multiline rows={20} variant="outlined" value={valueParametersDialog || ''} onChange={e => setValueParametersDialog(e.target.value)}/>
-          </DialogContentText>
-      </DialogContent>
-      <DialogActions>
-          <Button variant="outlined" onClick={handleClickViewNo} autoFocus>Нет</Button>
-          <Button variant="outlined" onClick={handleClickViewYes} >Да</Button>
-      </DialogActions>
-  </Dialog>  
- 
-  <Dialog open={openSave} onClose={handleCloseSaveNo} fullWidth={true}>
-    <DialogTitle>
-        Внимание
-    </DialogTitle>
-    <DialogContent>
-        <DialogContentText>
-        {valueId?
-          `В запись таблицы "${table_names[props.table_name]}" внесены изменения.`:
-          `В таблицу "${table_names[props.table_name]}" внесена новая несохраненная запись.`} 
-            <br/>Вы желаете сохранить указанную запись?
-        </DialogContentText>
-    </DialogContent>
-    <DialogActions>
-        <Button variant="outlined" onClick={handleCloseSaveNo} autoFocus>Нет</Button>
-        <Button variant="outlined" onClick={handleCloseSaveYes} >Да</Button>
-    </DialogActions>
-  </Dialog>
-
-  <Dialog open={openSaveWhenNew} onClose={handleCloseSaveWhenNewNo} fullWidth={true}>
-    <DialogTitle>
-        Внимание
-    </DialogTitle>
-    <DialogContent>
-        <DialogContentText>
-        {valueId?
-          `В запись таблицы "${table_names[props.table_name]}" внесены изменения.`:
-          `В таблицу "${table_names[props.table_name]}" внесена новая несохраненная запись.`} 
-            <br/>Вы желаете сохранить указанную запись?
-        </DialogContentText>
-    </DialogContent>
-    <DialogActions>
-        <Button variant="outlined" onClick={handleCloseSaveWhenNewNo} autoFocus>Нет</Button>
-        <Button variant="outlined" onClick={handleCloseSaveWhenNewYes} >Да</Button>
-    </DialogActions>
-  </Dialog>     */}
-  </Box>  
-
-
+        </DialogContent>
+        <DialogActions>
+          <DialogButtons />
+        </DialogActions>
+      </Dialog>
+    </Box>
   )
-}
+  }
 
-export { DataTableDoseRatio, lastId }
+export { DataTableDoseRatio }

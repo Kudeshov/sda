@@ -138,7 +138,7 @@ const DataTableExpScenario = (props) => {
     }, [ tableData] );
 
 
-    const HoverContext = createContext();
+const HoverContext = createContext();
 
 const HoverProvider = ({ children }) => {
   const [hoverId, setHoverId] = useState(null);
