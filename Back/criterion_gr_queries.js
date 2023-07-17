@@ -76,6 +76,8 @@ const createCriterionGr = (request, response, table_name )=> {
     const { title, name_rus, name_eng, descr_rus, descr_eng, parent_id, normativ_id } = request.body;
     client.query(`BEGIN`, err => {
       if (shouldAbort(err, response)) return;
+
+      console.log( request.body);
       client.query(`INSERT INTO nucl.${table_name}( title, parent_id, normativ_id ) VALUES ($1,$2,$3) RETURNING id`, [title, parent_id, normativ_id], (err, res) => {
         if (shouldAbort(err, response)) return;      
         const { id } = res.rows[0];
@@ -199,12 +201,13 @@ const updateCriterionGr = (request, response, table_name ) => {
     //id
     const id = parseInt(request.params.id);
     const { title, name_rus, name_eng, descr_rus, descr_eng, parent_id, normativ_id } = request.body;
+    console.log( request.body);
     client.query(`BEGIN`, err => {
       if (shouldAbort(err, response)) return;
       client.query(`UPDATE nucl.${table_name} SET title = $1, parent_id = $2, normativ_id = $3 WHERE id = $4`, [title, parent_id, normativ_id, id], (err, res) => {
         if (shouldAbort(err, response)) return;      
         var s_q = c_c.getNLSQuery(name_rus||'', descr_rus||'', id, 1, table_name);
-        console.log(s_q);  
+        //console.log(s_q);  
         client.query( c_c.getNLSQuery(name_rus||'', descr_rus||'', id, 1, table_name), (err, res) => {
           console.log(`rus изменяется`); 
 
@@ -212,7 +215,7 @@ const updateCriterionGr = (request, response, table_name ) => {
           console.log(`rus изменен`);
 
           var s_q = c_c.getNLSQuery(name_eng||'', descr_eng||'', id, 2, table_name);
-          console.log(s_q);          
+          //console.log(s_q);          
           client.query( c_c.getNLSQuery(name_eng||'', descr_eng||'', id, 2, table_name), (err, res) => {
             console.log(`eng изменяется`);  
             if (shouldAbort(err, response)) return;

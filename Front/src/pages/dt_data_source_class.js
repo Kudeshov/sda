@@ -88,6 +88,31 @@ function DataTableDataSourceClass(props)  {
     setOpenAlert(false);
     setlastSrcClassID(0);
     setIsLoading(true);
+  
+    if (props.rec_id === null || props.rec_id === undefined || props.rec_id === '') {
+      setTableData([]); // загружаем пустой результат
+    } else {
+      fetch(`/data_source_class?table_name=${props.table_name}&rec_id=${props.rec_id||0}`)
+      .then((data) => data.json())
+      .then((data) => {
+        setTableData(data);
+        // Если массив данных не пустой, обновляем состояния
+        if (data.length > 0 && !addedId) {
+          console.log('После загрузки выставляем ', data[0]?.id, addedId)
+          setAddedId(data[0]?.id);
+          setValueID(data[0]?.id);
+          console.log('После загрузки выставили ', data[0]?.id)
+        }
+      });
+    }
+    setlastSrcClassID(0);
+    setIsLoading(false);
+  }, [props.table_name, props.rec_id]);
+
+ /*  useEffect(() => {
+    setOpenAlert(false);
+    setlastSrcClassID(0);
+    setIsLoading(true);
 
     if (props.rec_id === null || props.rec_id === undefined || props.rec_id === '') {
       setTableData([]); // загружаем пустой результат
@@ -108,7 +133,7 @@ function DataTableDataSourceClass(props)  {
     }
     setlastSrcClassID(0);
     setIsLoading(false);
-  }, [props.table_name, props.rec_id])
+  }, [props.table_name, props.rec_id]) */
 
   useEffect(() => {
     fetch(`/data_source`)

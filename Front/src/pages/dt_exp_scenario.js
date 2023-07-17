@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
@@ -22,6 +22,8 @@ import { ReactComponent as CollapseIcon } from "./../icons/chevron-double-right.
 import { ReactComponent as ExpandIcon } from "./../icons/chevron-double-down.svg";
 import { ReactComponent as SearchIcon } from "./../icons/search.svg";
 import { ReactComponent as TimesCircleIcon } from "./../icons/times-circle.svg";
+import { ReactComponent as FolderIcon } from "./../icons/folder.svg";
+import { ReactComponent as FileIcon } from "./../icons/file.svg";
 import TreeView from "@material-ui/lab/TreeView";
 import TreeItem from "@material-ui/lab/TreeItem";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
@@ -35,13 +37,11 @@ import { ExportToCsv } from 'export-to-csv-fix-source-map';
 import { table_names } from './table_names';
 import Backdrop from '@mui/material/Backdrop';
 import { InputAdornment } from "@material-ui/core";
-import { listToTree } from '../helpers/treeHelper';
 import Tooltip from '@mui/material/Tooltip';
+import { listToTree } from '../helpers/treeHelper';
+import { Grid } from '@mui/material';
 
-var alertText = "Сообщение";
-var alertSeverity = "info";
 var lastId = 0;
-var clickedId = 0;
 var clickAfterReload = false;
 
 const DataTableExpScenario = (props) => {
@@ -58,52 +58,89 @@ const DataTableExpScenario = (props) => {
   const [valueDescrRusInitial, setValueDescrRusInitial] = React.useState();
   const [valueParentID, setValueParentID] = React.useState();
   const [valueParentIDInitial, setValueParentIDInitial] = React.useState();
-  const [valueNormativ, setValueNormativ] = React.useState();
-  const [valueNormativInitial, setValueNormativInitial] = React.useState();
+  const [valueNormativID, setValueNormativID] = React.useState();
+  const [valueNormativIDInitial, setValueNormativIDInitial] = React.useState();
   const [isLoading, setIsLoading] = React.useState("false");
   const [tableData, setTableData] = useState([]); 
-  const [tableNormativ, setNormativ] = useState([]); 
+  const [tableNormativ, setTableNormativ] = useState([]); 
   const [treeData, setTreeData] = useState([]); 
-  const [editStarted, setEditStarted] = useState([false]);
-  const [isEmpty, setIsEmpty] = useState([false]);
+  const [editStarted, setEditStarted] = useState(false);
+
+  const [alertText, setAlertText] = useState("Сообщение");
+  const [alertSeverity, setAlertSeverity] = useState("info");
 
   useEffect(() => {
-    setIsEmpty((''===valueTitle)&&(''===valueNameRus)&&(''===valueNameEng)&&(''===valueDescrEng)&&(''===valueDescrRus)   
-      &&(''===valueParentID)&&(''===valueNormativ));
-    }, [ valueTitle, valueNameRus, valueNameEng, valueDescrEng, valueDescrRus, 
-      valueParentID, valueNormativ]); 
-
-  useEffect(() => {
-    //console.log('setEditStarted valueTitleInitial='+valueTitleInitial+' valueTitle = '+ valueTitle);    
-    setEditStarted(       
-       (valueTitleInitial!==valueTitle)||(valueNameRusInitial!==valueNameRus)||(valueNameEngInitial!==valueNameEng)
-      ||(valueDescrEngInitial!==valueDescrEng) ||(valueDescrRusInitial!==valueDescrRus)||(valueParentIDInitial!==valueParentID)/*||(valueNormativInitial!==valueNormativ)*/);
-    }, [valueTitleInitial, valueTitle, valueNameRusInitial, valueNameRus, valueNameEngInitial, valueNameEng, 
-        valueDescrEngInitial, valueDescrEng, valueDescrRusInitial, valueDescrRus, valueParentID, valueParentIDInitial, valueNormativ, valueNormativInitial]); 
-
+    let isEditStarted = false;
+  
+    let fieldsToCheck = {
+      'valueTitle': [valueTitleInitial, valueTitle],
+      'valueNameRus': [valueNameRusInitial, valueNameRus],
+      'valueNameEng': [valueNameEngInitial, valueNameEng],
+      'valueDescrEng': [valueDescrEngInitial, valueDescrEng],
+      'valueDescrRus': [valueDescrRusInitial, valueDescrRus],
+      'valueParentID': [valueParentIDInitial, valueParentID]
+    };
+  
+    if (props.table_name === 'criterion_gr') {
+      fieldsToCheck = {
+        ...fieldsToCheck,
+        'valueNormativID': [valueNormativIDInitial, valueNormativID]
+      };
+    }
+  
+    Object.keys(fieldsToCheck).forEach((key) => {
+      const [initialValue, currentValue] = fieldsToCheck[key];
+      if (initialValue !== currentValue) {
+        isEditStarted = true;
+        console.log('Field changed:', key);
+      }
+    });
+  
+    setEditStarted(isEditStarted);
+  }, [
+    valueTitleInitial, 
+    valueTitle, 
+    valueNameRusInitial, 
+    valueNameRus, 
+    valueNameEngInitial, 
+    valueNameEng, 
+    valueDescrEngInitial, 
+    valueDescrEng, 
+    valueDescrRusInitial, 
+    valueDescrRus, 
+    valueParentID, 
+    valueParentIDInitial, 
+    valueNormativID, 
+    valueNormativIDInitial,
+    props.table_name
+  ]);
+  
   useEffect(() => {
     if ((!isLoading) && (tableData) && (tableData.length)) {
-      if (!lastId) 
-      {
+      if (!lastId) {
         lastId = tableData[0].id;
         setValueTitle(tableData[0].title);
         setValueNameRus(tableData[0].name_rus);
         setValueNameEng(tableData[0].name_eng);
         setValueDescrRus(tableData[0].descr_rus);
         setValueDescrEng(tableData[0].descr_eng);
+        setValueParentID(tableData[0].parent_id || -1);
+        
         setValueTitleInitial(tableData[0].title);       
         setValueNameRusInitial(tableData[0].name_rus);
         setValueNameEngInitial(tableData[0].name_eng);
         setValueDescrRusInitial(tableData[0].descr_rus);
         setValueDescrEngInitial(tableData[0].descr_eng);
-        setValueParentID(tableData[0].parent_id||-1);
-        setValueParentIDInitial(tableData[0].parent_id||-1);
-        setValueNormativ(tableData[0].normativ_id);
-        setValueNormativInitial(tableData[0].normativ_id);  
+        setValueParentIDInitial(tableData[0].parent_id || -1);
+        
+        if (props.table_name === 'criterion_gr') {
+          setValueNormativID(tableData[0].normativ_id);
+          setValueNormativIDInitial(tableData[0].normativ_id);
+        }
       }
     }
-    }, [ isLoading, tableData] );
-
+  }, [isLoading, tableData, props.table_name]);
+  
     useEffect(() => {
       function updateCurrentRec (id)  {
               if (id)
@@ -120,14 +157,14 @@ const DataTableExpScenario = (props) => {
               setValueDescrRus(res[0].descr_rus);
               setValueDescrEng(res[0].descr_eng);    
               setValueParentID(res[0].parent_id||-1);    
-              setValueNormativ(res[0].normativ_id);      
+              setValueNormativID(res[0].normativ_id);      
               setValueTitleInitial(res[0].title);
               setValueNameRusInitial(res[0].name_rus);
               setValueNameEngInitial(res[0].name_eng);
               setValueDescrRusInitial(res[0].descr_rus);
               setValueDescrEngInitial(res[0].descr_eng);
               setValueParentIDInitial(res[0].parent_id||-1); 
-              setValueNormativInitial(res[0].normativ_id);      
+              setValueNormativIDInitial(res[0].normativ_id);      
           }; 
         
       if (clickAfterReload) {
@@ -135,124 +172,80 @@ const DataTableExpScenario = (props) => {
           if (lastId!==0)
             updateCurrentRec(lastId); 
       }
-    }, [ tableData] );
-
-
-const HoverContext = createContext();
-
-const HoverProvider = ({ children }) => {
-  const [hoverId, setHoverId] = useState(null);
-
-  return (
-    <HoverContext.Provider value={{ hoverId, setHoverId }}>
-      {children}
-    </HoverContext.Provider>
-  );
-};
-
-const [expanded, setExpanded] = React.useState([]);
-const [selected, setSelected] = React.useState('');
-const [treeFilterString, setTreeFilterString] = React.useState('');
-
-const TreeItems = ({ treeItems }) => {
-  const { hoverId, setHoverId } = useContext(HoverContext);
-
-  return treeItems.map(treeItemData => {
-    let children = undefined;
-    if (treeItemData.children && treeItemData.children.length > 0) {
-      children = <TreeItems treeItems={treeItemData.children} />;
-    }
-
-    return (
-      <TreeItem
-        nodeId={treeItemData.id ? treeItemData.id.toString() : '0'}
-        label={
-          <Tooltip
-            title={treeItemData.name_rus}
-            open={hoverId === treeItemData.id}
-          >
-            <span
-              onMouseEnter={() => setHoverId(treeItemData.id)}
-              onMouseLeave={() => setHoverId(null)}
-            >
-              {treeItemData.title}
-            </span>
-          </Tooltip>
-        }
-        children={children}
-        key={treeItemData.id}
-      />
-    );
-  });
-};
-
-const handleSelect = (event, nodeIds) => {
-  setSelected(nodeIds);
-  handleItemClick(nodeIds);
-};  
-
-const DataTreeView = ({ treeItems, handleItemClick, isLoading }) => {
-/*   const [expanded, setExpanded] = useState([]);
-  const [selected, setSelected] = useState(''); */
-  
-  const handleToggle = (event, nodeIds) => {
-    setExpanded(nodeIds);
-  };
-
-  return (
-    <HoverProvider>
-      <TreeView
-        aria-label="Tree navigator"
-        defaultCollapseIcon={<ExpandMoreIcon />}
-        defaultExpandIcon={<ChevronRightIcon />}
-        sx={{ height: 240, flexGrow: 1, maxWidth: 400, overflowY: 'auto' }}
-        onNodeToggle={handleToggle}
-        onNodeSelect={handleSelect}
-        expanded={expanded}
-        selected={selected}          
-        loading={isLoading}
-      >
-        <TreeItems treeItems={treeItems} />
-      </TreeView>
-    </HoverProvider>
-  );
-};
-
-/* 
-
-    const getTreeItemsFromData = treeItems => {
-      return treeItems.map(treeItemData => {
-        let children = undefined;
-        if (treeItemData.children && treeItemData.children.length > 0) {
-          children = getTreeItemsFromData(treeItemData.children);
-        }
-        return ( 
-          <Tooltip title={treeItemData.name_rus} key={treeItemData.id}>
-            <TreeItem
-              nodeId={treeItemData.id?treeItemData.id.toString():0}
-              label={treeItemData.title}
-              children={children}
-            />
-          </Tooltip>
-        );
-      });
-    };
+    }, [tableData] );
 
     const [expanded, setExpanded] = React.useState([]);
     const [selected, setSelected] = React.useState('');
-    const [treeFilterString, setTreeFilterString] = React.useState('');
+    const [updated, setUpdated] = React.useState(false);  
+
     const handleToggle = (event, nodeIds) => {
       setExpanded(nodeIds);
     };
   
-    const handleSelect = (event, nodeIds) => {
-      setSelected(nodeIds);
-      handleItemClick(nodeIds);
-    };  
-
     const [treeFilterString, setTreeFilterString] = React.useState('');
+    const nodeRefs = React.useRef({}); 
+    const scrollContainerRef = React.useRef();
+
+    useEffect(() => {
+      if (updated && selected && nodeRefs.current[selected]) {
+        const node = nodeRefs.current[selected];
+        const scrollContainer = scrollContainerRef.current;
+
+        if (node && scrollContainer) {
+
+          const nodePosition = node.offsetTop;
+         
+          if (nodePosition < scrollContainer.scrollTop || nodePosition > (scrollContainer.scrollTop + scrollContainer.clientHeight)) {
+            scrollContainer.scrollTop = nodePosition - scrollContainer.clientHeight / 2;
+          } 
+        }
+        setUpdated(false); // Reset the updated state to false after scrolling
+      }
+    }, [updated, selected]);
+    
 
     const DataTreeView = ({ treeItems }) => {
+      const getTreeItemsFromData = treeItems => {
+      
+        return treeItems.map(treeItemData => {
+          let children = undefined;
+          if (treeItemData.children && treeItemData.children.length > 0) {
+            children = getTreeItemsFromData(treeItemData.children);
+          }
+          return (
+            <TreeItem
+            sx={{ 
+              '&.Mui-selected': {
+                '& .MuiTreeItem-label': {
+                  backgroundColor: 'rgba(0, 0, 0, 0.11)',
+                },
+              },
+              '&.Mui-selected:focus': {
+                '& .MuiTreeItem-label': {
+                  backgroundColor: 'rgba(0, 0, 0, 0.11)',
+                },
+              },
+            }}              
+              key={treeItemData.id}
+              nodeId={treeItemData.id?treeItemData.id.toString():0}
+              ref={(el) => (nodeRefs.current[treeItemData.id] = el)}
+              label={
+                <Tooltip title={treeItemData.name_rus}>
+                <div style={{ display: 'flex', alignItems: 'center' }}>
+                  {treeItemData.crit === 0 ?
+                    <SvgIcon fontSize="small" style={{ color: '#4b77d1', fontSize: '19px' }} component={FolderIcon} inheritViewBox />: 
+                    <SvgIcon fontSize="small" style={{ color: '#4b77d1', fontSize: '19px' }} component={FileIcon} inheritViewBox />
+                  }
+                  <span style={{ marginLeft: '5px' }}>{treeItemData.title}</span>
+                </div>
+                </Tooltip>
+              }
+              children={children}
+            />
+          );
+        });
+      };
+  
       return (
         <div>
         <p></p>
@@ -260,59 +253,118 @@ const DataTreeView = ({ treeItems, handleItemClick, isLoading }) => {
           aria-label="Tree navigator"
           defaultCollapseIcon={<ExpandMoreIcon />}
           defaultExpandIcon={<ChevronRightIcon />}
-          sx={{ height: 240, flexGrow: 1, maxWidth: 400, overflowY: 'auto' }}
+          sx={{ 
+            height: 240, 
+            flexGrow: 1, 
+            maxWidth: 400, 
+            overflowY: 'auto',
+            '& .MuiTreeItem-root.Mui-selected > .MuiTreeItem-content': {
+              backgroundColor: 'rgba(0, 0, 0, 0.11)',
+            },
+            '& .MuiTreeItem-root.Mui-selected:focus > .MuiTreeItem-content': {
+              backgroundColor: 'rgba(0, 0, 0, 0.11)',
+            },
+          }}
           onNodeToggle={handleToggle}
           onNodeSelect={handleSelect}
           expanded={expanded}
           selected={selected}          
-          //onNodeToggle={handleChange}
-          //defaultExpanded={[1,2]}
-          //expanded={true}
           loading={isLoading}
-          //defaultExpanded={ids}
         >
           {getTreeItemsFromData(treeItems)}
         </TreeView></div>
       );
-    }; */
+    };
 
-  const handleItemClick = (id) => {
+  useEffect(() => {
+    // Здесь код, который будет выполняться после каждого обновления treeData
+    setUpdated(true);
+  }, [treeData]);    
+
+
+  const setValues = (row) => {
+    const valueSetters = {
+      title: setValueTitle,
+      name_rus: setValueNameRus,
+      name_eng: setValueNameEng,
+      descr_rus: setValueDescrRus,
+      descr_eng: setValueDescrEng,
+      parent_id: setValueParentID,
+      ...(props.table_name === 'criterion_gr' && {normativ_id: setValueNormativID})
+    }
+    
+    const initialValueSetters = {
+      title: setValueTitleInitial,
+      name_rus: setValueNameRusInitial,
+      name_eng: setValueNameEngInitial,
+      descr_rus: setValueDescrRusInitial,
+      descr_eng: setValueDescrEngInitial,
+      parent_id: setValueParentIDInitial,
+      ...(props.table_name === 'criterion_gr' && {normativ_id: setValueNormativIDInitial})
+    }
+  
+    Object.keys(valueSetters).forEach((key) => {
+      const setValue = valueSetters[key];
+      if (key in row) {
+        // Если ключ - parent_id и значение не определено, устанавливаем его в -1
+        if (key === 'parent_id' && !row[key]) {
+          setValue(-1);
+        } else {
+          setValue(row[key]);
+        }        
+      } else {
+        console.log("Ключа " + key + " не существует в объекте row");
+      }
+    });
+  
+    Object.keys(initialValueSetters).forEach((key) => {
+      const setValueInitial = initialValueSetters[key];
+      if (key in row) {
+        // Если ключ - parent_id и значение не определено, устанавливаем его в -1
+        if (key === 'parent_id' && !row[key]) {
+          setValueInitial(-1);
+        } else {
+          setValueInitial(row[key]);
+        }            
+      } else {
+        console.log("Ключа " + key + " не существует в объекте row");
+      }
+    });
+  };
+  
+
+  useEffect(() => {
+    const rowData = tableData.find(row => row.id === valueId);
+    console.log('if (rowData) {', valueId, rowData);
+    if (rowData) {
+      setValues(rowData);
+    }
+  }, [tableData, valueId]);
+
+  const handleSelect = (event, nodeIds) => {
+    setSelected(nodeIds);
     setOpenAlert(false);  
-    console.log( 'isEmpty = '+isEmpty);
-    clickedId = id;
-    if (editStarted&&(!isEmpty))
-    {
-      handleClickSave(id);
-    } 
-    else 
-    {
-      if (id)
+    const id = Number(nodeIds); // преобразуем id в число
+    console.log('setClickedRowId id = ' + id);
+    setClickedRowId(id);
+  
+    if (editStarted) {
+      setDialogType('save');
+    } else {
+      if (id) {
         lastId = id;
-      var res = tableData.filter(function(item) {
-        return item.id.toString() === id;
-      });
-      setValueID(res[0].id); 
-      setValueTitle(res[0].title);
-      setValueNameRus(res[0].name_rus);
-      setValueNameEng(res[0].name_eng);
-      setValueDescrRus(res[0].descr_rus);
-      setValueDescrEng(res[0].descr_eng);    
-      setValueParentID(res[0].parent_id||-1);    
-      setValueNormativ(res[0].normativ_id);      
-      setValueTitleInitial(res[0].title);
-      setValueNameRusInitial(res[0].name_rus);
-      setValueNameEngInitial(res[0].name_eng);
-      setValueDescrRusInitial(res[0].descr_rus);
-      setValueDescrEngInitial(res[0].descr_eng);
-      setValueParentIDInitial(res[0].parent_id||-1); 
-      setValueNormativInitial(res[0].normativ_id);
-    }   
-  }; 
+      }
+      setValueID(id);
+    }
+  };
+
+ // const treeDataCriterionGr = React.useMemo(() => transformData(tableCriterionGr), [tableCriterionGr]);
+ // const treeDataOrgan = React.useMemo(() => transformData(tableOrgan), [tableOrgan]);
 
   const handleClearClick = (params) => {
-    if (editStarted&&(!isEmpty))
+    if (editStarted/* &&(!isEmpty) */)
     {
-      handleClickSaveWhenNew(params);
+      setDialogType('save');
     } 
     else 
     {
@@ -323,16 +375,14 @@ const DataTreeView = ({ treeItems, handleItemClick, isLoading }) => {
       setValueDescrRus(``);
       setValueDescrEng(``);
       setValueParentID(valueId); //-1
-      setValueNormativ(valueNormativ);
+      setValueNormativID(valueNormativID);
     }
   }; 
 
   useEffect(() => {
     fetch(`/${props.table_name}`)
       .then((data) => data.json())
-      .then((data) => setTableData(data))
-      .then((data) => {  //lastId = data[0].id||0; clickAfterReload = true; console.log( 'setSelected ');  //console.log( tableData[0].id||0 ); 
-          } ); 
+      .then((data) => setTableData(data)); 
   }, [props.table_name])
 
   useEffect(() => {
@@ -344,7 +394,6 @@ const DataTreeView = ({ treeItems, handleItemClick, isLoading }) => {
         return item.id.toString() === id;
       });
 
-      //console.log('res.length ' + res.length);
       setValueID(res[0].id); 
       setValueTitle(res[0].title);
       setValueNameRus(res[0].name_rus);
@@ -352,32 +401,35 @@ const DataTreeView = ({ treeItems, handleItemClick, isLoading }) => {
       setValueDescrRus(res[0].descr_rus);
       setValueDescrEng(res[0].descr_eng);    
       setValueParentID(res[0].parent_id||-1);    
-      setValueNormativ(res[0].normativ_id);      
+      setValueNormativID(res[0].normativ_id);      
       setValueTitleInitial(res[0].title);
       setValueNameRusInitial(res[0].name_rus);
       setValueNameEngInitial(res[0].name_eng);
       setValueDescrRusInitial(res[0].descr_rus);
       setValueDescrEngInitial(res[0].descr_eng);
       setValueParentIDInitial(res[0].parent_id||-1); 
-      setValueNormativInitial(res[0].normativ_id);      
+      setValueNormativIDInitial(res[0].normativ_id);      
     }; 
-
-    //console.log( 'selected = ' + selected + ' tableData.length ' + tableData.length );
     if ((!selected)&&(tableData.length))
     {
-      //console.log( 'setSelected(tableData[0].id.toString()); = ' + tableData[0].id.toString()  );
-
       setSelected(tableData[0].id.toString());
       updateCurrentRec(tableData[0].id.toString());
     }      
   }, [tableData, selected])
 
+  const fetchData = async (url, setStateFunc) => {
+    try {
+      const response = await fetch(url);
+      const data = await response.json();
+      setStateFunc(data);
+    } catch (error) {
+      console.error(`Failed to fetch data from ${url}: ${error.message}`);
+    }
+  };
+
   useEffect(() => {
-    fetch(`/normativ`)
-      .then((data) => data.json())
-      .then((data) => setNormativ(data))
-      .then((data) => { /* lastId = 0; */} ); 
-  }, [valueNormativ])
+    fetchData('/normativ', setTableNormativ);
+  }, []);
 
   ///////////////////////////////////////////////////////////////////  Tree load functions and hook  /////////////////////
   useEffect(() => {
@@ -386,38 +438,48 @@ const DataTreeView = ({ treeItems, handleItemClick, isLoading }) => {
     setTreeData(arr);
   }, [tableData, treeFilterString]);
 
+  function getParentIds(tree, targetId) {
+    const result = [];
+    for (const item of tree) {
+      if (item.id === targetId) {
+        return [item.id]; // Если это целевой элемент, возвращаем его id в массиве
+      } else if (item.children) {
+        const childResult = getParentIds(item.children, targetId); // Если есть дети, ищем в детях
+        if (childResult.length > 0) {
+          // Если нашли в детях, добавляем текущий id в результат и возвращаем
+          return [item.id, ...childResult];
+        }
+      }
+    }
+    return result; // Если не нашли, возвращаем пустой массив
+  }
 
-  //  состояние для управления диалогом
-  const [open, setOpen] = React.useState(false);
+    //  состояние для управления диалогом
+    const [open, setOpen] = React.useState(false);
 
-  // Функция для открытия диалога
-  const handleClickOpen = () => {
-    setOpen(true);
-  };
-
-  // Функция для закрытия диалога
-  const handleClose = () => {
-    setOpen(false);
-  };
-
+    // Функция для открытия диалога
+    const handleClickOpen = () => {
+      setOpen(true);
+    };
+  
+    // Функция для закрытия диалога
+    const handleClose = () => {
+      setOpen(false);
+    };
+  
   ///////////////////////////////////////////////////////////////////  SAVE  /////////////////////
   const saveRec = async ( fromToolbar ) => {
-
     // Проверка на то, что нормативная база у родителя и ребенка совпадает
     if (valueParentID !== -1) { // если запись не на верхнем уровне
       const parentNormativ = tableData.find(item => item.id === valueParentID).normativ_id;
-      if (parentNormativ !== valueNormativ) {
+      if (parentNormativ !== valueNormativID) {
           handleClickOpen();
           //alert("Нормативная база у дочерней записи и родительской записи должна быть одинаковой!");
           return; // выйти из функции, не продолжая сохранение
       }
-  }    
-
+    }    
     if (formRef.current.reportValidity() )
     {
-
-    let myParentID;
-    myParentID = valueParentID === -1 ? null : valueParentID;  
     const js = JSON.stringify({
       id: valueId,
       title: valueTitle,
@@ -425,8 +487,8 @@ const DataTreeView = ({ treeItems, handleItemClick, isLoading }) => {
       name_eng: valueNameEng,
       descr_rus: valueDescrRus,
       descr_eng: valueDescrEng,
-      parent_id: myParentID,    
-      normativ_id: valueNormativ     
+      parent_id: valueParentID === -1 ? null : valueParentID, 
+      normativ_id: valueNormativID
     });
 
     if (!valueId) {
@@ -444,40 +506,62 @@ const DataTreeView = ({ treeItems, handleItemClick, isLoading }) => {
        },
      });
      if (!response.ok) {
-        alertSeverity = 'error';
-        alertText = await response.text();
-        setOpenAlert(true);          
+        setAlertSeverity('error');
+        setAlertText(await response.text());
       }
       else
       {
-        alertSeverity = "success";
-        alertText = await response.text();
-        setOpenAlert(true);  
+        setAlertSeverity('success');
+        setAlertText(await response.text());        
+        if (valueParentID) {
+          const parentIds = getParentIds(treeData, valueParentID).map(String); // получите список всех родительских элементов
+          const newExpanded = new Set([...expanded, ...parentIds]); // добавьте их к уже раскрытым элементам, убрав дубликаты
+          setExpanded(Array.from(newExpanded)); // преобразуйте обратно в массив и установите как новое состояние
+        }  
+        if (valueParentID && !expanded.includes(valueParentID.toString())) {
+          setExpanded(prevExpanded => [...prevExpanded, valueParentID.toString()]);
+        }
+        await reloadData();
       }
-   } catch (err) {
-     alertText = err.message;
-     alertSeverity = 'error';
-     setOpenAlert(true);
-   } finally {
-     setIsLoading('false');
-     if (fromToolbar) 
-     {
-       setValueTitleInitial(valueTitle);       
-       setValueNameRusInitial(valueNameRus); 
-       setValueNameEngInitial(valueNameEng);
-       setValueDescrRusInitial(valueDescrRus);
-       setValueDescrEngInitial(valueDescrEng);    
-       setValueParentIDInitial(valueParentID);
-       setValueNormativInitial(valueNormativ);
+      setOpenAlert(true); 
+    } catch (err) {
+      setAlertSeverity('error');
+      setAlertText(err.message);
+      setOpenAlert(true);
+    } finally {
+      setIsLoading('false');
+      if (fromToolbar) 
+      {
+        setValueTitleInitial(valueTitle);       
+        setValueNameRusInitial(valueNameRus); 
+        setValueNameEngInitial(valueNameEng);
+        setValueDescrRusInitial(valueDescrRus);
+        setValueDescrEngInitial(valueDescrEng);    
+        setValueParentIDInitial(valueParentID);
+        setValueNormativIDInitial(valueNormativID);
+        setValueTitleInitial(valueTitle);       
+        setValueNameRusInitial(valueNameRus); 
+        setValueNameEngInitial(valueNameEng);
+        setValueDescrRusInitial(valueDescrRus);
+        setValueDescrEngInitial(valueDescrEng);    
+        setValueParentIDInitial(valueParentID);
+        setValueNormativIDInitial(valueNormativID);     
      }
-    reloadData();     
    }
   }
- };
+};
+
+
 /////////////////////////////////////////////////////////////////// ADDREC ///////////////////// 
   const addRec = async ()  => {
-    let myParentID;
-    myParentID = valueParentID === -1 ? null : valueParentID;
+    if (valueParentID !== -1 && props.table_name==='criterion_gr') { // если запись не на верхнем уровне
+      const parentNormativ = tableData.find(item => item.id === valueParentID).normativ_id;
+      if (parentNormativ !== valueNormativID) {
+          handleClickOpen();
+          //alert("Нормативная база у дочерней записи и родительской записи должна быть одинаковой!");
+          return; // выйти из функции, не продолжая сохранение
+      }
+    }    
     const js = JSON.stringify({
       id: valueId,
       title: valueTitle,
@@ -485,8 +569,8 @@ const DataTreeView = ({ treeItems, handleItemClick, isLoading }) => {
       name_eng: valueNameEng,
       descr_rus: valueDescrRus,
       descr_eng: valueDescrEng,
-      parent_id: myParentID,
-      normativ_id: valueNormativ        
+      parent_id: valueParentID === -1 ? null : valueParentID, 
+      normativ_id: valueNormativID,
     });
     setIsLoading("true");
     try {
@@ -500,39 +584,48 @@ const DataTreeView = ({ treeItems, handleItemClick, isLoading }) => {
       });
 
       if (!response.ok) {
-        alertSeverity = 'error';
-        alertText = await response.text();
-        setOpenAlert(true);          
+        setAlertSeverity('error');
+        setAlertText(await response.text());        
       }
       else
       {
-        alertSeverity = "success";
         const { id } = await response.json();
-        alertText = `Добавлена запись с кодом ${id}`;
+        setAlertSeverity('success');
+        setAlertText(`Добавлена запись с кодом ${id}`);        
         lastId = id;         
         console.log('setSelected lastId' + lastId);
         setValueID(lastId);
         console.log('setSelected toString' + lastId.toString());
         setSelected(lastId.toString());
+
+        if (valueParentID) {
+          const parentIds = getParentIds(treeData, valueParentID).map(String); // получите список всех родительских элементов
+          const newExpanded = new Set([...expanded, ...parentIds]); // добавьте их к уже раскрытым элементам, убрав дубликаты
+          setExpanded(Array.from(newExpanded)); // преобразуйте обратно в массив и установите как новое состояние
+        }  
+        if (valueParentID && !expanded.includes(valueParentID.toString())) {
+          setExpanded(prevExpanded => [...prevExpanded, valueParentID.toString()]);
+        }
+
         setValueTitle(valueTitle);       
         setValueNameRus(valueNameRus); 
         setValueNameEng(valueNameEng);
         setValueDescrRus(valueDescrRus);
         setValueDescrEng(valueDescrEng);    
         setValueParentID(valueParentID);
-        setValueNormativ(valueNormativ);         
+        setValueNormativID(valueNormativID);         
         setValueTitleInitial(valueTitle);       
         setValueNameRusInitial(valueNameRus); 
         setValueNameEngInitial(valueNameEng);
         setValueDescrRusInitial(valueDescrRus);
         setValueDescrEngInitial(valueDescrEng);    
         setValueParentIDInitial(valueParentID);
-        setValueNormativInitial(valueNormativ);        
-        setOpenAlert(true);  
+        setValueNormativIDInitial(valueNormativID);     
       }
+      setOpenAlert(true);
     } catch (err) {
-      alertText = err.message;
-      alertSeverity = 'error';
+      setAlertSeverity('error');
+      setAlertText(err.message);
       setOpenAlert(true);
     } finally {
       setIsLoading("false");
@@ -557,19 +650,14 @@ const DataTreeView = ({ treeItems, handleItemClick, isLoading }) => {
         },
       });
       if (!response.ok) {
-        //console.log('response not OK');
-        alertSeverity = 'error';
-        alertText = await response.text();
-        setOpenAlert(true);          
+        setAlertSeverity('error');
+        setAlertText(await response.text());
       }
       else
       {
-        //console.log('response OK');
-        alertSeverity = "success";
-        alertText = await response.text();
-        setOpenAlert(true); 
+        setAlertSeverity('success');
+        setAlertText(await response.text());        
         reloadData();
-        //setSelectionModel(tableData[0].id );  
         setValueID(tableData[0].id);
         setValueTitle(tableData[0].title);
         setValueNameRus(tableData[0].name_rus);
@@ -583,12 +671,48 @@ const DataTreeView = ({ treeItems, handleItemClick, isLoading }) => {
         setValueDescrEngInitial(tableData[0].descr_eng);
         setValueParentID(tableData[0].parent_id||-1);
         setValueParentIDInitial(tableData[0].parent_id||-1);
-        setValueNormativ(tableData[0].normativ_id);
-        setValueNormativInitial(tableData[0].normativ_id);
+        setValueNormativID(tableData[0].normativ_id);
+        setValueNormativIDInitial(tableData[0].normativ_id);
+
+/* 
+        setValueCalcfunctionID(tableData[0].calcfunction_id);
+        setValueIrradiation(tableData[0].irradiation_id);
+        setValueAgegroup(tableData[0].agegroup_id);
+        setValueExpScenario(tableData[0].exp_scenario_id);
+        setValueIntegralPeriod(tableData[0].integral_period_id);
+        setValueOrgan(tableData[0].organ_id);
+        setValueDataSource(tableData[0].data_source_id);
+        setValueAerosolAmad(tableData[0].aerosol_amad_id);
+        setValueAerosolSol(tableData[0].aerosol_sol_id);
+        setValueChemCompGr(tableData[0].chem_comp_gr_id);
+        setValueSubstForm(tableData[0].subst_form_id);
+        setValueIsotope(tableData[0].isotope_id);
+        setValueActionLevel(tableData[0].action_level_id);
+        setValuePeopleClass(tableData[0].people_class_id);
+        setValueCrValue(tableData[0].cr_value);
+        setValueTimeend(tableData[0].timeend);
+
+        setValueCalcfunctionIDInitial(tableData[0].calcfunction_id);
+        setValueIrradiationInitial(tableData[0].irradiation_id);
+        setValueAgegroupInitial(tableData[0].agegroup_id);
+        setValueExpScenarioInitial(tableData[0].exp_scenario_id);
+        setValueIntegralPeriodInitial(tableData[0].integral_period_id);
+        setValueOrganInitial(tableData[0].organ_id);
+        setValueDataSourceInitial(tableData[0].data_source_id);
+        setValueAerosolAmadInitial(tableData[0].aerosol_amad_id);
+        setValueAerosolSolInitial(tableData[0].aerosol_sol_id);
+        setValueChemCompGrInitial(tableData[0].chem_comp_gr_id);
+        setValueSubstFormInitial(tableData[0].subst_form_id);
+        setValueIsotopeInitial(tableData[0].isotope_id);
+        setValueActionLevelInitial(tableData[0].action_level_id);
+        setValuePeopleClassInitial(tableData[0].people_class_id);
+        setValueCrValueInitial(tableData[0].cr_value);
+        setValueTimeendInitial(tableData[0].timeend); */
       }
+      setOpenAlert(true);  
     } catch (err) {
-      alertText = err.message;
-      alertSeverity = 'error';
+      setAlertSeverity('error');
+      setAlertText(err.message);
       setOpenAlert(true);
     } finally {
       setIsLoading("false");
@@ -597,19 +721,16 @@ const DataTreeView = ({ treeItems, handleItemClick, isLoading }) => {
 
   /////////////////////////////////////////////////////////////////// RELOAD /////////////////////
   const handleClickReload = async () => {
-    alertSeverity = "info";
-    alertText =  'Данные успешно обновлены';
+    setAlertSeverity('info');
+    setAlertText('Данные успешно обновлены');
     try 
     {
-      //console.log('handleClickReload await reloadData();');
       clickAfterReload = true;
       await reloadData().then( console.log('after reload, title = '+tableData[0].title) ) ;
-      //console.log('handleClickReload handleItemClick(lastId); lastId= '+lastId);
-      //handleItemClick(lastId);
     } catch(e)
     {
-      alertSeverity = "error";
-      alertText =  'Ошибка при обновлении данных: '+e.message;      
+      setAlertSeverity('error');
+      setAlertText('Ошибка при обновлении данных: '+e.message);
       setOpenAlert(true);
       return;
     }    
@@ -617,11 +738,12 @@ const DataTreeView = ({ treeItems, handleItemClick, isLoading }) => {
   }
 
   const reloadData = async () => {
+    
     try {
       const response = await fetch(`/${props.table_name}/`);
       if (!response.ok) {
-        alertText = `Ошибка при обновлении данных: ${response.status}`;
-        alertSeverity = "false";
+        setAlertSeverity('error');
+        setAlertText(`Ошибка при обновлении данных: ${response.status}`);
         const error = response.status + ' (' +response.statusText+')';  
         throw new Error(`${error}`);
       }
@@ -629,6 +751,7 @@ const DataTreeView = ({ treeItems, handleItemClick, isLoading }) => {
       {  
         const result = await response.json();
         setTableData(result);
+        console.log('after reload');
       }
     } catch (err) {
       throw err;
@@ -637,116 +760,173 @@ const DataTreeView = ({ treeItems, handleItemClick, isLoading }) => {
     }
   };
 
-  /////////////////////////////////////////
-  const [openDel, setOpenDel] = React.useState(false); 
-  const [openSave, setOpenSave] = React.useState(false); 
-  const [openSaveWhenNew, setOpenSaveWhenNew] = React.useState(false); 
+  ///////////////////////////////////////// DIALOG
+  const [dialogType, setDialogType] = useState('');
+  const [clickedRowId, setClickedRowId] = useState(null);
 
-  const handleClickDelete = () => {
-    setOpenDel(true);
-  };
-
-  const handleCloseDelNo = () => {
-    setOpenDel(false);
-  };
-
-  const handleCloseDelYes = () => {
-    setOpenDel(false);
-    delRec();
-  };
-
-  const handleClickSave = () => {
-    setOpenSave(true);
-  };
-
-  function updateCurrentRecHandles (id)  {
-    if (id)
-      lastId = id;
+  const setValuesById = (id) => {
+    //console.log( 'id = '+id);
+    //if (id)
+    //  lastId = id;
     var res = tableData.filter(function(item) {
-      return item.id.toString() === id;
+      return item.id === id;
     });
-    //console.log('res.length ' + res.length);
-    setValueID(res[0].id); 
-    setValueTitle(res[0].title);
-    setValueNameRus(res[0].name_rus);
-    setValueNameEng(res[0].name_eng);
-    setValueDescrRus(res[0].descr_rus);
-    setValueDescrEng(res[0].descr_eng);    
-    setValueParentID(res[0].parent_id||-1);    
-    setValueNormativ(res[0].normativ_id);      
-    setValueTitleInitial(res[0].title);
-    setValueNameRusInitial(res[0].name_rus);
-    setValueNameEngInitial(res[0].name_eng);
-    setValueDescrRusInitial(res[0].descr_rus);
-    setValueDescrEngInitial(res[0].descr_eng);
-    setValueParentIDInitial(res[0].parent_id||-1); 
-    setValueNormativInitial(res[0].normativ_id);      
-  }; 
+    console.log('console ', id, res[0]);
+    setValues(res[0]);
+  };   
 
-  const handleCloseSaveNo = () => {
-    setOpenSave(false);
-    //handleCancelClick();
-    updateCurrentRecHandles(clickedId);
+  const getDialogContentText = () => {
+    const allRequiredFieldsFilled = formRef.current?.checkValidity();
+    switch (dialogType) {
+      case 'delete':
+        return (
+          <>
+            В таблице "{table_names[props.table_name]}" предложена к удалению следующая запись: 
+            <br />
+            {valueTitle}; Код в БД = {valueId}. 
+            <br />
+            Вы желаете удалить указанную запись?
+          </>);
+      case 'save':
+        if (!valueId) { // если это новая запись
+          if (allRequiredFieldsFilled) {
+            return `Создана новая запись, сохранить?`;
+          } else {
+            return (
+              <>
+                Не заданы обязательные поля, запись не будет создана.
+                <br />
+                Перейти без сохранения изменений?
+              </>
+            );
+          }
+        } else { // если это редактируемая запись
+          if (allRequiredFieldsFilled) {
+            return `В запись внесены изменения, сохранить изменения?`;
+          } else {
+            return (
+              <>
+                Не заданы обязательные поля, изменения не будут сохранены
+                <br />
+                Перейти без сохранения изменений?
+              </>
+            );            
+          }
+        }
+      default:
+        return '';
+    }
   };
 
-  const handleCloseSaveYes = () => {
-    setOpenSave(false);
-    saveRec(false);
-    //handleCancelClick();
-    updateCurrentRecHandles(clickedId);
+  const handleCloseNo = () => {
+    switch (dialogType) {
+      case 'save':
+        setEditStarted(false);
+        setValueID(clickedRowId);
+        setSelected(clickedRowId.toString());
+        break;
+      default:
+    }
+    setDialogType('');
   };
 
-  const handleClickSaveWhenNew = () => {
-    setOpenSaveWhenNew(true);
+  const handleCloseCancel = () => {
+    switch (dialogType) {
+      case 'save':
+        setSelected(valueId.toString());
+        break;
+      default:
+        break;
+    }
+    setDialogType('');
+  };
+  
+  const handleCloseYes = () => {
+    switch (dialogType) {
+      case 'delete':
+        delRec();
+        break;
+      case 'save':
+        saveRec(false);
+        break;
+      default:
+        break;
+    }
+    
+    setDialogType('');
+
+    if (clickedRowId>0) {
+      setEditStarted(false);
+      console.log('yes', clickedRowId);
+      setSelected(clickedRowId.toString());
+      //setRowSelectionModel([clickedRowId]);
+      const rowData = tableData.find(row => row.id === clickedRowId);
+      setValues(rowData);
+      setValueID(clickedRowId);
+      setEditStarted(false);
+    }
   };
 
-  const handleCloseSaveWhenNewNo = () => {
-    setOpenSaveWhenNew(false);
-    //updateCurrentRecHandles(clickedId);    
-  };
-
-  const handleCloseSaveWhenNewYes = () => {
-    //console.log('handleCloseSaveWhenNewYes');
-    setOpenSaveWhenNew(false);
-    saveRec(true);
-    //console.log('handleCloseSaveWhenNewYes lastId = '+lastId);
-    //updateCurrentRec(lastId);    
-  };
-
+  function DialogButtons() {
+    const allRequiredFieldsFilled = formRef.current?.checkValidity();
+  
+    if (dialogType === 'save' && !allRequiredFieldsFilled) {
+      return (
+        <>
+          <Button variant="outlined" onClick={handleCloseNo} >Да</Button>
+          <Button variant="outlined" onClick={handleCloseCancel} >Отмена</Button>
+        </>
+      );
+    } else {
+      return (
+        <>
+          <Button variant="outlined" onClick={handleCloseYes} >Да</Button>
+          <Button variant="outlined" onClick={handleCloseNo} >Нет</Button>
+          {dialogType !== 'delete' && <Button variant="outlined" onClick={handleCloseCancel} >Отмена</Button>}
+        </>
+      );
+    }
+  }
+ 
   //////////////////////////////////////////////////////// ACTIONS ///////////////////////////////
   const [openAlert, setOpenAlert] = React.useState(false, '');
   const handleCancelClick = () => 
   {
-    const selectedIDs = selected;
-    const selectedRowData = tableData.filter((row) => selectedIDs===row.id.toString());
-    if (selectedRowData.length)
-    {
-      setValueID(selectedRowData[0].id);
-      setValueTitle(selectedRowData[0].title);
-      setValueNameRus(selectedRowData[0].name_rus);
-      setValueNameEng(selectedRowData[0].name_eng );
-      setValueDescrRus(selectedRowData[0].descr_rus);
-      setValueDescrEng(selectedRowData[0].descr_eng );
-      setValueTitleInitial(selectedRowData[0].title);
-      setValueNameRusInitial(selectedRowData[0].name_rus);
-      setValueNameEngInitial(selectedRowData[0].name_eng );
-      setValueDescrRusInitial(selectedRowData[0].descr_rus);
-      setValueDescrEngInitial(selectedRowData[0].descr_eng);
-      setValueParentID(selectedRowData[0].parent_id||-1);
-      setValueParentIDInitial(selectedRowData[0].parent_id||-1);
-      setValueNormativ(selectedRowData[0].normativ_id);
-      setValueNormativInitial(selectedRowData[0].normativ_id);
-    }
+    setEditStarted(false);
+    setValuesById(valueId);
   }
 
   function getHeaders(atable)
   {
-    if (atable==='criterion_gr') 
-      return ['Обозначение','Название(рус.яз)','Название(англ.яз)','Нормативная база','Родительский класс','Комментарий(рус.яз)','Комментарий(англ.яз)'];
-    if (atable==='organ') 
-      return ['Обозначение','Название(рус.яз)','Название(англ.яз)','Родительский класс','Комментарий(рус.яз)','Комментарий(англ.яз)'];
-    if (atable==='exp_scenario') 
-      return ['Обозначение','Название(рус.яз)','Название(англ.яз)','Родительский класс','Комментарий(рус.яз)','Комментарий(англ.яз)'];
+    if (atable==='criterion') 
+      return ['Обозначение','Название(рус.яз)','Название(англ.яз)','Группа критериев','Комментарий(рус.яз)','Комментарий(англ.яз)','Функция',
+      'Значение','Время облучения, сек',
+      'Уровень вмешательства',
+      'Тип облучения','Тип облучаемых лиц','Возрастная группа населения','Сценарий поступления','Период интегрирования','Орган / Ткань','Нуклид',
+      'Форма вещества','Химические соединения (группа)','Тип растворимости','AMAD','Источник данных', ];
+  }
+  function getTableDataForExcel(t) {
+    function replacer(i, val) {
+        if (val === null) {
+            return ""; // change null to empty string
+        } else {
+            return val; // return unchanged
+        }
+    }
+    var arr_excel = t.map(({
+        title, name_rus, name_eng, descr_rus, descr_eng, parent_name, normativ_title, calcfunction_title, cr_value, timeend,
+        action_level_title,
+        irradiation_title, people_class_title, agegroup_title, exp_scenario_title, integral_period_title, organ_title, isotope_title, 
+        subst_form_title, chem_comp_gr_title, aerosol_sol_title, aerosol_amad_title, data_source_title,
+    }) => ({
+        title, name_rus, name_eng, parent_name, descr_rus, descr_eng, normativ_title, calcfunction_title, cr_value, timeend,
+        action_level_title,
+        irradiation_title, people_class_title, agegroup_title, exp_scenario_title, integral_period_title, organ_title, isotope_title, 
+        subst_form_title, chem_comp_gr_title, aerosol_sol_title, aerosol_amad_title, data_source_title
+    }));
+    arr_excel = JSON.parse(JSON.stringify(arr_excel, replacer));
+
+    return (arr_excel);
   }
 
   const optionsCSV = {
@@ -763,31 +943,6 @@ const DataTreeView = ({ treeItems, handleItemClick, isLoading }) => {
   };
 
 
-
-  function getTableDataForExcel( t ) 
-  {
-    function replacer(i, val) {
-      if ( val === null ) 
-      { 
-         return ""; // change null to empty string
-      } else {
-         return val; // return unchanged
-      }
-     }
-
-    var arr_excel = [];
-    
-    if (props.table_name==='criterion_gr')  
-      arr_excel= t.map(({title, name_rus, name_eng, descr_rus, descr_eng, parent_name, normativ_title}) => ({title, name_rus, name_eng, normativ_title, parent_name, descr_rus, descr_eng}))
-    else
-      arr_excel= t.map(({title, name_rus, name_eng, descr_rus, descr_eng, parent_name}) => ({title, name_rus, name_eng, parent_name, descr_rus, descr_eng}));
-
-    //arr_excel = JSON.parse(JSON.stringify(arr_excel).replace(/\:null/gi, "\:\"\"")); 
-    arr_excel = JSON.parse( JSON.stringify(arr_excel, replacer) );
-
-    return(arr_excel);
-  }
-
   const exportDataCSV = async () => {
     const csvExporter = new ExportToCsv(optionsCSV);
     console.log(treeFilterString);
@@ -796,7 +951,7 @@ const DataTreeView = ({ treeItems, handleItemClick, isLoading }) => {
     );
     csvExporter.generateCsv(getTableDataForExcel(filteredData));
   }
-
+      
   const setTreeFilter = (e) => { 
     const value = e;
     const filter = value.trim();
@@ -829,215 +984,261 @@ const DataTreeView = ({ treeItems, handleItemClick, isLoading }) => {
     setExpanded(expandedNew);
   }, [expanded, tableData]);
 
+
   const formRef = React.useRef();
   return (
-
-    <div style={{ height: 650, width: 1500 }}>
-    <form ref={formRef}>  
-
-    <table border = "0" style={{ height: 650, width: 1500 }} ><tbody>
-    <tr>
-      <td style={{ height: 550, width: 600, verticalAlign: 'top' }}>
-      <div style={{ height: 500, width: 585 }}>
-      <Box sx={{ border: 1, borderRadius: '4px', borderColor: 'grey.300', height: 500, p: '4px' }} >
-        <IconButton onClick={()=>handleClearClick()}  color="primary" size="small" title="Создать запись">
-          <SvgIcon fontSize="small" component={PlusLightIcon} inheritViewBox /></IconButton>
-        <IconButton onClick={()=>saveRec(true)}  color="primary" size="small" title="Сохранить запись в БД">
-          <SvgIcon fontSize="small" component={SaveLightIcon} inheritViewBox/></IconButton>
-        <IconButton onClick={()=>handleClickDelete()}  color="primary" size="small" title="Удалить запись">
-          <SvgIcon fontSize="small" component={TrashLightIcon} inheritViewBox /></IconButton>
-        <IconButton onClick={()=>handleCancelClick()} disabled={!editStarted} color="primary" size="small" title="Отменить редактирование">
-          <SvgIcon fontSize="small" component={UndoLightIcon} inheritViewBox /></IconButton>
-        <IconButton onClick={()=>handleClickReload()} color="primary" size="small" title="Обновить данные">
-          <SvgIcon fontSize="small" component={RepeatLightIcon} inheritViewBox /></IconButton>
-        <IconButton onClick={()=>exportDataCSV()} color="primary" size="small" title="Сохранить в формате CSV">
-          <SvgIcon fontSize="small" component={DownloadLightIcon} inheritViewBox /></IconButton>
-        <IconButton onClick={()=>expandTree()} color="primary" size="small" title={expanded.length !== 0?"Свернуть все":"Развернуть все"} >
-          <SvgIcon fontSize="small" component={expanded.length !== 0?CollapseIcon:ExpandIcon} inheritViewBox /></IconButton>
-        <br/><TextField label="Фильтр ..." size = "small" variant="standard" value={filter}
-                onChange={(e) => setFilter(e.target.value)} 
-                InputProps={{
-                  endAdornment: (
-                    <InputAdornment position="end">
-                      <IconButton onClick={applyFilter} edge="end" size="small" color="primary" disabled={!filter} title="Применить фильтр">
-                        <SvgIcon fontSize="small" component={SearchIcon} inheritViewBox />
-                      </IconButton>
-                      <IconButton onClick={clearFilter} edge="end" size="small" color="primary" disabled={!filter && !filterApplied} title={filterApplied ? "Сбросить фильтр" : "Очистить поле ввода"}>
-                        <SvgIcon fontSize="small" component={TimesCircleIcon} inheritViewBox />
-                      </IconButton>
-                    </InputAdornment>
-                  ),
-                }}
-        />
-        <Box sx={{ height: 415, overflowY: 'false' }}>
-          {(isLoading==="true") && 
-          <Backdrop sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }} open={true}>
-            <CircularProgress color="inherit" />
-          </Backdrop> } 
-          <Box sx={{ height: 415, flexGrow: 1, overflowY: 'auto' }} >     
-            <DataTreeView treeItems={treeData} />
-          </Box> 
-        </Box>
-      </Box>
-      </div>
-      <Box sx={{ width: 585 }}>
-      <Collapse in={openAlert}>
-        <Alert
-          severity={alertSeverity}
-          action={
-            <IconButton
-              aria-label="close"
-              color="inherit"
+    <>
+    
+    <Box sx={{ width: 1445, height: 650, padding: 1 }}>
+      <Grid container spacing={1}>
+        <Grid item sx={{width: 570, border: '0px solid green', ml: 1 }}>
+        <div style={{ height: 500, width: 570 }}>
+          <Box sx={{ border: 1, borderRadius: '4px', borderColor: 'rgba(0, 0, 0, 0.23)', height: 500, p: '4px' }} >
+            <IconButton onClick={()=>handleClearClick()} disabled={editStarted} color="primary" size="small" title="Создать запись">
+              <SvgIcon fontSize="small" component={PlusLightIcon} inheritViewBox /></IconButton>
+            <IconButton onClick={()=>saveRec(true)} disabled={false} color="primary" size="small" title="Сохранить запись в БД">
+              <SvgIcon fontSize="small" component={SaveLightIcon} inheritViewBox/></IconButton>
+            <IconButton onClick={()=>setDialogType('delete')} disabled={false} color="primary" size="small" title="Удалить запись">
+              <SvgIcon fontSize="small" component={TrashLightIcon} inheritViewBox /></IconButton>
+            <IconButton onClick={()=>handleCancelClick()} disabled={!editStarted} color="primary" size="small" title="Отменить редактирование">
+              <SvgIcon fontSize="small" component={UndoLightIcon} inheritViewBox /></IconButton>
+            <IconButton onClick={()=>handleClickReload()} color="primary" size="small" title="Обновить данные">
+              <SvgIcon fontSize="small" component={RepeatLightIcon} inheritViewBox /></IconButton>
+            <IconButton onClick={()=>exportDataCSV()} color="primary" size="small" title="Сохранить в формате CSV">
+              <SvgIcon fontSize="small" component={DownloadLightIcon} inheritViewBox /></IconButton>
+            <IconButton onClick={()=>expandTree()} color="primary" size="small" title={expanded.length !== 0?"Свернуть все":"Развернуть все"} >
+              <SvgIcon fontSize="small" component={expanded.length !== 0?CollapseIcon:ExpandIcon} inheritViewBox /></IconButton>
+            <br/>
+            <TextField
+              label="Фильтр ..."
               size="small"
-              onClick={() => {
-                setOpenAlert(false);
+              variant="standard"
+              value={filter}
+              onChange={(e) => setFilter(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  applyFilter();
+                }
               }}
+              InputProps={{
+                endAdornment: (
+                  <InputAdornment position="end">
+                    <IconButton
+                      onClick={applyFilter}
+                      edge="end"
+                      size="small"
+                      color="primary"
+                      disabled={!filter}
+                      title="Применить фильтр"
+                    >
+                      <SvgIcon fontSize="small" component={SearchIcon} inheritViewBox />
+                    </IconButton>
+                    <IconButton
+                      onClick={clearFilter}
+                      edge="end"
+                      size="small"
+                      color="primary"
+                      disabled={!filter && !filterApplied}
+                      title={filterApplied ? "Сбросить фильтр" : "Очистить поле ввода"}
+                    >
+                      <SvgIcon fontSize="small" component={TimesCircleIcon} inheritViewBox />
+                    </IconButton>
+                  </InputAdornment>
+                ),
+              }}
+            />
+
+            <Box sx={{ height: 415, overflowY: 'false' }}>
+              {(isLoading==="true") && 
+              <Backdrop sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }} open={true}>
+                <CircularProgress color="inherit" />
+              </Backdrop> } 
+              <Box ref={scrollContainerRef} sx={{ height: 415, flexGrow: 1, overflowY: 'auto' }} >     
+                <DataTreeView treeItems={treeData} />
+              </Box> 
+            </Box>
+          </Box>
+          </div>
+          <Box sx={{ width: 583 }}>
+          <Collapse in={openAlert}>
+            <Alert
+              item sx={{width: 571}}
+              severity={alertSeverity}
+              action={
+                <IconButton
+                  aria-label="close"
+                  color="inherit"
+                  size="small"
+                  onClick={() => {
+                    setOpenAlert(false);
+                  }}
+                >
+                  <CloseIcon fontSize="inherit" />
+                </IconButton>
+              }
             >
-              <CloseIcon fontSize="inherit" />
-            </IconButton>
-          }
-        >
-          {alertText}
-        </Alert>
-      </Collapse>
-      
-      </Box>
-      
-      </td>
-      <td style={{ height: 550, width: 900, verticalAlign: 'top' }}>
-      <TextField  id="ch_id" disabled={true} label="Код" sx={{ width: '12ch' }} variant="outlined" value={ valueId ||''} size="small" /* onChange={e => setValueID(e.target.value)} *//>
-      &nbsp;&nbsp;&nbsp;&nbsp;
-      <TextField  id="ch_name" sx={{ width: '40ch' }} label="Обозначение" required size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
-      &nbsp;&nbsp;&nbsp;&nbsp;
-      <FormControl sx={{ width: '30ch' }} size="small">
-        <InputLabel id="ch_parent_id">Родительский класс</InputLabel>
-          <Select labelId="ch_parent_id" id="ch_parent_id1" label="Родительский класс" value={valueParentID  || "" } onChange={e => setValueParentID(e.target.value)} >
-          <MenuItem key={-1} value={-1}>
+              {alertText}
+            </Alert>
+          </Collapse>
+          
+          </Box>
+        </Grid>
+        {/* <Grid item > */}
+        <Grid sx={{ width: 801, padding: 1, ml: 1.5 }}>
+        {/* <Grid item xs={7}   sx={{ ml: 1.5 }}> */}
+        {( true ) &&
+          <>
+          <form ref={formRef}> 
+
+          <Grid container spacing={1.5}>
+            <Grid item xs={2}>
+              <TextField  
+                id="ch_id" 
+                disabled={true} 
+                label="Код" 
+                variant="outlined" 
+                value={ valueId ||''} 
+                size="small"
+                fullWidth
+              />
+            </Grid>
+            <Grid item xs={4}>
+              <TextField  
+                id="ch_name" 
+                label="Обозначение" 
+                required 
+                size="small" 
+                variant="outlined" 
+                value={valueTitle || ''} 
+                onChange={e => setValueTitle(e.target.value)}
+                fullWidth
+              />
+            </Grid>
+            <Grid item xs={6}>
+              <FormControl required fullWidth size="small">
+                <InputLabel id="ch_parent_id">Родительский класс</InputLabel>
+                <Select fullWidth labelId="ch_parent_id" id="ch_parent_id1" label="Родительский класс" value={valueParentID  || "" } onChange={e => setValueParentID(e.target.value)} >
+                  <MenuItem key={-1} value={-1}>
                     {'Не задан'}
                   </MenuItem>
                   {tableData?.map(option => {
-                  return (
-                  <MenuItem key={option.id} value={option.id}>
-                    {option.title ?? option.id}
-                  </MenuItem>
-                  );
-                })}
-        </Select>
-      </FormControl>  
-
-      <p></p> 
-      <div>
-      {(() => {
-        if (props.table_name==='criterion_gr') {
-          return (
-            <div>
-              <FormControl sx={{ width: '30ch' }} size="small">
-                <InputLabel id="ch_normativ_id"required>Нормативная база</InputLabel>
-                  <Select labelId="ch_normativ_id" id="ch_normativ_id1" label="Нормативная база" required value={valueNormativ  || "" } onChange={e => setValueNormativ(e.target.value)} >
-                          {tableNormativ?.map(option => {
-                          return (
-                          <MenuItem key={option.id} value={option.id}>
-                            {option.title ?? option.id}
-                          </MenuItem>
-                          );
-                        })}
+                    return (
+                      <MenuItem key={option.id} value={option.id}>
+                        {option.title ?? option.id}
+                      </MenuItem>
+                    );
+                  })}
                 </Select>
-              </FormControl>   
-            </div>
-          )
-        } 
-      })()}
-      </div>
+              </FormControl>
+            </Grid>
+            <Grid item xs={6}>
+              <TextField  
+                id="ch_name_rus" 
+                size="small" 
+                label="Название (рус.яз)" 
+                required 
+                variant="outlined"  
+                value={valueNameRus || ''} 
+                onChange={e => setValueNameRus(e.target.value)}
+                fullWidth
+              />
+            </Grid>
+            <Grid item xs={6}>
+              <TextField  
+                id="ch_name_eng" 
+                size="small" 
+                label="Название (англ.яз)"  
+                variant="outlined" 
+                value={valueNameEng || ''} 
+                onChange={e => setValueNameEng(e.target.value)}
+                fullWidth
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField  
+                id="ch_descr_rus" 
+                label="Комментарий (рус.яз)"  
+                size="small" 
+                multiline 
+                maxRows={4} 
+                variant="outlined" 
+                value={valueDescrRus || ''} 
+                onChange={e => setValueDescrRus(e.target.value)}
+                fullWidth
+              />
+            </Grid>
+            <Grid item xs={12}>
+              <TextField  
+                id="ch_descr_eng" 
+                label="Комментарий (англ.яз)"  
+                size="small" 
+                multiline 
+                maxRows={4} 
+                variant="outlined" 
+                value={valueDescrEng || ''} 
+                onChange={e => setValueDescrEng(e.target.value)}
+                fullWidth
+              />
+            </Grid>
 
-      <p></p> 
-      <TextField  id="ch_name_rus" sx={{ width: '49ch' }}  size="small" label="Название (рус.яз)" required variant="outlined"  value={valueNameRus || ''} onChange={e => setValueNameRus(e.target.value)} />
-      &nbsp;&nbsp;&nbsp;&nbsp;
-      <TextField  id="ch_name_eng" sx={{ width: '49ch' }} size="small" label="Название (англ.яз)"  variant="outlined" value={valueNameEng || ''} onChange={e => setValueNameEng(e.target.value)}/>
-      <p></p>
-      <TextField  id="ch_descr_rus" sx={{ width: '100ch' }} label="Комментарий (рус.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrRus || ''} onChange={e => setValueDescrRus(e.target.value)}/>
-      <p></p> 
-      <TextField  id="ch_descr_rus" sx={{ width: '100ch' }} label="Комментарий (англ.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrEng || ''} onChange={e => setValueDescrEng(e.target.value)}/>
-      <p></p>
-      <div style={{ height: 300, width: 800 }}>
-        <td>Источники данных<br/>
-        <DataTableDataSourceClass table_name={props.table_name} rec_id={valueId||0} />
-        </td>
-      </div>
-    </td>
-  </tr>
-  </tbody>
-  </table>
+            {
+              props.table_name === 'criterion_gr' &&
+              <Grid item xs={12}>
+                <div>
+                  <FormControl sx={{ width: '30ch' }} size="small">
+                    <InputLabel id="ch_normativ_id" required>Нормативная база</InputLabel>
+                    <Select labelId="ch_normativ_id" id="ch_normativ_id1" label="Нормативная база" required value={valueNormativID  || "" } onChange={e => setValueNormativID(e.target.value)}>
+                      {tableNormativ?.map(option => (
+                        <MenuItem key={option.id} value={option.id}>
+                          {option.title ?? option.id}
+                        </MenuItem>
+                      ))}
+                    </Select>
+                  </FormControl>   
+                </div>
+              </Grid>
+            }
+    {/*     <Grid item xs={6}>
+            </Grid>
+    */}
+          </Grid>
+        </form>
+          <div style={{ height: 300, width: 800 }}>
+            <td>Источники данных<br/>
+            <DataTableDataSourceClass table_name={props.table_name} rec_id={valueId||0} />
+            </td>
+          </div>
+          </>}
+        </Grid>
+      </Grid>
+    </Box>
 
-  <Dialog open={openDel} onClose={handleCloseDelNo} fullWidth={true}>
-      <DialogTitle>
-          Внимание
-      </DialogTitle>
+    <Dialog open={dialogType !== ''} onClose={handleCloseCancel} fullWidth={true}>
+      <DialogTitle>Внимание</DialogTitle>
       <DialogContent>
-          <DialogContentText>
-          В таблице "{table_names[props.table_name]}" предложена к удалению следующая запись:<p></p><b>{valueTitle}</b>; Код в БД = <b>{valueId}</b><p></p>
-          Вы желаете удалить указанную запись?
-          </DialogContentText>
+        <DialogContentText>
+          {getDialogContentText()}
+        </DialogContentText>
       </DialogContent>
       <DialogActions>
-          <Button variant="outlined" onClick={handleCloseDelNo} autoFocus>Нет</Button>
-          <Button variant="outlined" onClick={handleCloseDelYes} >Да</Button>
+        <DialogButtons />
       </DialogActions>
-  </Dialog>
- 
-  <Dialog open={openSave} onClose={handleCloseSaveNo} fullWidth={true}>
-    <DialogTitle>
-        Внимание
-    </DialogTitle>
-    <DialogContent>
+    </Dialog>  
+    <Dialog open={open} onClose={handleClose}>
+      <DialogTitle>{"Ошибка"}</DialogTitle>
+      <DialogContent>
         <DialogContentText>
-          {valueId?
-          `В запись таблицы "${table_names[props.table_name]}" внесены изменения.`:
-          `В таблицу "${table_names[props.table_name]}" внесена новая несохраненная запись.`}
-          <br/>Вы желаете сохранить указанную запись?
+          {"Нормативная база у дочерней записи и родительской записи должна быть одинаковой!"}
         </DialogContentText>
-    </DialogContent>
-    <DialogActions>
-        <Button variant="outlined" onClick={handleCloseSaveNo} autoFocus>Нет</Button>
-        <Button variant="outlined" onClick={handleCloseSaveYes} >Да</Button>
-    </DialogActions>
-  </Dialog>
-
-  <Dialog open={openSaveWhenNew} onClose={handleCloseSaveWhenNewNo} fullWidth={true}>
-    <DialogTitle>
-        Внимание
-    </DialogTitle>
-    <DialogContent>
-    <DialogContentText>
-          {valueId?
-          `В запись таблицы "${table_names[props.table_name]}" внесены изменения.`:
-          `В таблицу "${table_names[props.table_name]}" внесена новая несохраненная запись.`}
-          <br/>Вы желаете сохранить указанную запись?
-        </DialogContentText>
-    </DialogContent>
-    <DialogActions>
-        <Button variant="outlined" onClick={handleCloseSaveWhenNewNo} autoFocus>Нет</Button>
-        <Button variant="outlined" onClick={handleCloseSaveWhenNewYes} >Да</Button>
-    </DialogActions>
-  </Dialog>
-
- 
-  <Dialog open={open} onClose={handleClose}>
-    <DialogTitle>{"Ошибка"}</DialogTitle>
-    <DialogContent>
-      <DialogContentText>
-        {"Нормативная база у дочерней записи и родительской записи должна быть одинаковой!"}
-      </DialogContentText>
-    </DialogContent>
-    <DialogActions>
-      <Button  variant="outlined" onClick={handleClose}>
-        {"ОК"}
-      </Button>
-    </DialogActions>
-  </Dialog>
- 
-
-  </form>
- </div>     
+      </DialogContent>
+      <DialogActions>
+        <Button  variant="outlined" onClick={handleClose}>
+          {"ОК"}
+        </Button>
+      </DialogActions>
+    </Dialog>
+      
+ </>     
   )
 }
 
