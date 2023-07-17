@@ -347,8 +347,6 @@ const DataTableCriterion = (props) => {
       setExpanded(nodeIds);
     };
   
-
-
     const [treeFilterString, setTreeFilterString] = React.useState('');
     const nodeRefs = React.useRef({}); 
     const scrollContainerRef = React.useRef();
