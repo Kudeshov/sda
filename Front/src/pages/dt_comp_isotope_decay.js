@@ -405,6 +405,17 @@ return (
     <table cellSpacing={0} cellPadding={0} style={{ height: 203, width: 886, verticalAlign: 'top' }} border="0"><tbody><tr>
       <td style={{ height: 160, width: 800, verticalAlign: 'top' }}>
       <DataGrid
+        sx={{
+          border: '1px solid rgba(0, 0, 0, 0.23)',
+          borderRadius: '4px',
+          "& .MuiDataGrid-row.Mui-selected": {
+            backgroundColor: "rgba(0, 0, 0, 0.11)",
+          },
+          "& .MuiDataGrid-cell:focus-within": {
+            outline: "none !important",
+          },
+        }}       
+        style={{ height: '270px', width: '786px' }}
         hideFooterSelectedRowCount={true}
         localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
         rowHeight={25}

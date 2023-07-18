@@ -13,11 +13,10 @@ import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogContentText from '@mui/material/DialogContentText';
 import DialogTitle from '@mui/material/DialogTitle';
-import { Box, IconButton } from '@mui/material';
+import { Grid, Box, IconButton } from '@mui/material';
 import Alert from '@mui/material/Alert';
 import Collapse from '@mui/material/Collapse';
 import CloseIcon from '@mui/icons-material/Close';
-import { DataTableDataSourceClass } from './dt_data_source_class';
 import { DataTableIsotopeDecay } from './dt_comp_isotope_decay';
 import SvgIcon from '@mui/material/SvgIcon';
 import { ReactComponent as SaveLightIcon } from "./../icons/save.svg";
@@ -31,19 +30,21 @@ import { Select } from "@mui/material";
 import { MenuItem } from "@mui/material";
 import { FormControl } from "@mui/material";
 import { InputLabel } from "@mui/material";
+import CircularProgress from '@mui/material/CircularProgress';
 import Autocomplete from '@mui/material/Autocomplete';
+import Backdrop from '@mui/material/Backdrop';
 import { useGridScrollPagination } from './../helpers/gridScrollHelper';
-
-var alertText = "Сообщение";
-var alertSeverity = "info";
-var lastId = 0;
+import { DataTableDataSourceClass } from './dt_data_source_class';
 
 const DataTableIsotope = (props) => {
   const apiRef = useGridApiRef(); // init DataGrid API for scrolling
+
+  // Поля БД
   const [valueId, setValueID] = React.useState();
   const [valueTitle, setValueTitle] = React.useState();
   const [valueTitleInitial, setValueTitleInitial] = React.useState();
 
+  //Специфика нуклидов
   const [valueNIndex, setValueNIndex] = React.useState();
   const [valueNIndexInitial, setValueNIndexInitial] = React.useState();
   const [valueHalfLifeValue, setValueHalfLifeValue] = React.useState();
@@ -52,21 +53,26 @@ const DataTableIsotope = (props) => {
   const [valueHalfLifePeriodInitial, setValueHalfLifePeriodInitial] = React.useState();
   const [valueDecayConst, setValueDecayConst] = React.useState();
   const [valueDecayConstInitial, setValueDecayConstInitial] = React.useState();
+
+  const [alertText, setAlertText] = useState("Сообщение");
+  const [alertSeverity, setAlertSeverity] = useState("info");
+  const [currentId, setCurrentId] = useState(null);  
+
   const [isLoading, setIsLoading] = React.useState(false);
   const [tableData, setTableData] = useState([]); 
   const [valueNuclideId, setValueNuclideId] = React.useState();
   const [valueNuclideIdInitial, setValueNuclideIdInitial] = React.useState();
   const [rowSelectionModel, setRowSelectionModel] = React.useState([]);
-  const [editStarted, setEditStarted] = useState([false]);
-  const [isEmpty, setIsEmpty] = useState([false]);
+  const [editStarted, setEditStarted] = useState(false);  
 
-  useEffect(() => {
-    setIsEmpty((''===valueTitle)&&(''===valueNIndex)&&(''===valueHalfLifeValue)&&(''===valueHalfLifePeriod)&&(''===valueDecayConst)   
-      &&(''===valueNuclideId));
-    }, [ valueTitle, valueNIndex, valueHalfLifeValue, valueHalfLifePeriod, valueDecayConst, 
-      valueNuclideId]); 
+  const [addedId, setAddedId] = useState(null);  
+
+  /* const [isEmpty, setIsEmpty] = useState([false]); // я думаю это ненужно
+   useEffect(() => {
+    setIsEmpty((''===valueTitle)&&(''===valueNameRus)&&(''===valueNameEng)&&(''===valueDescrEng)&&(''===valueDescrRus));
+    }, [ valueTitle, valueNameRus, valueNameEng, valueDescrEng, valueDescrRus, ]); 
+     */
       
-
   useEffect(() => {
     setEditStarted((valueTitleInitial!==valueTitle)||(valueNIndexInitial!==valueNIndex)||(valueHalfLifeValueInitial!==valueHalfLifeValue)
       ||(valueHalfLifePeriodInitial!==valueHalfLifePeriod)||(valueDecayConstInitial!==valueDecayConst)||(valueNuclideIdInitial!==valueNuclideId));
@@ -75,68 +81,58 @@ const DataTableIsotope = (props) => {
         valueHalfLifePeriodInitial, valueHalfLifePeriod, valueDecayConstInitial, valueDecayConst, valueNuclideIdInitial, valueNuclideId]); 
 
   useEffect(() => {
-    if ((!isLoading) && (tableData) && (tableData.length)) {
-      if (!lastId) 
+    if ((!isLoading) && (tableData) && (tableData.length) && tableData[0].id>-1) {
+      if (typeof currentId !== 'number') 
       {
-        lastId = tableData[0].id;
+        console.log('Выбрано ', tableData[0].id);
         setRowSelectionModel([tableData[0].id]);
+        setCurrentId(tableData[0].id);
         setValueID(tableData[0].id);
-
-        setValueTitle(tableData[0].title);
-        setValueNIndex(tableData[0].n_index);
-        setValueHalfLifeValue(tableData[0].half_life_value);
-        setValueDecayConst(tableData[0].decayconst);
-        setValueHalfLifePeriod(tableData[0].half_life_period);
-        setValueNuclideId(tableData[0].nuclide_id);
-
-        setValueTitleInitial(tableData[0].title);       
-        setValueNIndexInitial(tableData[0].n_index);
-        setValueHalfLifeValueInitial(tableData[0].half_life_value);
-        setValueDecayConstInitial(tableData[0].decayconst);
-        setValueHalfLifePeriodInitial(tableData[0].half_life_period);
-        setValueNuclideIdInitial(tableData[0].nuclide_id);
       }
     }
-    }, [ isLoading, tableData] );
+    }, [ isLoading, tableData, currentId] );
+
+  const [prevRowSelectionModel, setPrevRowSelectionModel] = useState([]);
+  const [clickedRowId, setClickedRowId] = useState(null);
+
+   useEffect(() => {
+    // Если редактирование начато, не меняем выбранную строку
+    if (editStarted) {
+      setRowSelectionModel(prevRowSelectionModel);
+    } else {
+      // Здесь сохраняем предыдущую выбранную строку
+      setPrevRowSelectionModel(rowSelectionModel);
+    }
+  }, [rowSelectionModel, prevRowSelectionModel, editStarted]);    
 
   const handleRowClick = (params) => {
-    console.log('handleRowClick');
+
+    console.log('handleRowClick', params.row.id, valueId);
+    if (params.row.id === valueId  ) {
+      // Если данные не изменились, просто выходим из функции
+      return;
+    }
     setOpenAlert(false);
-    console.log( 'isEmpty = '+isEmpty);
-    if (editStarted&&(!isEmpty))
+
+    //console.log('editStarted isEmpty', editStarted, isEmpty);
+    //if (editStarted&&(!isEmpty))
+    if (editStarted)
     {
-      handleClickSave(params);
+      setClickedRowId(params.row.id);
+      setDialogType('save');
     } 
     else 
     {
       setValueID(params.row.id);
-      console.log('setValueID '+ params.row.id);
-      setValueTitle(params.row.title);
-      setValueNIndex(params.row.n_index);
-      setValueHalfLifeValue(params.row.half_life_value);
-      setValueDecayConst(params.row.decayconst);
-      setValueHalfLifePeriod(params.row.half_life_period);
-      setValueNuclideId(params.row.nuclide_id);
-      setValueTitleInitial(params.row.title);
-      setValueNIndexInitial(params.row.n_index);
-      setValueHalfLifeValueInitial(params.row.half_life_value);
-      setValueDecayConstInitial(params.row.decayconst);
-      setValueHalfLifePeriodInitial(params.row.half_life_period);
-      setValueNuclideIdInitial(params.row.nuclide_id);
-
-/*       var arr= tableNuclide.filter((row) => params.row.nuclide_id===row.id);
-      console.log(arr);
-      setValueAC(arr[0]); */
     }
   }; 
 
+  const inputRef = React.useRef();
+
   const handleClearClick = (params) => {
-    if (editStarted&&(!isEmpty))
-    {
-      handleClickSaveWhenNew(params);
-    } 
-    else 
-    {
+    if (editStarted/* &&(!isEmpty) */) {
+      setDialogType('save');
+    } else {
       setValueID(``);
       setValueTitle(``);
       setValueNIndex(``);
@@ -144,14 +140,15 @@ const DataTableIsotope = (props) => {
       setValueDecayConst(``);
       setValueHalfLifePeriod(`` );
       setValueNuclideId(`` );
+      // Даем фокус TextField после обновления состояния
+      inputRef.current.focus();
     }
   }; 
 
   useEffect(() => {
     fetch(`/${props.table_name}`)
       .then((data) => data.json())
-      .then((data) => setTableData(data))
-      .then((data) => { lastId = 0;} ); 
+      .then((data) => setTableData(data)); 
   }, [props.table_name])
 
   const [tableNuclide, setTableNuclide] = useState([]); 
@@ -183,15 +180,9 @@ const DataTableIsotope = (props) => {
     { title: 'us', id: 'us' },
     { title: 'ms', id: 'ms' },
     { title: 'h', id: 'h' } ];
-
-
-  ///////////////////////////////////////////////////////////////////  SAVE  /////////////////////
-  const saveRec = async ( fromToolbar ) => {
-
-    if (formRef.current.reportValidity() )
-    {
-
-    const js = JSON.stringify({
+const saveRec = async () => {
+  if (formRef.current.reportValidity()) {
+    const data = {
       id: valueId,
       title: valueTitle,
       nuclide_id: valueNuclideId,     
@@ -199,180 +190,133 @@ const DataTableIsotope = (props) => {
       half_life_value: valueHalfLifeValue,
       half_life_period: valueHalfLifePeriod,
       decayconst: valueDecayConst   
-    });
-    if (!valueId) {
-      addRec();
-      return;
-    }
+    };
     setIsLoading(true);
+    
+    const url = `/${props.table_name}/` + (valueId ? valueId : '');
+    const method = valueId ? 'PUT' : 'POST';
+    
     try {
-      const response = await fetch(`/${props.table_name}/`+valueId, {
-       method: 'PUT',
-       body: js,
-       headers: {
-         'Content-Type': 'Application/json',
-         Accept: '*/*',
-       },
-     });
-     if (!response.ok) {
-        alertSeverity = 'error';
-        alertText = await response.text();
-        setOpenAlert(true);          
+      const response = await fetch(url, {
+        method,
+        body: JSON.stringify(data),
+        headers: {
+          'Content-Type': 'Application/json',
+          Accept: '*/*',
+        },
+      });
+      
+      // Проверяем тип контента
+      const contentType = response.headers.get('content-type');
+      const isJson = contentType && contentType.includes('application/json');
+      
+      let responseData;
+      
+      // Обрабатываем ответ в зависимости от типа контента
+      if (isJson) {
+        responseData = await response.json();
+      } else {
+        responseData = await response.text();
       }
-      else
-      {
-        alertSeverity = "success";
-        alertText = await response.text();
-        setOpenAlert(true);  
+      
+      // Обрабатываем ответ в зависимости от статуса
+      if (!response.ok) {
+        throw new Error(responseData);
       }
-   } catch (err) {
-     alertText = err.message;
-     alertSeverity = 'error';
-     setOpenAlert(true);
-   } finally {
-     setIsLoading(false);
-     if (fromToolbar) 
-     {
-       setValueTitleInitial(valueTitle);       
-       setValueNIndexInitial(valueNIndex); 
-       setValueHalfLifeValueInitial(valueHalfLifeValue);
-       setValueDecayConstInitial(valueDecayConst);
-       setValueHalfLifePeriodInitial(valueHalfLifePeriod);          
-       setValueNuclideIdInitial(valueNuclideId);      
-     }
-    reloadData();     
-   }
+      
+      setAlertSeverity('success');
+      
+      // Если это POST запрос, получаем и устанавливаем новый ID
+      if (method === 'POST') {
+        const newId = responseData.id;
+        
+        if (clickedRowId===null) {
+          setValueID(newId);
+          setAddedId(newId);
+        }
+        else {
+          setValueID(clickedRowId);
+        }
+          
+        setAlertText(`Добавлена запись с кодом ${newId}`);
+
+      } else {
+        if (clickedRowId) {
+          setValueID(clickedRowId);
+        }
+        setAlertText(responseData || 'Success');
+      }
+      
+    } catch (err) {
+      setAlertSeverity('error');
+      setAlertText(err.message);
+
+      if (clickedRowId!==null) {
+        setValueID(clickedRowId);
+      }
+    } finally {
+      setIsLoading(false);
+      setOpenAlert(true);
+
+      await reloadData();
+    }
   }
- };
-/////////////////////////////////////////////////////////////////// ADDREC ///////////////////// 
-  const addRec = async ()  => {
-    const js = JSON.stringify({
-      id: valueId,
-      title: valueTitle,
-      nuclide_id: valueNuclideId,     
-      n_index: valueNIndex,
-      half_life_value: valueHalfLifeValue,
-      half_life_period: valueHalfLifePeriod,
-      decayconst: valueDecayConst          
+}
+
+useEffect(() => {
+  const rowData = tableData.find(row => row.id === valueId);
+  if (rowData) {
+    setValues(rowData);
+  }
+}, [tableData, valueId]);
+
+// Функция delRec
+const delRec = async () => {
+  setIsLoading(true);
+
+  try {
+    const response = await fetch(`/${props.table_name}/${valueId}`, {
+      method: 'DELETE',
+      headers: {
+        'Content-Type': 'Application/json',
+        Accept: '*/*',
+      },
     });
-    setIsLoading(true);
-    try {
-      const response = await fetch(`/${props.table_name}/`, {
-        method: 'POST',
-        body: js,
-        headers: {
-          'Content-Type': 'Application/json',
-          Accept: '*/*',
-        },
-      });
 
-      if (!response.ok) {
-        alertSeverity = 'error';
-        alertText = await response.text();
-        setOpenAlert(true);          
-      }
-      else
-      {
-        alertSeverity = "success";
-        const { id } = await response.json();
-        alertText = `Добавлена запись с кодом ${id}`;
-        lastId = id;  
-        setValueID(lastId);
-        setOpenAlert(true);  
-      }
-    } catch (err) {
-      alertText = err.message;
-      alertSeverity = 'error';
-      setOpenAlert(true);
-    } finally {
-      setIsLoading(false);
-      reloadData();
-      setRowSelectionModel([lastId]);
-      scrollToIndexRef.current = lastId;  
-      //Refresh initial state
-      setValueTitle(valueTitle);
-      setValueNIndex(valueNIndex);
-      setValueHalfLifeValue(valueHalfLifeValue);
-      setValueDecayConst(valueDecayConst);
-      setValueHalfLifePeriod(valueHalfLifePeriod); 
-      setValueNuclideId(valueNuclideId); 
-
-      setValueTitleInitial(valueTitle);
-      setValueNIndexInitial(valueNIndex);
-      setValueHalfLifeValueInitial(valueHalfLifeValue);
-      setValueDecayConstInitial(valueDecayConst);
-      setValueHalfLifePeriodInitial(valueHalfLifePeriod);  
-      setValueNuclideIdInitial(valueNuclideId);     
+    if (!response.ok) {
+      throw new Error(await response.text());
     }
-  };
 
-/////////////////////////////////////////////////////////////////// DELETE /////////////////////
-  const delRec =  async () => {
-    const js = JSON.stringify({
-      id: valueId,
-      title: valueTitle,
-      nuclide_id: valueNuclideId,     
-      n_index: valueNIndex,
-      half_life_value: valueHalfLifeValue,
-      half_life_period: valueHalfLifePeriod,
-      decayconst: valueDecayConst   
-    });
-    setIsLoading(true);
-    try {
-      const response = await fetch(`/${props.table_name}/`+valueId, {
-        method: 'DELETE',
-        body: js,
-        headers: {
-          'Content-Type': 'Application/json',
-          Accept: '*/*',
-        },
-      });
-      if (!response.ok) {
-        alertSeverity = 'error';
-        alertText = await response.text();
-        setOpenAlert(true);          
-      }
-      else
-      {
-        alertSeverity = "success";
-        alertText = await response.text();
-        setOpenAlert(true); 
-        reloadData();
-        setRowSelectionModel([tableData[0].id]);  
-        setValueID(tableData[0].id);
-        setValueTitle(tableData[0].title);
-        setValueNIndex(tableData[0].n_index);
-        setValueHalfLifeValue(tableData[0].half_life_value);
-        setValueDecayConst(tableData[0].decayconst);
-        setValueHalfLifePeriod(tableData[0].half_life_period);
-        setValueNuclideId(tableData[0].nuclide_id);
-        setValueTitleInitial(tableData[0].title);
-        setValueNIndexInitial(tableData[0].n_index);
-        setValueHalfLifeValueInitial(tableData[0].half_life_value);
-        setValueDecayConstInitial(tableData[0].decayconst);
-        setValueHalfLifePeriodInitial(tableData[0].half_life_period);
-        setValueNuclideIdInitial(tableData[0].nuclide_id);
-      }
-    } catch (err) {
-      alertText = err.message;
-      alertSeverity = 'error';
-      setOpenAlert(true);
-    } finally {
-      setIsLoading(false);
-    }
-  };  
+    setAlertSeverity('success');
+    setAlertText(await response.text());
+
+  } catch (err) {
+    setAlertSeverity('error');
+    setAlertText(err.message);
+  } finally {
+    setIsLoading(false);
+    setOpenAlert(true);
+    
+    // Переключаемся на первую запись после удаления
+    if (tableData[0]) {
+      setValueID(tableData[0].id);
+      setAddedId(tableData[0].id);
+    } 
+    reloadData();
+  }
+};
 
   /////////////////////////////////////////////////////////////////// RELOAD /////////////////////
   const reloadDataAlert =  async () => {
-    alertSeverity = "info";
-    alertText =  'Данные успешно обновлены';
+    setAlertSeverity('info');
+    setAlertText('Данные успешно обновлены');
     try 
     {
       await reloadData();
     } catch(e)
     {
-      alertSeverity = "error";
-      alertText =  'Ошибка при обновлении данных: '+e.message;      
+      setAlertSeverity('error');
+      setAlertText('Ошибка при обновлении данных: '+e.message);      
       setOpenAlert(true);
       return;
     }
@@ -380,86 +324,155 @@ const DataTableIsotope = (props) => {
   }
 
   const reloadData = async () => {
+    setIsLoading(true);  // запускаем индикатор загрузки
     try {
       const response = await fetch(`/${props.table_name}/`);
-       if (!response.ok) {
-        alertText = `Ошибка при обновлении данных: ${response.status}`;
-        alertSeverity = "false";
-        const error = response.status + ' (' +response.statusText+')';  
+  
+      if (!response.ok) {
+        setAlertSeverity('error');
+        setAlertText(`Ошибка при обновлении данных: ${response.status}`);
+        const error = response.status + ' (' + response.statusText + ')';
         throw new Error(`${error}`);
-      }
-      else
-      {  
+      } else {
         const result = await response.json();
         setTableData(result);
       }
     } catch (err) {
       throw err;
     } finally {
-      setIsLoading(false);
+      setIsLoading(false);  // останавливаем индикатор загрузки
     }
   };
 
-  /////////////////////////////////////////
-  const [openDel, setOpenDel] = React.useState(false); 
-  const [openSave, setOpenSave] = React.useState(false); 
-  const [openSaveWhenNew, setOpenSaveWhenNew] = React.useState(false); 
+  ///////////////////////////////////////// DIALOG
+  const [dialogType, setDialogType] = useState('');
 
-  const handleClickDelete = () => {
-    setOpenDel(true);
+  const getDialogContentText = () => {
+    const allRequiredFieldsFilled = formRef.current?.checkValidity();
+    switch (dialogType) {
+      case 'delete':
+        return (
+          <>
+            В таблице "{table_names[props.table_name]}" предложена к удалению следующая запись: 
+            <br />
+            {valueTitle}; Код в БД = {valueId}. 
+            <br />
+            Вы желаете удалить указанную запись?
+          </>);
+      case 'save':
+        if (!valueId) { // если это новая запись
+          if (allRequiredFieldsFilled) {
+            return `Создана новая запись, сохранить?`;
+          } else {
+            return (
+              <>
+                Не заданы обязательные поля, запись не будет создана.
+                <br />
+                Перейти без сохранения изменений?
+              </>
+            );
+          }
+        } else { // если это редактируемая запись
+          if (allRequiredFieldsFilled) {
+            return `В запись внесены изменения, сохранить изменения?`;
+          } else {
+            return (
+              <>
+                Не заданы обязательные поля, изменения не будут сохранены
+                <br />
+                Перейти без сохранения изменений?
+              </>
+            );            
+          }
+        }
+      default:
+        return '';
+    }
   };
 
-  const handleCloseDelNo = () => {
-    setOpenDel(false);
+  const setValues = (row) => {
+    setValueTitle(row.title);
+    setValueNIndex(row.n_index);
+    setValueHalfLifeValue(row.half_life_value);
+    setValueDecayConst(row.decayconst);
+    setValueHalfLifePeriod(row.half_life_period);
+    setValueNuclideId(row.nuclide_id);
+
+    setValueTitleInitial(row.title);       
+    setValueNIndexInitial(row.n_index);
+    setValueHalfLifeValueInitial(row.half_life_value);
+    setValueDecayConstInitial(row.decayconst);
+    setValueHalfLifePeriodInitial(row.half_life_period);
+    setValueNuclideIdInitial(row.nuclide_id);
+  };
+  
+
+  const handleCloseNo = () => {
+    switch (dialogType) {
+      case 'save':
+        setEditStarted(false);
+        setValueID(clickedRowId);
+        setRowSelectionModel([clickedRowId]);
+        break;
+      default:
+        break;
+    }
+    setDialogType('');
+};
+
+  const handleCloseCancel = () => {
+    switch (dialogType) {
+      case 'save':
+        break;
+      default:
+        break;
+    }
+    setDialogType('');
+  };
+  
+  const handleCloseYes = () => {
+    switch (dialogType) {
+      case 'delete':
+        delRec();
+        break;
+      case 'save':
+        saveRec(false);
+        break;
+      default:
+        break;
+    }
+    
+    setDialogType('');
+
+    if (clickedRowId>0) {
+      setEditStarted(false);
+      setRowSelectionModel([clickedRowId]);
+      const rowData = tableData.find(row => row.id === clickedRowId);
+      setValues(rowData);
+      setEditStarted(false);
+    }
   };
 
-  const handleCloseDelYes = () => {
-    setOpenDel(false);
-    delRec();
-  };
-
-  const handleClickSave = () => {
-    setOpenSave(true);
-  };
-
-  const handleCloseSaveNo = () => {
-    setOpenSave(false);
-    handleCancelClick();
-  };
-
-  const handleCloseSaveYes = () => {
-    setOpenSave(false);
-    saveRec(false);
-    handleCancelClick();
-  };
-
-  const handleClickSaveWhenNew = () => {
-    setOpenSaveWhenNew(true);
-  };
-
-  const handleCloseSaveWhenNewNo = () => {
-    setOpenSaveWhenNew(false);
-
-    setValueID(``);
-    setValueTitle(``);
-    setValueNIndex(``);
-    setValueHalfLifeValue(``);
-    setValueDecayConst(``);
-    setValueHalfLifePeriod(`` );
-    setValueNuclideId(`` );
-  };
-
-  const handleCloseSaveWhenNewYes = () => {
-    setOpenSaveWhenNew(false);
-    saveRec(true);
-    setValueID(``);
-    setValueTitle(``);
-    setValueNIndex(``);
-    setValueHalfLifeValue(``);
-    setValueDecayConst(``);
-    setValueHalfLifePeriod(`` );
-    setValueNuclideId(`` );
-  };
+  function DialogButtons() {
+    const allRequiredFieldsFilled = formRef.current?.checkValidity();
+  
+    if (dialogType === 'save' && !allRequiredFieldsFilled) {
+      return (
+        <>
+          <Button variant="outlined" onClick={handleCloseNo} >Да</Button>
+          <Button variant="outlined" onClick={handleCloseCancel} >Отмена</Button>
+        </>
+      );
+    } else {
+      return (
+        <>
+          <Button variant="outlined" onClick={handleCloseYes} >Да</Button>
+          <Button variant="outlined" onClick={handleCloseNo} >Нет</Button>
+          {dialogType !== 'delete' && <Button variant="outlined" onClick={handleCloseCancel} >Отмена</Button>}
+        </>
+      );
+    }
+  }
 
   //////////////////////////////////////////////////////// ACTIONS ///////////////////////////////
   const columns = [
@@ -472,9 +485,12 @@ const DataTableIsotope = (props) => {
   ]
 
   const [openAlert, setOpenAlert] = React.useState(false, '');
+
   const handleCancelClick = () => 
   {
-    const selectedIDs = new Set(rowSelectionModel);
+    console.log(rowSelectionModel);
+    
+    const selectedIDs = new Set(rowSelectionModel.map(Number));
     const selectedRowData = tableData.filter((row) => selectedIDs.has(row.id));
     if (selectedRowData.length)
     {
@@ -494,25 +510,35 @@ const DataTableIsotope = (props) => {
       setValueNuclideIdInitial(selectedRowData[0].nuclide_id);
     }
   }
-  
+
+
   // Scrolling and positionning
   const { paginationModel, setPaginationModel, scrollToIndexRef } = useGridScrollPagination(apiRef, tableData, setRowSelectionModel);
 
-function CustomToolbar1() {
-  //const apiRef = useGridApiRef(); // init DataGrid API for scrolling
+  useEffect(() => {
+    if (addedId !== null){  
+        scrollToIndexRef.current = addedId;
+        setAddedId(null);
+        setEditStarted(false);
+        setRowSelectionModel([addedId]);
+    }
+  }, [addedId, scrollToIndexRef]);
+
+  function GridToolbar() {
     const handleExport = (options) =>
-      apiRef.current.exportDataAsCsv(options);
+       apiRef.current.exportDataAsCsv(options);
+
     return (
       <GridToolbarContainer>
-        <IconButton onClick={()=>handleClearClick()}  color="primary" size="small" title="Создать запись">
+        <IconButton onClick={()=>handleClearClick()} disabled={editStarted} color="primary" size="small" title="Создать запись">
           <SvgIcon fontSize="small" component={PlusLightIcon} inheritViewBox /></IconButton>
-        <IconButton onClick={()=>saveRec(true)}  color="primary" size="small" title="Сохранить запись в БД">
+        <IconButton onClick={()=>{setClickedRowId(null); saveRec(true)}}  color="primary" size="small" title="Сохранить запись в БД">
           <SvgIcon fontSize="small" component={SaveLightIcon} inheritViewBox/></IconButton>
-        <IconButton onClick={()=>handleClickDelete()}  color="primary" size="small" title="Удалить запись">
+        <IconButton onClick={()=>setDialogType('delete')}  color="primary" size="small" title="Удалить запись">
           <SvgIcon fontSize="small" component={TrashLightIcon} inheritViewBox /></IconButton>
         <IconButton onClick={()=>handleCancelClick()} disabled={!editStarted} color="primary" size="small" title="Отменить редактирование">
           <SvgIcon fontSize="small" component={UndoLightIcon} inheritViewBox /></IconButton>
-        <IconButton onClick={()=>reloadDataAlert()} color="primary" size="small" title="Обновить данные">
+        <IconButton onClick={()=>reloadDataAlert(valueId)} color="primary" size="small" title="Обновить данные">
           <SvgIcon fontSize="small" component={RepeatLightIcon} inheritViewBox /></IconButton>
         <IconButton onClick={()=>handleExport({ delimiter: ';', utf8WithBom: true, getRowsToExport: () => gridFilteredSortedRowIdsSelector(apiRef) })} color="primary" 
             size="small" title="Сохранить в формате CSV">
@@ -521,200 +547,152 @@ function CustomToolbar1() {
     );
   }
 
-  
   const formRef = React.useRef();
   return (
-    <div style={{ /* height: 640, */ width: 1500 }}>
-    <form ref={formRef}>    
-    <table border = "0" style={{ height: 550, width: 1500 }} ><tbody>
-    <tr>
-      <td style={{   height: 940,  width: 600, verticalAlign: 'top' }}>
-      <div style={{ height: 486, width: 585 }}>
-
-      <DataGrid
-        components={{ Toolbar: CustomToolbar1 }}
-        apiRef={apiRef}
-        hideFooterSelectedRowCount={true}
-        localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
-        rowHeight={25}
-        rows={tableData}
-        loading={isLoading}
-        columns={columns}
-        paginationModel={paginationModel}
-        onPaginationModelChange={setPaginationModel}
-        onRowSelectionModelChange={(newRowSelectionModel) => {
-          setRowSelectionModel(newRowSelectionModel);
-        }}
-        rowSelectionModel={rowSelectionModel}      
-        initialState={{
-          columns: {
+    <Box sx={{ border: '0px solid purple', width: 1445, height: 650, padding: 1 }}>
+      <Grid container spacing={1}>
+        <Grid item sx={{width: 583, border: '0px solid green', ml: 1 }}>
+          <DataGrid
+            components={{ Toolbar: GridToolbar }}
+            apiRef={apiRef}
+            hideFooterSelectedRowCount={true}
+            localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
+            rowHeight={25}
+            pageSize={5}
+            rows={tableData}
+            columns={columns}
+            paginationModel={paginationModel}
+            onPaginationModelChange={setPaginationModel}
+            onRowSelectionModelChange={(newRowSelectionModel) => {
+              setRowSelectionModel(newRowSelectionModel);
+            }}
+            rowSelectionModel={rowSelectionModel}
+            initialState={{
+              columns: {
             columnVisibilityModel: {
               //half_life_value: false,
               //decayconst: false,
               half_life_period: true,
             },
-          },
-        }}        
-        onRowClick={handleRowClick} {...tableData} 
-      />
-      </div>
-      <Box sx={{ width: 585 }}>
-      <Collapse in={openAlert}>
-        <Alert
-          severity={alertSeverity}
-          action={
-            <IconButton
-              aria-label="close"
-              color="inherit"
-              size="small"
-              onClick={() => {
-                setOpenAlert(false);
-              }}
+              },
+            }}        
+            onRowClick={handleRowClick} {...tableData}
+            style={{ width: 570, height: 500, border: '1px solid rgba(0, 0, 0, 0.23)', borderRadius: '4px' }}
+            sx={{
+              "& .MuiDataGrid-row.Mui-selected": {
+                backgroundColor: dialogType !== ''||((typeof valueId === 'number' || '')==='') ? "transparent" : "rgba(0, 0, 0, 0.11)",
+              },
+              "& .MuiDataGrid-cell:focus-within": {
+                outline: "none !important",
+              },
+            }}
+          />
+
+          <Collapse in={openAlert}>
+            <Alert
+              item sx={{width: 571}}
+              severity={alertSeverity}
+              action={
+                <IconButton
+                  aria-label="close"
+                  color="inherit"
+                  size="small"
+                  onClick={() => {
+                    setOpenAlert(false);
+                  }}
+                >
+                  <CloseIcon fontSize="inherit" />
+                </IconButton>
+              }
             >
-              <CloseIcon fontSize="inherit" />
-            </IconButton>
-          }
-        >
-          {alertText}
-        </Alert>
-      </Collapse>
-      </Box>
-      
-      </td>
-      <td style={{ height: 550, width: 900, verticalAlign: 'top' }}>
-
-      <table border = "0" cellSpacing="0" cellPadding="0"><tbody>
-      <tr>      
-      <td>
-      <TextField  id="ch_id" disabled={true} label="Код" sx={{ width: '12ch' }} variant="outlined" value={valueId || ''} size="small"  onChange={e => setValueID(e.target.value)}/>
-      </td>
-      <td>
-        &nbsp;&nbsp;&nbsp;&nbsp;
-      </td>
-      <td>
-        <TextField  id="ch_name" disabled={true} sx={{ width: '40ch' }} label="Обозначение" required size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
-      </td>
-      <td>
-        &nbsp;&nbsp;&nbsp;&nbsp;
-      </td>
-      <td>
-
-      <Autocomplete
-        size="small"
-        sx={{ width: '20ch' }}
-        disablePortal
-        id="combo-box-nuclide"
-        value={tableNuclide.find((option) => option.id === valueNuclideId)||'' }
-        disableClearable
-        isOptionEqualToValue={(option, value) => option.id === value.id }  
-        onChange={(event, newValueAC) => {setValueNuclideId(newValueAC?newValueAC.id:-1) } }
-        options={tableNuclide}
-        getOptionLabel={option => option?option.title:""}
-        renderInput={(params) => <TextField {...params} label="Радиоизотоп" required/>}
-      />
-      </td>      
-      <td>
-        &nbsp;&nbsp;&nbsp;&nbsp;
-      </td>
-      <td>
-        <TextField inputProps={{maxLength: 1}} id="ch_n_index" sx={{ width: '20ch' }}  size="small" label="Индекс"  variant="outlined"  value={valueNIndex || ''} onChange={e => setValueNIndex(e.target.value)} />
-      </td>
-      </tr></tbody></table>
-
-      <p></p>
-      <TextField id="ch_half_life_value" sx={{ width: '40ch' }} size="small" label="Период полураспада" required variant="outlined" value={valueHalfLifeValue || ''} onChange={e => setValueHalfLifeValue(e.target.value)}/>
-      &nbsp;&nbsp;&nbsp;&nbsp;
-
-      <FormControl sx={{ width: '20ch' }} size="small">
-            <InputLabel id="type" required>Ед. изм.</InputLabel>
-              <Select labelId="type" id="type1"  label="Ед. изм." required defaultValue={true} value={valueHalfLifePeriod  || "" } onChange={e => setValueHalfLifePeriod(e.target.value)}>
-                {valuesMbae?.map(option => {
-                    return (
-                      <MenuItem key={option.id} value={option.id}>
-                        {option.title ?? option.id}
-                      </MenuItem>
-                    );
-                    })}
-              </Select>
-            </FormControl>    
-            <p></p>
-      <TextField  id="ch_decayconst" sx={{ width: '100ch' }} label="Постоянная распада, 1/сек" required size="small" maxRows={4} variant="outlined" value={valueDecayConst || ''} onChange={e => setValueDecayConst(e.target.value)}/>
-      
-      <p></p>    
-      <table border = "0" cellSpacing="0" cellPadding="0">
-        <tbody>
-          <tr>      
-            <td>Радиоактивные ряды<br/>
+              {alertText}
+            </Alert>
+          </Collapse>
+        </Grid>
+        <Grid sx={{ width: 801, padding: 1 }}>
+        <form ref={formRef}>
+          <Grid container spacing={1.5}>
+            <Grid item xs={2}>
+              <TextField id="ch_id" fullWidth disabled={true} label="Код" variant="outlined" value={valueId || ''} size="small"  onChange={e => setValueID(e.target.value)}/>
+            </Grid>  
+            <Grid item xs={6}>
+              <TextField id="ch_name" fullWidth disabled={true} label="Обозначение" required size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
+            </Grid>
+            <Grid item xs={2}>
+              <Autocomplete
+                fullWidth
+                size="small"
+                disablePortal
+                id="combo-box-nuclide"
+                value={tableNuclide.find((option) => option.id === valueNuclideId)||'' }
+                disableClearable
+                isOptionEqualToValue={(option, value) => option.id === value.id }  
+                onChange={(event, newValueAC) => {setValueNuclideId(newValueAC?newValueAC.id:-1) } }
+                options={tableNuclide}
+                getOptionLabel={option => option?option.title:""}
+                renderInput={(params) => <TextField {...params} label="Радиоизотоп" required/>}
+              />
+            </Grid>            
+            <Grid item xs={2}>
+              <TextField fullWidth inputProps={{maxLength: 1}} id="ch_n_index" size="small" label="Индекс"  variant="outlined"  value={valueNIndex || ''} onChange={e => setValueNIndex(e.target.value)} />
+            </Grid>            
+            <Grid item xs={9}>
+              <TextField fullWidth id="ch_half_life_value" size="small" label="Период полураспада" required variant="outlined" value={valueHalfLifeValue || ''} onChange={e => setValueHalfLifeValue(e.target.value)}/>
+            </Grid>            
+            <Grid item xs={3}>
+              <FormControl size="small" fullWidth>
+              <InputLabel id="type" required>Ед. изм.</InputLabel>
+                <Select fullWidth labelId="type" id="type1"  label="Ед. изм." required defaultValue={true} value={valueHalfLifePeriod  || "" } onChange={e => setValueHalfLifePeriod(e.target.value)}>
+                  {valuesMbae?.map(option => {
+                      return (
+                        <MenuItem key={option.id} value={option.id}>
+                          {option.title ?? option.id}
+                        </MenuItem>
+                      );
+                      })}
+                </Select>
+              </FormControl>    
+            </Grid>
+{/*             <Grid item xs={3}>
+	    
+            </Grid>   */}          
+            <Grid item xs={12}>
+              <TextField fullWidth id="ch_decayconst" label="Постоянная распада, 1/сек" required size="small" maxRows={4} variant="outlined" value={valueDecayConst || ''} onChange={e => setValueDecayConst(e.target.value)}/>
+            </Grid>
+{/*             <Grid item xs={12}>
+	    
+            </Grid>  */}           
+          </Grid>
+        </form>
+          <Box sx={{ marginTop: '0.4rem' }}>
+            Радиоактивные ряды<br/>
               <DataTableIsotopeDecay table_name={valueTitle} rec_id={valueId} />
-            </td>
-          </tr>
-          <tr>      
-            <td>Источники данных<br/>
+          </Box>
+          <Box sx={{ marginTop: '0.4rem' }}>
+            Источники данных<br/>
               <DataTableDataSourceClass table_name={props.table_name} rec_id={valueId} />
-            </td>
-          </tr>
-        </tbody>
-      </table>      
+          </Box>
+        </Grid>
+      </Grid>
+      {(isLoading) && 
+        <Backdrop sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }} open={isLoading}>
+          <CircularProgress color="inherit" />
+        </Backdrop> 
+      } 
 
-    </td>
-  </tr>
-  </tbody>
-  </table>
-
-  <Dialog open={openDel} onClose={handleCloseDelNo} fullWidth={true}>
-      <DialogTitle>
-          Внимание
-      </DialogTitle>
-      <DialogContent>
+      <Dialog open={dialogType !== ''} onClose={handleCloseCancel} fullWidth={true}>
+        <DialogTitle>Внимание</DialogTitle>
+        <DialogContent>
           <DialogContentText>
-          В таблице "{table_names[props.table_name]}" предложена к удалению следующая запись:<p></p><b>{valueTitle}</b>; Код в БД = <b>{valueId}</b><p></p>
-          Вы желаете удалить указанную запись?
+            {getDialogContentText()}
           </DialogContentText>
-      </DialogContent>
-      <DialogActions>
-          <Button variant="outlined" onClick={handleCloseDelNo} autoFocus>Нет</Button>
-          <Button variant="outlined" onClick={handleCloseDelYes} >Да</Button>
-      </DialogActions>
-  </Dialog>
- 
-  <Dialog open={openSave} onClose={handleCloseSaveNo} fullWidth={true}>
-    <DialogTitle>
-        Внимание
-    </DialogTitle>
-    <DialogContent>
-        <DialogContentText>
-        {valueId?
-          `В запись таблицы "${table_names[props.table_name]}" внесены изменения.`:
-          `В таблицу "${table_names[props.table_name]}" внесена новая несохраненная запись.`} 
-            <br/>Вы желаете сохранить указанную запись?
-        </DialogContentText>
-    </DialogContent>
-    <DialogActions>
-        <Button variant="outlined" onClick={handleCloseSaveNo} autoFocus>Нет</Button>
-        <Button variant="outlined" onClick={handleCloseSaveYes} >Да</Button>
-    </DialogActions>
-  </Dialog>
-
-  <Dialog open={openSaveWhenNew} onClose={handleCloseSaveWhenNewNo} fullWidth={true}>
-    <DialogTitle>
-        Внимание
-    </DialogTitle>
-    <DialogContent>
-        <DialogContentText>
-        {valueId?
-          `В запись таблицы "${table_names[props.table_name]}" внесены изменения.`:
-          `В таблицу "${table_names[props.table_name]}" внесена новая несохраненная запись.`} 
-           <br/>Вы желаете сохранить указанную запись?
-        </DialogContentText>
-    </DialogContent>
-    <DialogActions>
-        <Button variant="outlined" onClick={handleCloseSaveWhenNewNo} autoFocus>Нет</Button>
-        <Button variant="outlined" onClick={handleCloseSaveWhenNewYes} >Да</Button>
-    </DialogActions>
-  </Dialog>
-  </form>
- </div>     
+        </DialogContent>
+        <DialogActions>
+          <DialogButtons />
+        </DialogActions>
+      </Dialog>
+    </Box>
   )
-}
+  }
 
-export { DataTableIsotope, lastId }
+export { DataTableIsotope }
