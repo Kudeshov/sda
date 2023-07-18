@@ -1360,7 +1360,7 @@ const reloadDataHandler = async () => {
                                 <LightTooltip title="Добавить найденные">
                                 <StyledIconButton
                                   onClick={() => {
-                                    const filteredOptions = filterOptionsNameRus(tableDataSource, { inputValue: searchValueDataSource });
+                                    const filteredOptions = filterOptions(tableDataSource, { inputValue: searchValueDataSource });
                                     const newValues = [...currFlt.selDataSourceValues, ...filteredOptions];
                                     setCurrFlt({
                                       ...currFlt,

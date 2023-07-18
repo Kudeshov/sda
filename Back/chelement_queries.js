@@ -58,7 +58,7 @@ const createChelement = (request, response, table_name )=> {
   pool.connect((err, client, done) => {
     const shouldAbort = (err, response) => {
       if (err) {
-        console.error(`Ошибка создания записи`, err.message)
+        console.error(`Ошибка при создании записи`, err.message)
         const { errormsg } = err.message;
         console.error(`Rollback`)
         client.query(`ROLLBACK`, err => {
@@ -72,7 +72,16 @@ const createChelement = (request, response, table_name )=> {
             console.error(`Транзакция отменена`)
           }
         })
-        response.status(400).send(`Ошибка: ` + err.message);
+      
+        // Проверьте, содержит ли сообщение об ошибке строку "chelement_tuk"
+        if (err.message.includes("chelement_tuk")) {
+          // Если да, отправьте специфическое сообщение об ошибке
+          response.status(400).send('Ошибка: поле "Обозначение" не уникально, запись не сохранена');
+        } else {
+          // Если нет, отправьте общее сообщение об ошибке
+          response.status(400).send(`Ошибка: ` + err.message);
+        }
+      
         // release the client back to the pool
         done()
       }
@@ -196,7 +205,16 @@ const updateChelement = (request, response, table_name ) => {
             console.error(`Транзакция отменена`)
           }
         })
-        response.status(400).send(`Ошибка: ` + err.message);
+      
+        // содержит ли сообщение об ошибке строку "chelement_tuk"
+        if (err.message.includes("chelement_tuk")) {
+          // Если да, отправьте специфическое сообщение об ошибке
+          response.status(400).send('Ошибка: поле "Обозначение" не уникально, запись не сохранена');
+        } else {
+          // Если нет, отправьте общее сообщение об ошибке
+          response.status(400).send(`Ошибка: ` + err.message);
+        }
+      
         // release the client back to the pool
         done()
       }

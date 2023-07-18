@@ -107,9 +107,11 @@ const updateIsotope = (request, response) => {
     [title, nuclide_id, n_index,  half_life_value, half_life_period,  decayconst, id ],
     (error, results) => {
       if (error) {
+        console.log( error.message);
+        let invalidValue = error.message.split(": ")[1]; 
         switch (error.code) {
           case '22P02':  // код ошибки для "invalid input syntax for type numeric"
-            response.status(400).send(`Запись с кодом ${id} не изменена: неверный формат числового значения.`);
+            response.status(400).send(`Запись с кодом ${id} не изменена: неверный формат числового значения ${invalidValue}.`);
             break;
           // Добавьте здесь другие коды ошибок, которые вы хотите обрабатывать
           default:
