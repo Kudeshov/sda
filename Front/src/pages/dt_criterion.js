@@ -1317,9 +1317,9 @@ const DataTableCriterion = (props) => {
   const [openAlert, setOpenAlert] = React.useState(false, '');
   const handleCancelClick = () => 
   {
-    //setValuesById(valueId);
+    setValuesById(clickedRowId);
     //setValueID(null);
-    //setValueID(valueId); handleCancelClick
+    //setValueID(valueId);  
     setValueID(clickedRowId);
     //setBranch(newNode);
   }
