@@ -138,13 +138,13 @@ const DataTablePeopleClass = (props) => {
       valueDescrEngInitial, valueDescrEng, valueDescrRusInitial, valueDescrRus, currentId]);  */
 
   useEffect(() => {
-    if ((!isLoading) && (tableData) && (tableData.length) && tableData[0].id>-1) {
+    if ((!isLoading) && (tableData) && (tableData.length) /* && tableData[0].id>-1 */) {
       if (typeof currentId !== 'number') 
       {
         console.log('Выбрано ', tableData[0].id);
-        setRowSelectionModel([tableData[0].id]);
         setCurrentId(tableData[0].id);
         setValueID(tableData[0].id);
+        setRowSelectionModel([tableData[0].id]);
       }
     }
     }, [ isLoading, tableData, currentId] );
@@ -670,7 +670,7 @@ const delRec = async () => {
             style={{ width: 570, height: 500, border: '1px solid rgba(0, 0, 0, 0.23)', borderRadius: '4px' }}
             sx={{
               "& .MuiDataGrid-row.Mui-selected": {
-                backgroundColor: dialogType !== ''||((typeof valueId === 'number' || '')==='') ? "transparent" : "rgba(0, 0, 0, 0.11)",
+                backgroundColor: dialogType !== ''||!(valueId >=0) ? "transparent" : "rgba(0, 0, 0, 0.11)",
               },
               "& .MuiDataGrid-cell:focus-within": {
                 outline: "none !important",

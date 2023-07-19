@@ -1,5 +1,5 @@
 import React,  { useState, useEffect } from 'react'
-import { DataGrid, ruRU } from '@mui/x-data-grid'
+import { DataGrid, useGridApiRef, ruRU } from '@mui/x-data-grid'
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Dialog from '@mui/material/Dialog';
@@ -11,7 +11,7 @@ import DialogTitle from '@mui/material/DialogTitle';
 import { InputLabel } from "@mui/material";
 import { Select } from "@mui/material";
 import { MenuItem } from "@mui/material"; */
-import { Box, IconButton } from '@mui/material';
+import { Box, Grid, IconButton } from '@mui/material';
 import Alert from '@mui/material/Alert';
 import Collapse from '@mui/material/Collapse';
 import CloseIcon from '@mui/icons-material/Close';
@@ -48,6 +48,8 @@ var lastAddedId = 0;
 var lastID = 0;
 
 function DataTableIsotopeDecay(props)  {
+  const apiRef = useGridApiRef(); // init DataGrid API for scrolling
+
 const columns_decay = [
   { field: 'id', headerName: 'Код', width: 70 },
   { field: 'parent_id', headerName: 'Код родительского изотопа', width: 80 },
@@ -400,10 +402,11 @@ const [graph, setGraph] = useState({
 
 const formRef = React.useRef();
 return (
-    <div style={{ height: {heightVal} , width: 886 }}> 
-    <form ref={formRef}>  
-    <table cellSpacing={0} cellPadding={0} style={{ height: 203, width: 886, verticalAlign: 'top' }} border="0"><tbody><tr>
-      <td style={{ height: 160, width: 800, verticalAlign: 'top' }}>
+  <div style={{ height: 280, width: 886 }}>
+    <form ref={formRef}>
+      <Box sx={{ border: '0px solid purple', height: 250, width: 886 }}>
+        <Grid container spacing={1}>
+          <Grid item sx={{ width: 780, border: '0px solid black', ml: 0 }}>
       <DataGrid
         sx={{
           border: '1px solid rgba(0, 0, 0, 0.23)',
@@ -415,10 +418,10 @@ return (
             outline: "none !important",
           },
         }}       
-        style={{ height: '270px', width: '786px' }}
         hideFooterSelectedRowCount={true}
         localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
         rowHeight={25}
+              apiRef={apiRef}              
         hideFooterPagination={true}
         hideFooter={true}
         rows={tableDecay}
@@ -429,6 +432,7 @@ return (
           setSelectionModelDecay(newSelectionModel);
         }}
         selectionModel={selectionModelDecay}        
+        style={{ height: '270px', width: '786px' }}
         initialState={{
           columns: {
             columnVisibilityModel: {
@@ -443,22 +447,24 @@ return (
         }}        
         onRowClick={handleRowClickDecay} {...tableDecay} 
       />            
-    </td>
-    <td style={{ height: 190, width: 100, verticalAlign: 'top' }}>
-    &nbsp;<IconButton onClick={()=>handleClickAddDecay()} disabled={(!props.rec_id)} color="primary" size="small" title="Добавить связь с источником данных">
-      <SvgIcon fontSize="small" component={PlusLightIcon} inheritViewBox /></IconButton><br/>
-    &nbsp;<IconButton onClick={()=>handleClickEditDecay()} disabled={noRecordsDecay} color="primary" size="small" title="Редактировать связь с источником данных">
-      <SvgIcon fontSize="small" component={EditLightIcon} inheritViewBox /></IconButton><br/>
-    &nbsp;<IconButton onClick={()=>handleClickDeleteDecay()} disabled={noRecordsDecay} color="primary" size="small" title="Удалить связь с источником данных">
-      <SvgIcon fontSize="small" component={TrashLightIcon} inheritViewBox /></IconButton><br/>
-      &nbsp;<IconButton onClick={()=>handleOpenGraph()} disabled={noRecordsDecay} color="primary" size="small" title="Радиоактивные ряды - графическое представление">
-        <SvgIcon fontSize="small" component={NetworkLightIcon} inheritViewBox /></IconButton>
-    </td></tr>
-    <tr>
-      <td>
-      <Box sx={{ width: '100%' }}>
+          </Grid>
+          <Grid item sx={{width: 45, border: '0px solid green', ml: 1 }}> 
+            <Box sx={{ border: '0px solid purple', display: 'flex', flexDirection: 'column', gap: 0.1, alignItems: 'center', justifyContent: 'center' }}>
+              <IconButton onClick={()=>handleClickAddDecay()} disabled={(!props.rec_id)} color="primary" size="small" title="Добавить связь с источником данных">
+                <SvgIcon fontSize="small" component={PlusLightIcon} inheritViewBox /></IconButton>
+              <IconButton onClick={()=>handleClickEditDecay()} disabled={noRecordsDecay} color="primary" size="small" title="Редактировать связь с источником данных">
+                <SvgIcon fontSize="small" component={EditLightIcon} inheritViewBox /></IconButton>
+              <IconButton onClick={()=>handleClickDeleteDecay()} disabled={noRecordsDecay} color="primary" size="small" title="Удалить связь с источником данных">
+                <SvgIcon fontSize="small" component={TrashLightIcon} inheritViewBox /></IconButton>
+              <IconButton onClick={()=>handleOpenGraph()} disabled={noRecordsDecay} color="primary" size="small" title="Радиоактивные ряды - графическое представление">
+                <SvgIcon fontSize="small" component={NetworkLightIcon} inheritViewBox /></IconButton>
+            </Box>
+          </Grid>
+        </Grid>
+
       <Collapse in={openAlertDecay}>
         <Alert
+            style={{ width: '786px' }}
           severity={alertSeverity}
           action={
             <IconButton
@@ -481,10 +487,7 @@ return (
       marginLeft: '40%',
       }}>
       </div>
-    </Box>
-      </td>
-    </tr>
-    </tbody></table>
+      </Box>
 
     <Dialog open={openDecay} onClose={handleCloseNoDecay} fullWidth={false} maxWidth="800px"
       height="800px"

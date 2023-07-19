@@ -510,7 +510,7 @@ const delRec = async () => {
 
     return (
       <GridToolbarContainer>
-        <IconButton onClick={()=>handleClearClick()} disabled={editStarted} color="primary" size="small" title="Создать запись">
+        <IconButton onClick={()=>{setClickedRowId(null); handleClearClick()}} disabled={editStarted} color="primary" size="small" title="Создать запись">
           <SvgIcon fontSize="small" component={PlusLightIcon} inheritViewBox /></IconButton>
         <IconButton onClick={()=>{setClickedRowId(null); saveRec(true)}}  color="primary" size="small" title="Сохранить запись в БД">
           <SvgIcon fontSize="small" component={SaveLightIcon} inheritViewBox/></IconButton>

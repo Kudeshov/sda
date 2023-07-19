@@ -108,32 +108,6 @@ function DataTableDataSourceClass(props)  {
     setIsLoading(false);
   }, [props.table_name, props.rec_id]);
 
- /*  useEffect(() => {
-    setOpenAlert(false);
-    setlastSrcClassID(0);
-    setIsLoading(true);
-
-    if (props.rec_id === null || props.rec_id === undefined || props.rec_id === '') {
-      setTableData([]); // загружаем пустой результат
-    } else {
-      fetch(`/data_source_class?table_name=${props.table_name}&rec_id=${props.rec_id||0}`)
-      .then((data) => data.json())
-      .then((data) => {
-        setTableData(data);
-        // Если массив данных не пустой, обновляем состояния
-        console.log('После загрузки выставляем ', data[0].id, addedId)
-        if (data.length > 0 && !addedId) {
-          setAddedId(data[0].id);
-          setValueID(data[0].id);
-          console.log('После загрузки выставили ', data[0].id)
-        }
-      
-      });
-    }
-    setlastSrcClassID(0);
-    setIsLoading(false);
-  }, [props.table_name, props.rec_id]) */
-
   useEffect(() => {
     fetch(`/data_source`)
       .then((data) => data.json())
@@ -299,96 +273,6 @@ const saveRec = async () => {
     }
   }
 };
-///////////////////////////////////////////////////////////////////  SAVE  /////////////////////
-/* const saveRec = async () => {
-
-  if (formRef.current.reportValidity() )
-    {
-
-  const js = JSON.stringify({
-    id: valueId,
-    data_source_id: valueDataSourceId,
-    table_name: valueTableName,
-    rec_id: valueRecId,
-    title_src: valueTitleSrc,
-    name_src: valueNameSrc         
-  });
-  if (!valueId) { //если значение не задано - добавить запись
-    addRec();
-    return;
-  }
-  setIsLoading(true);
-  try {
-    const response = await fetch('/data_source_class/'+valueId, {
-      method: 'PUT',
-      body: js,
-      headers: {
-        'Content-Type': 'Application/json',
-        Accept: '',
-     },
-   });
-   if (!response.ok) {
-      setAlertSeverity('error');
-    }
-    else
-    {
-      setAlertSeverity('success');
-    }
-    setAlertText(await response.text());
-    setOpenAlert(true);    
- } catch (err) {
-  setAlertText(err.message);
-  setAlertSeverity('error');
-  setOpenAlert(true);
- } finally {
-   setIsLoading(false);
-   reloadDataSrcClass();      
- }
-}
-};
-/////////////////////////////////////////////////////////////////// ADDREC ///////////////////// 
-const addRec = async ()  => {
-  const js = JSON.stringify({
-    id: valueId,
-    data_source_id: valueDataSourceId,
-    table_name: valueTableName,
-    rec_id: lastRecID,
-    title_src: valueTitleSrc,
-    name_src: valueNameSrc         
-  });
-  setIsLoading(true);
-  try {
-    const response = await fetch('/data_source_class/', {
-      method: 'POST',
-      body: js,
-      headers: {
-        'Content-Type': 'Application/json',
-        Accept: '',
-      },
-    });
-    if (!response.ok) {
-      setAlertSeverity('error');
-      setAlertText(await response.text());
-      setOpenAlert(true);          
-    }
-    else
-    {
-      setAlertSeverity('success');
-      const { id } = await response.json();
-      setAlertText(`Добавлена запись с кодом ${id}`);
-      addedId =  id; 
-      setValueID(addedId);
-      setOpenAlert(true);  
-    }
-  } catch (err) {
-    setAlertText(err.message);
-    setAlertSeverity('error');
-    setOpenAlert(true);
-  } finally {
-    setIsLoading(false);
-    reloadDataSrcClass(); 
-  }
-}; */
 
 const handleRowClick = (params) => {
   setOpenAlert(false);
@@ -398,11 +282,6 @@ const handleRowClick = (params) => {
 }; 
 
 const setValues = (row) => {
-/*   setValueDataSourceId(row.data_source_id);
-  setValueTableName(row.table_name);
-  setValueRecID(row.rec_id);
-  setValueTitleSrc(row.title_src);
-  setValueNameSrc(row.name_src); */
   setValueDataSourceId(row.data_source_id);
   setValueTableName(row.table_name);
   setValueRecID(row.rec_id);
@@ -460,7 +339,7 @@ return (
               rowSelectionModel={rowSelectionModel}
               loading={isLoading}
               pageSize={25} // number of rows per page
-              style={{ height: '270px', width: '786px' }} // set height of the DataGrid              
+              style={{ height: '270px', width: '786px' }}
               initialState={{
                 columns: {
                   columnVisibilityModel: {
@@ -481,7 +360,7 @@ return (
             <Box sx={{ border: '0px solid purple', display: 'flex', flexDirection: 'column', gap: 0.1, alignItems: 'center', justifyContent: 'center' }}>
               <IconButton
                 onClick={handleClickAdd}
-                disabled={!props.rec_id} 
+                disabled={(props.rec_id === null || props.rec_id === undefined || props.rec_id === '')} 
                 color="primary"
                 size="small"
                 title="Добавить связь с источником данных"
@@ -490,7 +369,7 @@ return (
               </IconButton>
               <IconButton
                 onClick={handleClickEdit}
-                disabled={!props.rec_id||noRecords}
+                disabled={(!(props.rec_id>=0))||noRecords}
                 color="primary"
                 size="small"
                 title="Редактировать связь с источником данных"
@@ -499,7 +378,7 @@ return (
               </IconButton>
               <IconButton
                 onClick={handleClickDelete}
-                disabled={!props.rec_id||noRecords}
+                disabled={(!(props.rec_id>=0))||noRecords}
                 color="primary"
                 size="small"
                 title="Удалить связь с источником данных"
@@ -508,7 +387,7 @@ return (
               </IconButton>
               <IconButton
                 onClick={handleOpenDSInfo}
-                disabled={!props.rec_id||noRecords}
+                disabled={(!(props.rec_id>=0))||noRecords}
                 color="primary"
                 size="small"
                 title="Информация по источнику данных"
@@ -642,174 +521,5 @@ return (
     </form>
   </div>
 )
-
-/*   return (
-    
-    <div style={{ height: 270, width: 886 }}>
-      <form ref={formRef}>  
-      <table cellSpacing={0} cellPadding={0} style={{ height: 270, width: 886, verticalAlign: 'top' }} border="0"><tbody><tr>
-        <td style={{ height: 270, width: 800, verticalAlign: 'top' }}>
-      <DataGrid
-        localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
-        rowHeight={25}
-        columns={columns_src}
-        rows={tableData}
-        disableMultipleSelection={true}
-        onPaginationModelChange={setPaginationModel}
-        onRowClick={handleRowClick} {...tableData} 
-        hideFooterSelectedRowCount={true}
-        selectionModel={selectionModel}
-        paginationModel={paginationModel}
-        onSelectionModelChange={(newSelectionModel) => {
-          setSelectionModel(newSelectionModel);
-        }}
-        rowSelectionModel={rowSelectionModel}
-        loading={isLoading}        
-        initialState={{
-          columns: {
-            columnVisibilityModel: {
-              data_source_id: false,
-              table_name: false,
-              rec_id: false,
-              fullname: false,
-              shortname: false,
-              external_ds: false,
-              descr: false,
-            },
-          },
-        }}             
-      /></td>
-      <td style={{ height: 270, width: 100, verticalAlign: 'top' }}>
-      &nbsp;<IconButton onClick={()=>handleClickAdd()} disabled={false}  color="primary" size="small" title="Добавить связь с источником данных">
-        <SvgIcon fontSize="small" component={PlusLightIcon} inheritViewBox /></IconButton><br/>
-      &nbsp;<IconButton onClick={()=>handleClickEdit()} disabled={noRecords} color="primary" size="small" title="Редактировать связь с источником данных">
-        <SvgIcon fontSize="small" component={EditLightIcon} inheritViewBox /></IconButton><br/>
-      &nbsp;<IconButton onClick={()=>handleClickDelete()} disabled={noRecords} color="primary" size="small" title="Удалить связь с источником данных">
-        <SvgIcon fontSize="small" component={TrashLightIcon} inheritViewBox /></IconButton><br/>
-      &nbsp;<IconButton onClick={()=>handleOpenDSInfo()} disabled={noRecords} color="primary" size="small" title="Информация по источнику данных">
-        <SvgIcon fontSize="small" component={InfoLightIcon} inheritViewBox /></IconButton>
-      </td></tr>
-      <tr>
-        <td>
-        <Box sx={{ width: '100%' }}>
-        <Collapse in={openAlert}>
-          <Alert
-            severity={alertSeverity}
-            action={
-              <IconButton
-                aria-label="close"
-                color="inherit"
-                size="small"
-                onClick={() => {
-                  setOpenAlert(false);
-                }}
-              >
-                <CloseIcon fontSize="inherit" />
-              </IconButton>
-            }
-            sx={{ mb: 2 }}
-          >
-            {alertText}
-          </Alert>
-        </Collapse>
-        <div style={{
-        marginLeft: '40%',
-        }}>
-        </div>
-      </Box>
-        </td>
-      </tr>
-      </tbody></table>
-
-      <Dialog open={open} onClose={handleCloseNo} fullWidth={false} maxWidth="800px">
-      <DialogTitle>Связь с источником данных</DialogTitle>  
-        <DialogContent style={{height:'480px', width: '700px'}}>
-          <DialogContentText>
-            Задать связь с источником данных
-          </DialogContentText>
-        <p></p>        
-        <FormControl fullWidth>
-            <InputLabel id="demo-controlled-open-select-label" required >Источник данных</InputLabel>
-            <Select
-              labelId="demo-controlled-open-select-label"
-              id="demo-controlled-open-select"
-              value={valueDataSourceId  || "" }
-              label="Источник данных"
-              defaultValue={true}
-              fullWidth
-              onChange={e => setValueDataSourceId(e.target.value)}
-            >
-            {tableDataSrc?.map(option => {
-                return (
-                  <MenuItem key={option.id} value={option.id}>
-                    {option.title ?? option.id}
-                  </MenuItem>
-                );
-            })}
-            </Select>
-          </FormControl>  
-          <p></p> 
-          <TextField
-            variant="outlined"
-            margin="dense"
-            id="title"
-            label="Обозначение" required
-            value={valueTitleSrc || ''}
-            fullWidth
-            onChange={e => setValueTitleSrc(e.target.value)}
-          />
-          <p></p>
-          <TextField
-            variant="outlined"
-            id="name_src"
-            label="Название"
-            value={valueNameSrc || ''}
-            fullWidth
-            onChange={e => setValueNameSrc(e.target.value)}
-          />        
-          </DialogContent>
-        <DialogActions>
-          <Button variant="outlined" onClick={handleCloseNo}>Отмена</Button>
-          <Button variant="outlined" disabled={!valueTitleSrc||!valueDataSourceId} onClick={handleCloseYes}>Сохранить</Button>
-        </DialogActions>
-      </Dialog>
-
-      <Dialog open={openConfirmDelete} onClose={handleCloseConfirmDelete} fullWidth={true}>
-      <DialogTitle>
-          Внимание
-      </DialogTitle>
-      <DialogContent>
-          <DialogContentText>
-              В таблице "{table_names['data_source_class']}" предложена к удалению следующая запись:<p></p><b>{valueTitleSrc}</b>; Код в БД = <b>{valueId}</b><p></p>
-              Вы желаете удалить указанную запись?        
-          </DialogContentText>
-      </DialogContent>
-      <DialogActions>
-          <Button variant="outlined" onClick={handleCloseConfirmDelete} autoFocus>Нет</Button>
-          <Button variant="outlined" onClick={handleCloseConfirmDeleteYes} >Да</Button>
-      </DialogActions>
-
-      </Dialog>
-      <Dialog open={openDSInfo} onClose={handleCloseDSInfo} fullWidth={true}>
-      <DialogTitle>
-          Источник данных <b>{valueTitle}</b>
-      </DialogTitle>
-      <DialogContent>
-          <DialogContentText>
-              Код: <b>{valueDataSourceId}</b><p></p>
-              Обозначение: <b>{valueTitle}</b><p></p>
-              Краткое название: <b>{valueShortName}</b><p></p> 
-              Полное название: <b>{valueFullName}</b><p></p> 
-              Источник данных: <b>{valueExternalDS === 'false' ? 'Целевая БД' : 'Внешний источник' }</b><p></p> 
-              Комментарий: <b>{valueDescr}</b><p></p> 
-          </DialogContentText>
-      </DialogContent>
-      <DialogActions>
-          <Button variant="outlined" onClick={handleCloseDSInfo} autoFocus>Закрыть</Button>
-      </DialogActions>
-      </Dialog>
-      </form>
-    </div>
-    ) */
 }
 export  { DataTableDataSourceClass }
