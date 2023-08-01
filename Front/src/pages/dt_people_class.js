@@ -70,6 +70,15 @@ const DataTablePeopleClass = (props) => {
   const [tableData, setTableData] = useState([]); 
   const [rowSelectionModel, setRowSelectionModel] = React.useState([]);
   const [editStarted, setEditStarted] = useState(false);  
+  
+  
+  const [ExampleComponent, ExampleComponentInitial] = React.useState();
+
+  const [inputValue, inputValueInitial] = React.useState();
+
+
+  const [formattedRespRateValue, formattedRespRateValueInitial] = React.useState();
+
 
   const [addedId, setAddedId] = useState(null);  
 
@@ -210,6 +219,7 @@ const DataTablePeopleClass = (props) => {
       setValueExtCloudInitial(``);
       setValueExtGround(``);
       setValueExtGroundInitial(``);
+      
       // Даем фокус TextField после обновления состояния
       inputRef.current.focus();
     }
@@ -440,6 +450,16 @@ const delRec = async () => {
     }
   };
 
+  const formatExp = (valueAnyRate) => {
+    // Преобразование строки в числовое значение
+    const number = parseFloat(valueAnyRate);
+    if (isNaN(number) || number === 0) {
+      return '';
+    }
+ 
+    return number.toExponential();
+  };
+
   const setValues = (row) => {
     setValueTitle(row.title);
     setValueTitleInitial(row.title);
@@ -453,12 +473,12 @@ const delRec = async () => {
     setValueDescrEngInitial(row.descr_eng);
   
     if (props.table_name === 'agegroup') {
-      setValueRespRate(row.resp_rate);
-      setValueRespRateInitial(row.resp_rate);
-      setValueRespRateNight(row.resp_rate_night);
-      setValueRespRateNightInitial(row.resp_rate_night);
-      setValueRespRateDay(row.resp_rate_day);
-      setValueRespRateDayInitial(row.resp_rate_day);
+      setValueRespRate(formatExp(row.resp_rate));
+      setValueRespRateInitial(formatExp(row.resp_rate));
+      setValueRespRateNight(formatExp(row.resp_rate_night));
+      setValueRespRateNightInitial(formatExp(row.resp_rate_night));
+      setValueRespRateDay(formatExp(row.resp_rate_day));
+      setValueRespRateDayInitial(formatExp(row.resp_rate_day));
       setValueRespYear(row.resp_year);
       setValueRespYearInitial(row.resp_year);
       setValueIndoor(row.indoor);
@@ -617,7 +637,23 @@ const delRec = async () => {
   function GridToolbar() {
     const handleExport = (options) =>
        apiRef.current.exportDataAsCsv(options);
+    
+/*     const ExampleComponent = () => {
+      const inputValue = valueRespRate
 
+      inputValue = valueRespRate
+
+      const formattedRespRateValue = formatExp(inputValue);
+    
+      return (
+        <div>
+          <p>Форматированное значение: {formattedRespRateValue}</p>
+        </div>
+      );
+    };
+    */
+
+       
     return (
       <GridToolbarContainer>
         <IconButton onClick={()=>handleClearClick()} disabled={editStarted} color="primary" size="small" title="Создать запись">
@@ -783,6 +819,7 @@ const delRec = async () => {
               </Grid>
             </>
           )}
+          
           </Grid>
         </form>
           <Box sx={{ marginTop: '0.4rem' }}>
