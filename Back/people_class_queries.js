@@ -22,15 +22,19 @@ pool.on('error', function (err, client) {
 });
 
 const getPeopleClass = (request, response) => {
-  pool.query('SELECT pc.*, pcn1.name name_rus, pcn2.name name_eng, pcn1.descr descr_rus, pcn2.descr descr_eng FROM nucl.people_class pc '+
-  'left join nucl.people_class_nls pcn1 on pc.id=pcn1.people_class_id and pcn1.lang_id=1 '+
-  'left join nucl.people_class_nls pcn2 on pc.id=pcn2.people_class_id and pcn2.lang_id=2 '+
-  'ORDER BY pc.id ASC', (error, results) => {
+  pool.query = `SELECT pc.*, pcn1.name name_rus, pcn2.name name_eng, pcn1.descr descr_rus, pcn2.descr descr_eng 
+  FROM nucl.people_class pc
+  left join nucl.people_class_nls pcn1 on pc.id=pcn1.people_class_id and pcn1.lang_id=1 
+  left join nucl.people_class_nls pcn2 on pc.id=pcn2.people_class_id and pcn2.lang_id=2 
+  ORDER BY pc.title ASC`,
+  
+  
+  (error, results) => {
     if (error) {
       throw error
     }
     response.status(200).json(results.rows)
-  })
+  }
 }
 
 const getPeopleClassById = (request, response) => {

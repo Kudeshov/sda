@@ -27,7 +27,7 @@ const getCriterionGr = (request, response, table_name ) => {
   `left join nucl.${table_name}_nls pcn2 on pc.id=pcn2.${table_name}_id and pcn2.lang_id=2 `+
   `left join nucl.${table_name} esc on pc.parent_id = esc.id ` +
   `left join public.normativ n on pc.normativ_id = n.id ` +
-  `ORDER BY pc.id ASC`, (error, results) => {
+  `ORDER BY pc.title ASC`, (error, results) => {
     if (error) {
       throw error
     }

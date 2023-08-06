@@ -28,7 +28,7 @@ const getCalcFunction = (request, response, table_name ) => {
   left join public.physunit_nls pn on pn.physunit_id = p2.id and pn.lang_id = 1 
   left join nucl.calcfunction_nls pcn1 on pc.id=pcn1.calcfunction_id and pcn1.lang_id=1 
   left join nucl.calcfunction_nls pcn2 on pc.id=pcn2.calcfunction_id and pcn2.lang_id=2 
-  ORDER BY pc.id ASC`, (error, results) => {
+  ORDER BY pc.title ASC`, (error, results) => {
     if (error) {
       throw error
     }
