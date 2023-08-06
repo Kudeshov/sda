@@ -5,36 +5,57 @@ import ExpandMoreIcon from "@mui/icons-material/ExpandMore";
 import TextField from '@mui/material/TextField';
 import Tooltip from '@mui/material/Tooltip';
 
-export const transformData = (data) => {
-    let idMap = new Map();
-    let treeData = [];
-  
-    data.forEach((node) => {
-      idMap.set(node.id, {...node, children: [], level: 0});
-    });
-  
-    idMap.forEach((node) => {
+export const transformData = (data, available) => {
+  let idMap = new Map();
+  let treeData = [];
+  let parentMap = new Map();
+
+  const availableSet = new Set(available.map(node => node.id));
+
+  // Create idMap for all nodes
+  data.forEach((node) => {
+      idMap.set(node.id, { ...node, children: [], level: 0 });
+  });
+
+  // Create a parent map, where each parent node has a reference to its children
+  idMap.forEach((node) => {
       if(node.parent_id !== null){
-        const parentNode = idMap.get(node.parent_id);
-        if(parentNode){
-          node.level = parentNode.level + 1;
-          parentNode.children.push(node);
-        }
+          const parentNode = idMap.get(node.parent_id);
+          if(parentNode){
+              node.level = parentNode.level + 1;
+              parentNode.children.push(node);
+          }
       } else {
-        treeData.push(node);
+          treeData.push(node);
       }
-    });
-  
-    const flattenTree = (treeNodes) => {
+
+      // If this node is in the available list, add all of its ancestors to the parentMap
+      if (availableSet.has(node.id)) {
+          let parent = idMap.get(node.parent_id);
+          while (parent) {
+              if (!parentMap.has(parent.id)) {
+                  parentMap.set(parent.id, parent);
+              }
+              parent = idMap.get(parent.parent_id);
+          }
+      }
+  });
+
+  // Flatten the tree, but only include nodes that are in the available list or the parentMap
+  const flattenTree = (treeNodes) => {
       return treeNodes.reduce((acc, node) => {
-        return [...acc, node, ...flattenTree(node.children)];
+          if (availableSet.has(node.id) || parentMap.has(node.id)) {
+              return [...acc, node, ...flattenTree(node.children)];
+          } else {
+              return [...acc, ...flattenTree(node.children)];
+          }
       }, []);
-    };
-  
-    return flattenTree(treeData);
   };
 
-  const HierarchicalAutocomplete = ({ data, value, onChange, size, label, placeholder, getOptionDisabled }) => {
+  return flattenTree(treeData);
+};
+
+  const HierarchicalAutocomplete = ({ data, value, onChange, size, label, placeholder, getOptionDisabled, disabled }) => {
     return (
       <Autocomplete
         options={data}
@@ -43,6 +64,7 @@ export const transformData = (data) => {
         onChange={onChange}
         size={size}
         getOptionDisabled={getOptionDisabled}
+        disabled={disabled}
         renderOption={(props, option, { selected }) => (
           <div
             {...props}

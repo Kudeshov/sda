@@ -901,16 +901,28 @@ useEffect(() => {
       'people_class_name_rus': 'selPeopleClassValues',
       'data_source_title': 'selDataSourceValues' 
     };
-  
-    if (data.length === 0) {
+
+    
+
+/*     if (data.length === 0) {
       return columnsToShow;
-    }
+    } */
+
+    if (data.length === 0) {
+      for (let key in specialCols) {
+        columnsToShow[key] = false;
+      }
+      console.log('data.length ', data.length, columnsToShow); 
+      return columnsToShow;
+    }    
   
     if (!data[0]) {
       throw new Error('The first item in the data array is null or undefined');
     }
   
     const columnNames = Object.keys(data[0]);
+
+    console.log('selOrganValues ', currFlt.selOrganValues);
   
     columnNames.forEach((colName) => {
       if (colName in columnsToShow) return;
@@ -972,9 +984,11 @@ useEffect(() => {
       }
       
       const result = await response.json();
-      const vidColumnVisibilityModel = checkColumns(result, applFlt);
+      const vidColumnVisibilityModel1 = checkColumns(result, applFlt);
       setTableValueIntDose(result);
-      setVidColumnVisibilityModel(vidColumnVisibilityModel);
+      setVidColumnVisibilityModel(vidColumnVisibilityModel1);
+
+      console.log( 'vidColumnVisibilityModel', vidColumnVisibilityModel1 );
       if (result && result.length >= MAX_ROWS) {
         setAlertSeverity("warning");
         setAlertText(`Внимание, отобрано первые ${MAX_ROWS} строк. Укажите более строгий фильтр, чтобы уточнить результат.`);
@@ -1295,8 +1309,22 @@ const reloadDataHandler = async () => {
     };
   }, []);
 
-  const treeDataOrganFilteredEdit = React.useMemo(() => transformData(tableOrgan), [tableOrgan]);
-  const treeDataExpScenarioFilteredEdit = React.useMemo(() => transformData(tableExpScenario), [tableExpScenario]);
+//  const treeDataOrganFilteredEdit = React.useMemo(() => transformData(tableOrgan), [tableOrgan]);
+//  const treeDataExpScenarioFilteredEdit = React.useMemo(() => transformData(tableExpScenario), [tableExpScenario]);
+
+const treeDataOrganFilteredEdit = React.useMemo(() => {
+  console.log("tableOrgan:", tableOrgan);
+  console.log("tableOrganFilteredEdit:", tableOrganFilteredEdit);
+
+  const transformedData = transformData(tableOrgan, tableOrganFilteredEdit);
+
+  console.log("treeDataOrganFilteredEdit:", transformedData);
+  
+  return transformedData;
+}, [tableOrgan, tableOrganFilteredEdit]);
+
+  const treeDataExpScenarioFilteredEdit = React.useMemo(() => 
+    transformData(tableExpScenario, tableExpScenarioFilteredEdit), [tableExpScenario, tableExpScenarioFilteredEdit]);
 
   // основной генератор страницы
   return(
@@ -2485,7 +2513,7 @@ const reloadDataHandler = async () => {
                                 <LightTooltip title="Добавить найденные">
                                 <StyledIconButton
                                   onClick={() => {
-                                    const filteredOptions = filterOptions(tableIntegralPeriodFiltered, { inputValue: searchValueIntegralPeriod });
+                                    const filteredOptions = filterOptionsNameRus(tableIntegralPeriodFiltered, { inputValue: searchValueIntegralPeriod });
                                     const newValues = [...currFlt.selIntegralPeriodValues, ...filteredOptions];
                                     setCurrFlt({
                                       ...currFlt,
@@ -2551,7 +2579,7 @@ const reloadDataHandler = async () => {
               <Grid item xs={12}>
                 <Box height={360} width="100%" overflow="auto">
                   <DataGrid
-                    height={340} // Здесь вы можете установить высоту
+                    height={340}
                     style={{ width: windowWidth - 48 }}
                     components={{ Toolbar: CustomToolbar1 }}
                     hideFooterSelectedRowCount={true}
@@ -2636,6 +2664,7 @@ const reloadDataHandler = async () => {
             { organVisibleD && (
               <>              
               <HierarchicalAutocomplete
+              disabled={(valueID !== null)||(applFlt.selOrganValues.length===1)}
               data={treeDataOrganFilteredEdit}
               value={treeDataOrganFilteredEdit.find(item => item.id === valueOrganID) || null}
               onChange={(event, newValue) => setValueOrganID(newValue ? newValue.id : null)}
@@ -2815,6 +2844,7 @@ const reloadDataHandler = async () => {
             {expScenarioVisibleD && (         
               <>
               <HierarchicalAutocomplete
+                disabled={(valueID !== null)||(applFlt.selExpScenarioValues.length===1)}
                 data={treeDataExpScenarioFilteredEdit}
                 value={treeDataExpScenarioFilteredEdit.find(item => item.id === valueExpScenarioID) || null}
                 onChange={(event, newValue) => setValueExpScenarioID(newValue ? newValue.id : null)}
