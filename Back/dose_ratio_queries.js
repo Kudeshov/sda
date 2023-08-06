@@ -28,7 +28,7 @@ const getDoseRatio = (request, response, table_name ) => {
                    left join nucl.${table_name}_nls pcn2 on dr.id=pcn2.${table_name}_id and pcn2.lang_id=2
                    left join public.physunit p2 on p2.physparam_id = dr.physparam_id and p2.basic_id is null
                    left join public.physunit_nls pn on pn.physunit_id = p2.id and pn.lang_id = 1 
-                   ORDER BY dr.id ASC`;
+                   ORDER BY dr.title ASC`;
   console.log(s_query);
 
   pool.query(s_query, (error, results) => {
@@ -44,7 +44,7 @@ const getDoseRatioById = (request, response, table_name ) => {
   pool.query(`SELECT pc.*, pcn1.name name_rus, pcn2.name name_eng, pcn1.fullname descr_rus, pcn2.fullname descr_eng FROM nucl.${table_name} pc `+
   `left join nucl.${table_name}_nls pcn1 on pc.id=pcn1.${table_name}_id and pcn1.lang_id=1 `+
   `left join nucl.${table_name}_nls pcn2 on pc.id=pcn2.${table_name}_id and pcn2.lang_id=2 `+
-  `where pc.id = $1`, [id], (error, results) => {
+  `where pc.id = $1 `, [id], (error, results) => {
     if (error) {
       throw error
     }

@@ -43,7 +43,7 @@ const getCriterion = (request, response, table_name ) => {
     FROM nucl.criterion c
     left join nucl.criterion_nls pcn1 on c.id=pcn1.criterion_id and pcn1.lang_id=1 
     left join nucl.criterion_nls pcn2 on c.id=pcn2.criterion_id and pcn2.lang_id=2 
-    ORDER BY crit, id
+    ORDER BY crit, title
     `, (error, results) => {
     if (error) {
       throw error //WHERE id IN (SELECT DISTINCT criterion_gr_id FROM nucl.criterion)

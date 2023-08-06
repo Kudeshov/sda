@@ -26,7 +26,7 @@ const getExpScenario = (request, response, table_name ) => {
   `left join nucl.${table_name}_nls pcn1 on pc.id=pcn1.${table_name}_id and pcn1.lang_id=1 `+
   `left join nucl.${table_name}_nls pcn2 on pc.id=pcn2.${table_name}_id and pcn2.lang_id=2 `+
   `left join nucl.${table_name} esc on pc.parent_id = esc.id ` +
-  `ORDER BY pc.id ASC`, (error, results) => {
+  `ORDER BY pc.title ASC`, (error, results) => {
     if (error) {
       throw error
     }
