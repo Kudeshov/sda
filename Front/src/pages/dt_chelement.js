@@ -155,8 +155,11 @@ const DataTableChelement = (props) => {
   }, [])
 
   useEffect(() => {
-    if (!valueId) 
+    if (!valueId)
+    { 
+      setTableNuclide([]);
       return;
+    }
 
     fetch(`/nuclide/`+valueId)
       .then((data) => data.json())
@@ -847,10 +850,27 @@ const delRec = async () => {
               <TextField id="ch_id" disabled={true} fullWidth label="Код"  variant="outlined" value={valueId || ''} size="small" />
             </Grid>  
             <Grid item xs={8}>
-              <TextField id="ch_name" inputRef={inputRef} fullWidth label="Обозначение" required size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
+              <TextField id="ch_name" inputRef={inputRef} fullWidth label="Обозначение" inputProps={{ maxLength: 3 }}  required size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
             </Grid>
             <Grid item xs={2}>
-              <TextField id="ch_atomic_num" fullWidth label="Атомный номер" required size="small" /* type="number" */ variant="outlined" value={valueAtomicNum || ''} onChange={e => setValueAtomicNum(e.target.value)}/>
+              <TextField 
+                id="ch_atomic_num" 
+                fullWidth 
+                label="Атомный номер" 
+                required 
+                size="small" 
+                variant="outlined" 
+                value={valueAtomicNum || ''} 
+                inputProps={{ maxLength: 3 }} // ограничивает длину ввода до 3 символов
+                onChange={e => {
+                  // проверяем, что ввод - это число
+                  const val = e.target.value;
+                  if (!isNaN(val)) {
+                    setValueAtomicNum(val);
+                  }
+                }}
+              />              
+{/*               <TextField id="ch_atomic_num" fullWidth label="Атомный номер" required size="small"  variant="outlined" value={valueAtomicNum || ''} onChange={e => setValueAtomicNum(e.target.value)}/> */}
             </Grid>
             <Grid item xs={6}>
               <TextField id="ch_name_rus" fullWidth size="small" label="Название (рус.яз)" required variant="outlined"  value={valueNameRus || ''} onChange={e => setValueNameRus(e.target.value)} />
