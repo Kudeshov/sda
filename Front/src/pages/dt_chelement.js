@@ -50,8 +50,8 @@ const DataTableChelement = (props) => {
 
   const [isLoading, setIsLoading] = React.useState(false);
   const [tableData, setTableData] = useState([]); 
-  const [tablePhchForm, setTablePhchForm] = useState([]); 
-  const [tablePhchFormFiltered, setTablePhchFormFiltered] = useState([]); 
+/*   const [tablePhchForm, setTablePhchForm] = useState([]); 
+  const [tablePhchFormFiltered, setTablePhchFormFiltered] = useState([]);  */
   const [rowSelectionModel, setRowSelectionModel] = React.useState([]);
   const [editStarted, setEditStarted] = useState(false);  
 
@@ -148,12 +148,12 @@ const DataTableChelement = (props) => {
       .then((data) => setTableData(data)); 
   }, [props.table_name])
 
-  useEffect(() => {
+/*   useEffect(() => {
     fetch(`/phchform_chelem`)
       .then((data) => data.json())
       .then((data) => setTablePhchForm(data)); 
   }, [])
-
+ */
   useEffect(() => {
     if (!valueId)
     { 
@@ -167,11 +167,11 @@ const DataTableChelement = (props) => {
       .then(console.log('грузим нуклиды'));
   }, [valueId])
 
-  useEffect(() => {
+/*   useEffect(() => {
     let f = tablePhchForm.filter(item => ( Number(item.chelement_id) === Number(valueId) ));
     console.log(f);
     setTablePhchFormFiltered(f);
-  }, [valueId, tablePhchForm])
+  }, [valueId, tablePhchForm]) */
 
 const saveRec = async () => {
   if (formRef.current.reportValidity()) {
@@ -878,7 +878,7 @@ const delRec = async () => {
             <Grid item xs={6}>
               <TextField id="ch_name_eng" fullWidth size="small" label="Название (англ.яз)"  variant="outlined" value={valueNameEng || ''} onChange={e => setValueNameEng(e.target.value)}/>
             </Grid>            
-            <Grid item xs={12}>
+           {/*  <Grid item xs={12}>
             Физико-химические формы элемента
             <DataGrid
               sx={{
@@ -915,7 +915,7 @@ const delRec = async () => {
 
               }}    
             />
-            </Grid>            
+            </Grid>            */} 
             <Grid item sx={{ width: 747, border: '0px solid black', ml: 0 }}> 
 
                 Радионуклиды элемента

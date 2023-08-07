@@ -30,7 +30,7 @@ const cf_q = require('./calcfunction_queries');
 const es_q = require('./exp_scenario_queries');
 const no_q = require('./normativ_queries');
 const ccg_q = require('./chem_comp_gr_queries');
-const pcm_q = require('./phchform_chelem_queries');
+//const pcm_q = require('./phchform_chelem_queries'); // таблица удалена
 const nuc_q = require('./nuclide_queries');
 const cr_q = require('./criterion_queries');
 const cg_q = require('./criterion_gr_queries');
@@ -216,7 +216,7 @@ app.delete('/chem_comp_gr/:id', (req, res) => {ccg_q.deleteChemCompGr(req, res, 
 app.get('/chem_comp_gr_min', (req, res) => {ccg_q.getChemCompGrMin(req, res, 'chem_comp_gr_min')});            //list for autocomplete
 
 //GENERIC QUERIES on phchform_chelem 
-app.get('/phchform_chelem', (req, res) => {pcm_q.getPhchFormChelem(req, res, 'phchform_chelem')});  //list all
+//app.get('/phchform_chelem', (req, res) => {pcm_q.getPhchFormChelem(req, res, 'phchform_chelem')});  //list all
 
 //GENERIC QUERIES on ACTION 
 
