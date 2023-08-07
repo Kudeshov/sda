@@ -1,6 +1,5 @@
 var express = require(`express`);
 var app = express();
-var PORT = 3001;
 
 const bodyParser = require(`body-parser`)
 app.use(bodyParser.json())
@@ -11,17 +10,16 @@ app.use(
 )
 
 const { Pool } = require(`pg`);
-const e = require(`express`);
 
 var config = require(`./config.json`);
 const c_c = require('./common_queries');
 
 const pool = new Pool(config);
-pool.on(`error`, function (err, client) {
+pool.on(`error`, function (err) {
     console.error(`idle client error`, err.message, err.stack);
 });
 
-const getCalcFunction = (request, response, table_name ) => {
+const getCalcFunction = (request, response ) => {
   pool.query(`SELECT pc.*, pcn1.name name_rus, pcn2.name name_eng, pcn1.descr descr_rus, pcn2.descr descr_eng, null children,
   pn.sign, pn.name as unitname FROM nucl.calcfunction pc
   left join public.physunit p2 on p2.physparam_id = pc.physparam_id and p2.basic_id is null
@@ -85,9 +83,9 @@ const createCalcFunction = (request, response, table_name )=> {
         if (shouldAbort(err, response)) return;      
         const { id } = res.rows[0];
         console.log(`Id = `+id);
-        client.query( c_c.getNLSQuery(name_rus||'', descr_rus||'', id, 1, table_name), (err, res) => {
+        client.query( c_c.getNLSQuery(name_rus||'', descr_rus||'', id, 1, table_name), (err) => {
           if (shouldAbort(err, response)) return;
-          client.query( c_c.getNLSQuery(name_eng||'', descr_eng||'', id, 2, table_name), (err, res) => {
+          client.query( c_c.getNLSQuery(name_eng||'', descr_eng||'', id, 2, table_name), (err) => {
             if (shouldAbort(err, response)) return;
             console.log(`начинаем Commit`);     
             client.query(`COMMIT`, err => {
@@ -148,7 +146,7 @@ const deleteCalcFunction = (request, response, table_name ) => {
       {
         client.query(`BEGIN`, err => {
           if (shouldAbort(err, response)) return;
-          client.query(`DELETE FROM nucl.${table_name}_nls WHERE ${table_name}_id = $1`, [id], (err, res) => {
+          client.query(`DELETE FROM nucl.${table_name}_nls WHERE ${table_name}_id = $1`, [id], (err) => {
             if (shouldAbort(err, response)) return;      
             console.log(`Id = `+id);
             client.query(`DELETE FROM nucl.${table_name} WHERE id = $1`, [id], (err, res) => {
@@ -206,11 +204,11 @@ const updateCalcFunction = (request, response, table_name ) => {
     const { title, name_rus, name_eng, descr_rus, descr_eng, physparam_id, used, parameters } = request.body;
     client.query(`BEGIN`, err => {
       if (shouldAbort(err, response)) return;
-      client.query(`UPDATE nucl.${table_name} SET title = $1, physparam_id = $2, used = $3, parameters = $4 WHERE id = $5`, [title, physparam_id, used, parameters, id], (err, res) => {
+      client.query(`UPDATE nucl.${table_name} SET title = $1, physparam_id = $2, used = $3, parameters = $4 WHERE id = $5`, [title, physparam_id, used, parameters, id], (err) => {
         if (shouldAbort(err, response)) return;      
         var s_q = c_c.getNLSQuery(name_rus||'', descr_rus||'', id, 1, table_name);
         console.log(s_q);  
-        client.query( c_c.getNLSQuery(name_rus||'', descr_rus||'', id, 1, table_name), (err, res) => {
+        client.query( c_c.getNLSQuery(name_rus||'', descr_rus||'', id, 1, table_name), (err) => {
           console.log(`rus изменяется`); 
 
           if (shouldAbort(err, response)) return;
@@ -218,7 +216,7 @@ const updateCalcFunction = (request, response, table_name ) => {
 
           var s_q = c_c.getNLSQuery(name_eng||'', descr_eng||'', id, 2, table_name);
           console.log(s_q);          
-          client.query( c_c.getNLSQuery(name_eng||'', descr_eng||'', id, 2, table_name), (err, res) => {
+          client.query( c_c.getNLSQuery(name_eng||'', descr_eng||'', id, 2, table_name), (err) => {
             console.log(`eng изменяется`);  
             if (shouldAbort(err, response)) return;
             console.log(`eng изменен`);

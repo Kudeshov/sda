@@ -1,6 +1,5 @@
 var express = require(`express`);
 var app = express();
-var PORT = 3001;
 
 const bodyParser = require(`body-parser`)
 app.use(bodyParser.json())
@@ -11,17 +10,16 @@ app.use(
 )
 
 const { Pool } = require(`pg`);
-const e = require(`express`);
 
 var config = require(`./config.json`);
 const c_c = require('./common_queries');
 
 const pool = new Pool(config);
-pool.on(`error`, function (err, client) {
+pool.on(`error`, function (err) {
     console.error(`idle client error`, err.message, err.stack);
 });
 
-const getCriterion = (request, response, table_name ) => {
+const getCriterion = (request, response ) => {
   console.log('getCriterion');
   pool.query(`WITH RECURSIVE tree AS (
     SELECT DISTINCT gr.id, gr.title, gr.parent_id, nls.name AS name_rus
@@ -136,9 +134,9 @@ const createCriterion = (request, response, table_name )=> {
         console.log(s_query);
 
         //console.log( c_c.getNLSQuery(name_rus||'', descr_rus||'', id, 1, table_name) );
-         client.query( c_c.getNLSQuery(name_rus||'', descr_rus||'', id, 1, table_name), (err, res) => {
+         client.query( c_c.getNLSQuery(name_rus||'', descr_rus||'', id, 1, table_name), (err) => {
           if (shouldAbort(err, response)) return;
-          client.query( c_c.getNLSQuery(name_eng||'', descr_eng||'', id, 2, table_name), (err, res) => {
+          client.query( c_c.getNLSQuery(name_eng||'', descr_eng||'', id, 2, table_name), (err) => {
             if (shouldAbort(err, response)) return;
             console.log(`начинаем Commit`);     
             client.query(`COMMIT`, err => {
@@ -199,7 +197,7 @@ const deleteCriterion = (request, response, table_name ) => {
       {
         client.query(`BEGIN`, err => {
           if (shouldAbort(err, response)) return;
-          client.query(`DELETE FROM nucl.${table_name}_nls WHERE ${table_name}_id = $1`, [id], (err, res) => {
+          client.query(`DELETE FROM nucl.${table_name}_nls WHERE ${table_name}_id = $1`, [id], (err) => {
             if (shouldAbort(err, response)) return;      
             console.log(`Id = `+id);
             client.query(`DELETE FROM nucl.${table_name} WHERE id = $1`, [id], (err, res) => {
@@ -296,11 +294,11 @@ const updateCriterion = (request, response, table_name ) => {
       client.query(`UPDATE nucl.${table_name} SET title = $1, criterion_gr_id = $2, calcfunction_id = $3, irradiation_id = $4, agegroup_id = $5, exp_scenario_id = $6, integral_period_id = $7, organ_id = $8, 
       data_source_id = $9, aerosol_amad_id = $10, aerosol_sol_id = $11, chem_comp_gr_id = $12, subst_form_id = $13, isotope_id = $14, action_level_id = $15, people_class_id = $16, cr_value = $17, timeend = $18 WHERE id = $19`, 
        [title, criterion_gr_id, calcfunction_id, irradiation_id, agegroup_id,  exp_scenario_id, integral_period_id, organ_id, data_source_id, aerosol_amad_id,
-        aerosol_sol_id, chem_comp_gr_id, subst_form_id, isotope_id, action_level_id, people_class_id, cr_value, timeend, id ], (err, res) => {
+        aerosol_sol_id, chem_comp_gr_id, subst_form_id, isotope_id, action_level_id, people_class_id, cr_value, timeend, id ], (err) => {
         if (shouldAbort(err, response)) return;      
         var s_q = c_c.getNLSQuery(name_rus||'', descr_rus||'', id, 1, table_name);
         console.log(s_q);  
-        client.query( c_c.getNLSQuery(name_rus||'', descr_rus||'', id, 1, table_name), (err, res) => {
+        client.query( c_c.getNLSQuery(name_rus||'', descr_rus||'', id, 1, table_name), (err) => {
           console.log(`rus изменяется`); 
 
           if (shouldAbort(err, response)) return;
@@ -308,7 +306,7 @@ const updateCriterion = (request, response, table_name ) => {
 
           var s_q = c_c.getNLSQuery(name_eng||'', descr_eng||'', id, 2, table_name);
           console.log(s_q);          
-          client.query( c_c.getNLSQuery(name_eng||'', descr_eng||'', id, 2, table_name), (err, res) => {
+          client.query( c_c.getNLSQuery(name_eng||'', descr_eng||'', id, 2, table_name), (err) => {
             console.log(`eng изменяется`);  
             if (shouldAbort(err, response)) return;
             console.log(`eng изменен`);

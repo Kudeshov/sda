@@ -1,6 +1,5 @@
 var express = require('express');
 var app = express();
-var PORT = 3001;
 
 const bodyParser = require('body-parser')
 app.use(bodyParser.json())
@@ -11,10 +10,9 @@ app.use(
 )
 
 const { Pool } = require('pg');
-const e = require('express');
 var config = require('./config.json');
 const pool = new Pool(config);
-pool.on('error', function (err, client) {
+pool.on('error', function (err) {
     console.error('idle client error', err.message, err.stack);
 });
 

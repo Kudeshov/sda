@@ -1,6 +1,5 @@
 var express = require(`express`);
 var app = express();
-var PORT = 3001;
 
 const bodyParser = require(`body-parser`)
 app.use(bodyParser.json())
@@ -11,13 +10,12 @@ app.use(
 )
 
 const { Pool } = require(`pg`);
-const e = require(`express`);
 
 var config = require(`./config.json`);
 const c_c = require('./common_queries');
 
 const pool = new Pool(config);
-pool.on(`error`, function (err, client) {
+pool.on(`error`, function (err) {
     console.error(`idle client error`, err.message, err.stack);
 });
 
@@ -82,9 +80,9 @@ const createCriterionGr = (request, response, table_name )=> {
         if (shouldAbort(err, response)) return;      
         const { id } = res.rows[0];
         console.log(`Id = `+id);
-        client.query( c_c.getNLSQuery(name_rus||'', descr_rus||'', id, 1, table_name), (err, res) => {
+        client.query( c_c.getNLSQuery(name_rus||'', descr_rus||'', id, 1, table_name), (err) => {
           if (shouldAbort(err, response)) return;
-          client.query( c_c.getNLSQuery(name_eng||'', descr_eng||'', id, 2, table_name), (err, res) => {
+          client.query( c_c.getNLSQuery(name_eng||'', descr_eng||'', id, 2, table_name), (err) => {
             if (shouldAbort(err, response)) return;
             console.log(`начинаем Commit`);     
             client.query(`COMMIT`, err => {
@@ -145,7 +143,7 @@ const deleteCriterionGr = (request, response, table_name ) => {
       {
         client.query(`BEGIN`, err => {
           if (shouldAbort(err, response)) return;
-          client.query(`DELETE FROM nucl.${table_name}_nls WHERE ${table_name}_id = $1`, [id], (err, res) => {
+          client.query(`DELETE FROM nucl.${table_name}_nls WHERE ${table_name}_id = $1`, [id], (err) => {
             if (shouldAbort(err, response)) return;      
             console.log(`Id = `+id);
             client.query(`DELETE FROM nucl.${table_name} WHERE id = $1`, [id], (err, res) => {
@@ -204,19 +202,17 @@ const updateCriterionGr = (request, response, table_name ) => {
     console.log( request.body);
     client.query(`BEGIN`, err => {
       if (shouldAbort(err, response)) return;
-      client.query(`UPDATE nucl.${table_name} SET title = $1, parent_id = $2, normativ_id = $3 WHERE id = $4`, [title, parent_id, normativ_id, id], (err, res) => {
+      client.query(`UPDATE nucl.${table_name} SET title = $1, parent_id = $2, normativ_id = $3 WHERE id = $4`, [title, parent_id, normativ_id, id], (err) => {
         if (shouldAbort(err, response)) return;      
-        var s_q = c_c.getNLSQuery(name_rus||'', descr_rus||'', id, 1, table_name);
         //console.log(s_q);  
-        client.query( c_c.getNLSQuery(name_rus||'', descr_rus||'', id, 1, table_name), (err, res) => {
+        client.query( c_c.getNLSQuery(name_rus||'', descr_rus||'', id, 1, table_name), (err) => {
           console.log(`rus изменяется`); 
 
           if (shouldAbort(err, response)) return;
           console.log(`rus изменен`);
 
-          var s_q = c_c.getNLSQuery(name_eng||'', descr_eng||'', id, 2, table_name);
           //console.log(s_q);          
-          client.query( c_c.getNLSQuery(name_eng||'', descr_eng||'', id, 2, table_name), (err, res) => {
+          client.query( c_c.getNLSQuery(name_eng||'', descr_eng||'', id, 2, table_name), (err) => {
             console.log(`eng изменяется`);  
             if (shouldAbort(err, response)) return;
             console.log(`eng изменен`);
