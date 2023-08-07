@@ -358,9 +358,6 @@ const DataTableExpScenario = (props) => {
     }
   };
 
- // const treeDataCriterionGr = React.useMemo(() => transformData(tableCriterionGr), [tableCriterionGr]);
- // const treeDataOrgan = React.useMemo(() => transformData(tableOrgan), [tableOrgan]);
-
   const handleClearClick = (params) => {
     if (editStarted/* &&(!isEmpty) */)
     {
@@ -893,7 +890,7 @@ const DataTableExpScenario = (props) => {
   const handleCancelClick = () => 
   {
     setEditStarted(false);
-    setValuesById(valueId);
+    setValuesById(clickedRowId);
   }
 
   function getHeaders(atable)

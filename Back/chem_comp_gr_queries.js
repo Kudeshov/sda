@@ -52,7 +52,7 @@ const getChemCompGr = (request, response ) => {
         null as name_eng, 
         null as descr_rus, 
         null as descr_eng, 
-        1 as crit 
+        0 as crit 
       FROM 
         nucl.chelement pc
         left join nucl.chelement_nls pcn1 on pc.id=pcn1.chelement_id and pcn1.lang_id=1  

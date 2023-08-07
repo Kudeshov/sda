@@ -538,8 +538,8 @@ const DataTableCriterion = (props) => {
   };
 
   //const treeDataCriterionGr = transformData(tableCriterionGr);
-  const treeDataCriterionGr = React.useMemo(() => transformData(tableCriterionGr), [tableCriterionGr]);
-  const treeDataOrgan = React.useMemo(() => transformData(tableOrgan), [tableOrgan]);
+  const treeDataCriterionGr = React.useMemo(() => transformData(tableCriterionGr,tableCriterionGr), [tableCriterionGr,tableCriterionGr]);
+  const treeDataOrgan = React.useMemo(() => transformData(tableOrgan,tableOrgan), [tableOrgan,tableOrgan]);
   //const treeDataChemCompGr = React.useMemo(() => transformData(tableChemCompGr), [tableChemCompGr]);
   //const [selectedValueCriterionGr, setSelectedValueCriterionGr] = useState(null); 
 /* 

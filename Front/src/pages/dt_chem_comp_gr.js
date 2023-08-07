@@ -27,10 +27,6 @@ import TreeView from "@material-ui/lab/TreeView";
 import TreeItem from "@material-ui/lab/TreeItem";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
-/* import { Select } from "@mui/material";
-import { MenuItem } from "@mui/material";
-import { FormControl } from "@mui/material";
-import { InputLabel } from "@mui/material"; */
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { ExportToCsv } from 'export-to-csv-fix-source-map';
 import { table_names } from './table_names';
@@ -43,7 +39,6 @@ import { listToTree } from '../helpers/treeHelper';
 import { Grid } from '@mui/material';
 
 var lastId = 0;
-//var clickedId = 0;
 var clickAfterReload = false;
 
 const DataTableChemCompGr = (props) => {
@@ -83,7 +78,7 @@ const DataTableChemCompGr = (props) => {
         valueDescrEngInitial, valueDescrEng, valueDescrRusInitial, valueDescrRus, valueParentID, valueParentIDInitial, 
         valueFormula, valueFormulaInitial]); 
 
-  useEffect(() => {
+/*   useEffect(() => {
     if ((!isLoading) && (tableData) && (tableData.length)) {
       if (!lastId) 
       {
@@ -106,7 +101,7 @@ const DataTableChemCompGr = (props) => {
       }
     }
     }, [ isLoading, tableData] );
-
+ */
     useEffect(() => {
       function updateCurrentRec (id)  {
               if (id)
@@ -340,8 +335,6 @@ const DataTableChemCompGr = (props) => {
     }
   };
 
-  //const treeDataCriterionGr = transformData(tableCriterionGr);
-  //const treeDataChemCompGr = React.useMemo(() => transformData(tableChemCompGr), [tableChemCompGr]);
   //const [selectedValueCriterionGr, setSelectedValueCriterionGr] = useState(null); 
 /* 
   const handleSelect = (event, nodeIds) => {
@@ -371,8 +364,6 @@ const DataTableChemCompGr = (props) => {
       // setBranch(newNode);
     }   
   };  */
- 
-
 
   const handleClearClick = (params) => {
     if (editStarted/* &&(!isEmpty) */)
@@ -387,7 +378,9 @@ const DataTableChemCompGr = (props) => {
       setValueNameEng(``);
       setValueDescrRus(``);
       setValueDescrEng(``);
-      setValueParentID(valueParentID);  
+      console.log('adding on clear ', valueParentID, valueId);
+      setValueParentID(valueParentID?valueParentID:valueId);
+      setValueCrit(1);
       setValueFormula(``);
     }
   }; 
@@ -752,7 +745,7 @@ const DataTableChemCompGr = (props) => {
     var res = tableData.filter(function(item) {
       return item.id === id;
     });
-    console.log('console ', id, res[0]);
+    console.log('console id=', id, ' res=', res[0]);
     setValues(res[0]);
   };   
 
@@ -906,7 +899,8 @@ const DataTableChemCompGr = (props) => {
   const handleCancelClick = () => 
   {
     setEditStarted(false);
-    setValuesById(valueId);
+    setValueID(clickedRowId);
+    setValuesById(clickedRowId);
     //setValueID(valueId);
 /* 
     const selectedIDs = selected;
@@ -1066,9 +1060,9 @@ const DataTableChemCompGr = (props) => {
     <Box sx={{ width: 1445, height: 650, padding: 1 }}>
       <Grid container spacing={1}>
         <Grid item sx={{width: 570, border: '0px solid green', ml: 1 }}>
-        <div style={{ height: 500, width: 570 }}>
+        <div style={{ height: 500, width: 570 }}> 
           <Box sx={{ border: 1, borderRadius: '4px', borderColor: 'rgba(0, 0, 0, 0.23)', height: 500, p: '4px' }} >
-            <IconButton onClick={()=>handleClearClick()} disabled={valueCrit===0||editStarted} color="primary" size="small" title="Создать запись">
+            <IconButton onClick={()=>handleClearClick()} disabled={editStarted} color="primary" size="small" title="Создать запись">
               <SvgIcon fontSize="small" component={PlusLightIcon} inheritViewBox /></IconButton>
             <IconButton onClick={()=>saveRec(true)} disabled={valueCrit===0} color="primary" size="small" title="Сохранить запись в БД">
               <SvgIcon fontSize="small" component={SaveLightIcon} inheritViewBox/></IconButton>
@@ -1188,6 +1182,7 @@ const DataTableChemCompGr = (props) => {
             </Grid>
             <Grid item xs={3}>
               <Autocomplete
+                  required
                   id="ch_parent_id"
                   value={tableChelement.find(option => option.id === valueParentID) || ""}
                   size="small"
@@ -1208,6 +1203,8 @@ const DataTableChemCompGr = (props) => {
                   getOptionLabel={option => (option && option.title) ? option.title : ""}
                   fullWidth
                   disableClearable
+                  disabled = {valueParentID===1000000}
+                  getOptionDisabled={(option) => option.id === 1000000} // Отключение опции с id = 1000000
                   renderInput={(params) => <TextField {...params} label="Химический элемент" variant="outlined" />}
               />
             </Grid>
