@@ -32,6 +32,7 @@ import { ReactComponent as EditLightIcon } from "./../icons/edit.svg";
 
 const DataTableChelement = (props) => {
   const apiRef = useGridApiRef(); // init DataGrid API for scrolling
+  const apiRefNuclide = useGridApiRef(); // init DataGrid API for scrolling
 
   // Поля БД
   const [valueId, setValueID] = React.useState();
@@ -53,16 +54,18 @@ const DataTableChelement = (props) => {
 /*   const [tablePhchForm, setTablePhchForm] = useState([]); 
   const [tablePhchFormFiltered, setTablePhchFormFiltered] = useState([]);  */
   const [rowSelectionModel, setRowSelectionModel] = React.useState([]);
+  const [rowSelectionModelNuclide, setRowSelectionModelNuclide] = React.useState([]);
   const [editStarted, setEditStarted] = useState(false);  
 
   const [addedId, setAddedId] = useState(null);  
+  const [addedIdNuclide, setAddedIdNuclide] = useState(null);  
 
   const [tableNuclide, setTableNuclide] = useState([]); 
   const [valueMassNumber, setValueMassNumber] = React.useState();
   const [isEmpty, setIsEmpty] = useState([false]);
   const [valueNuclideId, setValueNuclideID] = React.useState();
 
-  const [reportValid, setReportValid] = React.useState([true]);
+  //const [reportValid, setReportValid] = React.useState([true]);
 
   useEffect(() => {
     setIsEmpty((''===valueTitle)&&(''===valueNameRus)&&(''===valueNameEng)&&(''===valueAtomicNum)&&(''===valueMassNumber));
@@ -120,12 +123,16 @@ const DataTableChelement = (props) => {
     } 
     else 
     {
+      setValueNuclideID(null);
+      setValueMassNumber(null);
       setValueID(params.row.id);
     }
   }; 
 
   const inputRef = React.useRef();
   const handleRowNuclideClick = (params) => {
+
+    console.log('handleRowNuclideClick', params.row.id, params.row.mass_number);
     setOpenAlertNuclide(false);
     setValueNuclideID(params.row.id);
     setValueMassNumber(params.row.mass_number);
@@ -163,9 +170,17 @@ const DataTableChelement = (props) => {
     }
 
     fetch(`/nuclide/`+valueId)
-      .then((data) => data.json())
-      .then((data) => setTableNuclide(data))
-      .then(console.log('грузим нуклиды'));
+    .then((data) => data.json())
+    .then((data) => {
+      setTableNuclide(data);
+      
+      // Если массив содержит элементы, устанавливаем значения
+      if (data.length > 0) {
+        setValueNuclideID(data[0].id);
+        setValueMassNumber(data[0].mass_number);
+      }
+    })
+    .then(() => console.log('грузим нуклиды'));
   }, [valueId])
 
 /*   useEffect(() => {
@@ -282,19 +297,17 @@ const delRec = async () => {
 
     setAlertSeverity('success');
     setAlertText(await response.text());
-
+    // Переключаемся на первую запись после удаления
+    if (tableData[0]) {
+      setValueID(tableData[0].id);
+      setAddedId(tableData[0].id);
+    } 
   } catch (err) {
     setAlertSeverity('error');
     setAlertText(err.message);
   } finally {
     setIsLoading(false);
     setOpenAlert(true);
-    
-    // Переключаемся на первую запись после удаления
-    if (tableData[0]) {
-      setValueID(tableData[0].id);
-      setAddedId(tableData[0].id);
-    } 
     reloadData();
   }
 };
@@ -476,7 +489,7 @@ const delRec = async () => {
 "subst_form_nls_name":"газы и пары","subst_form_nls_descr":"растворимые или химически активные газы или пары",
 "chem_comp_gr_title":"noble_gas","chem_comp_gr_formula":null,"chem_comp_gr_nls_name":"инертные газы","chem_comp_gr_nls_descr":null,"chelement_title":"Ar","chelement_atomic_num":null}
   */
-
+/* 
   const columnsPhchform = [
     { field: 'id', headerName: 'Код', width: 80 },
     { field: 'chelement_id', headerName: 'Химический элемент, код', width: 80 },
@@ -491,7 +504,7 @@ const delRec = async () => {
     { field: 'chelement_title', headerName: 'Химический элемент, обозначение', width: 180 },
     { field: 'chelement_atomic_num', headerName: 'Химический элемент, атомное значение', width: 180 },
   ]
-
+ */
   
   const columnsNuclide = [
     { field: 'id', headerName: 'Код', width: 80 },
@@ -526,9 +539,10 @@ const delRec = async () => {
     }
   }
 
-
   // Scrolling and positionning
   const { paginationModel, setPaginationModel, scrollToIndexRef } = useGridScrollPagination(apiRef, tableData, setRowSelectionModel);
+  const { paginationModeNuclide, setPaginationModelNuclide, scrollToIndexRefNuclide } = 
+    useGridScrollPagination(apiRefNuclide, tableNuclide, setRowSelectionModelNuclide);
 
   useEffect(() => {
     if (addedId !== null){  
@@ -538,6 +552,14 @@ const delRec = async () => {
         setRowSelectionModel([addedId]);
     }
   }, [addedId, scrollToIndexRef]);
+
+  useEffect(() => {
+    if (addedId !== null){  
+        scrollToIndexRef.current = addedId;
+        setAddedId(null);
+         setRowSelectionModelNuclide([addedId]);
+    }
+  }, [addedIdNuclide, scrollToIndexRefNuclide]);  
 
   function GridToolbar() {
     const handleExport = (options) =>
@@ -562,6 +584,23 @@ const delRec = async () => {
     );
   }
 
+  const CustomFooter = props => {
+    return (
+      <GridToolbarContainer style={{ justifyContent: 'flex-end' }}>
+        Всего строк: {tableData.length}
+      </GridToolbarContainer>
+    );
+  };  
+
+  const CustomFooterNuclide = props => {
+    return (
+      <GridToolbarContainer style={{ justifyContent: 'flex-end' }}>
+        Всего строк: {tableNuclide.length}
+      </GridToolbarContainer>
+    );
+  };  
+
+
   const delNuclide =  async () => {
     console.log('delNuclide clicked');
      const js = JSON.stringify({
@@ -580,23 +619,28 @@ const delRec = async () => {
         },
       });
       if (!response.ok) {
-        
-        setAlertSeverity('error');
-        setAlertText( await response.text() );
+        setAlertNuclideSeverity('error');
+        setAlertNuclideText( await response.text() );
         console.log(response.text());
-        setOpenAlert(true);          
+        setOpenAlertNuclide(true);          
       }
       else
       {
-        setAlertSeverity('success');
-        setAlertText( await response.text() );
+        setAlertNuclideSeverity('success');
+        setAlertNuclideText( await response.text() );
         console.log(alertText);
-        setOpenAlert(true);  
+        setOpenAlertNuclide(true);  
       }
     } catch (err) {
     } finally {
       setIsLoading(false);
       reloadNuclide();
+      if ((tableNuclide) && (tableNuclide.length))
+      {
+        setValueNuclideID(tableNuclide[0].id);
+        setValueMassNumber(tableNuclide[0].mass_number);
+        setSelectionModelNuclide([tableNuclide[0].id]); //выбрать первую строку при перегрузке таблицы
+      }
     }
   };  
 ///////////////////////////////////////////////////////////////////////////////////////////////Nuclide
@@ -610,9 +654,9 @@ const delRec = async () => {
       const response = await fetch(`/nuclide/`+valueId);
 
       if (!response.ok) {
-        alertText =  'Ошибка при обновлении нуклидов';
-        alertSeverity = "false";
-        setOpenAlert(true);  
+        setAlertNuclideText('Ошибка при обновлении нуклидов');
+        setAlertNuclideSeverity('error');
+        setOpenAlertNuclide(true);  
         throw new Error(`Error! status: ${response.status}`);
       }  
       const result = await response.json();
@@ -647,14 +691,34 @@ const delRec = async () => {
       else
       {
         setAlertNuclideSeverity('success');
-        setAlertNuclideText( await response.text());
+
+        // Проверяем тип контента
+        const contentType = response.headers.get('content-type');
+        const isJson = contentType && contentType.includes('application/json');
+        
+        let responseData;
+        
+        // Обрабатываем ответ в зависимости от типа контента
+        if (isJson) {
+          responseData = await response.json();
+        } else {
+          responseData = await response.text();
+        }
+              
+        const newId = responseData.id;
+        console.log('newId', newId);
+        setAlertNuclideText(`Добавлен нуклид с кодом ${newId}`);
         //lastAddedId = parseInt( alertText.substr(alertText.lastIndexOf('ID:') + 3, 20)); 
         //setValueID(lastAddedId);
+        setValueNuclideID(newId);
+        setValueMassNumber(valueMassNumber);
+        setSelectionModelNuclide([newId]);  
+        setAddedIdNuclide(newId);
         setOpenAlertNuclide(true);  
       }
     } catch (err) {
-      alertText = err.message;
-      alertSeverity = 'error';
+      setAlertNuclideText(alertText);
+      setAlertNuclideSeverity('error');
       setOpenAlertNuclide(true);
     } finally {
       setIsLoading(false);
@@ -680,25 +744,28 @@ const delRec = async () => {
         },
       });
       if (!response.ok) {
-        alertSeverity = 'error';
-        alertText = await response.text();
-        setOpenAlert(true);          
+        setAlertNuclideText( await response.text());
+        setAlertNuclideSeverity('error');
+        setOpenAlertNuclide(true);          
       }
       else
       {
-        alertSeverity = "success";
-        alertText =  await response.text();
+        setAlertNuclideSeverity('success');
+        setAlertNuclideText( await response.text());
         //lastAddedId = parseInt( alertText.substr(alertText.lastIndexOf('ID:') + 3, 20)); 
         //setValueID(lastAddedId);
-        setOpenAlert(true);  
+        setOpenAlertNuclide(true);  
       }
     } catch (err) {
-      alertText = err.message;
-      alertSeverity = 'error';
+      setAlertNuclideText( err.message );
+      setAlertNuclideSeverity('error');
       setOpenAlert(true);
     } finally {
       setIsLoading(false);
       reloadNuclide(); 
+
+      setValueNuclideID(valueNuclideId);
+      setValueMassNumber(valueMassNumber);
     }
   };
 
@@ -771,21 +838,24 @@ const delRec = async () => {
 
   const [selectionModelNuclide, setSelectionModelNuclide] = React.useState([]);
 
-  useEffect(() => {
-  if ((!isLoading) && (tableNuclide) && (tableNuclide.length))
-  {
+/*   useEffect(() => {
+    //if (valueNuclideId) return;
 
-    setValueNuclideID(tableNuclide[0].id);
-    setValueMassNumber(tableNuclide[0].mass_number);
+    if ((!isLoading) && (tableNuclide) && (tableNuclide.length))
+    {
+      setValueNuclideID(tableNuclide[0].id);
+      setValueMassNumber(tableNuclide[0].mass_number);
 
-    setSelectionModelNuclide([tableNuclide[0].id]); //выбрать первую строку при перегрузке таблицы
-  }
-  if ((!isLoading) && (tableNuclide) )
-  {
-    //обновить блокировку кнопок "Редактировать" и "Удалить" в зависимости от наличия записей в таблице
-    //setNoRecordsDecay(!tableDecay.length);
-  }
-}, [isLoading, tableNuclide]); 
+      setSelectionModelNuclide([tableNuclide[0].id]); //выбрать первую строку при перегрузке таблицы
+    }
+
+
+    if ((!isLoading) && (tableNuclide) )
+    {
+      //обновить блокировку кнопок "Редактировать" и "Удалить" в зависимости от наличия записей в таблице
+      //setNoRecordsDecay(!tableDecay.length);
+    }
+  }, [isLoading, tableNuclide, valueNuclideId]);   */
 
   const formRef = React.useRef();
   return (
@@ -793,15 +863,17 @@ const delRec = async () => {
       <Grid container spacing={1}>
         <Grid item sx={{width: 583, border: '0px solid green', ml: 1 }}>
           <DataGrid
-            components={{ Toolbar: GridToolbar }}
+            components={{Footer: CustomFooter, Toolbar: GridToolbar }}
             apiRef={apiRef}
             hideFooterSelectedRowCount={true}
             localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
             rowHeight={25}
-            pageSize={5}
+            pageSize={tableData.length}
+            paginationMode="server"
+            hideFooterPagination
             rows={tableData}
             columns={columns}
-            paginationModel={paginationModel}
+            /* paginationModel={paginationModel} */
             onPaginationModelChange={setPaginationModel}
             onRowSelectionModelChange={(newRowSelectionModel) => {
               setRowSelectionModel(newRowSelectionModel);
@@ -856,7 +928,7 @@ const delRec = async () => {
               <TextField id="ch_id" disabled={true} fullWidth label="Код"  variant="outlined" value={valueId || ''} size="small" />
             </Grid>  
             <Grid item xs={8}>
-              <TextField id="ch_name" inputRef={inputRef} fullWidth label="Обозначение" inputProps={{ maxLength: 3 }}  required size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
+              <TextField id="ch_title" disabled={valueId} inputRef={inputRef} fullWidth label="Обозначение" inputProps={{ maxLength: 3 }}  required size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
             </Grid>
             <Grid item xs={2}>
               <TextField 
@@ -926,6 +998,8 @@ const delRec = async () => {
 
                 Радионуклиды элемента
                 <DataGrid
+                components={{Footer: CustomFooterNuclide }}
+
                               sx={{
                                 border: '1px solid rgba(0, 0, 0, 0.23)',
                                 borderRadius: '4px',
@@ -936,17 +1010,21 @@ const delRec = async () => {
                                   outline: "none !important",
                                 },
                               }}  
-                style={{ height: '270px', width: '746px' }} // set height of the DataGrid                 
-              // style={{ height: 270, width: 750, verticalAlign: 'top' }}
+                style={{ height: '376px', width: '746px' }} // set height of the DataGrid                 
+                apiRef={apiRefNuclide}
                 hideFooterSelectedRowCount={true}
                 localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
                 rowHeight={25}
+                pageSize={tableNuclide.length}
+                paginationMode="server"
+                hideFooterPagination
                 rows={tableNuclide}
                 loading={isLoading}
                 columns={columnsNuclide}
                 onSelectionModelChange={(newSelectionModel) => {
                   setSelectionModelNuclide(newSelectionModel);
                 }}        
+                /* rowSelectionModel={rowSelectionModelNuclide} */
                 selectionModel={selectionModelNuclide} 
                 initialState={{
                   columns: {

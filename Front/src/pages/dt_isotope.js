@@ -3,8 +3,6 @@ import {
   DataGrid, 
   ruRU,
   GridToolbarContainer,
-  GridToolbarDensitySelector, 
-  GridToolbarExport,
   useGridApiRef,
   gridFilteredSortedRowIdsSelector,
 } from '@mui/x-data-grid';

@@ -58,7 +58,7 @@ const createNuclide = (request, response) => {
     } else {
       if (results.rows.length > 0) {
         // Если запись существует, возвращаем ошибку
-        response.status(409).send(`Нуклид с chelement_id ${chelement_id} и mass_number ${mass_number} уже существует.`);
+        response.status(409).send(`Нуклид с массовым числом ${mass_number} уже существует.`);
       } else {
         // Если записи нет, добавляем новую
         pool.query('INSERT INTO nucl.nuclide (chelement_id, mass_number) VALUES ($1, $2) RETURNING id', [chelement_id, mass_number], (error, results) => {
@@ -66,14 +66,14 @@ const createNuclide = (request, response) => {
             response.status(400).send(`Нуклид не добавлен. Ошибка: ${error.message}`);
           } else {
             const { id } = results.rows[0];
-            response.status(201).send(`Нуклид добавлен, код: ${id}`);
+            response.status(201).json({id: `${id}`}); 
+            //response.status(201).send(`Нуклид добавлен, код: ${id}`);
           }
         });
       }
     }
   });
 }
-
 
 const deleteNuclide = (request, response) => {
   const id = parseInt(request.params.id)
@@ -84,7 +84,7 @@ const deleteNuclide = (request, response) => {
     }
     else {
       if (results.rowCount == 1)
-        response.status(200).send(`Запись с кодом ${id} удален: cтрок удалено: ${results.rowCount} `);
+        response.status(200).send(`Запись с кодом ${id} удалена `);
       if (results.rowCount == 0)
         response.status(400).send(`Запись с кодом ${id} не найдена`)
     }
@@ -100,11 +100,11 @@ const updateNuclide = (request, response) => {
     (error, results) => {
       if (error) 
       {
-        response.status(400).send(`Связь с источником данных с кодом ${id} не сохранена: ${error.message} `)
+        response.status(400).send(`Радионуклид элемента с кодом ${id} не сохранен: ${error.message} `)
       }
       else
       { 
-        response.status(200).send(`Связь с источником данных ${id} сохранена. Строк изменено: ${results.rowCount} `);
+        response.status(200).send(`Радионуклид элемента с кодом ${id} сохранен. `);
       }
     }
   )
