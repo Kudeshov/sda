@@ -209,6 +209,7 @@ const BigTableValueIntDose = (props) => {
     selAerosolSolValues: [],
     selAerosolAMADValues: [],
     selExpScenarioValues: [],
+    selRegionRTValues: [],
   });
 
   //примененный setApplFlt - то, что применено к таблице
@@ -226,6 +227,7 @@ const BigTableValueIntDose = (props) => {
     selAerosolSolValues: [],
     selAerosolAMADValues: [],
     selExpScenarioValues: [],
+    selRegionRTValues: [],
   });
 
   const handleClearFilter = () => {
@@ -243,6 +245,7 @@ const BigTableValueIntDose = (props) => {
       selAerosolSolValues: [],
       selAerosolAMADValues: [],
       selExpScenarioValues: [],
+      selRegionRTValues: [],
     });
   }
   // Обновление текущего значения фильтра
@@ -266,13 +269,16 @@ const BigTableValueIntDose = (props) => {
       if (!aerosolAmadVisible) { newState.selAerosolAMADValues = []; }
       if (!agegroupVisible) { newState.selAgeGroupValues = []; }
       if (!expScenarioVisible) { newState.selExpScenarioValues = []; }
+      if (!regionRTVisible) { newState.selRegionRTValues = []; }
+
       setOrganVisibleD(organVisible);
       setSubstFormVisibleD(substFormVisible);
       setAerosolSolVisibleD(aerosolSolVisible);
       setAerosolAmadVisibleD(aerosolAmadVisible);
       setLetLevelVisibleD(letLevelVisible);
       setAgegroupVisibleD(agegroupVisible);
-      setExpScenarioVisibleD(expScenarioVisible);   
+      setExpScenarioVisibleD(expScenarioVisible);  
+      setRegionRTVisibleD(regionRTVisible);  
 
           // Обновляем значения состояний
       if (newState.selDataSourceValues[0] && newState.selDataSourceValues[0].id) {
@@ -346,6 +352,9 @@ const BigTableValueIntDose = (props) => {
   const [tableExpScenarioFiltered, settableExpScenarioFiltered] = useState([]); //Сценарии поступления
   const [tablePeopleClass, setTablePeopleClass] = useState([]); //Типы облучаемых лиц
   const [tablePeopleClassFiltered, settablePeopleClassFiltered] = useState([]); //Типы облучаемых лиц  
+  const [tableRegionRT, setTableRegionRT] = useState([]); //Регион РТ
+  const [tableRegionRTFiltered, settableRegionRTFiltered] = useState([]); //Регион РТ
+
   //это только для добавления в автокомплит
   const [tableChemCompGr, setTableChemCompGr] = useState([]);  
   const [tableIntDoseAttr, setTableIntDoseAttr] = useState([]); 
@@ -364,7 +373,7 @@ const BigTableValueIntDose = (props) => {
   const [searchValueExpScenario, setSearchValueExpScenario] = useState('');
   const [searchValueLetLevel, setSearchValueLetLevel] = useState('');
   const [searchValueAgeGroup, setSearchValueAgeGroup] = useState('');
-
+  const [searchValueRegionRT, setSearchValueRegionRT] = useState('');
 
   // Состояния, определяющие видимость выпадающих списков
   const [organVisible, setOrganVisible] = useState(false);
@@ -374,6 +383,8 @@ const BigTableValueIntDose = (props) => {
   const [letLevelVisible, setLetLevelVisible] = useState(false);
   const [agegroupVisible, setAgegroupVisible] = useState(false);
   const [expScenarioVisible, setExpScenarioVisible] = useState(false);
+  const [regionRTVisible, setRegionRTVisible] = useState(false);
+  
   // Состояния, определяющие видимость выпадающих списков в диалоге
   const [organVisibleD, setOrganVisibleD] = useState(false);
   const [substFormVisibleD, setSubstFormVisibleD] = useState(false);
@@ -382,6 +393,7 @@ const BigTableValueIntDose = (props) => {
   const [letLevelVisibleD, setLetLevelVisibleD] = useState(false);
   const [agegroupVisibleD, setAgegroupVisibleD] = useState(false);
   const [expScenarioVisibleD, setExpScenarioVisibleD] = useState(false);
+  const [regionRTVisibleD, setRegionRTVisibleD] = useState(false);
 
   useEffect(() => { 
     let isOrganVisible = false;
@@ -430,7 +442,7 @@ const BigTableValueIntDose = (props) => {
   useEffect(() => { 
     let isAerosolSolVisible = false;
     let isAerosolAmadVisible = false;
-    
+    let isRegionRTVisible = false;
     if ((currFlt.selSubstFormValues && currFlt.selSubstFormValues.length > 0) ||
         (currFlt.selDataSourceValues && currFlt.selDataSourceValues.length > 0)) {
       tableIntDoseAttr.forEach(item => {
@@ -439,6 +451,7 @@ const BigTableValueIntDose = (props) => {
         if(matchSubstForm && matchDataSource){
           if(item.aerosol_sol_id >= 0) isAerosolSolVisible = true;
           if(item.aerosol_amad_id >= 0) isAerosolAmadVisible = true;
+          if(item.region_rt_id >= 0) isRegionRTVisible = true;
         }
       });
     }
@@ -450,6 +463,11 @@ const BigTableValueIntDose = (props) => {
     setAerosolAmadVisible(isAerosolAmadVisible);
     if (!isAerosolAmadVisible)
       updateCurrentFilter({ selAerosolAMADValues: [] });     
+
+    setRegionRTVisible(isRegionRTVisible);
+    if (!isRegionRTVisible)
+      updateCurrentFilter({ selRegionRTValues: [] });     
+  
   }, [tableIntDoseAttr, currFlt.selSubstFormValues, currFlt.selDataSourceValues]);
 
   useEffect(() => { 
@@ -529,6 +547,14 @@ const BigTableValueIntDose = (props) => {
         filteredSubstForm.some((filteredValue) => filteredValue.id === value.id));
     }
     updateCurrentFilter({ selSubstFormValues: newSubstFormValues });
+
+    let ids_region_rt = tableDataSourceClass.filter(item => ((item.table_name === 'organ' )&&(ids.includes(item.data_source_id))) ).map(item => item.rec_id);
+    let filteredRegionRT = tableRegionRT.filter(item => ((ids_region_rt.includes(item.id))) );
+    settableRegionRTFiltered( filteredRegionRT );       
+    //удалить недоступные значения из фильтра
+    const newRegionRTValues = currFlt.selRegionRTValues.filter((value) => 
+      filteredRegionRT.some((filteredValue) => filteredValue.id === value.id));
+    updateCurrentFilter({ selRegionRTValues: newRegionRTValues });           
 
     let ids_integral_period = tableDataSourceClass.filter(item => ((item.table_name === 'integral_period' )&&(ids.includes(item.data_source_id))) ).map(item => item.rec_id);
     let filteredIntegralPeriod = tableIntegralPeriod.filter(item => ((ids_integral_period.includes(item.id))) );
@@ -619,8 +645,8 @@ const BigTableValueIntDose = (props) => {
         filteredExpScenario.some((filteredValue) => filteredValue.id === value.id));
     }
     updateCurrentFilter({ selExpScenarioValues: newExpScenarioValues });
-        
-// eslint-disable-next-line react-hooks/exhaustive-deps
+
+   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currFlt.selDataSourceValues,
       organVisible,
       substFormVisible,
@@ -629,6 +655,7 @@ const BigTableValueIntDose = (props) => {
       letLevelVisible,
       agegroupVisible,
       expScenarioVisible,
+      regionRTVisible,
       tableDataSourceClass, 
       tableDoseRatio, 
       tableIrradiation,
@@ -643,7 +670,8 @@ const BigTableValueIntDose = (props) => {
       tableAerosolAMAD,
       tableExpScenario,
       tableChemCompGr,
-      tableIntDoseAttr
+      tableIntDoseAttr,
+      tableRegionRT
     ]);
  
   //обработчики автокомплитов
@@ -862,7 +890,6 @@ const fetchData = async (url, setStateFunc) => {
 useEffect(() => {
   fetchData('/data_source', setTableDataSource);
   fetchData(`/data_source_class_min`, setTableDataSourceClass);
-  fetchData(`/organ`, setTableOrgan);
   fetchData(`/irradiation`, setTableIrradiation);
   fetchData(`/isotope_min`, setTableIsotope);
   fetchData(`/integral_period/`, setTableIntegralPeriod);
@@ -876,6 +903,30 @@ useEffect(() => {
   fetchData(`/people_class/`, setTablePeopleClass);
   fetchData(`/chem_comp_gr_min/`, setTableChemCompGr);
   fetchData(`/int_dose_attr`, setTableIntDoseAttr);
+
+  // Загружаем все органы и сохраняем их в setTableOrgan
+  fetchData(`/organ`, data => {
+    setTableOrgan(data);
+
+    // Фильтрация данных по заданному критерию
+    const filterByTitle = (title, arr) => {
+      let filteredData = [];
+      for (const item of arr) {
+        if (item.parent_id === title) {
+          filteredData.push(item);
+          filteredData = filteredData.concat(filterByTitle(item.id, arr));
+        }
+      }
+      return filteredData;
+    };
+
+    const rootRT = data.find(item => item.title === '_RT');
+    if (rootRT) {
+      const filteredData = filterByTitle(rootRT.id, data);
+      setTableRegionRT([rootRT, ...filteredData]);
+    }
+  });
+
 }, [props.table_name]);
 
   const checkColumns = React.useCallback((data, flt) => {
@@ -1048,6 +1099,7 @@ const [tableChemCompGrFilteredEdit, settableChemCompGrFilteredEdit] = useState([
 const [tableOrganFilteredEdit, settableOrganFilteredEdit] = useState([]); //список органов в окне редактирования записи
 const [tableLetLevelFilteredEdit, settableLetLevelFilteredEdit] = useState([]); //уровни ЛПЭ в окне редактирования записи
 const [tableIsotopeFilteredEdit, settableIsotopeFilteredEdit] = useState([]);
+const [tableRegionRTEdit, settableRegionRTFilteredEdit] = useState([]);
 
 useEffect(() => { settableDataSourceFilteredEdit(applFlt.selDataSourceValues); }, [applFlt.selDataSourceValues]);
 useEffect(() => { settableOrganFilteredEdit(applFlt.selOrganValues); }, [applFlt.selOrganValues]);
@@ -1060,6 +1112,7 @@ useEffect(() => { settableAgeGroupFilteredEdit(applFlt.selAgeGroupValues); }, [a
 useEffect(() => { settableExpScenarioFilteredEdit(applFlt.selExpScenarioValues); }, [applFlt.selExpScenarioValues]);
 useEffect(() => { settableIntegralPeriodFilteredEdit(applFlt.selIntegralPeriodValues); }, [applFlt.selIntegralPeriodValues]);
 useEffect(() => { settableIsotopeFilteredEdit(applFlt.selIsotopeValues); }, [applFlt.selIsotopeValues]);
+useEffect(() => { settableRegionRTFilteredEdit(applFlt.selRegionRTValues); }, [applFlt.selRegionRTValues]);
 
 useEffect(() => {
   if (!valueDataSourceID) 
@@ -1703,7 +1756,7 @@ const treeDataOrganFilteredEdit = React.useMemo(() => {
             </Grid><Grid item xs={1} display="flex" alignItems="center"></Grid>                
           </Grid>
 
-          <Grid item xs={3}>
+          <Grid item xs={2.25}>
             { substFormVisible && ( 
             <Grid container spacing={1}> 
               <Grid item xs={11}>
@@ -1812,7 +1865,7 @@ const treeDataOrganFilteredEdit = React.useMemo(() => {
           </Grid>         
 
           { aerosolSolVisible && (  
-          <Grid item xs={3}>
+          <Grid item xs={2.25}>
             
             <Grid container spacing={1}> 
               <Grid item xs={11}>
@@ -1920,7 +1973,8 @@ const treeDataOrganFilteredEdit = React.useMemo(() => {
           </Grid>
           )}
 
-          <Grid item xs={3}>
+          {/* AMAD */}
+          <Grid item xs={2.25}>
             { aerosolAmadVisible && ( 
             <Grid container spacing={1}> 
               <Grid item xs={11}>
@@ -2027,8 +2081,116 @@ const treeDataOrganFilteredEdit = React.useMemo(() => {
             )}  {/* container spacing={1} */}
           </Grid>
           {!aerosolSolVisible && (
-            <Grid item xs={3}>
+            <Grid item xs={2.25}>
           </Grid>)}
+
+          
+
+          <Grid item xs={2.25}>
+          { regionRTVisible && (   
+          <Grid container spacing={1}> 
+              <Grid item xs={11}>
+              <Autocomplete
+                  size="small"
+                  value={currFlt.selRegionRTValues}
+                  isOptionEqualToValue={(option, value) => option.id === value.id}
+                  onChange={(event, newValue) => {
+                    setCurrFlt({
+                      ...currFlt,
+                      selRegionRTValues: newValue,
+                    });
+                  }}
+                  onInputChange={(event, newInputValue, reason) => {
+                    if (reason !== "reset") {
+                      setSearchValueRegionRT(newInputValue);
+                    }
+                  }}
+                  onClose={() => { setSearchValueRegionRT(""); }}
+                  inputValue={searchValueRegionRT}
+                  limitTags={7}
+                  multiple
+                  id="autocomplete-region_rt"
+                  options={tableRegionRTFiltered}
+                  getOptionLabel={(option) => option.name_rus}
+                  disableCloseOnSelect
+                  renderOption={(props, option, { selected }) => (
+                    <li {...props}>
+                      <Checkbox
+                        size="small"
+                        icon={icon}
+                        checkedIcon={checkedIcon}
+                        style={{ marginRight: 8 }}
+                        checked={selected}
+                      />
+                      <Tooltip title={option.name_eng}>
+                        <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
+                          <span>{option.name_rus}</span>
+                          <span></span> 
+                        </div>
+                      </Tooltip>
+                    </li>
+                  )}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      InputProps={{
+                        ...params.InputProps,
+                        endAdornment: (
+                          <>
+                            {searchValueRegionRT && (
+                              <InputAdornment position="end">
+                                <LightTooltip title="Добавить найденные">
+                                <StyledIconButton
+                                  onClick={() => {
+                                    const filteredOptions = filterOptionsNameRus(tableRegionRTFiltered, { inputValue: searchValueRegionRT });
+                                    const newValues = [...currFlt.selRegionRTValues, ...filteredOptions];
+                                    setCurrFlt({
+                                      ...currFlt,
+                                      selRegionRTValues: newValues,
+                                    });
+                                    setSearchValueRegionRT("");
+                                    params.inputProps.ref.current.blur();
+                                  }}
+                                >
+                                  <CheckIcon fontSize="small" />
+                                </StyledIconButton>
+                                </LightTooltip>
+                              </InputAdornment>
+                            )}
+                            {params.InputProps.endAdornment}
+                          </>
+                        ),
+                      }}
+                      inputProps={{
+                        ...params.inputProps,
+                        required: currFlt.selRegionRTValues.length === 0,
+                        value: tableRegionRTFiltered.length === 0 ? "Выбор отсутствует" : params.inputProps.value,
+                      }}
+                      label="Регион РТ"
+                      placeholder="Регион РТ"
+                      required
+                    />
+                  )}
+                />                
+              </Grid>
+              <Grid item xs={1} display="flex" alignItems="center">
+                <IconButton
+                  onClick={async () => {
+                    setCurrFlt({
+                      ...currFlt,
+                      selAerosolAMADValues: tableAerosolAMADFiltered,
+                    });
+                  }}                
+                  color="primary"
+                  size="small"
+                  title="Выбрать все"
+                  style={{ marginLeft: -2 }}   
+                >
+                  <SvgIcon fontSize="small" component={CheckDoubleIcon} inheritViewBox />
+                </IconButton>      
+              </Grid>
+            </Grid>)} 
+          </Grid>
 
           <Grid item xs={3}>
             <Grid container spacing={1}> 
@@ -2672,6 +2834,7 @@ const treeDataOrganFilteredEdit = React.useMemo(() => {
               fullWidth
               label="Органы и ткани"
               placeholder="Органы и ткани"
+              displayField="name_rus"
               getOptionDisabled={(option) => !tableOrganFilteredEdit.some(item => item.id === option.id)}
               />
 {/* 

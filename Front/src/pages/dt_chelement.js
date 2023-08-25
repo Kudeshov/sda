@@ -126,6 +126,7 @@ const DataTableChelement = (props) => {
 
   const inputRef = React.useRef();
   const handleRowNuclideClick = (params) => {
+    setOpenAlertNuclide(false);
     setValueNuclideID(params.row.id);
     setValueMassNumber(params.row.mass_number);
   }; 
@@ -501,6 +502,10 @@ const delRec = async () => {
 
 
   const [openAlert, setOpenAlert] = React.useState(false, '');
+  const [openAlertNuclide, setOpenAlertNuclide] = React.useState(false, '');
+
+  const [alertNuclideText, setAlertNuclideText] = useState("");
+  const [alertNuclideSeverity, setAlertNuclideSeverity] = useState("info");
 
   const handleCancelClick = () => 
   {
@@ -576,15 +581,15 @@ const delRec = async () => {
       });
       if (!response.ok) {
         
-        alertSeverity = 'error';
-        alertText = await response.text();
+        setAlertSeverity('error');
+        setAlertText( await response.text() );
         console.log(response.text());
         setOpenAlert(true);          
       }
       else
       {
-        alertSeverity = "success";
-        alertText = await response.text();
+        setAlertSeverity('success');
+        setAlertText( await response.text() );
         console.log(alertText);
         setOpenAlert(true);  
       }
@@ -634,22 +639,23 @@ const delRec = async () => {
         },
       });
       if (!response.ok) {
-        alertSeverity = 'error';
-        alertText = await response.text();
-        setOpenAlert(true);          
+        setAlertNuclideSeverity('error');
+        setAlertNuclideText( await response.text());
+        setOpenAlertNuclide(true);    
+        console.log('aaaaaa!');      
       }
       else
       {
-        alertSeverity = "success";
-        alertText =  await response.text();
+        setAlertNuclideSeverity('success');
+        setAlertNuclideText( await response.text());
         //lastAddedId = parseInt( alertText.substr(alertText.lastIndexOf('ID:') + 3, 20)); 
         //setValueID(lastAddedId);
-        setOpenAlert(true);  
+        setOpenAlertNuclide(true);  
       }
     } catch (err) {
       alertText = err.message;
       alertSeverity = 'error';
-      setOpenAlert(true);
+      setOpenAlertNuclide(true);
     } finally {
       setIsLoading(false);
       reloadNuclide(); 
@@ -953,6 +959,27 @@ const delRec = async () => {
                 }}   
                 onRowClick={handleRowNuclideClick} {...tableData}     
               />
+
+              <Collapse in={openAlertNuclide}>
+                <Alert
+                  item sx={{width: 746}}
+                  severity={alertNuclideSeverity}
+                  action={
+                    <IconButton
+                      aria-label="close"
+                      color="inherit"
+                      size="small"
+                      onClick={() => {
+                        setOpenAlertNuclide(false);
+                      }}
+                    >
+                      <CloseIcon fontSize="inherit" />
+                    </IconButton>
+                  }
+                >
+                  {alertNuclideText}
+                </Alert>
+              </Collapse>              
             </Grid>
             <Grid item sx={{width: 40, border: '0px solid green', ml: 1 }}> 
             <Box sx={{ border: '0px solid purple', display: 'flex', flexDirection: 'column', gap: 0.1, alignItems: 'center', justifyContent: 'center' }}>

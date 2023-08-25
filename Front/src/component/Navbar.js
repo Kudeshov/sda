@@ -112,9 +112,7 @@ function Navbar() {
             <Menu anchorEl={anchorEl} open={menuDecay} onClose={closeMenuDecay}>
               <MenuItem onClick={closeMenuDecay} component={Link} to="/isotope">Радионуклиды</MenuItem> 
               <Divider />
-              <MenuItem onClick={closeMenuDecay} component={Link} disabled={true} to="/value_int_dose">Параметры</MenuItem> 
-              <MenuItem onClick={closeMenuDecay} component={Link} disabled={true} to="/value_int_dose">Тип излучения</MenuItem> 
-              <MenuItem onClick={closeMenuDecay} component={Link} disabled={true} to="/value_int_dose">Форма распада</MenuItem> 
+              <MenuItem onClick={closeMenuDecay} component={Link}  to="/radiation_type">Типы излучения</MenuItem> 
             </Menu>            
             <Link onClick={recordButtonPositionCoeff}  className={classes.link}>
               Дозовые коэффициенты
@@ -150,9 +148,9 @@ function Navbar() {
             <Link to="/data_source" className={classes.link}>
               Источники данных
             </Link>
-            <Link onClick={recordButtonPositionDb}  className={classes.link}>
+{/*             <Link onClick={recordButtonPositionDb}  className={classes.link}>
               Целевые БД
-            </Link>     
+            </Link>   */}   
             <Menu anchorEl={anchorE4} open={menuDb} onClose={closeMenuDb}>
               <MenuItem onClick={closeMenuDb} component={Link} to="/db_struct">Состав и структура</MenuItem>
             </Menu>            

@@ -25,7 +25,7 @@ import ChemCompGr from "./pages/chem_comp_gr";
 import Isotope from "./pages/isotope";
 import Griterion from "./pages/criterion";
 import ValueIntDose from "./pages/value_int_dose";
-
+import RadiationType from "./pages/radiation_type";
 
 //import ServerPaginationGrid from "./pages/pagination_test";
 
@@ -58,7 +58,8 @@ function App() {
         <Route path="/chem_comp_gr" element={<ChemCompGr/>} />
         <Route path="/isotope" element={<Isotope/>} />
         <Route path="/criterion" element={<Griterion/>} />  
-        <Route path="/value_int_dose" element={<ValueIntDose/>} />       
+        <Route path="/value_int_dose" element={<ValueIntDose/>} />
+        <Route path="/radiation_type" element={<RadiationType/>} />          
       {/*  <Route path="/db" element={<ServerPaginationGrid/>} />  */}          
       </Routes>
     </Router>

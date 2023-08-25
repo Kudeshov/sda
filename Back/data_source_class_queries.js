@@ -60,28 +60,37 @@ const getDataSourceClassById = (request, response) => {
 }
 
 const createDataSourceClass = (request, response) => {
-  console.log( request.body );
+  console.log(request.body);
   const { data_source_id, table_name, rec_id, title_src, name_src } = request.body;
-  pool.query('INSERT INTO nucl.data_source_class (data_source_id, table_name, rec_id, title_src, name_src) VALUES ($1, $2, $3, $4, $5) RETURNING id', [data_source_id, table_name, rec_id, title_src, name_src], (error, results) => {
-    if (error) {
-      const s=error.message;
-      if (s.includes("data_source_class_uk")) 
-      {
-        response.status(400).send(`Связь с источником данных не добавлена: Для записи классификатора может существовать только одна связь с выбранным источником данных. Такая связь уже существует.`);
-        //Связь с источником данных не добавлена: Для одной записи в таблице ${table_name} может существовать только одна запись в таблице "Связь с источником данных" для одного источника`);
-      }
-      else
-      { if (s.includes("data_source_class_tuk")) 
-        response.status(400).send(`Невозможно сохранить запись. Нарушено требование уникальности. Для выбранного источника данных установленное значение в поле "Обозначение" уже существует`);
-      }
+  console.log('createDataSourceClass request.body ', request.body);
 
+  // Создаем строку SQL запроса и параметры
+  const queryString = 'INSERT INTO nucl.data_source_class (data_source_id, table_name, rec_id, title_src, name_src) VALUES ($1, $2, $3, $4, $5) RETURNING id';
+  const queryParams = [data_source_id, table_name, rec_id, title_src, name_src];
+
+  // Выводим запрос в консоль
+  console.log("Executing SQL:", queryString);
+  console.log("With parameters:", queryParams);
+
+  pool.query(queryString, queryParams, (error, results) => {
+    if (error) {
+      const s = error.message;
+      if (s.includes("data_source_class_uk")) {
+        response.status(400).send(`Связь с источником данных не добавлена: Для записи классификатора может существовать только одна связь с выбранным источником данных. Такая связь уже существует.`);
+      } else if (s.includes("data_source_class_tuk")) {
+        response.status(400).send(`Невозможно сохранить запись. Нарушено требование уникальности. Для выбранного источника данных установленное значение в поле "Обозначение" уже существует`);
+      } else {
+        // Если ошибка не соответствует известным условиям, отправляем общую ошибку
+        console.error("Ошибка БД:", s);  // вывод ошибки в консоль
+        response.status(500).send(`Ошибка БД: ${s}`);
+      }
     } else {
-      const { id } = results.rows[0]; 
-      //response.status(201).send(`Связь с источником данных добавлена, код: ${id}`)
-      response.status(201).json({id: `${id}`}); 
+      const { id } = results.rows[0];
+      response.status(201).json({id: `${id}`});
     }
   })
 }
+
 
 const deleteDataSourceClass = (request, response) => {
   function delRec(id) {

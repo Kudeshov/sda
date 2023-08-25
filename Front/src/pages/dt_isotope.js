@@ -3,9 +3,13 @@ import {
   DataGrid, 
   ruRU,
   GridToolbarContainer,
+  GridToolbarDensitySelector, 
+  GridToolbarExport,
   useGridApiRef,
   gridFilteredSortedRowIdsSelector,
 } from '@mui/x-data-grid';
+
+
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
@@ -547,26 +551,38 @@ const delRec = async () => {
     );
   }
 
+  const CustomFooter = props => {
+    return (
+      <GridToolbarContainer style={{ justifyContent: 'flex-end' }}>
+        Всего строк: {tableData.length}
+      </GridToolbarContainer>
+    );
+  };
+
   const formRef = React.useRef();
   return (
     <Box sx={{ border: '0px solid purple', width: 1445, height: 650, padding: 1 }}>
       <Grid container spacing={1}>
         <Grid item sx={{width: 583, border: '0px solid green', ml: 1 }}>
           <DataGrid
-            components={{ Toolbar: GridToolbar }}
+            components={{ Footer: CustomFooter, Toolbar: GridToolbar }}
             apiRef={apiRef}
             hideFooterSelectedRowCount={true}
             localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
             rowHeight={25}
-            pageSize={5}
+            /* pageSize={5} */
             rows={tableData}
             columns={columns}
-            paginationModel={paginationModel}
+            /* paginationModel={paginationModel} */
+           /*  pagination={false}  */
+            pageSize={tableData.length}
+            paginationMode="server"
             onPaginationModelChange={setPaginationModel}
             onRowSelectionModelChange={(newRowSelectionModel) => {
               setRowSelectionModel(newRowSelectionModel);
             }}
             rowSelectionModel={rowSelectionModel}
+            hideFooterPagination
             initialState={{
               columns: {
             columnVisibilityModel: {

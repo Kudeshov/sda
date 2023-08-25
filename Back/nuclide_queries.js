@@ -22,7 +22,7 @@ pool.on(`error`, function (err, client) {
 const getNuclideByChelement = (request, response ) => {
   const chelement_id = parseInt(request.params.id||0);  
   console.log(request.params);
-  pool.query("select n.*, concat(concat(c.title, ' - '), n.mass_number) as name from nucl.nuclide n join nucl.chelement c on c.id = n.chelement_id where n.chelement_id = $1", [chelement_id], (error, results) => {
+  pool.query("select n.*, concat(concat(c.title, ' - '), n.mass_number) as name from nucl.nuclide n join nucl.chelement c on c.id = n.chelement_id where n.chelement_id = $1 order by n.mass_number ", [chelement_id], (error, results) => {
     if (error) {
       throw error
     }
@@ -30,7 +30,7 @@ const getNuclideByChelement = (request, response ) => {
   })
 }
 
-const createNuclide= (request, response) => {
+/* const createNuclide= (request, response) => {
   console.log( request.body );
   const { chelement_id, mass_number } = request.body;
   pool.query('INSERT INTO nucl.nuclide (chelement_id, mass_number) VALUES ($1, $2) RETURNING id', [chelement_id, mass_number], (error, results) => {
@@ -45,6 +45,35 @@ const createNuclide= (request, response) => {
     }
   })
 }
+ */
+
+const createNuclide = (request, response) => {
+  console.log(request.body);
+  const { chelement_id, mass_number } = request.body;
+
+  // Проверяем, существует ли уже запись с такими данными
+  pool.query('SELECT * FROM nucl.nuclide WHERE chelement_id = $1 AND mass_number = $2', [chelement_id, mass_number], (error, results) => {
+    if (error) {
+      response.status(400).send(`Ошибка при проверке существующих записей: ${error.message}`);
+    } else {
+      if (results.rows.length > 0) {
+        // Если запись существует, возвращаем ошибку
+        response.status(409).send(`Нуклид с chelement_id ${chelement_id} и mass_number ${mass_number} уже существует.`);
+      } else {
+        // Если записи нет, добавляем новую
+        pool.query('INSERT INTO nucl.nuclide (chelement_id, mass_number) VALUES ($1, $2) RETURNING id', [chelement_id, mass_number], (error, results) => {
+          if (error) {
+            response.status(400).send(`Нуклид не добавлен. Ошибка: ${error.message}`);
+          } else {
+            const { id } = results.rows[0];
+            response.status(201).send(`Нуклид добавлен, код: ${id}`);
+          }
+        });
+      }
+    }
+  });
+}
+
 
 const deleteNuclide = (request, response) => {
   const id = parseInt(request.params.id)

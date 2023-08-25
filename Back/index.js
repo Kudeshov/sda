@@ -37,10 +37,10 @@ const cg_q = require('./criterion_gr_queries');
 const id_q = require('./isotope_decay_queries');
 const i_q = require('./isotope_queries');
 const vid_q = require('./value_int_dose_queries');
-const ac_q = require('./action_criterion_queries')
-const ved_q = require('./value_ext_dose_queries')
-const vrg_q = require('./value_ratio_git_queries')
-
+const ac_q = require('./action_criterion_queries');
+const ved_q = require('./value_ext_dose_queries');
+const vrg_q = require('./value_ratio_git_queries');
+const rad_t = require('./radiation_type_queries');
 
 const { Pool } = require('pg');
 //var msg = 'a';
@@ -238,25 +238,17 @@ app.post('/isotope', (req, res) => {i_q.createIsotope(req, res, 'isotope')});   
 app.get('/isotope_nodes/:id', (req, res) => {i_q.getIsotopeNodes(req, res, 'isotope')});  
 app.get('/isotope_edges/:id', (req, res) => {i_q.getIsotopeEdges(req, res, 'isotope')});  
 
-/* app.get('/isotope/:id', (req, res) => {gn_q.getIsotopeById(req, res, 'isotope')});   //list 1
-app.post('/isotope', (req, res) => {gn_q.createIsotope(req, res, 'isotope')});          //create
-app.put('/isotope/:id', (req, res) => {gn_q.updateIsotope(req, res, 'isotope')});       //update
-app.delete('/isotope/:id', (req, res) => {gn_q.deleteIsotope(req, res, 'isotope')});    //delete */
-
-
 //QUERIES on nuclide 
 app.get('/nuclide/:id', (req, res) => {nuc_q.getNuclideByChelement(req, res, 'nuclide')});    //select by chelement_id
 app.post('/nuclide', (req, res) => {nuc_q.createNuclide(req, res, 'nuclide')});          //create
 app.delete('/nuclide/:id', (req, res) => {nuc_q.deleteNuclide(req, res, 'nuclide')});   //delete
 app.put('/nuclide/:id', (req, res) => {nuc_q.updateNuclide(req, res, 'nuclide')});          //update
 
-
 //QUERIES on criterion 
 app.get('/criterion', (req, res) => {cr_q.getCriterion(req, res, 'criterion')});    //list all
 app.post('/criterion', (req, res) => {cr_q.createCriterion(req, res, 'criterion')});       //create
 app.put('/criterion/:id', (req, res) => {cr_q.updateCriterion(req, res, 'criterion')}); //update
 app.delete('/criterion/:id', (req, res) => {cr_q.deleteCriterion(req, res, 'criterion')});  //delete 
-
 
 //QUERIES on isotope_decay 
 app.get('/isotope_decay/:id', (req, res) => {id_q.getIsotopeDecayByIsotope(req, res, 'isotope_decay')});    //select by isotope_id
@@ -271,30 +263,26 @@ app.put('/value_int_dose/:id', (req, res) => {vid_q.updateValueIntDose(req, res,
 app.post('/value_int_dose', (req, res) => {vid_q.createValueIntDose(req, res, 'value_int_dose')});    //create
 app.delete('/value_int_dose/:id', (req, res) => {vid_q.deleteValueIntDose(req, res, 'value_int_dose')});  //delete 
 
-
 app.get('/value_ext_dose', (req, res) => {ved_q.getValueExtDose(req, res, 'value_ext_dose')}); 
 app.put('/value_ext_dose/:id', (req, res) => {ved_q.updateValueExtDose(req, res, 'value_ext_dose')}); //update
 app.post('/value_ext_dose', (req, res) => {ved_q.createValueExtDose(req, res, 'value_ext_dose')});    //create
 app.delete('/value_ext_dose/:id', (req, res) => {ved_q.deleteValueExtDose(req, res, 'value_ext_dose')});  //delete 
-
 
 app.get('/value_ratio_git', (req, res) => {vrg_q.getValueRatioGit(req, res, 'value_ratio_git')}); 
 app.put('/value_ratio_git/:id', (req, res) => {vrg_q.updateValueRatioGit(req, res, 'value_ratio_git')}); //update
 app.post('/value_ratio_git', (req, res) => {vrg_q.createValueRatioGit(req, res, 'value_ratio_git')});    //create
 app.delete('/value_ratio_git/:id', (req, res) => {vrg_q.deleteValueRatioGit(req, res, 'value_ratio_git')});  //delete 
 
-//app.get('/value_relation', (req, res) => {vid_q.getValueRelation(req, res, 'value_int_dose')}); 
 //связи в таблице value_int_dose
 app.get('/value_relation/:tableName', (req, res) => {vid_q.getValueRelation(req, res, req.params.tableName)});
 app.get('/int_dose_attr/', (req, res) => {vid_q.getIntDoseAttr(req, res)});
 
-/* var allowCrossDomain = function(req, res, next) {
-    res.header('Access-Control-Allow-Origin', "*");
-    res.header('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE');
-    res.header('Access-Control-Allow-Headers', 'Content-Type');
-    next();
-}
-  */
+//GENERIC QUERIES on radiation_type 
+app.get('/radiation_type', (req, res) => {rad_t.getRadiationType(req, res, 'radiation_type')});           //list all
+app.post('/radiation_type', (req, res) => {rad_t.createRadiationType(req, res, 'radiation_type')});       //create
+app.put('/radiation_type/:id', (req, res) => {rad_t.updateRadiationType(req, res, 'radiation_type')});    //update
+app.delete('/radiation_type/:id', (req, res) => {rad_t.deleteRadiationType(req, res, 'radiation_type')}); //delete
+
 app.listen(PORT, function(err){
     if (err) console.log(err);
     console.log("Server listening on PORT", PORT);

@@ -3,7 +3,7 @@ import React, { useState, useEffect, useRef } from 'react';
 // кастомный хук для управления пагинацией и скроллингом
 export const useGridScrollPagination = (apiRef, tableData, setRowSelectionModel) => {
     const [paginationModel, setPaginationModel] = useState({
-        pageSize: 25, // Размер страницы
+        pageSize: 50, // Размер страницы
         page: 0, // Текущая страница
     });
 

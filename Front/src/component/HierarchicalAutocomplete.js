@@ -55,7 +55,50 @@ export const transformData = (data, available) => {
   return flattenTree(treeData);
 };
 
-  const HierarchicalAutocomplete = ({ data, value, onChange, size, label, placeholder, getOptionDisabled, disabled }) => {
+const HierarchicalAutocomplete = ({
+  data,
+  value,
+  onChange,
+  size,
+  label,
+  placeholder,
+  getOptionDisabled,
+  disabled,
+  displayField = 'title'  // добавлен новый проп с дефолтным значением 'title'
+}) => {
+  return (
+    <Autocomplete
+      options={data}
+      getOptionLabel={(option) => option[displayField]} // использование displayField
+      value={value}
+      onChange={onChange}
+      size={size}
+      getOptionDisabled={getOptionDisabled}
+      disabled={disabled}
+      renderOption={(props, option, { selected }) => (
+        <div
+          {...props}
+          style={{
+            display: 'flex',
+            alignItems: 'center',
+            paddingLeft: `${(option.level + (option.children.length === 0 ? 1 : 0)) * 20}px`,
+          }}
+        >
+          {option.children.length > 0 && <ExpandMoreIcon fontSize="small" />}
+          <Tooltip title={option.name_rus}>
+            <div>{option[displayField]}</div>  {/* использование displayField */}
+          </Tooltip>
+        </div>
+      )}
+      renderInput={(params) => <TextField {...params} label={label} placeholder={placeholder} />}
+      disableClearable
+      label={label}
+      placeholder={placeholder}
+    />
+  );
+};
+
+/*   const HierarchicalAutocomplete = ({ data, value, onChange, size, label, placeholder, getOptionDisabled, disabled }) => {
     return (
       <Autocomplete
         options={data}
@@ -86,6 +129,6 @@ export const transformData = (data, available) => {
         placeholder={placeholder}
       />
     );
-  };
+  }; */
   
   export default HierarchicalAutocomplete;

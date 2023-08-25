@@ -1062,7 +1062,7 @@ const DataTableChemCompGr = (props) => {
         <Grid item sx={{width: 570, border: '0px solid green', ml: 1 }}>
         <div style={{ height: 500, width: 570 }}> 
           <Box sx={{ border: 1, borderRadius: '4px', borderColor: 'rgba(0, 0, 0, 0.23)', height: 500, p: '4px' }} >
-            <IconButton onClick={()=>handleClearClick()} disabled={editStarted} color="primary" size="small" title="Создать запись">
+            <IconButton onClick={()=>handleClearClick()} disabled={editStarted || valueId===1000000 || valueParentID === 1000000} color="primary" size="small" title="Создать запись">
               <SvgIcon fontSize="small" component={PlusLightIcon} inheritViewBox /></IconButton>
             <IconButton onClick={()=>saveRec(true)} disabled={valueCrit===0} color="primary" size="small" title="Сохранить запись в БД">
               <SvgIcon fontSize="small" component={SaveLightIcon} inheritViewBox/></IconButton>
