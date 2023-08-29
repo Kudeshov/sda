@@ -280,6 +280,16 @@ useEffect(() => {
 
 // Функция delRec
 const delRec = async () => {
+
+  const sortedAndFilteredRowIds = gridFilteredSortedRowIdsSelector(apiRef);
+  const deletingRowIndex = sortedAndFilteredRowIds.indexOf(Number(valueId));
+  let previousRowId = 0;
+  if (deletingRowIndex > 0) {
+    previousRowId = sortedAndFilteredRowIds[deletingRowIndex - 1];
+  } else {
+    previousRowId = sortedAndFilteredRowIds[deletingRowIndex + 1];
+  }
+
   setIsLoading(true);
 
   try {
@@ -297,11 +307,23 @@ const delRec = async () => {
 
     setAlertSeverity('success');
     setAlertText(await response.text());
-    // Переключаемся на первую запись после удаления
-    if (tableData[0]) {
-      setValueID(tableData[0].id);
-      setAddedId(tableData[0].id);
-    } 
+    //очищаем фильтр, если там только одна (удаленная) запись
+    if (sortedAndFilteredRowIds.length === 1) {
+      apiRef.current.setFilterModel({ items: [] });
+    }
+    // Переключаемся на предыдущую запись после удаления
+    if (previousRowId)
+    {
+      setValueID(previousRowId);
+      setAddedId(previousRowId);
+    }
+    else
+    {
+      if (tableData[0]) {
+        setValueID(tableData[0].id);
+        setAddedId(tableData[0].id);
+      }
+    }     
   } catch (err) {
     setAlertSeverity('error');
     setAlertText(err.message);

@@ -1580,7 +1580,8 @@ const DataTableCriterion = (props) => {
             <Grid item xs={4}>
               <TextField  
                 id="ch_name" 
-                label="Обозначение" 
+                label="Обозначение"
+                disabled={valueId!==''}  
                 required 
                 size="small" 
                 variant="outlined" 

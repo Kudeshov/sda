@@ -1,5 +1,5 @@
 import React,  { useState, useEffect } from 'react'
-import { DataGrid, useGridApiRef, ruRU } from '@mui/x-data-grid'
+import { DataGrid, useGridApiRef, GridToolbarContainer, gridFilteredSortedRowIdsSelector, ruRU } from '@mui/x-data-grid'
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Dialog from '@mui/material/Dialog';
@@ -97,10 +97,10 @@ function DataTableDataSourceClass(props)  {
         setTableData(data);
         // Если массив данных не пустой, обновляем состояния
         if (data.length > 0 && !addedId) {
-          console.log('После загрузки выставляем ', data[0]?.id, addedId)
+          //console.log('После загрузки выставляем ', data[0]?.id, addedId)
           setAddedId(data[0]?.id);
           setValueID(data[0]?.id);
-          console.log('После загрузки выставили ', data[0]?.id)
+          //console.log('После загрузки выставили ', data[0]?.id)
         }
       });
     }
@@ -182,8 +182,25 @@ const handleCloseConfirmDeleteYes = () => {
   setOpenConfirmDelete(false);
   delRec();
 };
+
+const CustomFooter = props => {
+  return (
+    <GridToolbarContainer style={{ justifyContent: 'flex-end' }}>
+      Всего строк: {tableData.length}
+    </GridToolbarContainer>
+  );
+};
+
 /////////////////////////////////////////////////////////////////// DELETE /////////////////////
 const delRec = async () => {
+  const sortedAndFilteredRowIds = gridFilteredSortedRowIdsSelector(apiRef);
+  const deletingRowIndex = sortedAndFilteredRowIds.indexOf(Number(valueId));
+  let previousRowId = 0;
+  if (deletingRowIndex > 0) {
+    previousRowId = sortedAndFilteredRowIds[deletingRowIndex - 1];
+  } else {
+    previousRowId = sortedAndFilteredRowIds[deletingRowIndex + 1];
+  }
   setIsLoading(true);
   try {
     const response = await fetch(`/data_source_class/${valueId}`, {
@@ -200,11 +217,19 @@ const delRec = async () => {
 
     setAlertSeverity('success');
     setAlertText(await response.text());
-    // Переключаемся на первую запись после удаления
-    if (tableData[0]) {
-      setValueID(tableData[0].id);
-      setAddedId(tableData[0].id);
-    }      
+    // Переключаемся на предыдущую запись после удаления
+    if (previousRowId)
+    {
+      setValueID(previousRowId);
+      setAddedId(previousRowId);
+    }
+    else
+    {
+      if (tableData[0]) {
+        setValueID(tableData[0].id);
+        setAddedId(tableData[0].id);
+      }
+    }     
   } catch (err) {
     setAlertSeverity('error');
     setAlertText(err.message);
@@ -308,7 +333,7 @@ const formRef = React.useRef();
 return (
   <div style={{ height: 270, width: 886 }}>
     <form ref={formRef}>
-      <Box sx={{ border: '0px solid purple', height: 250, width: 886 }}>
+      <Box sx={{ border: '0px solid purple', height: 280, width: 886 }}>
         <Grid container spacing={1}>
           <Grid item sx={{ width: 780, border: '0px solid black', ml: 0 }}>
             <DataGrid
@@ -321,16 +346,20 @@ return (
                 "& .MuiDataGrid-cell:focus-within": {
                   outline: "none !important",
                 },
-              }}                 
+              }}          
+              components={{ Footer: CustomFooter }}       
               localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
               rowHeight={25}
               apiRef={apiRef}              
               columns={columns_src}
               rows={tableData}
+              pageSize={tableData.length}
+              paginationMode="server"
+              hideFooterPagination
               disableMultipleSelection={true}
               onPaginationModelChange={setPaginationModel}
               onRowClick={handleRowClick} {...tableData} 
-              hideFooterSelectedRowCount={true}
+              /* hideFooterSelectedRowCount={true} */
               selectionModel={selectionModel}
               paginationModel={paginationModel}
               onSelectionModelChange={(newSelectionModel) => {
@@ -338,8 +367,7 @@ return (
               }}
               rowSelectionModel={rowSelectionModel}
               loading={isLoading}
-              pageSize={25} // number of rows per page
-              style={{ height: '270px', width: '786px' }}
+              style={{ height: '277px', width: '786px' }}
               initialState={{
                 columns: {
                   columnVisibilityModel: {

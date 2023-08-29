@@ -259,6 +259,15 @@ useEffect(() => {
 
 // Функция delRec
 const delRec = async () => {
+  const sortedAndFilteredRowIds = gridFilteredSortedRowIdsSelector(apiRef);
+  const deletingRowIndex = sortedAndFilteredRowIds.indexOf(Number(valueId));
+  let previousRowId = 0;
+  if (deletingRowIndex > 0) {
+    previousRowId = sortedAndFilteredRowIds[deletingRowIndex - 1];
+  } else {
+    previousRowId = sortedAndFilteredRowIds[deletingRowIndex + 1];
+  }
+
   setIsLoading(true);
 
   try {
@@ -273,22 +282,32 @@ const delRec = async () => {
     if (!response.ok) {
       throw new Error(await response.text());
     }
-
+    //очищаем фильтр, если там только одна (удаленная) запись
+    if (sortedAndFilteredRowIds.length === 1) {
+      apiRef.current.setFilterModel({ items: [] });
+    }
     setAlertSeverity('success');
     setAlertText(await response.text());
-
+    // Переключаемся на предыдущую запись после удаления
+    if (previousRowId)
+    {
+      setValueID(previousRowId);
+      setAddedId(previousRowId);
+    }
+    else
+    {
+      if (tableData[0]) {
+        setValueID(tableData[0].id);
+        setAddedId(tableData[0].id);
+      }
+    } 
   } catch (err) {
     setAlertSeverity('error');
     setAlertText(err.message);
   } finally {
     setIsLoading(false);
     setOpenAlert(true);
-    
-    // Переключаемся на первую запись после удаления
-    if (tableData[0]) {
-      setValueID(tableData[0].id);
-      setAddedId(tableData[0].id);
-    } 
+
     reloadData();
   }
 };
@@ -597,7 +616,7 @@ const delRec = async () => {
               <TextField id="ch_id" disabled={true} label="Код" variant="outlined" value={valueId || ''} size="small" />
             </Grid>  
             <Grid item xs={10}>
-              <TextField id="ch_name" fullWidth label="Обозначение" required size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)} inputRef={inputRef} />
+              <TextField id="ch_name" fullWidth label="Обозначение" disabled={valueId!==''}  required size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)} inputRef={inputRef} />
             </Grid>
             <Grid item xs={12}>
               <TextField id="ch_shortname" fullWidth label="Краткое название" required size="small" variant="outlined" value={valueShortName || ''} onChange={e => setValueShortName(e.target.value)} />

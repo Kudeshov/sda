@@ -50,7 +50,8 @@ const getValueIntDose = (request, response) => {
     'aerosol_sol_id',
     'aerosol_amad_id',
     'exp_scenario_id',
-    'people_class_id'
+    'people_class_id',
+    'organ_source_id'
   ];
 
   // Создание объекта, в котором каждому параметру из списка присваивается его значение из запроса
@@ -75,7 +76,8 @@ const getValueIntDose = (request, response) => {
     in2.name as "irradiation_name_rus", i.title as "isotope_title", ip.name as "integral_period_name_rus",
     dr.title  as "dose_ratio_title", lln."name" as "let_level_name_rus", an.name as "agegroup_name_rus",
     sfn."name" as "subst_form_name_rus", asn."name" as "aerosol_sol_name_rus", aan."name" as "aerosol_amad_name_rus",
-    esn."name" as "exp_scenario_name_rus", pcn."name" as "people_class_name_rus", ccgn."name" as "chem_comp_group_name_rus"`;
+    esn."name" as "exp_scenario_name_rus", pcn."name" as "people_class_name_rus", ccgn."name" as "chem_comp_group_name_rus",
+    o_nls1.name as "region_rt_name_rus" `;
 
   const s_query = `${select_fields}
     from nucl.value_int_dose vid
@@ -93,6 +95,7 @@ const getValueIntDose = (request, response) => {
     left join nucl.exp_scenario_nls esn on esn.exp_scenario_id = vid.exp_scenario_id and esn.lang_id = 1
     left join nucl.people_class_nls pcn on pcn.people_class_id = vid.people_class_id and pcn.lang_id = 1
     left join nucl.chem_comp_gr_nls ccgn on ccgn.chem_comp_gr_id = vid.chem_comp_gr_id and ccgn.lang_id = 1
+    left join nucl.organ_nls o_nls1 on o_nls1.organ_id = vid.organ_source_id and o_nls1.lang_id = 1 
     ${whereClause}
     order by pcn."name", i.title, ip.name, o_nls.name, an.name, esn."name", sfn."name", ccgn."name", 
     asn."name", aan."name", lln."name", ds.title, vid.dr_value  
@@ -133,7 +136,7 @@ const createValueIntDose = (request, response) => {
   console.log(request.body);
   const { dose_ratio_id, dr_value, chem_comp_gr_id, people_class_id, isotope_id, integral_period_id, organ_id, 
     let_level_id, agegroup_id, data_source_id, subst_form_id, aerosol_sol_id, aerosol_amad_id, exp_scenario_id, 
-    irradiation_id } = request.body;
+    irradiation_id, organ_source_id } = request.body;
 
   const values = [
     dose_ratio_id,
@@ -150,13 +153,14 @@ const createValueIntDose = (request, response) => {
     aerosol_sol_id,
     aerosol_amad_id,
     exp_scenario_id,
-    irradiation_id
+    irradiation_id,
+    organ_source_id
   ];
 
   const s_query = `INSERT INTO nucl.value_int_dose (dose_ratio_id, dr_value, chem_comp_gr_id, people_class_id, 
     isotope_id, integral_period_id, organ_id, let_level_id, agegroup_id, data_source_id, subst_form_id, 
-    aerosol_sol_id, aerosol_amad_id, exp_scenario_id, irradiation_id) 
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15) RETURNING id`;
+    aerosol_sol_id, aerosol_amad_id, exp_scenario_id, irradiation_id, organ_source_id) 
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, $14, $15, $16) RETURNING id`;
 
   console.log(s_query, values); 
 

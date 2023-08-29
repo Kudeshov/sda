@@ -70,16 +70,11 @@ const DataTablePeopleClass = (props) => {
   const [tableData, setTableData] = useState([]); 
   const [rowSelectionModel, setRowSelectionModel] = React.useState([]);
   const [editStarted, setEditStarted] = useState(false);  
-  
-  
-  const [ExampleComponent, ExampleComponentInitial] = React.useState();
-
+ 
+/*   const [ExampleComponent, ExampleComponentInitial] = React.useState();
   const [inputValue, inputValueInitial] = React.useState();
-
-
   const [formattedRespRateValue, formattedRespRateValueInitial] = React.useState();
-
-
+ */
   const [addedId, setAddedId] = useState(null);  
 
   /* const [isEmpty, setIsEmpty] = useState([false]); // я думаю это ненужно
@@ -89,7 +84,8 @@ const DataTablePeopleClass = (props) => {
      */
       
   useEffect(() => {
-    console.log('editStarted currentId', currentId)
+/*     console.log('editStarted currentId', currentId)
+ */
     if (typeof currentId !== 'number') {
       setEditStarted(false);
       return;
@@ -116,12 +112,12 @@ const DataTablePeopleClass = (props) => {
       const [initialName, initialValue, currentName, currentValue] = fields[i];
       
       if (initialValue !== currentValue) {
-        console.log(`Variable ${currentName} ${initialName} changed from ${initialValue} to ${currentValue}`);
+//        console.log(`Variable ${currentName} ${initialName} changed from ${initialValue} to ${currentValue}`);
         editStarted = true;
       }
     }
   
-    console.log('editStarted', editStarted)
+//    console.log('editStarted', editStarted)
     setEditStarted(editStarted);      
   
   }, [valueTitleInitial, valueTitle, valueNameRusInitial, valueNameRus, valueNameEngInitial, valueNameEng, 
@@ -150,7 +146,7 @@ const DataTablePeopleClass = (props) => {
     if ((!isLoading) && (tableData) && (tableData.length) /* && tableData[0].id>-1 */) {
       if (typeof currentId !== 'number') 
       {
-        console.log('Выбрано ', tableData[0].id);
+        //console.log('Выбрано ', tableData[0].id);
         setCurrentId(tableData[0].id);
         setValueID(tableData[0].id);
         setRowSelectionModel([tableData[0].id]);
@@ -173,7 +169,7 @@ const DataTablePeopleClass = (props) => {
 
   const handleRowClick = (params) => {
 
-    console.log('handleRowClick', params.row.id, valueId);
+    //console.log('handleRowClick', params.row.id, valueId);
     if (params.row.id === valueId  ) {
       // Если данные не изменились, просто выходим из функции
       return;
@@ -253,8 +249,9 @@ const saveRec = async () => {
     
     setIsLoading(true);
     
-    const url = `/${props.table_name}/` + (valueId ? valueId : '');
-    const method = valueId ? 'PUT' : 'POST';
+    const url = `/${props.table_name}/` + (valueId !== undefined && valueId !== null ? valueId : '');
+    const method = (valueId !== undefined && valueId !== null) ? 'PUT' : 'POST';
+
     
     try {
       const response = await fetch(url, {
@@ -301,7 +298,7 @@ const saveRec = async () => {
         setAlertText(`Добавлена запись с кодом ${newId}`);
 
       } else {
-        if (clickedRowId) {
+        if (clickedRowId>=0) {
           setValueID(clickedRowId);
         }
         setAlertText(responseData || 'Success');
@@ -332,6 +329,16 @@ useEffect(() => {
 
 // Функция delRec
 const delRec = async () => {
+
+  const sortedAndFilteredRowIds = gridFilteredSortedRowIdsSelector(apiRef);
+  const deletingRowIndex = sortedAndFilteredRowIds.indexOf(Number(valueId));
+  let previousRowId = 0;
+  if (deletingRowIndex > 0) {
+    previousRowId = sortedAndFilteredRowIds[deletingRowIndex - 1];
+  } else {
+    previousRowId = sortedAndFilteredRowIds[deletingRowIndex + 1];
+  }
+
   setIsLoading(true);
 
   try {
@@ -346,10 +353,25 @@ const delRec = async () => {
     if (!response.ok) {
       throw new Error(await response.text());
     }
-
+    //очищаем фильтр, если там только одна (удаленная) запись
+    if (sortedAndFilteredRowIds.length === 1) {
+      apiRef.current.setFilterModel({ items: [] });
+    }
     setAlertSeverity('success');
     setAlertText(await response.text());
-
+    // Переключаемся на предыдущую запись после удаления
+    if (previousRowId)
+    {
+      setValueID(previousRowId);
+      setAddedId(previousRowId);
+    }
+    else
+    {
+      if (tableData[0]) {
+        setValueID(tableData[0].id);
+        setAddedId(tableData[0].id);
+      }
+    }    
   } catch (err) {
     setAlertSeverity('error');
     setAlertText(err.message);
@@ -357,11 +379,7 @@ const delRec = async () => {
     setIsLoading(false);
     setOpenAlert(true);
     
-    // Переключаемся на первую запись после удаления
-    if (tableData[0]) {
-      setValueID(tableData[0].id);
-      setAddedId(tableData[0].id);
-    } 
+ 
     reloadData();
   }
 };
@@ -420,7 +438,7 @@ const delRec = async () => {
             Вы желаете удалить указанную запись?
           </>);
       case 'save':
-        if (!valueId) { // если это новая запись
+        if (typeof valueId !== 'number') { // если это новая запись
           if (allRequiredFieldsFilled) {
             return `Создана новая запись, сохранить?`;
           } else {
@@ -528,7 +546,7 @@ const delRec = async () => {
     
     setDialogType('');
 
-    if (clickedRowId>0) {
+    if (clickedRowId>=0) {
       setEditStarted(false);
       setRowSelectionModel([clickedRowId]);
       const rowData = tableData.find(row => row.id === clickedRowId);
@@ -584,7 +602,7 @@ const delRec = async () => {
 
   const handleCancelClick = () => 
   {
-    console.log(rowSelectionModel);
+    //console.log(rowSelectionModel);
     
     const selectedIDs = new Set(rowSelectionModel.map(Number));
     const selectedRowData = tableData.filter((row) => selectedIDs.has(row.id));
@@ -626,6 +644,7 @@ const delRec = async () => {
   const { paginationModel, setPaginationModel, scrollToIndexRef } = useGridScrollPagination(apiRef, tableData, setRowSelectionModel);
 
   useEffect(() => {
+    console.log('added id scroll to ', addedId);
     if (addedId !== null){  
         scrollToIndexRef.current = addedId;
         setAddedId(null);
@@ -637,23 +656,6 @@ const delRec = async () => {
   function GridToolbar() {
     const handleExport = (options) =>
        apiRef.current.exportDataAsCsv(options);
-    
-/*     const ExampleComponent = () => {
-      const inputValue = valueRespRate
-
-      inputValue = valueRespRate
-
-      const formattedRespRateValue = formatExp(inputValue);
-    
-      return (
-        <div>
-          <p>Форматированное значение: {formattedRespRateValue}</p>
-        </div>
-      );
-    };
-    */
-
-       
     return (
       <GridToolbarContainer>
         <IconButton onClick={()=>handleClearClick()} disabled={editStarted} color="primary" size="small" title="Создать запись">
@@ -673,21 +675,31 @@ const delRec = async () => {
     );
   }
 
+  const CustomFooter = props => {
+    return (
+      <GridToolbarContainer style={{ justifyContent: 'flex-end' }}>
+        Всего строк: {tableData.length}
+      </GridToolbarContainer>
+    );
+  };
+
   const formRef = React.useRef();
   return (
     <Box sx={{ border: '0px solid purple', width: 1445, height: 650, padding: 1 }}>
       <Grid container spacing={1}>
         <Grid item sx={{width: 583, border: '0px solid green', ml: 1 }}>
           <DataGrid
-            components={{ Toolbar: GridToolbar }}
+            components={{ Footer: CustomFooter, Toolbar: GridToolbar }}
             apiRef={apiRef}
             hideFooterSelectedRowCount={true}
             localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
             rowHeight={25}
-            pageSize={5}
+            pageSize={tableData.length}
+            paginationMode="server"
+            hideFooterPagination
             rows={tableData}
             columns={columns}
-            paginationModel={paginationModel}
+            /* paginationModel={paginationModel} */
             onPaginationModelChange={setPaginationModel}
             onRowSelectionModelChange={(newRowSelectionModel) => {
               setRowSelectionModel(newRowSelectionModel);
@@ -739,10 +751,16 @@ const delRec = async () => {
         <form ref={formRef}>
           <Grid container spacing={1.5}>
             <Grid item xs={2}>
-              <TextField id="ch_id" disabled={true} fullWidth label="Код"  variant="outlined" value={valueId || ''} size="small" />
+            <TextField id="ch_id" 
+              disabled={true} 
+              fullWidth 
+              label="Код"  
+              variant="outlined" 
+              value={valueId !== null && valueId !== undefined ? valueId : ''} 
+              size="small" />
             </Grid>  
             <Grid item xs={10}>
-              <TextField id="ch_name" inputRef={inputRef} fullWidth label="Обозначение" required size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
+              <TextField id="ch_name" inputRef={inputRef} disabled={valueId!==''} fullWidth label="Обозначение" required size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
             </Grid>
             <Grid item xs={6}>
               <TextField  id="ch_name_rus" fullWidth size="small" label="Название (рус.яз)" required variant="outlined"  value={valueNameRus || ''} onChange={e => setValueNameRus(e.target.value)} />
@@ -754,7 +772,7 @@ const delRec = async () => {
               <TextField  id="ch_descr_rus" fullWidth label="Комментарий (рус.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrRus || ''} onChange={e => setValueDescrRus(e.target.value)}/>
             </Grid>            
             <Grid item xs={12}>
-              <TextField  id="ch_descr_rus" fullWidth label="Комментарий (англ.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrEng || ''} onChange={e => setValueDescrEng(e.target.value)}/>
+              <TextField  id="ch_descr_eng" fullWidth label="Комментарий (англ.яз)"  size="small" multiline maxRows={4} variant="outlined" value={valueDescrEng || ''} onChange={e => setValueDescrEng(e.target.value)}/>
             </Grid>
             {props.table_name === 'agegroup' && (
             <>

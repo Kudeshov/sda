@@ -670,41 +670,6 @@ const DataTableExpScenario = (props) => {
         setValueParentIDInitial(tableData[0].parent_id||-1);
         setValueNormativID(tableData[0].normativ_id);
         setValueNormativIDInitial(tableData[0].normativ_id);
-
-/* 
-        setValueCalcfunctionID(tableData[0].calcfunction_id);
-        setValueIrradiation(tableData[0].irradiation_id);
-        setValueAgegroup(tableData[0].agegroup_id);
-        setValueExpScenario(tableData[0].exp_scenario_id);
-        setValueIntegralPeriod(tableData[0].integral_period_id);
-        setValueOrgan(tableData[0].organ_id);
-        setValueDataSource(tableData[0].data_source_id);
-        setValueAerosolAmad(tableData[0].aerosol_amad_id);
-        setValueAerosolSol(tableData[0].aerosol_sol_id);
-        setValueChemCompGr(tableData[0].chem_comp_gr_id);
-        setValueSubstForm(tableData[0].subst_form_id);
-        setValueIsotope(tableData[0].isotope_id);
-        setValueActionLevel(tableData[0].action_level_id);
-        setValuePeopleClass(tableData[0].people_class_id);
-        setValueCrValue(tableData[0].cr_value);
-        setValueTimeend(tableData[0].timeend);
-
-        setValueCalcfunctionIDInitial(tableData[0].calcfunction_id);
-        setValueIrradiationInitial(tableData[0].irradiation_id);
-        setValueAgegroupInitial(tableData[0].agegroup_id);
-        setValueExpScenarioInitial(tableData[0].exp_scenario_id);
-        setValueIntegralPeriodInitial(tableData[0].integral_period_id);
-        setValueOrganInitial(tableData[0].organ_id);
-        setValueDataSourceInitial(tableData[0].data_source_id);
-        setValueAerosolAmadInitial(tableData[0].aerosol_amad_id);
-        setValueAerosolSolInitial(tableData[0].aerosol_sol_id);
-        setValueChemCompGrInitial(tableData[0].chem_comp_gr_id);
-        setValueSubstFormInitial(tableData[0].subst_form_id);
-        setValueIsotopeInitial(tableData[0].isotope_id);
-        setValueActionLevelInitial(tableData[0].action_level_id);
-        setValuePeopleClassInitial(tableData[0].people_class_id);
-        setValueCrValueInitial(tableData[0].cr_value);
-        setValueTimeendInitial(tableData[0].timeend); */
       }
       setOpenAlert(true);  
     } catch (err) {
@@ -1102,7 +1067,8 @@ const DataTableExpScenario = (props) => {
             <Grid item xs={4}>
               <TextField  
                 id="ch_name" 
-                label="Обозначение" 
+                label="Обозначение"
+                disabled={valueId!==''}  
                 required 
                 size="small" 
                 variant="outlined" 

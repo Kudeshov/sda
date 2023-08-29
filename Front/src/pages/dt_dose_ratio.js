@@ -235,23 +235,6 @@ const DataTableDoseRatio = (props) => {
     }
   }; 
 
- /*  const handleRowClick = (params) => {
-    if (params.row.id === valueId  ) {
-      // Если данные не изменились, просто выходим из функции
-      return;
-    }
-    setOpenAlert(false);
-    if (editStarted&&(!isEmpty))
-    {
-      setClickedRowId(params.row.id);
-      setDialogType('save');
-    } 
-    else 
-    {
-      setValueID(params.row.id);
-    }
-  };  */
-
   const inputRef = React.useRef();
 
   const handleClearClick = (params) => {
@@ -400,6 +383,16 @@ useEffect(() => {
 
 // Функция delRec
 const delRec = async () => {
+
+  const sortedAndFilteredRowIds = gridFilteredSortedRowIdsSelector(apiRef);
+  const deletingRowIndex = sortedAndFilteredRowIds.indexOf(Number(valueId));
+  let previousRowId = 0;
+  if (deletingRowIndex > 0) {
+    previousRowId = sortedAndFilteredRowIds[deletingRowIndex - 1];
+  } else {
+    previousRowId = sortedAndFilteredRowIds[deletingRowIndex + 1];
+  }
+
   setIsLoading(true);
 
   try {
@@ -414,7 +407,10 @@ const delRec = async () => {
     if (!response.ok) {
       throw new Error(await response.text());
     }
-
+    //очищаем фильтр, если там только одна (удаленная) запись
+    if (sortedAndFilteredRowIds.length === 1) {
+      apiRef.current.setFilterModel({ items: [] });
+    }
     setAlertSeverity('success');
     setAlertText(await response.text());
 
@@ -425,11 +421,19 @@ const delRec = async () => {
     setIsLoading(false);
     setOpenAlert(true);
     
-    // Переключаемся на первую запись после удаления
-    if (tableData[0]) {
-      setValueID(tableData[0].id);
-      setAddedId(tableData[0].id);
-    } 
+    // Переключаемся на предыдущую запись после удаления
+    if (previousRowId)
+    {
+      setValueID(previousRowId);
+      setAddedId(previousRowId);
+    }
+    else
+    {
+      if (tableData[0]) {
+        setValueID(tableData[0].id);
+        setAddedId(tableData[0].id);
+      }
+    }     
     reloadData();
   }
 };
@@ -724,6 +728,15 @@ const delRec = async () => {
   const valuesYesNo = [
     { title: 'Нет', id: 'false' },
     { title: 'Да', id: 'true' } ];
+
+  const CustomFooter = props => {
+    return (
+      <GridToolbarContainer style={{ justifyContent: 'flex-end' }}>
+        Всего строк: {tableData.length}
+      </GridToolbarContainer>
+    );
+  };
+  
   const formRef = React.useRef();
 
 
@@ -732,15 +745,17 @@ const delRec = async () => {
       <Grid container spacing={1}>
         <Grid item sx={{width: 583, border: '0px solid green', ml: 1 }}>
           <DataGrid
-            components={{ Toolbar: GridToolbar }}
+            components={{ Footer: CustomFooter, Toolbar: GridToolbar }}
             apiRef={apiRef}
             hideFooterSelectedRowCount={true}
             localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
             rowHeight={25}
-            pageSize={5}
+            pageSize={tableData.length}
+            paginationMode="server"
+            hideFooterPagination
             rows={tableData}
             columns={columns}
-            paginationModel={paginationModel}
+            /* paginationModel={paginationModel} */
             onPaginationModelChange={setPaginationModel}
             onRowSelectionModelChange={(newRowSelectionModel) => {
               setRowSelectionModel(newRowSelectionModel);
@@ -795,7 +810,7 @@ const delRec = async () => {
             <TextField id="ch_id" disabled={true} fullWidth label="Код" variant="outlined" value={valueId || ''} size="small" />
           </Grid>            
           <Grid item xs={10}>
-            <TextField id="ch_name" inputRef={inputRef} fullWidth label="Обозначение" required size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)} />
+              <TextField id="ch_name" inputRef={inputRef} disabled={valueId!==''} fullWidth label="Обозначение" required size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
           </Grid>            
           <Grid item xs={6}>
             <TextField  id="ch_name_rus" fullWidth size="small" label="Название (рус.яз)" required variant="outlined"  value={valueNameRus || ''} onChange={e => setValueNameRus(e.target.value)} />

@@ -92,7 +92,7 @@ function Navbar() {
   }
 
   return (
-    <AppBar position="static" style={{ backgroundColor: 'green' }}> 
+    <AppBar position="static" style={{ backgroundColor: 'maroon' }}> 
       <CssBaseline />
       <Toolbar>
         <Typography variant="h4" className={classes.logo}>

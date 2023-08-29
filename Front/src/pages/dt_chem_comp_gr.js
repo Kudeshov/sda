@@ -644,11 +644,7 @@ const DataTableChemCompGr = (props) => {
     if (valueId)
       myId = valueId-1000000;   
 
-/*     const js = JSON.stringify({
-        id: valueId,
-        title: valueTitle,
-    }); */
-    
+
     setIsLoading("true");
     try {
       const response = await fetch(`/${props.table_name}/${myId}`, {
@@ -1171,7 +1167,8 @@ const DataTableChemCompGr = (props) => {
             <Grid item xs={7}>
               <TextField  
                 id="ch_name" 
-                label="Обозначение" 
+                label="Обозначение"
+                disabled={valueId!==''}  
                 required 
                 size="small" 
                 variant="outlined" 

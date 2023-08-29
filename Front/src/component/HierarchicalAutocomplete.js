@@ -86,7 +86,7 @@ const HierarchicalAutocomplete = ({
         >
           {option.children.length > 0 && <ExpandMoreIcon fontSize="small" />}
           <Tooltip title={option.name_rus}>
-            <div>{option[displayField]}</div>  {/* использование displayField */}
+                <div>{option[displayField]}</div>
           </Tooltip>
         </div>
       )}

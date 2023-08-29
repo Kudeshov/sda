@@ -58,7 +58,6 @@ const DataTableRadiationType = (props) => {
   const [editStarted, setEditStarted] = useState(false);  
   
   const [addedId, setAddedId] = useState(null);  
-
        
   useEffect(() => {
     console.log('editStarted currentId', currentId)
@@ -80,14 +79,13 @@ const DataTableRadiationType = (props) => {
     
     for (let i = 0; i < fields.length; i++) {
       const [initialName, initialValue, currentName, currentValue] = fields[i];
-      
       if (initialValue !== currentValue) {
         console.log(`Variable ${currentName} ${initialName} changed from ${initialValue} to ${currentValue}`);
         editStarted = true;
       }
     }
   
-    console.log('editStarted', editStarted)
+//    console.log('editStarted', editStarted)
     setEditStarted(editStarted);      
   
   }, [valueCodeInitial, valueCode,
@@ -256,22 +254,18 @@ useEffect(() => {
   }
 }, [tableData, valueId]);
 
-
 const [previousRowBeforeDeletion, setPreviousRowBeforeDeletion] = useState(null);
 
 // Функция delRec
 const delRec = async () => {
+
   const sortedAndFilteredRowIds = gridFilteredSortedRowIdsSelector(apiRef);
-
-  const deletingRowIndex = sortedAndFilteredRowIds.indexOf(valueId);
-
-  console.log('deletingRowIndex', deletingRowIndex);
+  const deletingRowIndex = sortedAndFilteredRowIds.indexOf(Number(valueId));
+  let previousRowId = 0;
   if (deletingRowIndex > 0) {
-    const previousRowId = sortedAndFilteredRowIds[deletingRowIndex - 1];
-    setPreviousRowBeforeDeletion(previousRowId);
-    console.log('previousRowId', previousRowId);
+    previousRowId = sortedAndFilteredRowIds[deletingRowIndex - 1];
   } else {
-    setPreviousRowBeforeDeletion(null);
+    previousRowId = sortedAndFilteredRowIds[deletingRowIndex + 1];
   }
 
   setIsLoading(true);
@@ -299,12 +293,11 @@ const delRec = async () => {
     setIsLoading(false);
     setOpenAlert(true);
     
-    // Переключаемся на первую запись после удаления
-    if (previousRowBeforeDeletion)
+    // Переключаемся на предыдущую запись после удаления
+    if (previousRowId)
     {
-      console.log('previousRowBeforeDeletion',previousRowBeforeDeletion);
-      setValueId(previousRowBeforeDeletion);
-      setAddedId(previousRowBeforeDeletion);
+      setValueId(previousRowId);
+      setAddedId(previousRowId);
     }
     else
     {
@@ -312,7 +305,7 @@ const delRec = async () => {
         setValueId(tableData[0].id);
         setAddedId(tableData[0].id);
       }
-    } 
+    }     
     reloadData();
   }
 };
@@ -562,7 +555,6 @@ const delRec = async () => {
       </GridToolbarContainer>
     );
   };
-
 
   const formRef = React.useRef();
   return (

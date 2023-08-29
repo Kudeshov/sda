@@ -6,8 +6,6 @@ import {
   useGridApiRef,
   gridFilteredSortedRowIdsSelector,
 } from '@mui/x-data-grid';
-
-
 import TextField from '@mui/material/TextField';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
@@ -76,20 +74,26 @@ const DataTableIsotope = (props) => {
      */
       
   useEffect(() => {
+    if (typeof currentId !== 'number') {
+      setEditStarted(false);
+      return;
+    }  
+
     setEditStarted((valueTitleInitial!==valueTitle)||(valueNIndexInitial!==valueNIndex)||(valueHalfLifeValueInitial!==valueHalfLifeValue)
       ||(valueHalfLifePeriodInitial!==valueHalfLifePeriod)||(valueDecayConstInitial!==valueDecayConst)||(valueNuclideIdInitial!==valueNuclideId));
-
     }, [valueTitleInitial, valueTitle, valueNIndexInitial, valueNIndex, valueHalfLifeValueInitial, valueHalfLifeValue, 
         valueHalfLifePeriodInitial, valueHalfLifePeriod, valueDecayConstInitial, valueDecayConst, valueNuclideIdInitial, valueNuclideId]); 
 
   useEffect(() => {
-    if ((!isLoading) && (tableData) && (tableData.length) && tableData[0].id>-1) {
+    console.log('Инициализация ', currentId );
+    if ((!isLoading) && (tableData) && (tableData.length) /* && tableData[0].id>-1 */) {
       if (typeof currentId !== 'number') 
       {
         console.log('Выбрано ', tableData[0].id);
-        setRowSelectionModel([tableData[0].id]);
         setCurrentId(tableData[0].id);
         setValueID(tableData[0].id);
+        setRowSelectionModel([tableData[0].id]);
+        console.log(rowSelectionModel);
       }
     }
     }, [ isLoading, tableData, currentId] );
@@ -97,7 +101,7 @@ const DataTableIsotope = (props) => {
   const [prevRowSelectionModel, setPrevRowSelectionModel] = useState([]);
   const [clickedRowId, setClickedRowId] = useState(null);
 
-   useEffect(() => {
+  useEffect(() => {
     // Если редактирование начато, не меняем выбранную строку
     if (editStarted) {
       setRowSelectionModel(prevRowSelectionModel);
@@ -108,7 +112,6 @@ const DataTableIsotope = (props) => {
   }, [rowSelectionModel, prevRowSelectionModel, editStarted]);    
 
   const handleRowClick = (params) => {
-
     console.log('handleRowClick', params.row.id, valueId);
     if (params.row.id === valueId  ) {
       // Если данные не изменились, просто выходим из функции
@@ -274,6 +277,16 @@ useEffect(() => {
 
 // Функция delRec
 const delRec = async () => {
+
+  const sortedAndFilteredRowIds = gridFilteredSortedRowIdsSelector(apiRef);
+  const deletingRowIndex = sortedAndFilteredRowIds.indexOf(Number(valueId));
+  let previousRowId = 0;
+  if (deletingRowIndex > 0) {
+    previousRowId = sortedAndFilteredRowIds[deletingRowIndex - 1];
+  } else {
+    previousRowId = sortedAndFilteredRowIds[deletingRowIndex + 1];
+  }
+
   setIsLoading(true);
 
   try {
@@ -288,7 +301,10 @@ const delRec = async () => {
     if (!response.ok) {
       throw new Error(await response.text());
     }
-
+    //очищаем фильтр, если там только одна (удаленная) запись
+    if (sortedAndFilteredRowIds.length === 1) {
+      apiRef.current.setFilterModel({ items: [] });
+    }
     setAlertSeverity('success');
     setAlertText(await response.text());
 
@@ -299,17 +315,28 @@ const delRec = async () => {
     setIsLoading(false);
     setOpenAlert(true);
     
-    // Переключаемся на первую запись после удаления
-    if (tableData[0]) {
-      setValueID(tableData[0].id);
-      setAddedId(tableData[0].id);
-    } 
+    // Переключаемся на предыдущую запись после удаления
+    if (previousRowId)
+    {
+      setValueID(previousRowId);
+      setAddedId(previousRowId);
+    }
+    else
+    {
+      if (tableData[0]) {
+        setValueID(tableData[0].id);
+        setAddedId(tableData[0].id);
+      }
+    }     
     reloadData();
   }
 };
 
   /////////////////////////////////////////////////////////////////// RELOAD /////////////////////
   const reloadDataAlert =  async () => {
+
+    console.log('rowSelectionModel', rowSelectionModel);
+
     setAlertSeverity('info');
     setAlertText('Данные успешно обновлены');
     try 
@@ -565,22 +592,21 @@ const delRec = async () => {
           <DataGrid
             components={{ Footer: CustomFooter, Toolbar: GridToolbar }}
             apiRef={apiRef}
-            hideFooterSelectedRowCount={true}
+            /* hideFooterSelectedRowCount={true} */
             localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
             rowHeight={25}
-            /* pageSize={5} */
+            pageSize={tableData.length}
+            /* paginationMode="server" */
+            hideFooterPagination
             rows={tableData}
             columns={columns}
             /* paginationModel={paginationModel} */
-           /*  pagination={false}  */
-            pageSize={tableData.length}
-            paginationMode="server"
             onPaginationModelChange={setPaginationModel}
             onRowSelectionModelChange={(newRowSelectionModel) => {
               setRowSelectionModel(newRowSelectionModel);
             }}
             rowSelectionModel={rowSelectionModel}
-            hideFooterPagination
+            
             initialState={{
               columns: {
             columnVisibilityModel: {
@@ -604,7 +630,9 @@ const delRec = async () => {
 
           <Collapse in={openAlert}>
             <Alert
-              item sx={{width: 571}}
+/*               item 
+ */              
+              sx={{width: 571}}
               severity={alertSeverity}
               action={
                 <IconButton
