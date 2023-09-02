@@ -261,21 +261,23 @@ app.get('/nuclide', (req, res) => {nuc_q.getNuclide(req, res, 'nuclide')});
 app.get('/value_int_dose', (req, res) => {vid_q.getValueIntDose(req, res, 'value_int_dose')}); 
 app.put('/value_int_dose/:id', (req, res) => {vid_q.updateValueIntDose(req, res, 'value_int_dose')}); //update
 app.post('/value_int_dose', (req, res) => {vid_q.createValueIntDose(req, res, 'value_int_dose')});    //create
-app.delete('/value_int_dose/:id', (req, res) => {vid_q.deleteValueIntDose(req, res, 'value_int_dose')});  //delete 
+app.delete('/value_int_dose/:id', (req, res) => {vid_q.deleteValueIntDose(req, res, 'value_int_dose')});  //delete
+//связи в таблице value_int_dose
+app.get('/value_relation/:tableName', (req, res) => {vid_q.getValueRelation(req, res, req.params.tableName)});
+app.get('/int_dose_attr/', (req, res) => {vid_q.getIntDoseAttr(req, res)});
 
 app.get('/value_ext_dose', (req, res) => {ved_q.getValueExtDose(req, res, 'value_ext_dose')}); 
 app.put('/value_ext_dose/:id', (req, res) => {ved_q.updateValueExtDose(req, res, 'value_ext_dose')}); //update
 app.post('/value_ext_dose', (req, res) => {ved_q.createValueExtDose(req, res, 'value_ext_dose')});    //create
 app.delete('/value_ext_dose/:id', (req, res) => {ved_q.deleteValueExtDose(req, res, 'value_ext_dose')});  //delete 
+app.get('/ext_dose_attr/', (req, res) => {ved_q.getExtDoseAttr(req, res)});
 
 app.get('/value_ratio_git', (req, res) => {vrg_q.getValueRatioGit(req, res, 'value_ratio_git')}); 
 app.put('/value_ratio_git/:id', (req, res) => {vrg_q.updateValueRatioGit(req, res, 'value_ratio_git')}); //update
 app.post('/value_ratio_git', (req, res) => {vrg_q.createValueRatioGit(req, res, 'value_ratio_git')});    //create
 app.delete('/value_ratio_git/:id', (req, res) => {vrg_q.deleteValueRatioGit(req, res, 'value_ratio_git')});  //delete 
 
-//связи в таблице value_int_dose
-app.get('/value_relation/:tableName', (req, res) => {vid_q.getValueRelation(req, res, req.params.tableName)});
-app.get('/int_dose_attr/', (req, res) => {vid_q.getIntDoseAttr(req, res)});
+
 
 //GENERIC QUERIES on radiation_type 
 app.get('/radiation_type', (req, res) => {rad_t.getRadiationType(req, res, 'radiation_type')});           //list all

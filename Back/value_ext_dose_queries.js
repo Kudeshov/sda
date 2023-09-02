@@ -43,7 +43,9 @@ const getValueExtDose = (request, response) => {
     'irradiation_id',
     'isotope_id',
     'dose_ratio_id',
-    'people_class_id'
+    'agegroup_id',
+    'people_class_id',
+    'rad_type_code'
   ];
 
   // Создание объекта, в котором каждому параметру из списка присваивается его значение из запроса
@@ -65,7 +67,7 @@ const getValueExtDose = (request, response) => {
 
   // Формирование полного SQL-запроса, включая выборку, соединение таблиц и условия
   const select_fields = `select vid.*, ds.title as "data_source_title", o_nls.name as "organ_name_rus",
-    in2.name as "irradiation_name_rus", i.title as "isotope_title".,
+    in2.name as "irradiation_name_rus", i.title as "isotope_title",
     dr.title  as "dose_ratio_title"`;
 
   const s_query = `${select_fields}
@@ -78,7 +80,7 @@ const getValueExtDose = (request, response) => {
     left join nucl.people_class_nls pcn on pcn.people_class_id = vid.people_class_id and pcn.lang_id = 1
     ${whereClause}
     order by id
-    limit 100000`;
+    limit 5000`;
     
   console.log( s_query );
   // Выполнение SQL-запроса

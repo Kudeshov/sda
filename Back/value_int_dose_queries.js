@@ -99,7 +99,7 @@ const getValueIntDose = (request, response) => {
     ${whereClause}
     order by pcn."name", i.title, ip.name, o_nls.name, an.name, esn."name", sfn."name", ccgn."name", 
     asn."name", aan."name", lln."name", ds.title, vid.dr_value  
-    limit 50000`;
+    limit 5000`;
     
   console.log( s_query );
   // Выполнение SQL-запроса

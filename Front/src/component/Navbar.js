@@ -119,7 +119,7 @@ function Navbar() {
             </Link>            
             <Menu anchorEl={anchorE2} open={menuCoeff} onClose={closeMenuCoeff}>
               <MenuItem onClick={closeMenuCoeff} component={Link} to="/value_int_dose">Внутреннее облучение</MenuItem> 
-              <MenuItem onClick={closeMenuCoeff} component={Link} disabled={true} to="/value_int_dose">Внешнее облучение</MenuItem> 
+              <MenuItem onClick={closeMenuCoeff} component={Link} to="/value_ext_dose">Внешнее облучение</MenuItem> 
               <Divider />
               <MenuItem onClick={closeMenuCoeff} component={Link} to="/dose_ratio">{table_names['dose_ratio']}</MenuItem> 
               <MenuItem onClick={closeMenuCoeff} component={Link} to="/irradiation">{table_names['irradiation']}</MenuItem> 
