@@ -56,8 +56,8 @@ const getValueExtDose = (request, response) => {
  
   // Формирование условий для SQL-запроса на основе полученных параметров
   const whereParts = params.reduce((arr, param) => {
-    if (requestParams[param] && requestParams[param].toLowerCase() !== 'null') {
-      arr.push(`vid.${param} in (${requestParams[param]})`);
+    if (requestParams[param]) {
+      arr.push(`(vid.${param} in (${requestParams[param]}) OR vid.${param} IS NULL)`);
     }
     return arr;
   }, []);
@@ -67,8 +67,8 @@ const getValueExtDose = (request, response) => {
 
   // Формирование полного SQL-запроса, включая выборку, соединение таблиц и условия
   const select_fields = `select vid.*, ds.title as "data_source_title", o_nls.name as "organ_name_rus",
-    in2.name as "irradiation_name_rus", i.title as "isotope_title",
-    dr.title  as "dose_ratio_title"`;
+    in2.name as "irradiation_name_rus", an.name as "agegroup_name_rus", i.title as "isotope_title", pcn."name" as "people_class_name_rus",
+    dr.title  as "dose_ratio_title", rtn."name" as "rad_type_name_rus" `;
 
   const s_query = `${select_fields}
     from nucl.value_ext_dose vid
@@ -76,8 +76,10 @@ const getValueExtDose = (request, response) => {
     left join nucl.organ_nls o_nls on o_nls.organ_id = vid.organ_id and o_nls.lang_id = 1
     left join nucl.irradiation_nls in2 on in2.irradiation_id = vid.irradiation_id and in2.lang_id = 1
     left join nucl.isotope i on i.id = vid.isotope_id
+    left join nucl.agegroup_nls an on an.agegroup_id = vid.agegroup_id and an.lang_id = 1
     left join nucl.dose_ratio dr on dr.id = vid.dose_ratio_id
     left join nucl.people_class_nls pcn on pcn.people_class_id = vid.people_class_id and pcn.lang_id = 1
+    left join nucl.radiation_type_nls rtn on rtn.rad_type_code = vid.rad_type_code and rtn.lang_id = 1
     ${whereClause}
     order by id
     limit 5000`;
@@ -95,12 +97,12 @@ const getValueExtDose = (request, response) => {
 
 const updateValueExtDose = (request, response, table_name) => {
   const id = parseInt(request.params.id); // Извлечение значения id из параметров запроса
-  const { dose_ratio_id, dr_value, chem_comp_gr_id } = request.body; // Деструктуризация полей из тела запроса
+  const { dose_ratio_id, dr_value } = request.body; // Деструктуризация полей из тела запроса
 
   pool.query(
-    `UPDATE nucl.value_ext_dose SET dose_ratio_id = $1, dr_value=$2, updatetime = NOW(),
-    chem_comp_gr_id=$3 WHERE id = $4`, // Запрос на обновление записи в таблице nucl.value_int_dose
-    [dose_ratio_id, dr_value, chem_comp_gr_id, id], // Параметры для запроса
+    `UPDATE nucl.value_ext_dose SET dose_ratio_id = $1, dr_value=$2, updatetime = NOW()
+    WHERE id = $3`, // Запрос на обновление записи в таблице nucl.value_int_dose
+    [dose_ratio_id, dr_value, id], // Параметры для запроса
     (err, res) => {
       if (err) {
         console.error(`Ошибка при обновлении записи`, err.stack);
@@ -113,8 +115,8 @@ const updateValueExtDose = (request, response, table_name) => {
 }
 
 const createValueExtDose = (request, response) => {
-  const { dose_ratio_id, dr_value, people_class_id, isotope_id, organ_id, data_source_id,
-    irradiation_id } = request.body;
+  const { dose_ratio_id, dr_value, people_class_id, isotope_id, organ_id, agegroup_id, data_source_id,
+    irradiation_id, rad_type_code } = request.body;
 
   const values = [
     dose_ratio_id,
@@ -122,15 +124,15 @@ const createValueExtDose = (request, response) => {
     people_class_id,
     isotope_id,
     organ_id,
+    agegroup_id,
     data_source_id,
-    irradiation_id
+    irradiation_id,
+    rad_type_code
   ];
 
-
-
   const s_query = `INSERT INTO nucl.value_ext_dose (dose_ratio_id, dr_value, people_class_id, 
-    isotope_id, organ_id, data_source_id, irradiation_id) 
-    VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING id`;
+    isotope_id, organ_id, agegroup_id, data_source_id, irradiation_id, rad_type_code) 
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9) RETURNING id`;
 
   console.log(s_query, values); 
 
