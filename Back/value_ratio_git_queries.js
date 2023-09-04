@@ -68,13 +68,15 @@ const getValueRatioGit = (request, response) => {
 
   // Формирование полного SQL-запроса, включая выборку, соединение таблиц и условия
   const select_fields = `select vid.*, ds.title as "data_source_title",
-    in2.name as "irradiation_name_rus",
-    dr.title  as "dose_ratio_title", an.name as "agegroup_name_rus",
-    sfn."name" as "subst_form_name_rus", asn."name" as "aerosol_sol_name_rus",
-    pcn."name" as "people_class_name_rus", ccgn."name" as "chem_comp_group_name_rus"`;
+  in2.name as "irradiation_name_rus",
+  dr.title as "dose_ratio_title", an.name as "agegroup_name_rus",
+  sfn."name" as "subst_form_name_rus", asn."name" as "aerosol_sol_name_rus",
+  pcn."name" as "people_class_name_rus", ccgn."name" as "chem_comp_group_name_rus",
+  ch.title as "chelement_title" 
+  `;
 
   const s_query = `${select_fields}
-    from nucl.value_int_dose vid
+    from nucl.value_ratio_git vid
     left join nucl.data_source ds on ds.id = vid.data_source_id
     left join nucl.irradiation_nls in2 on in2.irradiation_id = vid.irradiation_id and in2.lang_id = 1
     left join nucl.dose_ratio dr on dr.id = vid.dose_ratio_id
@@ -83,9 +85,9 @@ const getValueRatioGit = (request, response) => {
     left join nucl.aerosol_sol_nls asn on asn.aerosol_sol_id = vid.aerosol_sol_id and asn.lang_id = 1
     left join nucl.people_class_nls pcn on pcn.people_class_id = vid.people_class_id and pcn.lang_id = 1
     left join nucl.chem_comp_gr_nls ccgn on ccgn.chem_comp_gr_id = vid.chem_comp_gr_id and ccgn.lang_id = 1
+    left join nucl.chelement ch on ch.id = vid.chelement_id
     ${whereClause}
-    order by pcn."name", i.title, ip.name, o_nls.name, an.name, esn."name", sfn."name", ccgn."name", 
-    asn."name", aan."name", lln."name", ds.title, vid.dr_value  
+    order by pcn."name", an.name, sfn."name", ccgn."name", asn."name", ds.title 
     limit 50000`;
     
   console.log( s_query );
@@ -101,12 +103,12 @@ const getValueRatioGit = (request, response) => {
 
 const updateValueRatioGit = (request, response, table_name) => {
   const id = parseInt(request.params.id); // Извлечение значения id из параметров запроса
-  const { dose_ratio_id, dr_value, chem_comp_gr_id } = request.body; // Деструктуризация полей из тела запроса
+  const { f1_value } = request.body; // Деструктуризация полей из тела запроса
 
   pool.query(
-    `UPDATE nucl.value_int_dose SET dose_ratio_id = $1, dr_value=$2, updatetime = NOW(),
-    chem_comp_gr_id=$3 WHERE id = $4`, // Запрос на обновление записи в таблице  
-    [dose_ratio_id, dr_value, chem_comp_gr_id, id], // Параметры для запроса
+    `UPDATE nucl.value_ratio_git SET f1_value=$1, updatetime = NOW()
+    WHERE id = $2`, // Запрос на обновление записи 
+    [f1_value, id], // Параметры для запроса
     (err, res) => {
       if (err) {
         console.error(`Ошибка при обновлении записи`, err.stack);
@@ -121,25 +123,25 @@ const updateValueRatioGit = (request, response, table_name) => {
 const createValueRatioGit = (request, response) => {
 
   console.log(request.body);
-  const { dose_ratio_id, dr_value, chem_comp_gr_id, people_class_id, agegroup_id, data_source_id, subst_form_id, aerosol_sol_id,
-    irradiation_id } = request.body;
+  const { dose_ratio_id, f1_value, chem_comp_gr_id, people_class_id, agegroup_id, data_source_id, subst_form_id, aerosol_sol_id,
+    irradiation_id, chelement_id } = request.body;
 
   const values = [
     dose_ratio_id,
-    dr_value,
+    f1_value,
     chem_comp_gr_id,
     people_class_id,
     agegroup_id,
     data_source_id,
     subst_form_id,
     aerosol_sol_id,
-    irradiation_id
+    irradiation_id,
+    chelement_id
   ];
 
-  const s_query = `INSERT INTO nucl.value_int_dose (dose_ratio_id, chem_comp_gr_id, people_class_id,
-     agegroup_id, data_source_id, subst_form_id, 
-    aerosol_sol_id, exp_scenario_id, irradiation_id) 
-    VALUES ($1, $2, $3, $4, $5, $6, $7, $8,) RETURNING id`;
+  const s_query = `INSERT INTO nucl.value_ratio_git (dose_ratio_id, f1_value, chem_comp_gr_id, people_class_id,
+    agegroup_id, data_source_id, subst_form_id, aerosol_sol_id, irradiation_id, chelement_id) 
+    VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10) RETURNING id`;
 
   console.log(s_query, values); 
 
@@ -160,7 +162,7 @@ const deleteValueRatioGit = (request, response) => {
     return response.status(400).send('Invalid ID');
   }
 
-  pool.query('DELETE FROM nucl.value_int_dose WHERE id = $1', [id], (error, results) => {
+  pool.query('DELETE FROM nucl.value_ratio_git WHERE id = $1', [id], (error, results) => {
     if (error) {
       console.error(error.message);
       return response.status(500).send('Server error');
@@ -177,7 +179,7 @@ const deleteValueRatioGit = (request, response) => {
 }
 
 const getRatioGitAttr = (request, response) => {
-  pool.query(` SELECT * from nucl.int_dose_attr_mv `, (error, results) => {
+  pool.query(` SELECT * from nucl.ratio_git_attr_mv `, (error, results) => {
     if (error) {
       throw error
     }

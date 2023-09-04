@@ -24,7 +24,8 @@ export const table_names = {
   'value_ext_dose': 'Внешнее облучение',
   'data_source_class': 'Связь с источником данных',
   'action_criterion': 'Действие критерия',
-  'radiation_type': 'Типы излучения' 
+  'radiation_type': 'Типы излучения',
+  'value_ratio_git': 'Поглощение в ЖКТ (f1)'
 }; 
   
 export default table_names;

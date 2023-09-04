@@ -1,7 +1,7 @@
 /**
- * Модуль, предоставляющий интерфейс пользователя для работы с данными о дозах внешнего облучения.
+ * Модуль, предоставляющий интерфейс пользователя для работы с данными о дозах облучения ЖКТ.
  * 
- * Этот модуль подразумевает использование API, реализованное в value_ext_dose_queries.
+ * Этот модуль подразумевает использование API, реализованное в value_ratio_git_queries.
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -90,9 +90,9 @@ const LightTooltip = styled(({ className, ...props }) => (
   },
 }));
 
-const BigTableValueExtDose = (props) => {
+const BigTableValueRatioGit = (props) => {
   const apiRef = useGridApiRef(); // init DataGrid API for scrolling
-  const [tableValueExtDose, setTableValueExtDose] = useState([]); 
+  const [tableValueRatioGit, setTableValueRatioGit] = useState([]); 
   const [rowSelectionModel, setRowSelectionModel] = React.useState([]);
   const [valueID, setValueID] = React.useState();
   const [valueIDInitial, setValueIDInitial] = React.useState();
@@ -100,14 +100,14 @@ const BigTableValueExtDose = (props) => {
   const [valueIrradiationID, setValueIrradiationID] = React.useState();
   const [valuePeopleClassID, setValuePeopleClassID] = React.useState();
   const [valueSubstFormID, setValueSubstFormID] = React.useState();
-  const [valueIsotopeID, setValueIsotopeID] = React.useState();
-  const [valueIntegralPeriodID, setValueIntegralPeriodID] = React.useState();
+  const [valueChelementID, setValueChelementID] = React.useState();
   const [valueOrganID, setValueOrganID] = React.useState();
   const [valueAgeGroupID, setValueAgeGroupID] = React.useState();
   const [valueDataSourceID, setValueDataSourceID] = React.useState();
   const [valueDrValue, setValueDrValue] = React.useState();
+  const [valueChemCompGrID, setValueChemCompGrID] = React.useState(null);
+  const [valueAerosolSolID, setValueAerosolSolID] = React.useState();
   const [valueUpdateTime, setValueUpdateTime] = React.useState();
-  const [valueRadTypeCode, setValueRadTypeCode] = React.useState('');
 
   // состояния Accordion-а
   const [isTableExpanded, setIsTableExpanded] = useState(false);
@@ -136,18 +136,18 @@ const BigTableValueExtDose = (props) => {
     setValueIDInitial(params.row.id);
     setValueDoseRatioID(params.row.dose_ratio_id);
     setValuePeopleClassID(params.row.people_class_id);
-    setValueIsotopeID(params.row.isotope_id);
+    setValueChelementID(params.row.chelement_id);
     setValueOrganID(params.row.organ_id);
     setValueAgeGroupID(params.row.agegroup_id);
     setValueDataSourceID(params.row.data_source_id);
-    setValueDrValue(params.row.dr_value);
-    setValueRadTypeCode(params.row.rad_type_code);
+    setValueDrValue(params.row.f1_value);
+    setValueChemCompGrID(params.row.chem_comp_gr_id);
     setValueSubstFormID(params.row.subst_form_id);
     setValueIrradiationID(params.row.irradiation_id);
     setValueUpdateTime( formatDate(params.row.updatetime) ); 
-  }, [setValueID, setValueIDInitial, setValueDoseRatioID, setValuePeopleClassID, setValueIsotopeID, 
-    setValueIntegralPeriodID, setValueOrganID, setValueAgeGroupID, 
-    setValueDataSourceID, setValueDrValue, setValueRadTypeCode, setValueSubstFormID, setValueIrradiationID, setValueUpdateTime]); 
+  }, [setValueID, setValueIDInitial, setValueDoseRatioID, setValuePeopleClassID, setValueChelementID, 
+    setValueOrganID, setValueAgeGroupID, 
+    setValueDataSourceID, setValueDrValue, setValueChemCompGrID, setValueSubstFormID, setValueAerosolSolID, setValueIrradiationID, setValueUpdateTime]); 
 
   const handleRowClickAndCloseAlert = (rowParams) => {
     handleRowClick(rowParams);
@@ -155,25 +155,25 @@ const BigTableValueExtDose = (props) => {
   };    
 
   // Scrolling and positionning
-  const { paginationModel, setPaginationModel, scrollToIndexRef } = useGridScrollPagination(apiRef, tableValueExtDose, setRowSelectionModel);
+  const { paginationModel, setPaginationModel, scrollToIndexRef } = useGridScrollPagination(apiRef, tableValueRatioGit, setRowSelectionModel);
 
   // заголовки столбцов основной таблицы
-  const columnsValueExtDose = [
+  const columnsValueRatioGit = [
     { field: 'id', headerName: 'ID', width: 100 },
     { field: 'people_class_name_rus', headerName: 'Тип облучаемых лиц', width: 180 },
-    { field: 'isotope_title', headerName: 'Нуклид', width: 100 },
+    { field: 'chelement_title', headerName: 'Химический элемент', width: 100 },
     { field: 'organ_name_rus', headerName: 'Орган', width: 200 },
     { field: 'agegroup_name_rus', headerName: 'Возрастная группа населения', width: 200 },
+    { field: 'subst_form_name_rus', headerName: 'Форма вещества', width: 200 },    
+    { field: 'aerosol_sol_name_rus', headerName: 'Тип растворимости аэрозолей', width: 200 },
     { field: 'data_source_title', headerName: 'Источник данных', width: 200 },
-    { field: 'dr_value', headerName: 'Значение', width: 180 },
+    { field: 'f1_value', headerName: 'Значение', width: 180 },
     { 
       field: 'updatetime', 
       headerName: 'Время последнего измерения', 
       width: 280,
       valueGetter: (params) => formatDate(params.value)
     },    
-    { field: 'rad_type_name_rus', headerName: 'Тип излучения', width: 200 },
-/*     { field: 'dose_ratio_title', headerName: 'Параметр', width: 200 }, */
    ]
 
   //объект для хранения текущего состояния фильтра - значения, выбранные в автокомплитах
@@ -182,10 +182,11 @@ const BigTableValueExtDose = (props) => {
     selDoseRatioValue: null,
     selOrganValues: [],
     selIrradiationValue: null,
-    selIsotopeValues: [],
+    selSubstFormValues: [],
+    selChelementValues: [],    
     selPeopleClassValues: [],
-    selRadTypeValues: [],
     selAgeGroupValues: [],
+    selAerosolSolValues: [],
   });
 
   //примененный setApplFlt - то, что применено к таблице
@@ -194,10 +195,11 @@ const BigTableValueExtDose = (props) => {
     selDoseRatioValue: null,
     selOrganValues: [],
     selIrradiationValue: null,
-    selIsotopeValues: [],
+    selSubstFormValues: [],
+    selChelementValues: [],
     selPeopleClassValues: [],
-    selRegionRTValues: [],
     selAgeGroupValues: [],
+    selAerosolSolValues: [],
   });
 
   const handleClearFilter = () => {
@@ -206,9 +208,11 @@ const BigTableValueExtDose = (props) => {
       selDoseRatioValue: null,
       selOrganValues: [],
       selIrradiationValue: null,
-      selIsotopeValues: [],
+      selSubstFormValues: [],
+      selChelementValues: [],
       selPeopleClassValues: [],
-      selRadTypeValues: [],
+      selAgeGroupValues: [],
+      selAerosolSolValues: [],
     });
   }
   // Обновление текущего значения фильтра
@@ -226,11 +230,13 @@ const BigTableValueExtDose = (props) => {
       let newState = {...currFlt};
       // Следующее сделано для того, чтобы невидимые (скрытые) контролы не попадали в примененный фильтр
       if (!organVisible) { newState.selOrganValues = []; } 
+      if (!substFormVisible) { newState.selSubstFormValues = []; }
+      if (!aerosolSolVisible) { newState.selAerosolSolValues = []; }
       if (!agegroupVisible) { newState.selAgeGroupValues = []; }
-      if (!radTypeVisible) { newState.selRadTypeValues = []; }
-
+  
       setOrganVisibleD(organVisible);
-      setRadTypeVisibleD(radTypeVisible);  
+      setSubstFormVisibleD(substFormVisible);
+      setAerosolSolVisibleD(aerosolSolVisible);
       setAgegroupVisibleD(agegroupVisible);  
 
           // Обновляем значения состояний
@@ -246,14 +252,20 @@ const BigTableValueExtDose = (props) => {
       if (newState.selPeopleClassValues[0] && newState.selPeopleClassValues[0].id) {
         setValuePeopleClassID(newState.selPeopleClassValues[0].id);
       }
-      if (newState.selIsotopeValues[0] && newState.selIsotopeValues[0].id) {
-        setValueIsotopeID(newState.selIsotopeValues[0].id);
+      if (newState.selSubstFormValues[0] && newState.selSubstFormValues[0].id) {
+        setValueSubstFormID(newState.selSubstFormValues[0].id);
+      }
+      if (newState.selChelementValues[0] && newState.selChelementValues[0].id) {
+        setValueChelementID(newState.selChelementValues[0].id);
       }
       if (newState.selOrganValues[0] && newState.selOrganValues[0].id) {
         setValueOrganID(newState.selOrganValues[0].id);
       }
       if (newState.selAgeGroupValues[0] && newState.selAgeGroupValues[0].id) {
         setValueAgeGroupID(newState.selAgeGroupValues[0].id);
+      }
+      if (newState.selAerosolSolValues[0] && newState.selAerosolSolValues[0].id) {
+        setValueAerosolSolID(newState.selAerosolSolValues[0].id);
       }
       // Возвращаем новый объект, который будет новым состоянием
       return newState;
@@ -268,48 +280,54 @@ const BigTableValueExtDose = (props) => {
   const [tableOrganFiltered, settableOrganFiltered] = useState([]);
   const [tableIrradiation, setTableIrradiation] = useState([]);
   const [tableIrradiationFiltered, settableIrradiationFiltered] = useState([]);  
-  const [tableIsotope, setTableIsotope] = useState([]);
-  const [tableIsotopeFiltered, settableIsotopeFiltered] = useState([]);
+  const [tableChelement, setTableChelement] = useState([]);
+/*   const [tableChelementFiltered, settableChelementFiltered] = useState([]);
+ */  
   const [tableIntegralPeriod, setTableIntegralPeriod] = useState([]);
   const [tableDoseRatio, setTableDoseRatio] = useState([]);
   const [tableDoseRatioFiltered, settableDoseRatioFiltered] = useState([]);
   const [tableAgeGroup, setTableAgeGroup] = useState([]); //возрастные группы населения
   const [tableAgeGroupFiltered, settableAgeGroupFiltered] = useState([]);
+  const [tableSubstForm, setTableSubstForm] = useState([]); //формы вещества
+  const [tableSubstFormFiltered, settableSubstFormFiltered] = useState([]);
+  const [tableAerosolSol, setTableAerosolSol] = useState([]);  
+  const [tableAerosolSolFiltered, settableAerosolSolFiltered] = useState([]);  
   const [tablePeopleClass, setTablePeopleClass] = useState([]); //Типы облучаемых лиц
   const [tablePeopleClassFiltered, settablePeopleClassFiltered] = useState([]); //Типы облучаемых лиц  
-  const [tableRadType, setTableRadType] = useState([]); //Тип излучения
-  const [tableRadTypeFiltered, settableRadTypeFiltered] = useState([]); //Тип излучения
 
   //это только для добавления в автокомплит
   const [tableChemCompGr, setTableChemCompGr] = useState([]);  
-  const [tableExtDoseAttr, setTableExtDoseAttr] = useState([]); 
+  const [tableRatioGitAttr, setTableRatioGitAttr] = useState([]); 
   
   const [selectionModel, setselectionModel] = React.useState([]);
   const [tableDataSourceClass, setTableDataSourceClass] = useState([]);
   
-  const [searchValueNuclide, setSearchValueNuclide] = useState('');  
+  const [searchValueChelement, setSearchValueChelement] = useState('');  
   const [searchValueDataSource, setSearchValueDataSource] = useState('');  
   const [searchValuePeopleClass, setSearchValuePeopleClass] = useState('');
   const [searchValueOrgan, setSearchValueOrgan] = useState('');
+  const [searchValueSubstForm, setSearchValueSubstForm] = useState('');
+  const [searchValueAerosolSol, setSearchValueAerosolSol] = useState('');
   const [searchValueAgeGroup, setSearchValueAgeGroup] = useState('');
-  const [searchValueRadType, setSearchValueRadType] = useState('');
 
   // Состояния, определяющие видимость выпадающих списков
   const [organVisible, setOrganVisible] = useState(false);
+  const [substFormVisible, setSubstFormVisible] = useState(false);
+  const [aerosolSolVisible, setAerosolSolVisible] = useState(false);
   const [agegroupVisible, setAgegroupVisible] = useState(false);
-  const [radTypeVisible, setRadTypeVisible] = useState(false);
   
   // Состояния, определяющие видимость выпадающих списков в диалоге
   const [organVisibleD, setOrganVisibleD] = useState(false);
+  const [substFormVisibleD, setSubstFormVisibleD] = useState(false);
+  const [aerosolSolVisibleD, setAerosolSolVisibleD] = useState(false);
   const [agegroupVisibleD, setAgegroupVisibleD] = useState(false);
-  const [radTypeVisibleD, setRadTypeVisibleD] = useState(false);
 
   useEffect(() => { 
     let isOrganVisible = false;
     
     if ((currFlt.selDoseRatioValue && currFlt.selDoseRatioValue.hasOwnProperty('id')) ||
         (currFlt.selDataSourceValues && currFlt.selDataSourceValues.length > 0)) {
-      tableExtDoseAttr.forEach(item => {
+      tableRatioGitAttr.forEach(item => {
         const matchDoseRatio = currFlt.selDoseRatioValue && item.dose_ratio_id === currFlt.selDoseRatioValue.id;
         const matchDataSource = currFlt.selDataSourceValues.some(dataSource => dataSource.id === item.data_source_id);
         if(matchDoseRatio && matchDataSource){
@@ -321,44 +339,64 @@ const BigTableValueExtDose = (props) => {
     setOrganVisible(isOrganVisible);
     if (!isOrganVisible)
       updateCurrentFilter({ selOrganValues: [] });     
-  }, [ tableExtDoseAttr, currFlt.selDoseRatioValue, currFlt.selDataSourceValues ]);
+  }, [ tableRatioGitAttr, currFlt.selDoseRatioValue, currFlt.selDataSourceValues ]);
 
 
   useEffect(() => { 
-    // Получаем все уникальные data_source_id из tableExtDoseAttr
-    const uniqueDataSourceIds = [...new Set(tableExtDoseAttr.map(item => item.data_source_id))];
+    // Получаем все уникальные data_source_id из tableRatioGitAttr
+    const uniqueDataSourceIds = [...new Set(tableRatioGitAttr.map(item => item.data_source_id))];
     // Фильтруем tableDataSource по уникальным data_source_id
     const filteredDataSource = tableDataSource.filter(item => uniqueDataSourceIds.includes(item.id));
     // Устанавливаем отфильтрованные данные в состояние
     setTableDataSourceFiltered(filteredDataSource);
-  }, [tableExtDoseAttr, tableDataSource]);
+  }, [tableRatioGitAttr, tableDataSource]);
   
   
    useEffect(() => { 
-    let isRadTypeVisible = false;
+    let isSubstFormVisible = false;
+
+    console.log('currFlt.selIrradiationValue',currFlt.selIrradiationValue);
     
     if ((currFlt.selIrradiationValue && currFlt.selIrradiationValue.hasOwnProperty('id')) ||
         (currFlt.selDataSourceValues && currFlt.selDataSourceValues.length > 0)) {
-      tableExtDoseAttr.forEach(item => {
+      tableRatioGitAttr.forEach(item => {
         const matchIrradiation = currFlt.selIrradiationValue && item.irradiation_id === currFlt.selIrradiationValue.id;
         const matchDataSource = currFlt.selDataSourceValues.some(dataSource => dataSource.id === item.data_source_id);
         if(matchIrradiation && matchDataSource){
-          if(item.rad_type_code > '0') isRadTypeVisible = true;
+          if(item.subst_form_id >= 0) isSubstFormVisible = true;
         }
       });
     }
+
+    console.log('isSubstFormVisible', isSubstFormVisible);
     
-    setRadTypeVisible(isRadTypeVisible);
-    if (!isRadTypeVisible)
-      updateCurrentFilter({ selRadTypeValues: [] }); 
-  }, [tableExtDoseAttr, currFlt.selIrradiationValue, currFlt.selDataSourceValues]);
+    setSubstFormVisible(isSubstFormVisible);
+    if (!isSubstFormVisible)
+      updateCurrentFilter({ selSubstFormValues: [] }); 
+  }, [tableRatioGitAttr, currFlt.selIrradiationValue, currFlt.selDataSourceValues]);
   
+  useEffect(() => { 
+    let isAerosolSolVisible = false;
+    if ((currFlt.selSubstFormValues && currFlt.selSubstFormValues.length > 0) ||
+        (currFlt.selDataSourceValues && currFlt.selDataSourceValues.length > 0)) {
+      tableRatioGitAttr.forEach(item => {
+        const matchSubstForm = currFlt.selSubstFormValues.some(substForm => substForm.id === item.subst_form_id);
+        const matchDataSource = currFlt.selDataSourceValues.some(dataSource => dataSource.id === item.data_source_id);
+        if(matchSubstForm && matchDataSource){
+          if(item.aerosol_sol_id >= 0) isAerosolSolVisible = true;
+        }
+      });
+    }
+    setAerosolSolVisible(isAerosolSolVisible);
+    if (!isAerosolSolVisible)
+      updateCurrentFilter({ selAerosolSolValues: [] }); 
+  }, [tableRatioGitAttr, currFlt.selSubstFormValues, currFlt.selDataSourceValues]);
   useEffect(() => { 
     let isAgegroupVisible = false;
     
     if ((currFlt.selPeopleClassValues && currFlt.selPeopleClassValues.length > 0) ||
         (currFlt.selDataSourceValues && currFlt.selDataSourceValues.length > 0)) {
-      tableExtDoseAttr.forEach(item => {
+      tableRatioGitAttr.forEach(item => {
         const matchPeopleClass = currFlt.selPeopleClassValues.some(peopleClass => peopleClass.id === item.people_class_id);
         const matchDataSource = currFlt.selDataSourceValues.some(dataSource => dataSource.id === item.data_source_id);
         if(matchPeopleClass && matchDataSource){
@@ -370,7 +408,7 @@ const BigTableValueExtDose = (props) => {
     setAgegroupVisible(isAgegroupVisible);
     if (!isAgegroupVisible)
       updateCurrentFilter({ selAgeGroupValues: [] });     
-  }, [tableExtDoseAttr, currFlt.selPeopleClassValues, currFlt.selDataSourceValues]);
+  }, [tableRatioGitAttr, currFlt.selPeopleClassValues, currFlt.selDataSourceValues]);
 
   const handleChangeDataSource = (event, value) => {
     // Обновление значения компонента Autocomplete
@@ -379,10 +417,11 @@ const BigTableValueExtDose = (props) => {
       selDoseRatioValue: null,
       selOrganValues: [],
       selIrradiationValue: null,
-      selRadTypeValues: [],
-      selIsotopeValues: [],
+      selSubstFormValues: [],
+      selChelementValues: [],
       selPeopleClassValues: [],
       selAgeGroupValues: [],
+      selAerosolSolValues: [],
     };
     updateCurrentFilter(newFilter);
   };  
@@ -409,7 +448,7 @@ const BigTableValueExtDose = (props) => {
     //отфильтровали dose_ratio.id для выбранных источников данных, чтобы отфильтровать его автокомплит
     let ids_dose_ratio = tableDataSourceClass.filter(item => ((item.table_name === 'dose_ratio' )&&(ids.includes(item.data_source_id))) ).map(item => item.rec_id);
     let filteredDoseRatio = tableDoseRatio.filter(item => ((ids_dose_ratio.includes(item.id))) );
-    console.log('filteredDoseRatio', filteredDoseRatio);
+    //console.log('filteredDoseRatio', filteredDoseRatio);
     settableDoseRatioFiltered( filteredDoseRatio ); 
     // если отфильтрованная таблица DoseRatio не содержит значение, выбранное в выпадающем списке
     if ((filteredDoseRatio&&currFlt.selDoseRatioValue)&&(!filteredDoseRatio.some(item => item.id === currFlt.selDoseRatioValue.id) )) 
@@ -418,12 +457,23 @@ const BigTableValueExtDose = (props) => {
     // то же самое для остальных автокомплитов
     let ids_irradiation = tableDataSourceClass.filter(item => ((item.table_name === 'irradiation' )&&(ids.includes(item.data_source_id))) ).map(item => item.rec_id);
     let filteredIrradiation = tableIrradiation.filter(item => ((ids_irradiation.includes(item.id))) );
-    const prefix = "EXT_";
+    const prefix = "INT_";
     filteredIrradiation = filteredIrradiation.filter(irradiation => irradiation.title.startsWith(prefix));
 
     settableIrradiationFiltered( filteredIrradiation ); 
     if ((filteredIrradiation&&currFlt.selIrradiationValue)&&(!filteredIrradiation.some(item => item.id === currFlt.selIrradiationValue.id) )) 
       updateCurrentFilter({ selIrradiationValue: [] });
+
+    let ids_subst_form = tableDataSourceClass.filter(item => ((item.table_name === 'subst_form' )&&(ids.includes(item.data_source_id))) ).map(item => item.rec_id);
+    let filteredSubstForm = tableSubstForm.filter(item => ((ids_subst_form.includes(item.id))) );
+    settableSubstFormFiltered( filteredSubstForm ); 
+    //удалить недоступные значения из фильтра, а если фильтр не виден, то очистить
+    let newSubstFormValues = [];
+    if (substFormVisible) {
+      newSubstFormValues = currFlt.selSubstFormValues.filter((value) => 
+        filteredSubstForm.some((filteredValue) => filteredValue.id === value.id));
+    }
+    updateCurrentFilter({ selSubstFormValues: newSubstFormValues });
 
     let ids_people_class = tableDataSourceClass.filter(item => ((item.table_name === 'people_class' )&&(ids.includes(item.data_source_id))) ).map(item => item.rec_id);
     let filteredPeopleClass = tablePeopleClass.filter(item => ((ids_people_class.includes(item.id))) );
@@ -443,57 +493,42 @@ const BigTableValueExtDose = (props) => {
     }
     updateCurrentFilter({ selAgeGroupValues: newAgeGroupValues });
 
-    let ids_rad_type = tableDataSourceClass.filter(item => ((item.table_name === 'radiation_type' )&&(ids.includes(item.data_source_id))) ).map(item => item.rec_id);
-    let filteredRadType = tableRadType.filter(item => ((ids_rad_type.includes(item.id))) );
-    settableRadTypeFiltered( filteredRadType );
-    let newRadTypeValues = [];
-    if (radTypeVisible) {
-      newRadTypeValues = currFlt.selRadTypeValues.filter((value) => 
-        filteredRadType.some((filteredValue) => filteredValue.id === value.id));
+    let ids_aerosol_sol = tableDataSourceClass.filter(item => ((item.table_name === 'aerosol_sol' )&&(ids.includes(item.data_source_id))) ).map(item => item.rec_id);
+    let filteredAerosolSol = tableAerosolSol.filter(item => ((ids_aerosol_sol.includes(item.id))) );
+    settableAerosolSolFiltered( filteredAerosolSol );
+    
+    let newAerosolSolValues = [];
+    if (aerosolSolVisible) {
+      newAerosolSolValues = currFlt.selAerosolSolValues.filter((value) => 
+        filteredAerosolSol.some((filteredValue) => filteredValue.id === value.id));
     }
-    updateCurrentFilter({ selRadTypeValues: newRadTypeValues });
+    updateCurrentFilter({ selAerosolSolValues: newAerosolSolValues });
 
-
-    let ids_organ = tableDataSourceClass.filter(item => ((item.table_name === 'organ' )&&(ids.includes(item.data_source_id))) ).map(item => item.rec_id);
-    let filteredOrgan = tableOrgan.filter(item => ((ids_organ.includes(item.id))) );
-
-    // Добавление родительских элементов
-    filteredOrgan.forEach(item => {
-      addParentItems(item, tableOrgan, filteredOrgan);
-    });
-
-    settableOrganFiltered( filteredOrgan );     
-    //удалить недоступные значения из фильтра
-    let newOrganValues = [];
-    if (organVisible) {
-      newOrganValues = currFlt.selOrganValues.filter((value) => 
-        filteredOrgan.some((filteredValue) => filteredValue.id === value.id));
-    }
-    updateCurrentFilter({ selOrganValues: newOrganValues });       
-
-    let ids_isotope = tableDataSourceClass.filter(item => ((item.table_name === 'isotope' )&&(ids.includes(item.data_source_id))) ).map(item => item.rec_id);
-    let filteredIsotope = tableIsotope.filter(item => ((ids_isotope.includes(item.id))) );
-    settableIsotopeFiltered( filteredIsotope );
+/*     let ids_chelement = tableDataSourceClass.filter(item => ((item.table_name === 'chelement' )&&(ids.includes(item.data_source_id))) ).map(item => item.rec_id);
+    let filteredChelement = tableChelement.filter(item => ((ids_chelement.includes(item.id))) );
+    settableChelementFiltered( filteredChelement );
      //удалить недоступные значения из фильтра
-    const newIsotopeValues = currFlt.selIsotopeValues.filter((value) => 
-      filteredIsotope.some((filteredValue) => filteredValue.id === value.id));
-    updateCurrentFilter({ selIsotopeValues: newIsotopeValues });      
+    const newChelementValues = currFlt.selChelementValues.filter((value) => 
+      filteredChelement.some((filteredValue) => filteredValue.id === value.id));
+    updateCurrentFilter({ selChelementValues: newChelementValues });   */    
 
        // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currFlt.selDataSourceValues,
       organVisible,
+      substFormVisible,
+      aerosolSolVisible,
       agegroupVisible,
-      radTypeVisible,
       tableDataSourceClass, 
       tableDoseRatio, 
       tableIrradiation,
       tableIntegralPeriod,  
-      tableIsotope, 
+      tableChelement, 
+      tableSubstForm,
       tablePeopleClass,
       tableAgeGroup,
       tableOrgan,
-      tableExtDoseAttr,
-      tableRadType
+      tableAerosolSol,
+      tableRatioGitAttr
     ]);
  
   //обработчики автокомплитов
@@ -525,7 +560,7 @@ const BigTableValueExtDose = (props) => {
 
   const handleCloseEditNo = () => {
     if (valueIDInitial) {
-      const foundRow = tableValueExtDose.find(row => row.id === valueIDInitial);
+      const foundRow = tableValueRatioGit.find(row => row.id === valueIDInitial);
       if (foundRow) {
         handleRowClick({ row: foundRow });
       }
@@ -562,8 +597,8 @@ const BigTableValueExtDose = (props) => {
     if (formRefDialog.current.reportValidity() ) {
       const js = JSON.stringify({
         dose_ratio_id: valueDoseRatioID,
-        dr_value: valueDrValue,
-        rad_type_code: valueRadTypeCode    
+        f1_value: valueDrValue,
+        chem_comp_gr_id: valueChemCompGrID    
       });
   
       if (!valueID) {
@@ -603,14 +638,16 @@ const BigTableValueExtDose = (props) => {
 const addRec = async () => {
   const js = JSON.stringify({
     dose_ratio_id: valueDoseRatioID,
-    dr_value: valueDrValue,
+    f1_value: valueDrValue,
+    chem_comp_gr_id: valueChemCompGrID,
     people_class_id: valuePeopleClassID,
-    isotope_id: valueIsotopeID,
+    chelement_id: valueChelementID,
     organ_id: valueOrganID,
     agegroup_id: valueAgeGroupID,
     data_source_id: valueDataSourceID,
+    subst_form_id: valueSubstFormID,
+    aerosol_sol_id: valueAerosolSolID,
     irradiation_id: valueIrradiationID,
-    rad_type_code: valueRadTypeCode,
   });
 
   setIsLoading(true);
@@ -627,7 +664,7 @@ const addRec = async () => {
 
     let responseText = await response.text();
     
-    if (responseText.includes('value_ext_dose_1_uidx')) {
+    if (responseText.includes('value_ratio_git_1_uidx')) {
       responseText = 'Запись не добавлена. Запись с таким набором значений классификаторов уже существует';
     } else if (response.ok) {
       responseText = 'Запись добавлена';
@@ -639,7 +676,7 @@ const addRec = async () => {
     setOpenAlert(true);
 
   } catch (err) {
-    const errorMessage = err.message.includes('value_ext_dose_1_uidx') 
+    const errorMessage = err.message.includes('value_ratio_git_1_uidx') 
       ? 'Запись не добавлена. Запись с таким набором значений классификаторов уже существует'
       : err.message;
 
@@ -689,9 +726,9 @@ const delRec = async () => {
       }
       else
       {
-        if (tableValueExtDose[0]) {
-          setValueID(tableValueExtDose[0].id);
-          setAddedId(tableValueExtDose[0].id);
+        if (tableValueRatioGit[0]) {
+          setValueID(tableValueRatioGit[0].id);
+          setAddedId(tableValueRatioGit[0].id);
         }
       }          
       reloadData();
@@ -719,22 +756,23 @@ useEffect(() => {
   fetchData('/data_source', setTableDataSource);
   fetchData(`/data_source_class_min`, setTableDataSourceClass);
   fetchData(`/irradiation`, setTableIrradiation);
-  fetchData(`/isotope_min`, setTableIsotope);
+  fetchData(`/chelement`, setTableChelement);
   fetchData(`/integral_period/`, setTableIntegralPeriod);
   fetchData(`/dose_ratio/`, setTableDoseRatio);
   fetchData(`/agegroup/`, setTableAgeGroup);
-  fetchData(`/radiation_type/`, setTableRadType);
+  fetchData(`/subst_form/`, setTableSubstForm);
+  fetchData(`/aerosol_sol/`, setTableAerosolSol);
   fetchData(`/people_class/`, setTablePeopleClass);
-  fetchData(`/ext_dose_attr`, setTableExtDoseAttr);
+  fetchData(`/chem_comp_gr_min/`, setTableChemCompGr);
+  fetchData(`/ratio_git_attr`, setTableRatioGitAttr);
   fetchData(`/organ`, setTableOrgan);
 }, [props.table_name]);
 
 const checkColumns = React.useCallback((data, flt) => {
   let columnsToShow = {
     'id': false,
-    'dr_value': true,
+    'f1_value': true,
     'updatetime': true,
-    'rad_type_code_name_rus': true,
     'dose_ratio_id': false,
     'irradiation_id': false
   };
@@ -742,9 +780,10 @@ const checkColumns = React.useCallback((data, flt) => {
   const specialCols = {
     'organ_name_rus': 'selOrganValues', 
     'agegroup_name_rus': 'selAgeGroupValues', 
-    'isotope_title': 'selIsotopeValues', 
+    'chelement_title': 'selChelementValues', 
+    'subst_form_name_rus': 'selSubstFormValues', 
+    'aerosol_sol_name_rus': 'selAerosolSolValues', 
     'people_class_name_rus': 'selPeopleClassValues',
-    'rad_type_name_rus': 'selRadTypeValues',
     'data_source_title': 'selDataSourceValues' 
   };
 
@@ -765,69 +804,8 @@ const checkColumns = React.useCallback((data, flt) => {
   }
 
   return columnsToShow;
-}, []);
+  }, []);
 
-/* 
-
-  const checkColumns = React.useCallback((data, flt) => {
-    let columnsToShow = {
-      'id': false,
-      'dr_value': true,
-      'updatetime': true,
-      'rad_type_code_name_rus': true,
-      'dose_ratio_id': false,
-      'irradiation_id': false
-    };
-  
-    const specialCols = {
-      'organ_name_rus': 'selOrganValues', 
-      'let_level_name_rus': 'selLetLevelValues', 
-      'agegroup_name_rus': 'selAgeGroupValues', 
-      'isotope_title': 'selIsotopeValues', 
-      'integral_period_name_rus': 'selIntegralPeriodValues', 
-      'subst_form_name_rus': 'selSubstFormValues', 
-      'aerosol_sol_name_rus': 'selAerosolSolValues', 
-      'aerosol_amad_name_rus': 'selAerosolAMADValues', 
-      'region_rt_name_rus': 'selRegionRTValues',
-      'exp_scenario_name_rus': 'selExpScenarioValues', 
-      'people_class_name_rus': 'selPeopleClassValues',
-      'data_source_title': 'selDataSourceValues' 
-    };
-    
-    if (data.length === 0) {
-      for (let key in specialCols) {
-        columnsToShow[key] = false;
-      }
-      console.log('data.length ', data.length, columnsToShow); 
-      return columnsToShow;
-    }    
-  
-    if (!data[0]) {
-      throw new Error('The first item in the data array is null or undefined');
-    }
-  
-    const columnNames = Object.keys(data[0]);
-
-    console.log('selOrganValues ', currFlt.selOrganValues);
-  
-    columnNames.forEach((colName) => {
-      if (colName in columnsToShow) return;
-      if (colName in specialCols) {
-        let currFltName = specialCols[colName];
-        const noFilterValues = !flt[currFltName] || flt[currFltName].length === 0;
-        if (noFilterValues) {
-          columnsToShow[colName] = false; // скрываем колонку, если в фильтре не выбрано ни одного значения
-        } else {
-          const onlyOneFilterValue = flt[currFltName] && flt[currFltName].length === 1;
-          const allColumnValuesSame = onlyOneFilterValue && data.every((row) => row[colName] === data[0][colName]);
-          columnsToShow[colName] = !allColumnValuesSame;
-        }
-      } else {
-        columnsToShow[colName] = false;
-      } 
-    });
-    return columnsToShow;
-  }, []); */
   
   const [vidColumnVisibilityModel, setVidColumnVisibilityModel] = useState();
 
@@ -842,7 +820,7 @@ const checkColumns = React.useCallback((data, flt) => {
   const reloadData = React.useCallback(async (wasAddOperation = false) => {
 
     if ((!applFlt.selDataSourceValues) || (applFlt.selDataSourceValues.length === 0)) {
-      setTableValueExtDose([]);
+      setTableValueRatioGit([]);
       return;
     }
   
@@ -852,16 +830,17 @@ const checkColumns = React.useCallback((data, flt) => {
         data_source_id: getIdList(applFlt.selDataSourceValues),
         organ_id: getIdList(applFlt.selOrganValues),
         irradiation_id: getIdList(applFlt.selIrradiationValue),
-        isotope_id: getIdList(applFlt.selIsotopeValues),
+        chelement_id: getIdList(applFlt.selChelementValues),
         dose_ratio_id: getIdList(applFlt.selDoseRatioValue),
         agegroup_id: getIdList(applFlt.selAgeGroupValues),
+        subst_form_id: getIdList(applFlt.selSubstFormValues),
+        aerosol_sol_id: getIdList(applFlt.selAerosolSolValues),
         people_class_id: getIdList(applFlt.selPeopleClassValues),
-        rad_type_code: getCodeList(applFlt.selRadTypeValues),
         page: pageState.page + 1,
         pagesize: pageState.pageSize
       });
   
-      const response = await fetch(`/value_ext_dose?${params}`); 
+      const response = await fetch(`/value_ratio_git?${params}`); 
   
       if (!response.ok) {
         setAlertSeverity("false");
@@ -871,7 +850,7 @@ const checkColumns = React.useCallback((data, flt) => {
       
       const result = await response.json();
       const vidColumnVisibilityModel1 = checkColumns(result, applFlt);
-      setTableValueExtDose(result);
+      setTableValueRatioGit(result);
       setVidColumnVisibilityModel(vidColumnVisibilityModel1);
 
       console.log( 'vidColumnVisibilityModel', vidColumnVisibilityModel1 );
@@ -913,7 +892,7 @@ const [shouldReload, setShouldReload] = useState(false);
 
 useEffect(() => {
   if ((!applFlt.selDataSourceValues) || (applFlt.selDataSourceValues.length === 0)) {
-    setTableValueExtDose([]);
+    setTableValueRatioGit([]);
     return;
   }  
 
@@ -940,20 +919,23 @@ useEffect(() => {
   }
 }, [shouldReload, reloadData]);
 
+const [tableSubstFormFilteredEdit, settableSubstFormFilteredEdit] = useState([]);
+const [tableAerosolSolFilteredEdit, settableAerosolSolFilteredEdit] = useState([]);
 const [tablePeopleClassFilteredEdit, settablePeopleClassFilteredEdit] = useState([]);
 const [tableAgeGroupFilteredEdit, settableAgeGroupFilteredEdit] = useState([]);
 const [tableIntegralPeriodFilteredEdit, settableIntegralPeriodFilteredEdit] = useState([]);
+const [tableChemCompGrFilteredEdit, settableChemCompGrFilteredEdit] = useState([]);
 const [tableOrganFilteredEdit, settableOrganFilteredEdit] = useState([]); //список органов в окне редактирования записи
-const [tableIsotopeFilteredEdit, settableIsotopeFilteredEdit] = useState([]);
-const [tableRadTypeFilteredEdit, settableRadTypeFilteredEdit] = useState([]);
+const [tableChelementFilteredEdit, settableChelementFilteredEdit] = useState([]);
 
 useEffect(() => { settableDataSourceFilteredEdit(applFlt.selDataSourceValues); }, [applFlt.selDataSourceValues]);
 useEffect(() => { settableOrganFilteredEdit(applFlt.selOrganValues); }, [applFlt.selOrganValues]);
+useEffect(() => { settableAerosolSolFilteredEdit(applFlt.selAerosolSolValues); }, [applFlt.selAerosolSolValues]);
+useEffect(() => { settableSubstFormFilteredEdit(applFlt.selSubstFormValues); }, [applFlt.selSubstFormValues]);
 useEffect(() => { settablePeopleClassFilteredEdit(applFlt.selPeopleClassValues); }, [applFlt.selPeopleClassValues]);
 useEffect(() => { settableAgeGroupFilteredEdit(applFlt.selAgeGroupValues); }, [applFlt.selAgeGroupValues]);
 useEffect(() => { settableIntegralPeriodFilteredEdit(applFlt.selIntegralPeriodValues); }, [applFlt.selIntegralPeriodValues]);
-useEffect(() => { settableIsotopeFilteredEdit(applFlt.selIsotopeValues); }, [applFlt.selIsotopeValues]);
-useEffect(() => { settableRadTypeFilteredEdit(applFlt.selRadTypeValues); }, [applFlt.selRadTypeValues]);
+useEffect(() => { settableChelementFilteredEdit(applFlt.selChelementValues); }, [applFlt.selChelementValues]);
 
 useEffect(() => {
   if (!valueDataSourceID) 
@@ -967,6 +949,9 @@ useEffect(() => {
       )
     );
 
+  const filteredTableChemCompGr = filterTable('chem_comp_gr', tableChemCompGr);
+
+  settableChemCompGrFilteredEdit(filteredTableChemCompGr);
      
 }, [tableDataSourceClass, valueDataSourceID, tableChemCompGr]);
 
@@ -1050,7 +1035,7 @@ const reloadDataHandler = async () => {
       const csvFilterCaption = formatFilterCaption(filterCaption);
       const customText = csvFilterCaption; 
       const dataToExport = rows.map((row) => {
-        const rowData = tableValueExtDose.find((item) => item.id === row);
+        const rowData = tableValueRatioGit.find((item) => item.id === row);
         if (rowData) {
             const valuesToExport = visibleColumns.map((column) => {
                 let cell = rowData[column.field];
@@ -1090,10 +1075,10 @@ const reloadDataHandler = async () => {
         <IconButton onClick={()=>handleClickEditNew()} disabled={false} color="primary" size="small" title="Создать запись">
           <SvgIcon fontSize="small" component={PlusLightIcon} inheritViewBox /></IconButton>
 
-        <IconButton onClick={()=>handleClickEdit()} disabled={(!valueID || !tableValueExtDose || tableValueExtDose.length === 0 )} color="primary" size="small" title="Редактировать запись">
+        <IconButton onClick={()=>handleClickEdit()} disabled={(!valueID || !tableValueRatioGit || tableValueRatioGit.length === 0 )} color="primary" size="small" title="Редактировать запись">
           <SvgIcon fontSize="small" component={EditLightIcon} inheritViewBox /></IconButton> 
 
-        <IconButton onClick={()=>handleClickDelete()} disabled={(!valueID || !tableValueExtDose || tableValueExtDose.length === 0 )} color="primary" size="small" title="Удалить запись">
+        <IconButton onClick={()=>handleClickDelete()} disabled={(!valueID || !tableValueRatioGit || tableValueRatioGit.length === 0 )} color="primary" size="small" title="Удалить запись">
           <SvgIcon fontSize="small" component={TrashLightIcon} inheritViewBox /></IconButton>
 
         <IconButton onClick={()=>setShouldReload(true)} color="primary" size="small" title="Обновить данные">
@@ -1109,7 +1094,7 @@ const reloadDataHandler = async () => {
           }
           color="primary"
           size="small"
-          disabled={( !tableValueExtDose || tableValueExtDose.length === 0 )}
+          disabled={( !tableValueRatioGit || tableValueRatioGit.length === 0 )}
           title="Сохранить в формате CSV"
         >
           <SvgIcon fontSize="small" component={DownloadLightIcon} inheritViewBox />
@@ -1130,7 +1115,7 @@ const reloadDataHandler = async () => {
         {applFlt.selDoseRatioValue && (
           <>
             Параметр: {applFlt.selDoseRatioValue.title}, {applFlt.selDoseRatioValue.name_rus}
-            , ед.измерения (базовая) {applFlt.selDoseRatioValue.sign}
+            {/* , ед.измерения (базовая) {applFlt.selDoseRatioValue.sign} */}
             {applFlt.selOrganValues.length === 1 ? `, ${applFlt.selOrganValues[0].name_rus}` : ''}
             <br />
           </>
@@ -1138,7 +1123,8 @@ const reloadDataHandler = async () => {
         {applFlt.selIrradiationValue && (
           <>
             Тип облучения: {applFlt.selIrradiationValue.name_rus}
-            {applFlt.selRadTypeValues.length === 1 ? `, ${applFlt.selRadTypeValues[0].name_rus}` : ''}
+            {applFlt.selSubstFormValues.length === 1 ? `, ${applFlt.selSubstFormValues[0].name_rus}` : ''}
+            {applFlt.selAerosolSolValues.length === 1 ? `, ${applFlt.selAerosolSolValues[0].name_rus}` : ''}
             <br />
           </>
         )}
@@ -1155,9 +1141,9 @@ const reloadDataHandler = async () => {
             <br />
           </>
         )}
-        {applFlt.selIsotopeValues.length === 1 && (
+        {applFlt.selChelementValues.length === 1 && (
           <>
-            Нуклид: {applFlt.selIsotopeValues[0].title}
+            Нуклид: {applFlt.selChelementValues[0].title}
             <br />
           </>
         )}
@@ -1321,7 +1307,7 @@ const reloadDataHandler = async () => {
             value={currFlt.selDoseRatioValue}
             onChange={handleChangeDoseRatio}
             id="autocomplete-dose_ratio"
-            options={tableDoseRatioFiltered.filter((row) => row.dr_type === "e")}
+            options={tableDoseRatioFiltered.filter((row) => row.dr_type === "f")}
             getOptionLabel={(option) => option ? `${option.title}, ${option.name_rus}` : ''}
             renderInput={(params) => {
               const inputProps = {
@@ -1482,37 +1468,144 @@ const reloadDataHandler = async () => {
 
 
            
-
-          {/* Тип радиации */}
+ 
           <Grid item xs={3}>
-            
+            { substFormVisible && ( 
+            <Grid container spacing={1}> 
+              <Grid item xs={11}>
+                <Autocomplete
+                  size="small"
+                  value={currFlt.selSubstFormValues}
+                  isOptionEqualToValue={(option, value) => option.id === value.id}
+                  onChange={(event, newValue) => {
+                    setCurrFlt({
+                      ...currFlt,
+                      selSubstFormValues: newValue,
+                    });
+                  }}
+                  onInputChange={(event, newInputValue, reason) => {
+                    if (reason !== "reset") {
+                      setSearchValueSubstForm(newInputValue);
+                    }
+                  }}
+                  onClose={() => { setSearchValueSubstForm(""); }}
+                  inputValue={searchValueSubstForm}
+                  multiple
+                  id="autocomplete-subst_form"
+                  options={tableSubstFormFiltered}
+                  disabled={ (!currFlt.selDataSourceValues.length) || (!currFlt.selIrradiationValue) }
+                  getOptionLabel={(option) => option.name_rus}
+                  disableCloseOnSelect
+                  renderOption={(props, option, { selected }) => (
+                    <li {...props}>
+                      <Checkbox
+                        size="small"
+                        icon={icon}
+                        checkedIcon={checkedIcon}
+                        style={{ marginRight: 8 }}
+                        checked={selected}
+                      />
+                      <Tooltip title={option.name_eng}>
+                        <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
+                          <span>{option.name_rus}</span>
+                          <span></span> 
+                        </div>
+                      </Tooltip>
+                    </li>
+                  )}
+                  renderInput={(params) => (
+                    <TextField
+                      {...params}
+                      InputProps={{
+                        ...params.InputProps,
+                        endAdornment: (
+                          <>
+                            {searchValueSubstForm && (
+                              <InputAdornment position="end">
+                                <LightTooltip title="Добавить найденные">
+                                <StyledIconButton
+                                  onClick={() => {
+                                    const filteredOptions = filterOptionsNameRus(tableSubstFormFiltered, { inputValue: searchValueSubstForm });
+                                    const newValues = [...currFlt.selSubstFormValues, ...filteredOptions];
+                                    setCurrFlt({
+                                      ...currFlt,
+                                      selSubstFormValues: newValues,
+                                    });
+                                    setSearchValueSubstForm("");
+                                    params.inputProps.ref.current.blur();
+                                  }}
+                                >
+                                  <CheckIcon fontSize="small" />
+                                </StyledIconButton>
+                                </LightTooltip>
+                              </InputAdornment>
+                            )}
+                            {params.InputProps.endAdornment}
+                          </>
+                        ),
+                      }}
 
-          {/* пока эти опции взаимоисключающие, запихнем в одну ячейку */}
-          { radTypeVisible && (
+                      inputProps={{
+                        ...params.inputProps,
+                        required: currFlt.selSubstFormValues.length === 0,
+                        value: tableSubstFormFiltered.length === 0 ? "Выбор отсутствует" : params.inputProps.value,
+                      }}
+                      label="Формы вещества"
+                      placeholder="Формы вещества"
+                      required
+                    />
+                  )}
+                />                
+              </Grid>
+              <Grid item xs={1} display="flex" alignItems="center">
+                <IconButton
+                  onClick={async () => {
+                    setCurrFlt({
+                      ...currFlt,
+                      selSubstFormValues: tableSubstFormFiltered,
+                    });
+                  }}                
+                  color="primary"
+                  size="small"
+                  title="Выбрать все"
+                  style={{ marginLeft: -2 }}   
+                >
+                  <SvgIcon fontSize="small" component={CheckDoubleIcon} inheritViewBox />
+                </IconButton>      
+              </Grid>
+            </Grid> 
+            )}   
+          </Grid>    
+
+          
+          <Grid item xs={3}>
+
+          { aerosolSolVisible && (  
             
             <Grid container spacing={1}> 
               <Grid item xs={11}>
                 <Autocomplete
                   size="small"
-                  value={currFlt.selRadTypeValues}
+                  value={currFlt.selAerosolSolValues}
                   isOptionEqualToValue={(option, value) => option.id === value.id}
                   onChange={(event, newValue) => {
                     setCurrFlt({
                       ...currFlt,
-                      selRadTypeValues: newValue,
+                      selAerosolSolValues: newValue,
                     });
                   }}
                   onInputChange={(event, newInputValue, reason) => {
                     if (reason !== "reset") {
-                      setSearchValueRadType(newInputValue);
+                      setSearchValueAerosolSol(newInputValue);
                     }
                   }}
-                  onClose={() => { setSearchValueRadType(""); }}
-                  inputValue={searchValueRadType}
+                  onClose={() => { setSearchValueAerosolSol(""); }}
+                  inputValue={searchValueAerosolSol}
                   multiple
                   limitTags={7}
-                  id="autocomplete-people_class"
-                  options={tableRadTypeFiltered}
+                  id="autocomplete-aerosol_sol"
+                  options={tableAerosolSolFiltered}
+                  disabled={ !currFlt.selDataSourceValues.length }
                   getOptionLabel={(option) => option.name_rus}
                   disableCloseOnSelect
                   renderOption={(props, option, { selected }) => (
@@ -1539,18 +1632,18 @@ const reloadDataHandler = async () => {
                         ...params.InputProps,
                         endAdornment: (
                           <>
-                            {searchValueRadType && (
+                            {searchValueAerosolSol && (
                               <InputAdornment position="end">
                                 <LightTooltip title="Добавить найденные">
                                 <StyledIconButton
                                   onClick={() => {
-                                    const filteredOptions = filterOptionsNameRus(tableRadTypeFiltered, { inputValue: searchValueRadType });
-                                    const newValues = [...currFlt.selRadTypeValues, ...filteredOptions];
+                                    const filteredOptions = filterOptionsNameRus(tableAerosolSolFiltered, { inputValue: searchValueAerosolSol });
+                                    const newValues = [...currFlt.selAerosolSolValues, ...filteredOptions];
                                     setCurrFlt({
                                       ...currFlt,
-                                      selRadTypeValues: newValues,
+                                      selAerosolSolValues: newValues,
                                     });
-                                    setSearchValueRadType("");
+                                    setSearchValueAerosolSol("");
                                     params.inputProps.ref.current.blur();
                                   }}
                                 >
@@ -1566,11 +1659,11 @@ const reloadDataHandler = async () => {
 
                       inputProps={{
                         ...params.inputProps,
-                        required: currFlt.selRadTypeValues.length === 0,
-                        value: tableRadTypeFiltered.length === 0 ? "Выбор отсутствует" : params.inputProps.value,
+                        required: currFlt.selAerosolSolValues.length === 0,
+                        value: tableAerosolSolFiltered.length === 0 ? "Выбор отсутствует" : params.inputProps.value,
                       }}
-                      label="Типы излучения"
-                      placeholder="Типы излучения"
+                      label="Типы растворимости аэрозолей"
+                      placeholder="Типы растворимости аэрозолей"
                       required
                     />
                   )}
@@ -1581,7 +1674,7 @@ const reloadDataHandler = async () => {
                   onClick={async () => {
                     setCurrFlt({
                       ...currFlt,
-                      selRadTypeValues: tableRadTypeFiltered,
+                      selAerosolSolValues: tableAerosolSolFiltered,
                     });
                   }}                
                   color="primary"
@@ -1596,10 +1689,6 @@ const reloadDataHandler = async () => {
             )}             
           </Grid>
 
-          <Grid item xs={3}>
-             
-          </Grid>         
-           
           <Grid item xs={3}>
              
           </Grid>
@@ -1834,29 +1923,30 @@ const reloadDataHandler = async () => {
               <Grid item xs={11}>
                 <Autocomplete
                   size="small"
-                  value={currFlt.selIsotopeValues}
+                  value={currFlt.selChelementValues}
                   isOptionEqualToValue={(option, value) => option.id === value.id}
                   onChange={(event, newValue) => {
                     setCurrFlt({
                       ...currFlt,
-                      selIsotopeValues: newValue,
+                      selChelementValues: newValue,
                     });
                   }}
                   onInputChange={(event, newInputValue, reason) => {
                     if (reason !== "reset") {
-                      setSearchValueNuclide(newInputValue);
+                      setSearchValueChelement(newInputValue);
                     }
                   }}
-                  inputValue={searchValueNuclide}
-                  onClose={() => { setSearchValueNuclide(""); }}
+                  inputValue={searchValueChelement}
+                  onClose={() => { setSearchValueChelement(""); }}
                   multiple
                   limitTags={7}
-                  id="autocomplete-isotope"
-                  options={tableIsotopeFiltered}
+                  id="autocomplete-chelement"
+                  options={tableChelement}
                   getOptionLabel={(option) => option.title}
                   disableCloseOnSelect
+
                   renderOption={(props, option, { selected }) => (
-                    <li {...props} /* style={{ height: '35px', }} */>
+                    <li {...props}>
                       <Checkbox
                         size="small"
                         icon={icon}
@@ -1864,9 +1954,15 @@ const reloadDataHandler = async () => {
                         style={{ marginRight: 8 }}
                         checked={selected}
                       />
-                      {option.title}
+                      <Tooltip title={option.name_rus}>
+                        <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
+                          <span>{option.title}</span>
+                          <span></span> 
+                        </div>
+                      </Tooltip>
                     </li>
-                  )}
+                  )}                  
+ 
                   renderInput={(params) => (
                     <TextField
                       {...params}
@@ -1874,18 +1970,18 @@ const reloadDataHandler = async () => {
                         ...params.InputProps,
                         endAdornment: (
                           <>
-                            {searchValueNuclide && (
+                            {searchValueChelement && (
                               <InputAdornment position="end">
                                 <LightTooltip title="Добавить найденные">
                                 <StyledIconButton
                                   onClick={() => {
-                                    const filteredOptions = filterOptions(tableIsotopeFiltered, { inputValue: searchValueNuclide });
-                                    const newValues = [...currFlt.selIsotopeValues, ...filteredOptions];
+                                    const filteredOptions = filterOptions(tableChelement, { inputValue: searchValueChelement });
+                                    const newValues = [...currFlt.selChelementValues, ...filteredOptions];
                                     setCurrFlt({
                                       ...currFlt,
-                                      selIsotopeValues: newValues,
+                                      selChelementValues: newValues,
                                     });
-                                    setSearchValueNuclide("");
+                                    setSearchValueChelement("");
                                     params.inputProps.ref.current.blur();
                                   }}
                                 >
@@ -1900,11 +1996,11 @@ const reloadDataHandler = async () => {
                       }}
                       inputProps={{
                         ...params.inputProps,
-                        required: currFlt.selIsotopeValues.length === 0,
-                        value: tableIsotopeFiltered.length===0 ? "Выбор отсутствует" : params.inputProps.value,
+                        required: currFlt.selChelementValues.length === 0,
+                        value: tableChelement.length===0 ? "Выбор отсутствует" : params.inputProps.value,
                       }}
-                      label="Нуклиды"
-                      placeholder="Нуклиды"
+                      label="Химические элементы"
+                      placeholder="Химические элементы"
                       required  
                     />
                   )}
@@ -1915,7 +2011,7 @@ const reloadDataHandler = async () => {
                   onClick={async () => {
                     setCurrFlt({
                       ...currFlt,
-                      selIsotopeValues: tableIsotopeFiltered,
+                      selChelementValues: tableChelement,
                     });
                   }}                
                   color="primary"
@@ -1926,7 +2022,7 @@ const reloadDataHandler = async () => {
                   <SvgIcon fontSize="small" component={CheckDoubleIcon} inheritViewBox />
                 </IconButton>      
               </Grid>
-            </Grid>  {/* container spacing={1} */}
+            </Grid>  
           </Grid>
 
           <Grid item xs={3}>
@@ -1955,8 +2051,8 @@ const reloadDataHandler = async () => {
                     hideFooterSelectedRowCount={true}
                     localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
                     rowHeight={25}
-                    rows={tableValueExtDose}
-                    columns={columnsValueExtDose}
+                    rows={tableValueRatioGit}
+                    columns={columnsValueRatioGit}
                     apiRef={apiRef}
                     paginationModel={paginationModel}
                     onPaginationModelChange={setPaginationModel}
@@ -1967,10 +2063,10 @@ const reloadDataHandler = async () => {
                     onRowSelectionModelChange={(newRowSelectionModel) => {
                       setRowSelectionModel(newRowSelectionModel);
                     }}
-                   /*  rowSelectionModel={rowSelectionModel} */
+                    rowSelectionModel={rowSelectionModel}
                     columnVisibilityModel={vidColumnVisibilityModel}
                     onRowClick={handleRowClickAndCloseAlert}
-                    {...tableValueExtDose}
+                    {...tableValueRatioGit}
                   />    
                 </Box>          
               </Grid>
@@ -2049,14 +2145,14 @@ const reloadDataHandler = async () => {
 {/*           <Grid item xs={4}>            
           </Grid>
  */}
-           <Grid item xs={6}>
+          <Grid item xs={4}>
             <Autocomplete
               size="small"
               disabled={true}
               value={tableIrradiation.find((option) => option.id === valueIrradiationID) }
               onChange={(event, newValueAC) => { setValueIrradiationID(newValueAC?newValueAC.id:-1) } }
               id="autocomplete-irradiation_edit"
-              options={ tableIrradiationFiltered } 
+              options={ tableIrradiationFiltered } //фильтрация условных 2,6, 30319, 30316 делается из tableIntDoseAttr
               getOptionLabel={(option) => option.name_rus?option.name_rus:''}
               renderInput={(params) => {
                 const inputProps = {
@@ -2067,26 +2163,63 @@ const reloadDataHandler = async () => {
               }}                 
             />  
           </Grid>
-          <Grid item xs={6}> 
-            {radTypeVisibleD&&(  
+          <Grid item xs={4}>          
+            { substFormVisibleD && (           
             <Autocomplete
               size="small"
-              disabled={true}
-              value={tableRadType.find((option) => option.code === valueRadTypeCode) }
-              onChange={(event, newValueAC) => { setValueRadTypeCode(newValueAC?newValueAC.code:-1) } }
-              id="autocomplete-rad_type_edit"
-              options={ tableRadTypeFiltered } 
+              disabled={(valueID !== null)||(applFlt.selSubstFormValues.length===1)}
+              value={tableSubstFormFilteredEdit.find((option) => option.id === valueSubstFormID) }
+              id="autocomplete-subst_form_edit"
+              options={tableSubstFormFilteredEdit}
               getOptionLabel={(option) => option.name_rus?option.name_rus:''}
               renderInput={(params) => {
                 const inputProps = {
                   ...params.inputProps,
-                  value: tableRadTypeFiltered.length===0 ? "Выбор отсутствует" : params.inputProps.value,
+                  value: tableSubstFormFilteredEdit.length===0 ? "Выбор отсутствует" : params.inputProps.value,
                 };
-                return <TextField {...params} inputProps={inputProps} label="Тип излучения" placeholder="Тип излучения" required/>;
+                return <TextField {...params} inputProps={inputProps} label="Формы вещества" placeholder="Формы вещества" required/>;
               }}                 
-            /> 
+            />
             )} 
           </Grid>
+          <Grid item xs={4}>            
+            <Autocomplete
+              size="small"
+              disabled={(valueID !== null)}
+              value={tableChemCompGrFilteredEdit.find((option) => option.id === valueChemCompGrID) || null}
+              onChange={(event, newValueAC) => { setValueChemCompGrID(newValueAC ? newValueAC.id : null); }}              
+              id="autocomplete-chem_comp_gr_dialog"
+              options={ tableChemCompGrFilteredEdit }
+              getOptionLabel={(option) => option.name_rus}
+              renderInput={(params) => {
+                const inputProps = {
+                  ...params.inputProps,
+                  value: tableSubstFormFilteredEdit.length===0 ? "Выбор отсутствует" : params.inputProps.value,
+                };
+                return <TextField {...params} inputProps={inputProps} label="Химическое соединение (группа)" placeholder="Химическое соединение (группа)" />;
+              }}                  
+            />
+          </Grid>
+          <Grid item xs={4}>          
+            { aerosolSolVisibleD && ( 
+            <Autocomplete
+              size="small"
+              disabled={(valueID !== null)||(applFlt.selAerosolSolValues.length===1)}
+              value={tableAerosolSolFilteredEdit.find((option) => option.id === valueAerosolSolID)  }
+              id="autocomplete-aerosol_sol_edit"
+              options={tableAerosolSolFilteredEdit}
+              getOptionLabel={(option) => option.name_rus?option.name_rus:''}
+              renderInput={(params) => {
+                const inputProps = {
+                  ...params.inputProps,
+                  value: tableAerosolSolFilteredEdit.length===0 ? "Выбор отсутствует" : params.inputProps.value,
+                };
+                return <TextField {...params} inputProps={inputProps} label="Типы растворимости аэрозолей" placeholder="Типы растворимости аэрозолей" required/>;
+              }}                 
+            />
+            )}
+          </Grid>
+
 {/*           <Grid item xs={4}>
           </Grid>
  */}          <Divider />
@@ -2140,14 +2273,14 @@ const reloadDataHandler = async () => {
           <Grid item xs={6}>
             <Autocomplete
               size="small"
-              disabled={(valueID !== null)||(applFlt.selIsotopeValues.length===1)}
-              value={tableIsotopeFiltered.find((option) => option.id === valueIsotopeID)  }
-              onChange={(event, newValueAC) => { setValueIsotopeID(newValueAC?newValueAC.id:-1) } }
-              id="autocomplete-isotope_edit"
-              options={ tableIsotopeFilteredEdit }
+              disabled={(valueID !== null)||(applFlt.selChelementValues.length===1)}
+              value={tableChelement.find((option) => option.id === valueChelementID)  }
+              onChange={(event, newValueAC) => { setValueChelementID(newValueAC?newValueAC.id:-1) } }
+              id="autocomplete-chelement_edit"
+              options={ tableChelementFilteredEdit }
               getOptionLabel={(option) => option.title}
               renderInput={(params) => (
-                <TextField {...params} label="Нуклид" placeholder="Нуклид" />
+                <TextField {...params} label="Химический элемент" placeholder="Химический элемент" />
               )}
             />             
           </Grid> 
@@ -2158,7 +2291,7 @@ const reloadDataHandler = async () => {
             <TextField
               size="small"
               variant="outlined"
-              id="dr_value_edit"
+              id="f1_value_edit"
               label="Значение"
               required
               value={valueDrValue || ''}
@@ -2219,4 +2352,4 @@ const reloadDataHandler = async () => {
   )
 }
 
-export { BigTableValueExtDose }
+export { BigTableValueRatioGit }

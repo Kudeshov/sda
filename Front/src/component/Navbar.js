@@ -120,6 +120,8 @@ function Navbar() {
             <Menu anchorEl={anchorE2} open={menuCoeff} onClose={closeMenuCoeff}>
               <MenuItem onClick={closeMenuCoeff} component={Link} to="/value_int_dose">Внутреннее облучение</MenuItem> 
               <MenuItem onClick={closeMenuCoeff} component={Link} to="/value_ext_dose">Внешнее облучение</MenuItem> 
+              <MenuItem onClick={closeMenuCoeff} component={Link} to="/value_ratio_git">Поглощение в ЖКТ (f1)</MenuItem> 
+              <MenuItem onClick={closeMenuCoeff} component={Link} to="/deposition_fraction">Доли осаждения в RТ</MenuItem> 
               <Divider />
               <MenuItem onClick={closeMenuCoeff} component={Link} to="/dose_ratio">{table_names['dose_ratio']}</MenuItem> 
               <MenuItem onClick={closeMenuCoeff} component={Link} to="/irradiation">{table_names['irradiation']}</MenuItem> 

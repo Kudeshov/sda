@@ -80,6 +80,7 @@ const getValueExtDose = (request, response) => {
     left join nucl.dose_ratio dr on dr.id = vid.dose_ratio_id
     left join nucl.people_class_nls pcn on pcn.people_class_id = vid.people_class_id and pcn.lang_id = 1
     left join nucl.radiation_type_nls rtn on rtn.rad_type_code = vid.rad_type_code and rtn.lang_id = 1
+
     ${whereClause}
     order by id
     limit 5000`;
@@ -101,7 +102,7 @@ const updateValueExtDose = (request, response, table_name) => {
 
   pool.query(
     `UPDATE nucl.value_ext_dose SET dose_ratio_id = $1, dr_value=$2, updatetime = NOW()
-    WHERE id = $3`, // Запрос на обновление записи в таблице nucl.value_int_dose
+    WHERE id = $3`, // Запрос на обновление записи в таблице nucl.value_ext_dose
     [dose_ratio_id, dr_value, id], // Параметры для запроса
     (err, res) => {
       if (err) {

@@ -263,7 +263,7 @@ app.put('/value_int_dose/:id', (req, res) => {vid_q.updateValueIntDose(req, res,
 app.post('/value_int_dose', (req, res) => {vid_q.createValueIntDose(req, res, 'value_int_dose')});    //create
 app.delete('/value_int_dose/:id', (req, res) => {vid_q.deleteValueIntDose(req, res, 'value_int_dose')});  //delete
 //связи в таблице value_int_dose
-app.get('/value_relation/:tableName', (req, res) => {vid_q.getValueRelation(req, res, req.params.tableName)});
+//app.get('/value_relation/:tableName', (req, res) => {vid_q.getValueRelation(req, res, req.params.tableName)});
 app.get('/int_dose_attr/', (req, res) => {vid_q.getIntDoseAttr(req, res)});
 
 app.get('/value_ext_dose', (req, res) => {ved_q.getValueExtDose(req, res, 'value_ext_dose')}); 
@@ -276,8 +276,7 @@ app.get('/value_ratio_git', (req, res) => {vrg_q.getValueRatioGit(req, res, 'val
 app.put('/value_ratio_git/:id', (req, res) => {vrg_q.updateValueRatioGit(req, res, 'value_ratio_git')}); //update
 app.post('/value_ratio_git', (req, res) => {vrg_q.createValueRatioGit(req, res, 'value_ratio_git')});    //create
 app.delete('/value_ratio_git/:id', (req, res) => {vrg_q.deleteValueRatioGit(req, res, 'value_ratio_git')});  //delete 
-
-
+app.get('/ratio_git_attr/', (req, res) => {vrg_q.getRatioGitAttr(req, res)});
 
 //GENERIC QUERIES on radiation_type 
 app.get('/radiation_type', (req, res) => {rad_t.getRadiationType(req, res, 'radiation_type')});           //list all
