@@ -40,6 +40,7 @@ import { DataTableDataSourceClass } from './dt_data_source_class';
 const DataTableDoseRatio = (props) => {
   const apiRef = useGridApiRef(); // init DataGrid API for scrolling
 
+  // Поля БД
   const [valueId, setValueID] = React.useState();
   const [valueTitle, setValueTitle] = React.useState();
   const [valueTitleInitial, setValueTitleInitial] = React.useState();
@@ -104,6 +105,9 @@ const DataTableDoseRatio = (props) => {
     }, [ valueTitle, valueNameRus, valueNameEng, valueDescrEng, valueDescrRus, 
         valueRespRate, valueRespYear,  valueIndoor, valueExtCloud, valueExtGround,
         valuePhysParamID, valueUsed, valueParameters]); 
+  function isValueSet(valueId) {
+    return valueId !== null && valueId !== undefined && valueId !== '';
+  }  
     
 
 /*         useEffect(() => {
@@ -151,12 +155,12 @@ const DataTableDoseRatio = (props) => {
    */
         
         
-    useEffect(() => {
+/*     useEffect(() => {
 
-      if (!currentId) {
-        setEditStarted(false);
-        return;
-      }  
+    if (typeof currentId !== 'number') {
+      setEditStarted(false);
+      return;
+    }  
         
     const editStarted1 =(valueTitleInitial!==valueTitle)||(valueNameRusInitial!==valueNameRus)||(valueNameEngInitial!==valueNameEng)
       ||(valueDescrEngInitial!==valueDescrEng)||(valueDescrRusInitial!==valueDescrRus)   
@@ -172,16 +176,63 @@ const DataTableDoseRatio = (props) => {
         valueIndoor, valueExtCloudInitial, valueExtCloud, valueExtGroundInitial, valueExtGround,
         valuePhysParamID, valuePhysParamIDInitial, valueUsed, valueUsedInitial, valueParameters, valueParametersInitial,
         valueDrType, valueDrTypeInitial, currentId
-      ]); 
+      ]);  */
 
   useEffect(() => {
-    if ((!isLoading) && (tableData) && (tableData.length) && tableData[0].id) {
-      if (!currentId)  
+    if (typeof currentId !== 'number') {
+      setEditStarted(false);
+      return;
+    }
+  
+    const fields = [
+      ['valueTitleInitial', valueTitleInitial, 'valueTitle', valueTitle],
+      ['valueNameRusInitial', valueNameRusInitial, 'valueNameRus', valueNameRus],
+      ['valueNameEngInitial', valueNameEngInitial, 'valueNameEng', valueNameEng],
+      ['valueDescrRusInitial', valueDescrRusInitial, 'valueDescrRus', valueDescrRus],
+      ['valueDescrEngInitial', valueDescrEngInitial, 'valueDescrEng', valueDescrEng],
+      ['valueRespRateInitial', valueRespRateInitial, 'valueRespRate', valueRespRate],
+      ['valueRespYearInitial', valueRespYearInitial, 'valueRespYear', valueRespYear],
+      ['valueIndoorInitial', valueIndoorInitial, 'valueIndoor', valueIndoor],
+      ['valueExtCloudInitial', valueExtCloudInitial, 'valueExtCloud', valueExtCloud],
+      ['valueExtGroundInitial', valueExtGroundInitial, 'valueExtGround', valueExtGround],
+      ['valuePhysParamIDInitial', valuePhysParamIDInitial, 'valuePhysParamID', valuePhysParamID],
+      ['valueUsedInitial', valueUsedInitial, 'valueUsed', valueUsed],
+      ['valueParametersInitial', valueParametersInitial, 'valueParameters', valueParameters],
+      ['valueDrTypeInitial', valueDrTypeInitial, 'valueDrType', valueDrType],
+    ];
+  
+    let editStarted = false;
+  
+    for (let i = 0; i < fields.length; i++) {
+      const [initialName, initialValue, currentName, currentValue] = fields[i];
+      
+      if (initialValue !== currentValue) {
+        console.log(`Variable ${currentName} ${initialName} changed from ${initialValue} to ${currentValue}`);
+        editStarted = true;
+        break; // выход из цикла, если какое-то из полей изменилось
+      }
+    }
+  
+    setEditStarted(editStarted);
+  
+  }, [
+    valueTitleInitial, valueTitle, valueNameRusInitial, valueNameRus, valueNameEngInitial, valueNameEng, 
+    valueDescrEngInitial, valueDescrEng, valueDescrRusInitial, valueDescrRus, valueRespRateInitial, 
+    valueRespRate, valueRespYearInitial, valueRespYear, valueIndoorInitial, valueIndoor, 
+    valueExtCloudInitial, valueExtCloud, valueExtGroundInitial, valueExtGround, valuePhysParamID, 
+    valuePhysParamIDInitial, valueUsed, valueUsedInitial, valueParameters, valueParametersInitial, 
+    valueDrType, valueDrTypeInitial, currentId
+  ]);
+    
+
+  useEffect(() => {
+    if ((!isLoading) && (tableData) && (tableData.length) /* && tableData[0].id>-1 */) {
+      if (typeof currentId !== 'number') 
       {
         console.log('Выбрано ', tableData[0].id);
-        setRowSelectionModel([tableData[0].id]);
         setCurrentId(tableData[0].id);
         setValueID(tableData[0].id);
+        setRowSelectionModel([tableData[0].id]);
       }
     }
     }, [ isLoading, tableData, currentId] );
@@ -213,18 +264,18 @@ const DataTableDoseRatio = (props) => {
     }
   }, [valuePhysParamID, tablePhysParam]);
 
-
   const handleRowClick = (params) => {
 
-    console.log('handleRowClick', params.row.id, valueId);
+    //console.log('handleRowClick', params.row.id, valueId);
     if (params.row.id === valueId  ) {
       // Если данные не изменились, просто выходим из функции
       return;
     }
     setOpenAlert(false);
 
-    console.log('editStarted isEmpty', editStarted, isEmpty);
-    if (editStarted&&(!isEmpty))
+    //console.log('editStarted isEmpty', editStarted, isEmpty);
+    //if (editStarted&&(!isEmpty))
+    if (editStarted)
     {
       setClickedRowId(params.row.id);
       setDialogType('save');
@@ -256,8 +307,10 @@ const DataTableDoseRatio = (props) => {
       setValueExtCloud(``);
       setValueExtGround(``);
       setValuePhysParamId('');  
-      setValueUsed(true);
-      setValueParameters(``);
+      if (props.table_name==='calcfunction') {  
+        setValueUsed(true);
+        setValueParameters(``);
+      }
       setValueDrType(``);
       inputRef.current.focus();  
     }
@@ -296,9 +349,8 @@ const saveRec = async () => {
     };
     
     setIsLoading(true);
-    
-    const url = `/${props.table_name}/` + (valueId ? valueId : '');
-    const method = valueId ? 'PUT' : 'POST';
+    const url = `/${props.table_name}/` + (isValueSet(valueId) ? valueId : '');
+    const method = isValueSet(valueId) ? 'PUT' : 'POST';
     
     try {
       const response = await fetch(url, {
@@ -340,13 +392,15 @@ const saveRec = async () => {
         }
         else {
           setValueID(clickedRowId);
+          setClickedRowId(null);
         }
           
         setAlertText(`Добавлена запись с кодом ${newId}`);
 
       } else {
-        if (clickedRowId) {
+        if  (clickedRowId!==null) {
           setValueID(clickedRowId);
+          setClickedRowId(null);
         }
         setAlertText(responseData || 'Success');
       }
@@ -413,14 +467,6 @@ const delRec = async () => {
     }
     setAlertSeverity('success');
     setAlertText(await response.text());
-
-  } catch (err) {
-    setAlertSeverity('error');
-    setAlertText(err.message);
-  } finally {
-    setIsLoading(false);
-    setOpenAlert(true);
-    
     // Переключаемся на предыдущую запись после удаления
     if (previousRowId)
     {
@@ -433,7 +479,17 @@ const delRec = async () => {
         setValueID(tableData[0].id);
         setAddedId(tableData[0].id);
       }
-    }     
+    }    
+  } catch (err) {
+    setAlertSeverity('error');
+    setAlertText(err.message);
+    setRowSelectionModel([valueId]);
+    
+  } finally {
+    setIsLoading(false);
+    setOpenAlert(true);
+    
+ 
     reloadData();
   }
 };
@@ -508,7 +564,7 @@ const delRec = async () => {
             Вы желаете удалить указанную запись?
           </>);
       case 'save':
-        if (!valueId) { // если это новая запись
+        if (!isValueSet(valueId)) { // если это новая запись
           if (allRequiredFieldsFilled) {
             return `Создана новая запись, сохранить?`;
           } else {
@@ -680,11 +736,12 @@ const delRec = async () => {
       setValueExtGroundInitial(selectedRowData[0].ext_ground );
       setValuePhysParamId(selectedRowData[0].physparam_id );
       setValuePhysParamIdInitial(selectedRowData[0].physparam_id );
-      setValueUsed(selectedRowData[0].used); 
-      setValueUsedInitial(selectedRowData[0].used); 
-      setValueParameters(selectedRowData[0].parameters);      
-      setValueParametersInitial(selectedRowData[0].parameters); 
-
+      if (props.table_name==='calcfunction') {  
+        setValueUsed(selectedRowData[0].used); 
+        setValueUsedInitial(selectedRowData[0].used); 
+        setValueParameters(selectedRowData[0].parameters);      
+        setValueParametersInitial(selectedRowData[0].parameters); 
+      }
       setValueDrType(selectedRowData[0].dr_type);      
       setValueDrTypeInitial(selectedRowData[0].dr_type);           
     }
@@ -774,7 +831,7 @@ const delRec = async () => {
             style={{ width: 570, height: 500, border: '1px solid rgba(0, 0, 0, 0.23)', borderRadius: '4px' }}
             sx={{
               "& .MuiDataGrid-row.Mui-selected": {
-                backgroundColor: dialogType !== ''||!(valueId >=0) ? "transparent" : "rgba(0, 0, 0, 0.11)",
+                backgroundColor: dialogType !== ''||!isValueSet(valueId)||isLoading? "transparent" : "rgba(0, 0, 0, 0.11)",
               },
               "& .MuiDataGrid-cell:focus-within": {
                 outline: "none !important",
@@ -807,10 +864,16 @@ const delRec = async () => {
         <form ref={formRef}>
         <Grid container spacing={1.5}>
           <Grid item xs={2}>
-            <TextField id="ch_id" disabled={true} fullWidth label="Код" variant="outlined" value={valueId || ''} size="small" />
+            <TextField id="ch_id" 
+              disabled={true} 
+              fullWidth 
+              label="Код"  
+              variant="outlined" 
+              value={isValueSet(valueId) ? valueId : ''} 
+              size="small" />
           </Grid>            
           <Grid item xs={10}>
-              <TextField id="ch_name" inputRef={inputRef} disabled={valueId!==''} fullWidth label="Обозначение" required size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
+              <TextField id="ch_name" inputRef={inputRef} disabled={isValueSet(valueId)} fullWidth label="Обозначение" required size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
           </Grid>            
           <Grid item xs={6}>
             <TextField  id="ch_name_rus" fullWidth size="small" label="Название (рус.яз)" required variant="outlined"  value={valueNameRus || ''} onChange={e => setValueNameRus(e.target.value)} />
@@ -905,22 +968,7 @@ const delRec = async () => {
               <SvgIcon fontSize="small" component={InfoLightIcon} inheritViewBox /></IconButton>
             </Box>              
           </Grid>                     
-{/*           <Grid item xs={6}>
-          </Grid>                     
-          <Grid item xs={6}>
-          </Grid>                     
-          <Grid item xs={6}>
-          </Grid>  */}                    
         </Grid>
-
-{/*         <Box sx={{ border: '0px solid red', padding: 0, display: 'flex', flexDirection: 'column', gap: 1.5 }}>
-
-       
-
-
-
-                 
-        </Box> */}
         </form>
           <Box sx={{ marginTop: '0.4rem' }}>
             Источники данных<br/>

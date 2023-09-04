@@ -161,16 +161,17 @@ const BigTableValueRatioGit = (props) => {
   const columnsValueRatioGit = [
     { field: 'id', headerName: 'ID', width: 100 },
     { field: 'people_class_name_rus', headerName: 'Тип облучаемых лиц', width: 180 },
-    { field: 'chelement_title', headerName: 'Химический элемент', width: 100 },
+    { field: 'chelement_title', headerName: 'Химический элемент', width: 200 },
     { field: 'organ_name_rus', headerName: 'Орган', width: 200 },
     { field: 'agegroup_name_rus', headerName: 'Возрастная группа населения', width: 200 },
-    { field: 'subst_form_name_rus', headerName: 'Форма вещества', width: 200 },    
+    { field: 'subst_form_name_rus', headerName: 'Форма вещества', width: 200 },
+    { field: 'chem_comp_group_name_rus', headerName: 'Химическое соединение (группа)', width: 250 },    
     { field: 'aerosol_sol_name_rus', headerName: 'Тип растворимости аэрозолей', width: 200 },
     { field: 'data_source_title', headerName: 'Источник данных', width: 200 },
     { field: 'f1_value', headerName: 'Значение', width: 180 },
     { 
       field: 'updatetime', 
-      headerName: 'Время последнего измерения', 
+      headerName: 'Время последнего изменения', 
       width: 280,
       valueGetter: (params) => formatDate(params.value)
     },    
@@ -773,6 +774,7 @@ const checkColumns = React.useCallback((data, flt) => {
     'id': false,
     'f1_value': true,
     'updatetime': true,
+    'chem_comp_group_name_rus': true,
     'dose_ratio_id': false,
     'irradiation_id': false
   };
@@ -1111,7 +1113,7 @@ const reloadDataHandler = async () => {
       );
     }
     return (
-      <>
+      <><br />
         {applFlt.selDoseRatioValue && (
           <>
             Параметр: {applFlt.selDoseRatioValue.title}, {applFlt.selDoseRatioValue.name_rus}
@@ -2127,32 +2129,16 @@ const reloadDataHandler = async () => {
             />
           </Grid>
           <Grid item xs={6}>
-            { organVisibleD && (
-              <HierarchicalAutocomplete
-              disabled={(valueID !== null)||(applFlt.selOrganValues.length===1)}
-              data={treeDataOrganFilteredEdit}
-              value={treeDataOrganFilteredEdit.find(item => item.id === valueOrganID) || null}
-              onChange={(event, newValue) => setValueOrganID(newValue ? newValue.id : null)}
-              size="small"
-              fullWidth
-              label="Органы и ткани"
-              placeholder="Органы и ткани"
-              displayField="name_rus"
-              getOptionDisabled={(option) => !tableOrganFilteredEdit.some(item => item.id === option.id)}
-              />
-            )}
           </Grid>
-{/*           <Grid item xs={4}>            
-          </Grid>
- */}
-          <Grid item xs={4}>
+
+          <Grid item xs={6}>
             <Autocomplete
               size="small"
               disabled={true}
               value={tableIrradiation.find((option) => option.id === valueIrradiationID) }
               onChange={(event, newValueAC) => { setValueIrradiationID(newValueAC?newValueAC.id:-1) } }
               id="autocomplete-irradiation_edit"
-              options={ tableIrradiationFiltered } //фильтрация условных 2,6, 30319, 30316 делается из tableIntDoseAttr
+              options={ tableIrradiationFiltered } 
               getOptionLabel={(option) => option.name_rus?option.name_rus:''}
               renderInput={(params) => {
                 const inputProps = {
@@ -2163,7 +2149,7 @@ const reloadDataHandler = async () => {
               }}                 
             />  
           </Grid>
-          <Grid item xs={4}>          
+          <Grid item xs={6}>          
             { substFormVisibleD && (           
             <Autocomplete
               size="small"
@@ -2182,7 +2168,8 @@ const reloadDataHandler = async () => {
             />
             )} 
           </Grid>
-          <Grid item xs={4}>            
+
+          <Grid item xs={6}>            
             <Autocomplete
               size="small"
               disabled={(valueID !== null)}
@@ -2200,7 +2187,8 @@ const reloadDataHandler = async () => {
               }}                  
             />
           </Grid>
-          <Grid item xs={4}>          
+
+          <Grid item xs={6}>          
             { aerosolSolVisibleD && ( 
             <Autocomplete
               size="small"
@@ -2220,9 +2208,11 @@ const reloadDataHandler = async () => {
             )}
           </Grid>
 
+
 {/*           <Grid item xs={4}>
-          </Grid>
- */}          <Divider />
+          </Grid> */}
+          <Divider />
+
           <Grid item xs={6}>
             <Autocomplete
               size="small"
@@ -2299,12 +2289,12 @@ const reloadDataHandler = async () => {
               onChange={e => setValueDrValue(e.target.value)}
             />              
           </Grid>
-          <Grid item xs={2}>
+{/*           <Grid item xs={2}> //тут нет единицы измерения
           <Box display="flex" alignItems="center" height="100%">
             {applFlt.selDoseRatioValue && applFlt.selDoseRatioValue.sign} 
           </Box>
-        </Grid>
-          <Grid item xs={4}>
+          </Grid> */}
+          <Grid item xs={6}>
             <TextField
               size="small"
               disabled={true}

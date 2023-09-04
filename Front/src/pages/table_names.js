@@ -25,7 +25,8 @@ export const table_names = {
   'data_source_class': 'Связь с источником данных',
   'action_criterion': 'Действие критерия',
   'radiation_type': 'Типы излучения',
-  'value_ratio_git': 'Поглощение в ЖКТ (f1)'
+  'value_ratio_git': 'Поглощение в ЖКТ (f1)',
+  'deposition_fraction': 'Доли осаждения в RТ'
 }; 
   
 export default table_names;

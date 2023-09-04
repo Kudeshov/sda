@@ -188,7 +188,7 @@ const BigTableValueIntDose = (props) => {
     { field: 'dr_value', headerName: 'Значение', width: 180 },
     { 
       field: 'updatetime', 
-      headerName: 'Время последнего измерения', 
+      headerName: 'Время последнего изменения', 
       width: 280,
       valueGetter: (params) => formatDate(params.value)
     },    
@@ -329,6 +329,7 @@ const BigTableValueIntDose = (props) => {
 
   //массивы, содержащие данные для автокомплитов
   const [tableDataSource, setTableDataSource] = useState([]); 
+  const [tableDataSourceFiltered, setTableDataSourceFiltered] = useState([]);    
   const [tableDataSourceFilteredEdit, settableDataSourceFilteredEdit] = useState([]); 
   const [tableOrgan, setTableOrgan] = useState([]);
   const [tableOrganFiltered, settableOrganFiltered] = useState([]);
@@ -419,6 +420,13 @@ const BigTableValueIntDose = (props) => {
       updateCurrentFilter({ selOrganValues: [] });     
     if (!isLetLevelVisible)
       updateCurrentFilter({ selLetLevelValues: [] });
+ 
+    // Получаем все уникальные data_source_id из tableIntDoseAttr
+    const uniqueDataSourceIds = [...new Set(tableIntDoseAttr.map(item => item.data_source_id))];
+    // Фильтруем tableDataSource по уникальным data_source_id
+    const filteredDataSource = tableDataSource.filter(item => uniqueDataSourceIds.includes(item.id));
+    // Устанавливаем отфильтрованные данные в состояние
+    setTableDataSourceFiltered(filteredDataSource);      
   }, [ tableIntDoseAttr, currFlt.selDoseRatioValue, currFlt.selDataSourceValues ]);
   
   
@@ -1397,7 +1405,7 @@ const reloadDataHandler = async () => {
       );
     }
     return (
-      <>
+      <><br />
         {applFlt.selDoseRatioValue && (
           <>
             Параметр: {applFlt.selDoseRatioValue.title}, {applFlt.selDoseRatioValue.name_rus}
@@ -1523,7 +1531,7 @@ const treeDataOrganFilteredEdit = React.useMemo(() => {
                   multiple
                   limitTags={10}
                   id="autocomplete-datasource"
-                  options={tableDataSource}
+                  options={tableDataSourceFiltered}
                   onClose={() => { setSearchValueDataSource(""); }}
                   getOptionLabel={(option) => option.title}
                   disableCloseOnSelect

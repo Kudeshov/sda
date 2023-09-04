@@ -72,6 +72,10 @@ const DataTableIsotope = (props) => {
     setIsEmpty((''===valueTitle)&&(''===valueNameRus)&&(''===valueNameEng)&&(''===valueDescrEng)&&(''===valueDescrRus));
     }, [ valueTitle, valueNameRus, valueNameEng, valueDescrEng, valueDescrRus, ]); 
      */
+
+  function isValueSet(valueId) {
+    return valueId !== null && valueId !== undefined && valueId !== '';
+  }  
       
   useEffect(() => {
     if (typeof currentId !== 'number') {
@@ -197,9 +201,8 @@ const saveRec = async () => {
       decayconst: valueDecayConst   
     };
     setIsLoading(true);
-    
-    const url = `/${props.table_name}/` + (valueId ? valueId : '');
-    const method = valueId ? 'PUT' : 'POST';
+    const url = `/${props.table_name}/` + (isValueSet(valueId) ? valueId : '');
+    const method = isValueSet(valueId) ? 'PUT' : 'POST';
     
     try {
       const response = await fetch(url, {
@@ -233,6 +236,7 @@ const saveRec = async () => {
       
       // Если это POST запрос, получаем и устанавливаем новый ID
       if (method === 'POST') {
+        
         const newId = responseData.id;
         
         if (clickedRowId===null) {
@@ -241,13 +245,15 @@ const saveRec = async () => {
         }
         else {
           setValueID(clickedRowId);
+          setClickedRowId(null);
         }
           
         setAlertText(`Добавлена запись с кодом ${newId}`);
 
       } else {
-        if (clickedRowId) {
+        if  (clickedRowId!==null) {
           setValueID(clickedRowId);
+          setClickedRowId(null);
         }
         setAlertText(responseData || 'Success');
       }
@@ -307,14 +313,6 @@ const delRec = async () => {
     }
     setAlertSeverity('success');
     setAlertText(await response.text());
-
-  } catch (err) {
-    setAlertSeverity('error');
-    setAlertText(err.message);
-  } finally {
-    setIsLoading(false);
-    setOpenAlert(true);
-    
     // Переключаемся на предыдущую запись после удаления
     if (previousRowId)
     {
@@ -327,7 +325,15 @@ const delRec = async () => {
         setValueID(tableData[0].id);
         setAddedId(tableData[0].id);
       }
-    }     
+    }    
+  } catch (err) {
+    setAlertSeverity('error');
+    setAlertText(err.message);
+    setRowSelectionModel([valueId]);
+    
+  } finally {
+    setIsLoading(false);
+    setOpenAlert(true);
     reloadData();
   }
 };
@@ -389,7 +395,7 @@ const delRec = async () => {
             Вы желаете удалить указанную запись?
           </>);
       case 'save':
-        if (!valueId) { // если это новая запись
+        if (!isValueSet(valueId)) { // если это новая запись
           if (allRequiredFieldsFilled) {
             return `Создана новая запись, сохранить?`;
           } else {
@@ -473,7 +479,7 @@ const delRec = async () => {
     
     setDialogType('');
 
-    if (clickedRowId>0) {
+    if (clickedRowId>=0) {
       setEditStarted(false);
       setRowSelectionModel([clickedRowId]);
       const rowData = tableData.find(row => row.id === clickedRowId);
@@ -620,7 +626,7 @@ const delRec = async () => {
             style={{ width: 570, height: 500, border: '1px solid rgba(0, 0, 0, 0.23)', borderRadius: '4px' }}
             sx={{
               "& .MuiDataGrid-row.Mui-selected": {
-                backgroundColor: dialogType !== ''||!(valueId >=0)  ? "transparent" : "rgba(0, 0, 0, 0.11)",
+                backgroundColor: dialogType !== ''||!isValueSet(valueId)||isLoading? "transparent" : "rgba(0, 0, 0, 0.11)",
               },
               "& .MuiDataGrid-cell:focus-within": {
                 outline: "none !important",

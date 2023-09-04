@@ -1,7 +1,7 @@
 /**
- * Модуль, предоставляющий интерфейс пользователя для работы с данными о дозах внешнего облучения.
+ * Модуль, предоставляющий интерфейс пользователя для работы с данными Доли осаждения в RТ .
  * 
- * Этот модуль подразумевает использование API, реализованное в value_ext_dose_queries.
+ * Этот модуль подразумевает использование API, реализованное в deposition_fraction_queries.
  */
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -90,24 +90,18 @@ const LightTooltip = styled(({ className, ...props }) => (
   },
 }));
 
-const BigTableValueExtDose = (props) => {
+const BigTableDepositionFraction = (props) => {
   const apiRef = useGridApiRef(); // init DataGrid API for scrolling
-  const [tableValueExtDose, setTableValueExtDose] = useState([]); 
+  const [tableDepositionFraction, setTableDepositionFraction] = useState([]); 
   const [rowSelectionModel, setRowSelectionModel] = React.useState([]);
   const [valueID, setValueID] = React.useState();
   const [valueIDInitial, setValueIDInitial] = React.useState();
-  const [valueDoseRatioID, setValueDoseRatioID] = React.useState();
-  const [valueIrradiationID, setValueIrradiationID] = React.useState();
-  const [valuePeopleClassID, setValuePeopleClassID] = React.useState();
-  const [valueSubstFormID, setValueSubstFormID] = React.useState();
-  const [valueIsotopeID, setValueIsotopeID] = React.useState();
-  const [valueIntegralPeriodID, setValueIntegralPeriodID] = React.useState();
   const [valueOrganID, setValueOrganID] = React.useState();
   const [valueAgeGroupID, setValueAgeGroupID] = React.useState();
   const [valueDataSourceID, setValueDataSourceID] = React.useState();
-  const [valueDrValue, setValueDrValue] = React.useState();
+  const [valueDfValue, setValueDfValue] = React.useState();
+  const [valueAdValue, setValueAdValue] = React.useState();
   const [valueUpdateTime, setValueUpdateTime] = React.useState();
-  const [valueRadTypeCode, setValueRadTypeCode] = React.useState('');
 
   // состояния Accordion-а
   const [isTableExpanded, setIsTableExpanded] = useState(false);
@@ -134,20 +128,14 @@ const BigTableValueExtDose = (props) => {
   const handleRowClick = React.useCallback((params) => {
     setValueID(params.row.id);
     setValueIDInitial(params.row.id);
-    setValueDoseRatioID(params.row.dose_ratio_id);
-    setValuePeopleClassID(params.row.people_class_id);
-    setValueIsotopeID(params.row.isotope_id);
     setValueOrganID(params.row.organ_id);
     setValueAgeGroupID(params.row.agegroup_id);
     setValueDataSourceID(params.row.data_source_id);
-    setValueDrValue(params.row.dr_value);
-    setValueRadTypeCode(params.row.rad_type_code);
-    setValueSubstFormID(params.row.subst_form_id);
-    setValueIrradiationID(params.row.irradiation_id);
+    setValueDfValue(params.row.df_value);
+    setValueAdValue(params.row.ad);
     setValueUpdateTime( formatDate(params.row.updatetime) ); 
-  }, [setValueID, setValueIDInitial, setValueDoseRatioID, setValuePeopleClassID, setValueIsotopeID, 
-    setValueIntegralPeriodID, setValueOrganID, setValueAgeGroupID, 
-    setValueDataSourceID, setValueDrValue, setValueRadTypeCode, setValueSubstFormID, setValueIrradiationID, setValueUpdateTime]); 
+  }, [setValueID, setValueIDInitial, setValueOrganID, setValueAgeGroupID, 
+    setValueDataSourceID, setValueDfValue, setValueAdValue, setValueUpdateTime]); 
 
   const handleRowClickAndCloseAlert = (rowParams) => {
     handleRowClick(rowParams);
@@ -155,62 +143,46 @@ const BigTableValueExtDose = (props) => {
   };    
 
   // Scrolling and positionning
-  const { paginationModel, setPaginationModel, scrollToIndexRef } = useGridScrollPagination(apiRef, tableValueExtDose, setRowSelectionModel);
+  const { paginationModel, setPaginationModel, scrollToIndexRef } = useGridScrollPagination(apiRef, tableDepositionFraction, setRowSelectionModel);
 
   // заголовки столбцов основной таблицы
-  const columnsValueExtDose = [
+  const columnsDepositionFraction = [
     { field: 'id', headerName: 'ID', width: 100 },
-    { field: 'people_class_name_rus', headerName: 'Тип облучаемых лиц', width: 180 },
-    { field: 'isotope_title', headerName: 'Нуклид', width: 100 },
-    { field: 'organ_name_rus', headerName: 'Орган', width: 200 },
+    { field: 'organ_name_rus', headerName: 'Орган/ткань', width: 200 },
     { field: 'agegroup_name_rus', headerName: 'Возрастная группа населения', width: 200 },
+    { field: 'ad', headerName: 'Аэродинамический диаметр (AD), мкм', width: 250 },
     { field: 'data_source_title', headerName: 'Источник данных', width: 200 },
-    { field: 'dr_value', headerName: 'Значение', width: 180 },
+    { field: 'df_value', headerName: 'Доля осаждения', width: 250 },
     { 
       field: 'updatetime', 
       headerName: 'Время последнего изменения', 
       width: 280,
       valueGetter: (params) => formatDate(params.value)
     },    
-    { field: 'rad_type_name_rus', headerName: 'Тип излучения', width: 200 },
-/*     { field: 'dose_ratio_title', headerName: 'Параметр', width: 200 }, */
    ]
 
   //объект для хранения текущего состояния фильтра - значения, выбранные в автокомплитах
   const [currFlt, setCurrFlt] = useState({
     selDataSourceValues: [],
-    selDoseRatioValue: null,
     selOrganValues: [],
-    selIrradiationValue: null,
-    selIsotopeValues: [],
-    selPeopleClassValues: [],
-    selRadTypeValues: [],
     selAgeGroupValues: [],
   });
 
   //примененный setApplFlt - то, что применено к таблице
   const [applFlt, setApplFlt] = useState({
     selDataSourceValues: [],
-    selDoseRatioValue: null,
     selOrganValues: [],
-    selIrradiationValue: null,
-    selIsotopeValues: [],
-    selPeopleClassValues: [],
-    selRegionRTValues: [],
     selAgeGroupValues: [],
   });
 
   const handleClearFilter = () => {
     setCurrFlt({
       selDataSourceValues: [],
-      selDoseRatioValue: null,
       selOrganValues: [],
-      selIrradiationValue: null,
-      selIsotopeValues: [],
-      selPeopleClassValues: [],
-      selRadTypeValues: [],
+      selAgeGroupValues: [],
     });
   }
+
   // Обновление текущего значения фильтра
   const updateCurrentFilter = (newFilterValue) => {
     setCurrFlt((prevFilter) => ({
@@ -224,37 +196,23 @@ const BigTableValueExtDose = (props) => {
     setApplFlt(prevState => {
       // Копируем все свойства из currFlt
       let newState = {...currFlt};
-      // Следующее сделано для того, чтобы невидимые (скрытые) контролы не попадали в примененный фильтр
+/*       // Следующее сделано для того, чтобы невидимые (скрытые) контролы не попадали в примененный фильтр
       if (!organVisible) { newState.selOrganValues = []; } 
       if (!agegroupVisible) { newState.selAgeGroupValues = []; }
-      if (!radTypeVisible) { newState.selRadTypeValues = []; }
 
       setOrganVisibleD(organVisible);
-      setRadTypeVisibleD(radTypeVisible);  
       setAgegroupVisibleD(agegroupVisible);  
 
           // Обновляем значения состояний
       if (newState.selDataSourceValues[0] && newState.selDataSourceValues[0].id) {
         setValueDataSourceID(newState.selDataSourceValues[0].id);
       }
-      if (newState.selDoseRatioValue && newState.selDoseRatioValue.id) {
-        setValueDoseRatioID(newState.selDoseRatioValue.id);
-      }
-      if (newState.selIrradiationValue && newState.selIrradiationValue.id) {
-        setValueIrradiationID(newState.selIrradiationValue.id);
-      }
-      if (newState.selPeopleClassValues[0] && newState.selPeopleClassValues[0].id) {
-        setValuePeopleClassID(newState.selPeopleClassValues[0].id);
-      }
-      if (newState.selIsotopeValues[0] && newState.selIsotopeValues[0].id) {
-        setValueIsotopeID(newState.selIsotopeValues[0].id);
-      }
       if (newState.selOrganValues[0] && newState.selOrganValues[0].id) {
         setValueOrganID(newState.selOrganValues[0].id);
       }
       if (newState.selAgeGroupValues[0] && newState.selAgeGroupValues[0].id) {
         setValueAgeGroupID(newState.selAgeGroupValues[0].id);
-      }
+      } */
       // Возвращаем новый объект, который будет новым состоянием
       return newState;
     });
@@ -266,53 +224,34 @@ const BigTableValueExtDose = (props) => {
   const [tableDataSourceFilteredEdit, settableDataSourceFilteredEdit] = useState([]); 
   const [tableOrgan, setTableOrgan] = useState([]);
   const [tableOrganFiltered, settableOrganFiltered] = useState([]);
-  const [tableIrradiation, setTableIrradiation] = useState([]);
-  const [tableIrradiationFiltered, settableIrradiationFiltered] = useState([]);  
-  const [tableIsotope, setTableIsotope] = useState([]);
-  const [tableIsotopeFiltered, settableIsotopeFiltered] = useState([]);
-  const [tableIntegralPeriod, setTableIntegralPeriod] = useState([]);
-  const [tableDoseRatio, setTableDoseRatio] = useState([]);
-  const [tableDoseRatioFiltered, settableDoseRatioFiltered] = useState([]);
   const [tableAgeGroup, setTableAgeGroup] = useState([]); //возрастные группы населения
   const [tableAgeGroupFiltered, settableAgeGroupFiltered] = useState([]);
-  const [tablePeopleClass, setTablePeopleClass] = useState([]); //Типы облучаемых лиц
-  const [tablePeopleClassFiltered, settablePeopleClassFiltered] = useState([]); //Типы облучаемых лиц  
-  const [tableRadType, setTableRadType] = useState([]); //Тип излучения
-  const [tableRadTypeFiltered, settableRadTypeFiltered] = useState([]); //Тип излучения
 
-  //это только для добавления в автокомплит
-  const [tableChemCompGr, setTableChemCompGr] = useState([]);  
-  const [tableExtDoseAttr, setTableExtDoseAttr] = useState([]); 
+  const [tableDepositionFractionAttr, setTableDepositionFractionAttr] = useState([]); 
   
   const [selectionModel, setselectionModel] = React.useState([]);
   const [tableDataSourceClass, setTableDataSourceClass] = useState([]);
   
-  const [searchValueNuclide, setSearchValueNuclide] = useState('');  
   const [searchValueDataSource, setSearchValueDataSource] = useState('');  
-  const [searchValuePeopleClass, setSearchValuePeopleClass] = useState('');
   const [searchValueOrgan, setSearchValueOrgan] = useState('');
   const [searchValueAgeGroup, setSearchValueAgeGroup] = useState('');
-  const [searchValueRadType, setSearchValueRadType] = useState('');
 
   // Состояния, определяющие видимость выпадающих списков
   const [organVisible, setOrganVisible] = useState(false);
   const [agegroupVisible, setAgegroupVisible] = useState(false);
-  const [radTypeVisible, setRadTypeVisible] = useState(false);
   
   // Состояния, определяющие видимость выпадающих списков в диалоге
   const [organVisibleD, setOrganVisibleD] = useState(false);
   const [agegroupVisibleD, setAgegroupVisibleD] = useState(false);
-  const [radTypeVisibleD, setRadTypeVisibleD] = useState(false);
 
   useEffect(() => { 
     let isOrganVisible = false;
     
     if ((currFlt.selDoseRatioValue && currFlt.selDoseRatioValue.hasOwnProperty('id')) ||
         (currFlt.selDataSourceValues && currFlt.selDataSourceValues.length > 0)) {
-      tableExtDoseAttr.forEach(item => {
-        const matchDoseRatio = currFlt.selDoseRatioValue && item.dose_ratio_id === currFlt.selDoseRatioValue.id;
+      tableDepositionFractionAttr.forEach(item => {
         const matchDataSource = currFlt.selDataSourceValues.some(dataSource => dataSource.id === item.data_source_id);
-        if(matchDoseRatio && matchDataSource){
+        if(matchDataSource){
           if(item.organ_id >= 0) isOrganVisible = true;
         }
       });
@@ -321,25 +260,31 @@ const BigTableValueExtDose = (props) => {
     setOrganVisible(isOrganVisible);
     if (!isOrganVisible)
       updateCurrentFilter({ selOrganValues: [] });     
-  }, [ tableExtDoseAttr, currFlt.selDoseRatioValue, currFlt.selDataSourceValues ]);
+  }, [ tableDepositionFractionAttr, currFlt.selDoseRatioValue, currFlt.selDataSourceValues ]);
 
 
   useEffect(() => { 
-    // Получаем все уникальные data_source_id из tableExtDoseAttr
-    const uniqueDataSourceIds = [...new Set(tableExtDoseAttr.map(item => item.data_source_id))];
+    // Получаем все уникальные data_source_id из tableDepositionFractionAttr
+    const uniqueDataSourceIds = [...new Set(tableDepositionFractionAttr.map(item => item.data_source_id))];
     // Фильтруем tableDataSource по уникальным data_source_id
     const filteredDataSource = tableDataSource.filter(item => uniqueDataSourceIds.includes(item.id));
     // Устанавливаем отфильтрованные данные в состояние
     setTableDataSourceFiltered(filteredDataSource);
-  }, [tableExtDoseAttr, tableDataSource]);
+
+    if (filteredDataSource.length===1) 
+    {
+      currFlt.selDataSourceValues = filteredDataSource;
+    }
+    
+  }, [tableDepositionFractionAttr, tableDataSource]);
   
   
-   useEffect(() => { 
+/*    useEffect(() => { 
     let isRadTypeVisible = false;
     
     if ((currFlt.selIrradiationValue && currFlt.selIrradiationValue.hasOwnProperty('id')) ||
         (currFlt.selDataSourceValues && currFlt.selDataSourceValues.length > 0)) {
-      tableExtDoseAttr.forEach(item => {
+      tableDepositionFractionAttr.forEach(item => {
         const matchIrradiation = currFlt.selIrradiationValue && item.irradiation_id === currFlt.selIrradiationValue.id;
         const matchDataSource = currFlt.selDataSourceValues.some(dataSource => dataSource.id === item.data_source_id);
         if(matchIrradiation && matchDataSource){
@@ -351,17 +296,16 @@ const BigTableValueExtDose = (props) => {
     setRadTypeVisible(isRadTypeVisible);
     if (!isRadTypeVisible)
       updateCurrentFilter({ selRadTypeValues: [] }); 
-  }, [tableExtDoseAttr, currFlt.selIrradiationValue, currFlt.selDataSourceValues]);
-  
+  }, [tableDepositionFractionAttr, currFlt.selIrradiationValue, currFlt.selDataSourceValues]);
+   */
   useEffect(() => { 
     let isAgegroupVisible = false;
     
     if ((currFlt.selPeopleClassValues && currFlt.selPeopleClassValues.length > 0) ||
         (currFlt.selDataSourceValues && currFlt.selDataSourceValues.length > 0)) {
-      tableExtDoseAttr.forEach(item => {
-        const matchPeopleClass = currFlt.selPeopleClassValues.some(peopleClass => peopleClass.id === item.people_class_id);
+      tableDepositionFractionAttr.forEach(item => {
         const matchDataSource = currFlt.selDataSourceValues.some(dataSource => dataSource.id === item.data_source_id);
-        if(matchPeopleClass && matchDataSource){
+        if(matchDataSource){
           if(item.agegroup_id >= 0) isAgegroupVisible = true;
         }
       });
@@ -370,18 +314,13 @@ const BigTableValueExtDose = (props) => {
     setAgegroupVisible(isAgegroupVisible);
     if (!isAgegroupVisible)
       updateCurrentFilter({ selAgeGroupValues: [] });     
-  }, [tableExtDoseAttr, currFlt.selPeopleClassValues, currFlt.selDataSourceValues]);
+  }, [tableDepositionFractionAttr, currFlt.selDataSourceValues]);
 
   const handleChangeDataSource = (event, value) => {
     // Обновление значения компонента Autocomplete
     const newFilter = {
       selDataSourceValues: value,
-      selDoseRatioValue: null,
       selOrganValues: [],
-      selIrradiationValue: null,
-      selRadTypeValues: [],
-      selIsotopeValues: [],
-      selPeopleClassValues: [],
       selAgeGroupValues: [],
     };
     updateCurrentFilter(newFilter);
@@ -406,32 +345,6 @@ const BigTableValueExtDose = (props) => {
   useEffect(() => {
     //взяли айди выбранных источников данных
     let ids = currFlt.selDataSourceValues.map(item => item.id);
-    //отфильтровали dose_ratio.id для выбранных источников данных, чтобы отфильтровать его автокомплит
-    let ids_dose_ratio = tableDataSourceClass.filter(item => ((item.table_name === 'dose_ratio' )&&(ids.includes(item.data_source_id))) ).map(item => item.rec_id);
-    let filteredDoseRatio = tableDoseRatio.filter(item => ((ids_dose_ratio.includes(item.id))) );
-    console.log('filteredDoseRatio', filteredDoseRatio);
-    settableDoseRatioFiltered( filteredDoseRatio ); 
-    // если отфильтрованная таблица DoseRatio не содержит значение, выбранное в выпадающем списке
-    if ((filteredDoseRatio&&currFlt.selDoseRatioValue)&&(!filteredDoseRatio.some(item => item.id === currFlt.selDoseRatioValue.id) )) 
-      updateCurrentFilter({ selDoseRatioValue: [] });
-
-    // то же самое для остальных автокомплитов
-    let ids_irradiation = tableDataSourceClass.filter(item => ((item.table_name === 'irradiation' )&&(ids.includes(item.data_source_id))) ).map(item => item.rec_id);
-    let filteredIrradiation = tableIrradiation.filter(item => ((ids_irradiation.includes(item.id))) );
-    const prefix = "EXT_";
-    filteredIrradiation = filteredIrradiation.filter(irradiation => irradiation.title.startsWith(prefix));
-
-    settableIrradiationFiltered( filteredIrradiation ); 
-    if ((filteredIrradiation&&currFlt.selIrradiationValue)&&(!filteredIrradiation.some(item => item.id === currFlt.selIrradiationValue.id) )) 
-      updateCurrentFilter({ selIrradiationValue: [] });
-
-    let ids_people_class = tableDataSourceClass.filter(item => ((item.table_name === 'people_class' )&&(ids.includes(item.data_source_id))) ).map(item => item.rec_id);
-    let filteredPeopleClass = tablePeopleClass.filter(item => ((ids_people_class.includes(item.id))) );
-    settablePeopleClassFiltered( filteredPeopleClass ); 
-    //удалить недоступные значения из фильтра
-    const newPeopleClassValues = currFlt.selPeopleClassValues.filter((value) => 
-      filteredPeopleClass.some((filteredValue) => filteredValue.id === value.id));
-    updateCurrentFilter({ selPeopleClassValues: newPeopleClassValues });
 
     let ids_agegroup = tableDataSourceClass.filter(item => ((item.table_name === 'agegroup' )&&(ids.includes(item.data_source_id))) ).map(item => item.rec_id);
     let filteredAgeGroup = tableAgeGroup.filter(item => ((ids_agegroup.includes(item.id))) );
@@ -443,25 +356,12 @@ const BigTableValueExtDose = (props) => {
     }
     updateCurrentFilter({ selAgeGroupValues: newAgeGroupValues });
 
-    let ids_rad_type = tableDataSourceClass.filter(item => ((item.table_name === 'radiation_type' )&&(ids.includes(item.data_source_id))) ).map(item => item.rec_id);
-    let filteredRadType = tableRadType.filter(item => ((ids_rad_type.includes(item.id))) );
-    settableRadTypeFiltered( filteredRadType );
-    let newRadTypeValues = [];
-    if (radTypeVisible) {
-      newRadTypeValues = currFlt.selRadTypeValues.filter((value) => 
-        filteredRadType.some((filteredValue) => filteredValue.id === value.id));
-    }
-    updateCurrentFilter({ selRadTypeValues: newRadTypeValues });
-
-
     let ids_organ = tableDataSourceClass.filter(item => ((item.table_name === 'organ' )&&(ids.includes(item.data_source_id))) ).map(item => item.rec_id);
     let filteredOrgan = tableOrgan.filter(item => ((ids_organ.includes(item.id))) );
-
     // Добавление родительских элементов
     filteredOrgan.forEach(item => {
       addParentItems(item, tableOrgan, filteredOrgan);
     });
-
     settableOrganFiltered( filteredOrgan );     
     //удалить недоступные значения из фильтра
     let newOrganValues = [];
@@ -471,29 +371,15 @@ const BigTableValueExtDose = (props) => {
     }
     updateCurrentFilter({ selOrganValues: newOrganValues });       
 
-    let ids_isotope = tableDataSourceClass.filter(item => ((item.table_name === 'isotope' )&&(ids.includes(item.data_source_id))) ).map(item => item.rec_id);
-    let filteredIsotope = tableIsotope.filter(item => ((ids_isotope.includes(item.id))) );
-    settableIsotopeFiltered( filteredIsotope );
-     //удалить недоступные значения из фильтра
-    const newIsotopeValues = currFlt.selIsotopeValues.filter((value) => 
-      filteredIsotope.some((filteredValue) => filteredValue.id === value.id));
-    updateCurrentFilter({ selIsotopeValues: newIsotopeValues });      
-
-       // eslint-disable-next-line react-hooks/exhaustive-deps
+ 
+     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currFlt.selDataSourceValues,
       organVisible,
       agegroupVisible,
-      radTypeVisible,
       tableDataSourceClass, 
-      tableDoseRatio, 
-      tableIrradiation,
-      tableIntegralPeriod,  
-      tableIsotope, 
-      tablePeopleClass,
       tableAgeGroup,
       tableOrgan,
-      tableExtDoseAttr,
-      tableRadType
+      tableDepositionFractionAttr
     ]);
  
   //обработчики автокомплитов
@@ -506,7 +392,8 @@ const BigTableValueExtDose = (props) => {
 
   const handleClickEditNew = () => {
     setValueID(null);
-    setValueDrValue(null);
+    setValueDfValue(null);
+    setValueAdValue(null);
     setValueUpdateTime(null);
     setOpenEdit(true);
   };
@@ -525,7 +412,7 @@ const BigTableValueExtDose = (props) => {
 
   const handleCloseEditNo = () => {
     if (valueIDInitial) {
-      const foundRow = tableValueExtDose.find(row => row.id === valueIDInitial);
+      const foundRow = tableDepositionFraction.find(row => row.id === valueIDInitial);
       if (foundRow) {
         handleRowClick({ row: foundRow });
       }
@@ -561,9 +448,8 @@ const BigTableValueExtDose = (props) => {
   const saveRec = async ( fromToolbar ) => {
     if (formRefDialog.current.reportValidity() ) {
       const js = JSON.stringify({
-        dose_ratio_id: valueDoseRatioID,
-        dr_value: valueDrValue,
-        rad_type_code: valueRadTypeCode    
+        df_value: valueDfValue,
+        ad: valueAdValue,
       });
   
       if (!valueID) {
@@ -602,15 +488,11 @@ const BigTableValueExtDose = (props) => {
 /////////////////////////////////////////////////////////////////// ADDREC ///////////////////// 
 const addRec = async () => {
   const js = JSON.stringify({
-    dose_ratio_id: valueDoseRatioID,
-    dr_value: valueDrValue,
-    people_class_id: valuePeopleClassID,
-    isotope_id: valueIsotopeID,
+    df_value: valueDfValue,
+    ad: valueAdValue,
     organ_id: valueOrganID,
     agegroup_id: valueAgeGroupID,
     data_source_id: valueDataSourceID,
-    irradiation_id: valueIrradiationID,
-    rad_type_code: valueRadTypeCode,
   });
 
   setIsLoading(true);
@@ -627,7 +509,7 @@ const addRec = async () => {
 
     let responseText = await response.text();
     
-    if (responseText.includes('value_ext_dose_1_uidx')) {
+    if (responseText.includes('deposition_fraction_1_uidx')) {
       responseText = 'Запись не добавлена. Запись с таким набором значений классификаторов уже существует';
     } else if (response.ok) {
       responseText = 'Запись добавлена';
@@ -639,7 +521,7 @@ const addRec = async () => {
     setOpenAlert(true);
 
   } catch (err) {
-    const errorMessage = err.message.includes('value_ext_dose_1_uidx') 
+    const errorMessage = err.message.includes('deposition_fraction_1_uidx') 
       ? 'Запись не добавлена. Запись с таким набором значений классификаторов уже существует'
       : err.message;
 
@@ -689,9 +571,9 @@ const delRec = async () => {
       }
       else
       {
-        if (tableValueExtDose[0]) {
-          setValueID(tableValueExtDose[0].id);
-          setAddedId(tableValueExtDose[0].id);
+        if (tableDepositionFraction[0]) {
+          setValueID(tableDepositionFraction[0].id);
+          setAddedId(tableDepositionFraction[0].id);
         }
       }          
       reloadData();
@@ -718,35 +600,27 @@ const fetchData = async (url, setStateFunc) => {
 useEffect(() => {
   fetchData('/data_source', setTableDataSource);
   fetchData(`/data_source_class_min`, setTableDataSourceClass);
-  fetchData(`/irradiation`, setTableIrradiation);
-  fetchData(`/isotope_min`, setTableIsotope);
-  fetchData(`/integral_period/`, setTableIntegralPeriod);
-  fetchData(`/dose_ratio/`, setTableDoseRatio);
-  fetchData(`/agegroup/`, setTableAgeGroup);
-  fetchData(`/radiation_type/`, setTableRadType);
-  fetchData(`/people_class/`, setTablePeopleClass);
-  fetchData(`/ext_dose_attr`, setTableExtDoseAttr);
+  fetchData(`/deposition_fraction_attr`, setTableDepositionFractionAttr);
   fetchData(`/organ`, setTableOrgan);
+  fetchData(`/agegroup`, setTableAgeGroup);
 }, [props.table_name]);
 
 const checkColumns = React.useCallback((data, flt) => {
   let columnsToShow = {
     'id': false,
-    'dr_value': true,
+    'df_value': true,
+    'ad': true,
     'updatetime': true,
-    'rad_type_code_name_rus': true,
-    'dose_ratio_id': false,
-    'irradiation_id': false
   };
 
   const specialCols = {
     'organ_name_rus': 'selOrganValues', 
     'agegroup_name_rus': 'selAgeGroupValues', 
-    'isotope_title': 'selIsotopeValues', 
-    'people_class_name_rus': 'selPeopleClassValues',
-    'rad_type_name_rus': 'selRadTypeValues',
     'data_source_title': 'selDataSourceValues' 
   };
+
+  console.log('flt.selOrganValues',flt.selOrganValues);
+  console.log('flt.selAgeGroupValues',flt.selAgeGroupValues);
 
   for (let colName in specialCols) {
     let currFltName = specialCols[colName];
@@ -760,7 +634,7 @@ const checkColumns = React.useCallback((data, flt) => {
       if (data.length > 0) {
         allColumnValuesSame = onlyOneFilterValue && data.every((row) => row[colName] === data[0][colName]);
       }
-      columnsToShow[colName] = !allColumnValuesSame;
+      columnsToShow[colName] =  !allColumnValuesSame;
     }
   }
 
@@ -772,7 +646,7 @@ const checkColumns = React.useCallback((data, flt) => {
   const checkColumns = React.useCallback((data, flt) => {
     let columnsToShow = {
       'id': false,
-      'dr_value': true,
+      'df_value': true,
       'updatetime': true,
       'rad_type_code_name_rus': true,
       'dose_ratio_id': false,
@@ -842,7 +716,7 @@ const checkColumns = React.useCallback((data, flt) => {
   const reloadData = React.useCallback(async (wasAddOperation = false) => {
 
     if ((!applFlt.selDataSourceValues) || (applFlt.selDataSourceValues.length === 0)) {
-      setTableValueExtDose([]);
+      setTableDepositionFraction([]);
       return;
     }
   
@@ -851,17 +725,12 @@ const checkColumns = React.useCallback((data, flt) => {
       const params = new URLSearchParams({
         data_source_id: getIdList(applFlt.selDataSourceValues),
         organ_id: getIdList(applFlt.selOrganValues),
-        irradiation_id: getIdList(applFlt.selIrradiationValue),
-        isotope_id: getIdList(applFlt.selIsotopeValues),
-        dose_ratio_id: getIdList(applFlt.selDoseRatioValue),
         agegroup_id: getIdList(applFlt.selAgeGroupValues),
-        people_class_id: getIdList(applFlt.selPeopleClassValues),
-        rad_type_code: getCodeList(applFlt.selRadTypeValues),
         page: pageState.page + 1,
         pagesize: pageState.pageSize
       });
   
-      const response = await fetch(`/value_ext_dose?${params}`); 
+      const response = await fetch(`/deposition_fraction?${params}`); 
   
       if (!response.ok) {
         setAlertSeverity("false");
@@ -871,7 +740,7 @@ const checkColumns = React.useCallback((data, flt) => {
       
       const result = await response.json();
       const vidColumnVisibilityModel1 = checkColumns(result, applFlt);
-      setTableValueExtDose(result);
+      setTableDepositionFraction(result);
       setVidColumnVisibilityModel(vidColumnVisibilityModel1);
 
       console.log( 'vidColumnVisibilityModel', vidColumnVisibilityModel1 );
@@ -913,7 +782,7 @@ const [shouldReload, setShouldReload] = useState(false);
 
 useEffect(() => {
   if ((!applFlt.selDataSourceValues) || (applFlt.selDataSourceValues.length === 0)) {
-    setTableValueExtDose([]);
+    setTableDepositionFraction([]);
     return;
   }  
 
@@ -940,35 +809,12 @@ useEffect(() => {
   }
 }, [shouldReload, reloadData]);
 
-const [tablePeopleClassFilteredEdit, settablePeopleClassFilteredEdit] = useState([]);
 const [tableAgeGroupFilteredEdit, settableAgeGroupFilteredEdit] = useState([]);
-const [tableIntegralPeriodFilteredEdit, settableIntegralPeriodFilteredEdit] = useState([]);
 const [tableOrganFilteredEdit, settableOrganFilteredEdit] = useState([]); //список органов в окне редактирования записи
-const [tableIsotopeFilteredEdit, settableIsotopeFilteredEdit] = useState([]);
-const [tableRadTypeFilteredEdit, settableRadTypeFilteredEdit] = useState([]);
 
 useEffect(() => { settableDataSourceFilteredEdit(applFlt.selDataSourceValues); }, [applFlt.selDataSourceValues]);
 useEffect(() => { settableOrganFilteredEdit(applFlt.selOrganValues); }, [applFlt.selOrganValues]);
-useEffect(() => { settablePeopleClassFilteredEdit(applFlt.selPeopleClassValues); }, [applFlt.selPeopleClassValues]);
 useEffect(() => { settableAgeGroupFilteredEdit(applFlt.selAgeGroupValues); }, [applFlt.selAgeGroupValues]);
-useEffect(() => { settableIntegralPeriodFilteredEdit(applFlt.selIntegralPeriodValues); }, [applFlt.selIntegralPeriodValues]);
-useEffect(() => { settableIsotopeFilteredEdit(applFlt.selIsotopeValues); }, [applFlt.selIsotopeValues]);
-useEffect(() => { settableRadTypeFilteredEdit(applFlt.selRadTypeValues); }, [applFlt.selRadTypeValues]);
-
-useEffect(() => {
-  if (!valueDataSourceID) 
-    return;
-  const filterTable = (tableName, table) => 
-    table.filter(item => 
-      tableDataSourceClass.some(dataSourceClassItem => 
-        dataSourceClassItem.table_name === tableName &&
-        dataSourceClassItem.rec_id === item.id && 
-        dataSourceClassItem.data_source_id === valueDataSourceID
-      )
-    );
-
-     
-}, [tableDataSourceClass, valueDataSourceID, tableChemCompGr]);
 
 const reloadDataHandler = async () => {
   if (formRef.current.reportValidity()) {
@@ -1050,7 +896,7 @@ const reloadDataHandler = async () => {
       const csvFilterCaption = formatFilterCaption(filterCaption);
       const customText = csvFilterCaption; 
       const dataToExport = rows.map((row) => {
-        const rowData = tableValueExtDose.find((item) => item.id === row);
+        const rowData = tableDepositionFraction.find((item) => item.id === row);
         if (rowData) {
             const valuesToExport = visibleColumns.map((column) => {
                 let cell = rowData[column.field];
@@ -1090,10 +936,10 @@ const reloadDataHandler = async () => {
         <IconButton onClick={()=>handleClickEditNew()} disabled={false} color="primary" size="small" title="Создать запись">
           <SvgIcon fontSize="small" component={PlusLightIcon} inheritViewBox /></IconButton>
 
-        <IconButton onClick={()=>handleClickEdit()} disabled={(!valueID || !tableValueExtDose || tableValueExtDose.length === 0 )} color="primary" size="small" title="Редактировать запись">
+        <IconButton onClick={()=>handleClickEdit()} disabled={(!valueID || !tableDepositionFraction || tableDepositionFraction.length === 0 )} color="primary" size="small" title="Редактировать запись">
           <SvgIcon fontSize="small" component={EditLightIcon} inheritViewBox /></IconButton> 
 
-        <IconButton onClick={()=>handleClickDelete()} disabled={(!valueID || !tableValueExtDose || tableValueExtDose.length === 0 )} color="primary" size="small" title="Удалить запись">
+        <IconButton onClick={()=>handleClickDelete()} disabled={(!valueID || !tableDepositionFraction || tableDepositionFraction.length === 0 )} color="primary" size="small" title="Удалить запись">
           <SvgIcon fontSize="small" component={TrashLightIcon} inheritViewBox /></IconButton>
 
         <IconButton onClick={()=>setShouldReload(true)} color="primary" size="small" title="Обновить данные">
@@ -1109,7 +955,7 @@ const reloadDataHandler = async () => {
           }
           color="primary"
           size="small"
-          disabled={( !tableValueExtDose || tableValueExtDose.length === 0 )}
+          disabled={( !tableDepositionFraction || tableDepositionFraction.length === 0 )}
           title="Сохранить в формате CSV"
         >
           <SvgIcon fontSize="small" component={DownloadLightIcon} inheritViewBox />
@@ -1120,6 +966,7 @@ const reloadDataHandler = async () => {
 
   const GetFilterCaption = useCallback(() => {
 
+    
     if (JSON.stringify(currFlt) !== JSON.stringify(applFlt) || (currFlt.selDataSourceValues&&currFlt.selDataSourceValues.length===0) )  {
       return (
         <><br />Нажмите кнопку "Получить данные", чтобы отобразить таблицу.</>
@@ -1127,37 +974,21 @@ const reloadDataHandler = async () => {
     }
     return (
       <><br />
-        {applFlt.selDoseRatioValue && (
+        {applFlt.selAgeGroupValues.length === 1 && (
           <>
-            Параметр: {applFlt.selDoseRatioValue.title}, {applFlt.selDoseRatioValue.name_rus}
-            , ед.измерения (базовая) {applFlt.selDoseRatioValue.sign}
-            {applFlt.selOrganValues.length === 1 ? `, ${applFlt.selOrganValues[0].name_rus}` : ''}
+            Возрастная группа населения : {applFlt.selAgeGroupValues[0].name_rus}
             <br />
           </>
         )}
-        {applFlt.selIrradiationValue && (
+        {applFlt.selOrganValues.length === 1 && (
           <>
-            Тип облучения: {applFlt.selIrradiationValue.name_rus}
-            {applFlt.selRadTypeValues.length === 1 ? `, ${applFlt.selRadTypeValues[0].name_rus}` : ''}
-            <br />
-          </>
-        )}
-        {applFlt.selPeopleClassValues.length === 1 && (
-          <>
-            Тип облучаемых лиц: {applFlt.selPeopleClassValues[0].name_rus}
-            {applFlt.selAgeGroupValues.length === 1 ? `, ${applFlt.selAgeGroupValues[0].name_rus}` : ''}
+            Регион РТ: {applFlt.selOrganValues[0].name_rus}
             <br />
           </>
         )}
         {applFlt.selDataSourceValues.length === 1 && (
           <>
             Источник данных: {applFlt.selDataSourceValues[0].shortname}
-            <br />
-          </>
-        )}
-        {applFlt.selIsotopeValues.length === 1 && (
-          <>
-            Нуклид: {applFlt.selIsotopeValues[0].title}
             <br />
           </>
         )}
@@ -1211,7 +1042,7 @@ const reloadDataHandler = async () => {
 
         <AccordionDetails>
         <Grid container spacing={1.5}>
-          <Grid item xs={3}>
+          <Grid item xs={4}>
             <Grid container spacing={1}> 
               <Grid item xs={11}>
                 <Autocomplete
@@ -1307,40 +1138,11 @@ const reloadDataHandler = async () => {
               </Grid>
             </Grid> {/* container spacing={1} */}       
           </Grid> {/* item */}
-          <Grid item xs={3}>
-          </Grid>
-          <Grid item xs={3}>
-          </Grid>
-          <Grid item xs={3}>
+          <Grid item xs={8}>
           </Grid>
  
-          <Grid item xs={3}>
-           <Grid item xs={11}>
-           <Autocomplete
-            size="small"
-            value={currFlt.selDoseRatioValue}
-            onChange={handleChangeDoseRatio}
-            id="autocomplete-dose_ratio"
-            options={tableDoseRatioFiltered.filter((row) => row.dr_type === "e")}
-            getOptionLabel={(option) => option ? `${option.title}, ${option.name_rus}` : ''}
-            renderInput={(params) => {
-              const inputProps = {
-                ...params.inputProps,
-                value: tableDoseRatioFiltered.length === 0 ? "Выбор отсутствует" : params.inputProps.value,
-              };
-              return (
-                <Tooltip enterDelay={500} title={currFlt.selDoseRatioValue ? `${currFlt.selDoseRatioValue.title}, ${currFlt.selDoseRatioValue.name_rus}` : ""}>
-                  <TextField {...params} inputProps={inputProps} label="Параметр" placeholder="Параметр" required/>
-                </Tooltip>
-              );
-            }}            
-          />            
-          </Grid>
-          <Grid item xs={1} display="flex" alignItems="center">
-          </Grid>          
-          </Grid>
-          <Grid item xs={3}>
-            { organVisible && ( 
+          <Grid item xs={4}>
+            { true && ( 
             <Grid container spacing={1}> 
               <Grid item xs={11}>
                 <Autocomplete
@@ -1456,263 +1258,11 @@ const reloadDataHandler = async () => {
             </Grid> 
             )}  {/* container spacing={1} */}
           </Grid>
-          <Grid item xs={3}>
-          </Grid>
-          <Grid item xs={3}>
-          </Grid>          
-          <Grid item xs={3}>
-            <Grid item xs={11}>
-              <Autocomplete
-                size="small"
-                value={currFlt.selIrradiationValue}
-                onChange={handleChangeIrradiation}
-                id="autocomplete-irradiation"
-                options={ tableIrradiationFiltered } 
-                getOptionLabel={(option) => option.name_rus?option.name_rus:''}
-                renderInput={(params) => {
-                  const inputProps = {
-                    ...params.inputProps,
-                    value: tableIrradiationFiltered.length===0 ? "Выбор отсутствует" : params.inputProps.value,
-                  };
-                  return <TextField {...params} inputProps={inputProps} label="Тип облучения" placeholder="Тип облучения" required/>;
-                }}                 
-              />    
-            </Grid><Grid item xs={1} display="flex" alignItems="center"></Grid>                
+          <Grid item xs={8}>
           </Grid>
 
-
-           
-
-          {/* Тип радиации */}
-          <Grid item xs={3}>
-            
-
-          {/* пока эти опции взаимоисключающие, запихнем в одну ячейку */}
-          { radTypeVisible && (
-            
-            <Grid container spacing={1}> 
-              <Grid item xs={11}>
-                <Autocomplete
-                  size="small"
-                  value={currFlt.selRadTypeValues}
-                  isOptionEqualToValue={(option, value) => option.id === value.id}
-                  onChange={(event, newValue) => {
-                    setCurrFlt({
-                      ...currFlt,
-                      selRadTypeValues: newValue,
-                    });
-                  }}
-                  onInputChange={(event, newInputValue, reason) => {
-                    if (reason !== "reset") {
-                      setSearchValueRadType(newInputValue);
-                    }
-                  }}
-                  onClose={() => { setSearchValueRadType(""); }}
-                  inputValue={searchValueRadType}
-                  multiple
-                  limitTags={7}
-                  id="autocomplete-people_class"
-                  options={tableRadTypeFiltered}
-                  getOptionLabel={(option) => option.name_rus}
-                  disableCloseOnSelect
-                  renderOption={(props, option, { selected }) => (
-                    <li {...props} /* style={{ height: '35px', }} */>
-                      <Checkbox
-                        size="small"
-                        icon={icon}
-                        checkedIcon={checkedIcon}
-                        style={{ marginRight: 8 }}
-                        checked={selected}
-                      />
-                      <Tooltip title={option.name_eng}>
-                        <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
-                          <span>{option.name_rus}</span>
-                          <span></span>
-                        </div>
-                      </Tooltip>
-                    </li>
-                  )}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      InputProps={{
-                        ...params.InputProps,
-                        endAdornment: (
-                          <>
-                            {searchValueRadType && (
-                              <InputAdornment position="end">
-                                <LightTooltip title="Добавить найденные">
-                                <StyledIconButton
-                                  onClick={() => {
-                                    const filteredOptions = filterOptionsNameRus(tableRadTypeFiltered, { inputValue: searchValueRadType });
-                                    const newValues = [...currFlt.selRadTypeValues, ...filteredOptions];
-                                    setCurrFlt({
-                                      ...currFlt,
-                                      selRadTypeValues: newValues,
-                                    });
-                                    setSearchValueRadType("");
-                                    params.inputProps.ref.current.blur();
-                                  }}
-                                >
-                                  <CheckIcon fontSize="small" />
-                                </StyledIconButton>
-                                </LightTooltip>
-                              </InputAdornment>
-                            )}
-                            {params.InputProps.endAdornment}
-                          </>
-                        ),
-                      }}
-
-                      inputProps={{
-                        ...params.inputProps,
-                        required: currFlt.selRadTypeValues.length === 0,
-                        value: tableRadTypeFiltered.length === 0 ? "Выбор отсутствует" : params.inputProps.value,
-                      }}
-                      label="Типы излучения"
-                      placeholder="Типы излучения"
-                      required
-                    />
-                  )}
-                />                
-              </Grid>
-              <Grid item xs={1} display="flex" alignItems="center">
-                <IconButton
-                  onClick={async () => {
-                    setCurrFlt({
-                      ...currFlt,
-                      selRadTypeValues: tableRadTypeFiltered,
-                    });
-                  }}                
-                  color="primary"
-                  size="small"
-                  title="Выбрать все"
-                  style={{ marginLeft: -2 }}   
-                >
-                  <SvgIcon fontSize="small" component={CheckDoubleIcon} inheritViewBox />
-                </IconButton>      
-              </Grid>
-            </Grid> 
-            )}             
-          </Grid>
-
-          <Grid item xs={3}>
-             
-          </Grid>         
-           
-          <Grid item xs={3}>
-             
-          </Grid>
-
-          <Grid item xs={3}>
-            <Grid container spacing={1}> 
-              <Grid item xs={11}>
-                <Autocomplete
-                  size="small"
-                  value={currFlt.selPeopleClassValues}
-                  isOptionEqualToValue={(option, value) => option.id === value.id}
-                  onChange={(event, newValue) => {
-                    setCurrFlt({
-                      ...currFlt,
-                      selPeopleClassValues: newValue,
-                    });
-                  }}
-                  onInputChange={(event, newInputValue, reason) => {
-                    if (reason !== "reset") {
-                      setSearchValuePeopleClass(newInputValue);
-                    }
-                  }}
-                  onClose={() => { setSearchValuePeopleClass(""); }}
-                  inputValue={searchValuePeopleClass}
-                  multiple
-                  limitTags={7}
-                  id="autocomplete-people_class"
-                  options={tablePeopleClassFiltered}
-                  getOptionLabel={(option) => option.name_rus}
-                  disableCloseOnSelect
-                  renderOption={(props, option, { selected }) => (
-                    <li {...props} /* style={{ height: '35px', }} */>
-                      <Checkbox
-                        size="small"
-                        icon={icon}
-                        checkedIcon={checkedIcon}
-                        style={{ marginRight: 8 }}
-                        checked={selected}
-                      />
-                      <Tooltip title={option.name_eng}>
-                        <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
-                          <span>{option.name_rus}</span>
-                          <span></span>
-                        </div>
-                      </Tooltip>
-                    </li>
-                  )}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      InputProps={{
-                        ...params.InputProps,
-                        endAdornment: (
-                          <>
-                            {searchValuePeopleClass && (
-                              <InputAdornment position="end">
-                                <LightTooltip title="Добавить найденные">
-                                <StyledIconButton
-                                  onClick={() => {
-                                    const filteredOptions = filterOptionsNameRus(tablePeopleClassFiltered, { inputValue: searchValuePeopleClass });
-                                    const newValues = [...currFlt.selPeopleClassValues, ...filteredOptions];
-                                    setCurrFlt({
-                                      ...currFlt,
-                                      selPeopleClassValues: newValues,
-                                    });
-                                    setSearchValuePeopleClass("");
-                                    params.inputProps.ref.current.blur();
-                                  }}
-                                >
-                                  <CheckIcon fontSize="small" />
-                                </StyledIconButton>
-                                </LightTooltip>
-                              </InputAdornment>
-                            )}
-                            {params.InputProps.endAdornment}
-                          </>
-                        ),
-                      }}
-
-                      inputProps={{
-                        ...params.inputProps,
-                        required: currFlt.selPeopleClassValues.length === 0,
-                        value: tablePeopleClassFiltered.length === 0 ? "Выбор отсутствует" : params.inputProps.value,
-                      }}
-                      label="Типы облучаемых лиц"
-                      placeholder="Типы облучаемых лиц"
-                      required
-                    />
-                  )}
-                />                
-              </Grid>
-              <Grid item xs={1} display="flex" alignItems="center">
-                <IconButton
-                  onClick={async () => {
-                    setCurrFlt({
-                      ...currFlt,
-                      selPeopleClassValues: tablePeopleClassFiltered,
-                    });
-                  }}                
-                  color="primary"
-                  size="small"
-                  title="Выбрать все"
-                  style={{ marginLeft: -2 }}   
-                >
-                  <SvgIcon fontSize="small" component={CheckDoubleIcon} inheritViewBox />
-                </IconButton>      
-              </Grid>
-            </Grid> 
-            {/* container spacing={1} */}
-          </Grid>
-
-          { agegroupVisible && ( 
-          <Grid item xs={3}>
+          { true && ( 
+          <Grid item xs={4}>
             <Grid container spacing={1}> 
               <Grid item xs={11}>
                 <Autocomplete
@@ -1818,120 +1368,10 @@ const reloadDataHandler = async () => {
           </Grid>
           )}
 
-          <Grid item xs={3}>
+          <Grid item xs={8}>
              
           </Grid>
-
-          {!agegroupVisible && (
-            <Grid item xs={3}>
-          </Grid>)}
-
-          <Grid item xs={3}>
-          </Grid>
-
-          <Grid item xs={3}>
-            <Grid container spacing={1}> 
-              <Grid item xs={11}>
-                <Autocomplete
-                  size="small"
-                  value={currFlt.selIsotopeValues}
-                  isOptionEqualToValue={(option, value) => option.id === value.id}
-                  onChange={(event, newValue) => {
-                    setCurrFlt({
-                      ...currFlt,
-                      selIsotopeValues: newValue,
-                    });
-                  }}
-                  onInputChange={(event, newInputValue, reason) => {
-                    if (reason !== "reset") {
-                      setSearchValueNuclide(newInputValue);
-                    }
-                  }}
-                  inputValue={searchValueNuclide}
-                  onClose={() => { setSearchValueNuclide(""); }}
-                  multiple
-                  limitTags={7}
-                  id="autocomplete-isotope"
-                  options={tableIsotopeFiltered}
-                  getOptionLabel={(option) => option.title}
-                  disableCloseOnSelect
-                  renderOption={(props, option, { selected }) => (
-                    <li {...props} /* style={{ height: '35px', }} */>
-                      <Checkbox
-                        size="small"
-                        icon={icon}
-                        checkedIcon={checkedIcon}
-                        style={{ marginRight: 8 }}
-                        checked={selected}
-                      />
-                      {option.title}
-                    </li>
-                  )}
-                  renderInput={(params) => (
-                    <TextField
-                      {...params}
-                      InputProps={{
-                        ...params.InputProps,
-                        endAdornment: (
-                          <>
-                            {searchValueNuclide && (
-                              <InputAdornment position="end">
-                                <LightTooltip title="Добавить найденные">
-                                <StyledIconButton
-                                  onClick={() => {
-                                    const filteredOptions = filterOptions(tableIsotopeFiltered, { inputValue: searchValueNuclide });
-                                    const newValues = [...currFlt.selIsotopeValues, ...filteredOptions];
-                                    setCurrFlt({
-                                      ...currFlt,
-                                      selIsotopeValues: newValues,
-                                    });
-                                    setSearchValueNuclide("");
-                                    params.inputProps.ref.current.blur();
-                                  }}
-                                >
-                                  <CheckIcon fontSize="small" />
-                                </StyledIconButton>
-                                </LightTooltip>
-                              </InputAdornment>
-                            )}
-                            {params.InputProps.endAdornment}
-                          </>
-                        ),
-                      }}
-                      inputProps={{
-                        ...params.inputProps,
-                        required: currFlt.selIsotopeValues.length === 0,
-                        value: tableIsotopeFiltered.length===0 ? "Выбор отсутствует" : params.inputProps.value,
-                      }}
-                      label="Нуклиды"
-                      placeholder="Нуклиды"
-                      required  
-                    />
-                  )}
-                />                       
-              </Grid>
-              <Grid item xs={1} display="flex" alignItems="center">
-                <IconButton
-                  onClick={async () => {
-                    setCurrFlt({
-                      ...currFlt,
-                      selIsotopeValues: tableIsotopeFiltered,
-                    });
-                  }}                
-                  color="primary"
-                  size="small"
-                  title="Выбрать все"
-                  style={{ marginLeft: -2 }}   
-                >
-                  <SvgIcon fontSize="small" component={CheckDoubleIcon} inheritViewBox />
-                </IconButton>      
-              </Grid>
-            </Grid>  {/* container spacing={1} */}
-          </Grid>
-
-          <Grid item xs={3}>
-             
-          </Grid>                                           
+                                         
         </Grid  >  {/* all container */}
         <p></p>
           <Button variant="outlined" onClick={reloadDataHandler}>Получить данные</Button>&nbsp;&nbsp;&nbsp;&nbsp; 
@@ -1955,8 +1395,8 @@ const reloadDataHandler = async () => {
                     hideFooterSelectedRowCount={true}
                     localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
                     rowHeight={25}
-                    rows={tableValueExtDose}
-                    columns={columnsValueExtDose}
+                    rows={tableDepositionFraction}
+                    columns={columnsDepositionFraction}
                     apiRef={apiRef}
                     paginationModel={paginationModel}
                     onPaginationModelChange={setPaginationModel}
@@ -1970,7 +1410,7 @@ const reloadDataHandler = async () => {
                     rowSelectionModel={rowSelectionModel}
                     columnVisibilityModel={vidColumnVisibilityModel}
                     onRowClick={handleRowClickAndCloseAlert}
-                    {...tableValueExtDose}
+                    {...tableDepositionFraction}
                   />    
                 </Box>          
               </Grid>
@@ -2012,26 +1452,8 @@ const reloadDataHandler = async () => {
         <form ref={formRefDialog}> 
 
         <Grid container spacing={1.5}>
-          <Grid item xs={6}>          
-            <Autocomplete
-              disabled={true}
-              size="small"  
-              value={tableDoseRatio.find((option) => option.id === valueDoseRatioID)  }
-              onChange={handleChangeDoseRatio}
-              id="autocomplete-dose_ratio"
-              options={ tableDoseRatioFiltered.filter((row) => row.dr_type === "i") }
-              getOptionLabel={(option) => option.title?option.title:''} 
-              renderInput={(params) => {
-                const inputProps = {
-                  ...params.inputProps,
-                  value: tableDoseRatioFiltered.length===0 ? "Выбор отсутствует" : params.inputProps.value,
-                };
-                return <TextField {...params} inputProps={inputProps} label="Параметр" placeholder="Параметр" required/>;
-              }}            
-            />
-          </Grid>
           <Grid item xs={6}>
-            { organVisibleD && (
+            { true && (
               <HierarchicalAutocomplete
               disabled={(valueID !== null)||(applFlt.selOrganValues.length===1)}
               data={treeDataOrganFilteredEdit}
@@ -2046,66 +1468,13 @@ const reloadDataHandler = async () => {
               />
             )}
           </Grid>
-{/*           <Grid item xs={4}>            
+          <Grid item xs={6}>          
           </Grid>
- */}
-           <Grid item xs={6}>
-            <Autocomplete
-              size="small"
-              disabled={true}
-              value={tableIrradiation.find((option) => option.id === valueIrradiationID) }
-              onChange={(event, newValueAC) => { setValueIrradiationID(newValueAC?newValueAC.id:-1) } }
-              id="autocomplete-irradiation_edit"
-              options={ tableIrradiationFiltered } 
-              getOptionLabel={(option) => option.name_rus?option.name_rus:''}
-              renderInput={(params) => {
-                const inputProps = {
-                  ...params.inputProps,
-                  value: tableIrradiationFiltered.length===0 ? "Выбор отсутствует" : params.inputProps.value,
-                };
-                return <TextField {...params} inputProps={inputProps} label="Тип облучения" placeholder="Тип облучения" required/>;
-              }}                 
-            />  
-          </Grid>
-          <Grid item xs={6}> 
-            {radTypeVisibleD&&(  
-            <Autocomplete
-              size="small"
-              disabled={true}
-              value={tableRadType.find((option) => option.code === valueRadTypeCode) }
-              onChange={(event, newValueAC) => { setValueRadTypeCode(newValueAC?newValueAC.code:-1) } }
-              id="autocomplete-rad_type_edit"
-              options={ tableRadTypeFiltered } 
-              getOptionLabel={(option) => option.name_rus?option.name_rus:''}
-              renderInput={(params) => {
-                const inputProps = {
-                  ...params.inputProps,
-                  value: tableRadTypeFiltered.length===0 ? "Выбор отсутствует" : params.inputProps.value,
-                };
-                return <TextField {...params} inputProps={inputProps} label="Тип излучения" placeholder="Тип излучения" required/>;
-              }}                 
-            /> 
-            )} 
-          </Grid>
-{/*           <Grid item xs={4}>
-          </Grid>
- */}          <Divider />
+
+
+          <Divider />
           <Grid item xs={6}>
-            <Autocomplete
-              size="small"
-              disabled={(valueID !== null)||(applFlt.selPeopleClassValues.length===1)}
-              value={tablePeopleClassFilteredEdit.find((option) => option.id === valuePeopleClassID)  }
-              onChange={(event, newValueAC) => { setValuePeopleClassID(newValueAC?newValueAC.id:-1) } }
-              id="autocomplete-people_class_edit"
-              options={ tablePeopleClassFilteredEdit }
-              getOptionLabel={(option) => option.name_rus}
-              renderInput={(params) => (
-                <TextField {...params} label="Тип облучаемых лиц" placeholder="Тип облучаемых лиц" />
-              )}
-            />             
-          </Grid>
-          <Grid item xs={6}>
-            {agegroupVisibleD&&(  
+            {true&&(  
             <Autocomplete
               size="small"
               disabled={(valueID !== null)||(applFlt.selAgeGroupValues.length===1)}
@@ -2120,9 +1489,9 @@ const reloadDataHandler = async () => {
             />
             )}
           </Grid>
-{/*           <Grid item xs={4}>
+          <Grid item xs={6}>
           </Grid>
- */}          <Divider />
+          <Divider />
           <Grid item xs={6}>
             <Autocomplete
               size="small"
@@ -2138,39 +1507,33 @@ const reloadDataHandler = async () => {
             />             
           </Grid>
           <Grid item xs={6}>
-            <Autocomplete
-              size="small"
-              disabled={(valueID !== null)||(applFlt.selIsotopeValues.length===1)}
-              value={tableIsotopeFiltered.find((option) => option.id === valueIsotopeID)  }
-              onChange={(event, newValueAC) => { setValueIsotopeID(newValueAC?newValueAC.id:-1) } }
-              id="autocomplete-isotope_edit"
-              options={ tableIsotopeFilteredEdit }
-              getOptionLabel={(option) => option.title}
-              renderInput={(params) => (
-                <TextField {...params} label="Нуклид" placeholder="Нуклид" />
-              )}
-            />             
           </Grid> 
-{/*           <Grid item xs={4}>
-          </Grid>
- */}          <Divider />
-          <Grid item xs={6}>
+          <Divider />
+          <Grid item xs={4}>
             <TextField
               size="small"
               variant="outlined"
-              id="dr_value_edit"
-              label="Значение"
+              id="df_value_edit"
+              label="Доля осаждения"
               required
-              value={valueDrValue || ''}
+              value={valueDfValue || ''}
               fullWidth
-              onChange={e => setValueDrValue(e.target.value)}
+              onChange={e => setValueDfValue(e.target.value)}
             />              
           </Grid>
-          <Grid item xs={2}>
-          <Box display="flex" alignItems="center" height="100%">
-            {applFlt.selDoseRatioValue && applFlt.selDoseRatioValue.sign} 
-          </Box>
-        </Grid>
+          <Grid item xs={4}>
+            <TextField
+              size="small"
+              variant="outlined"
+              id="ad_edit"
+              label="Аэродинамический диаметр (AD), мкм"
+              required
+              value={valueAdValue || ''}
+              fullWidth
+              onChange={e => setValueAdValue(e.target.value)}
+            />              
+          </Grid>
+
           <Grid item xs={4}>
             <TextField
               size="small"
@@ -2219,4 +1582,4 @@ const reloadDataHandler = async () => {
   )
 }
 
-export { BigTableValueExtDose }
+export { BigTableDepositionFraction }

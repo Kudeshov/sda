@@ -41,6 +41,7 @@ const ac_q = require('./action_criterion_queries');
 const ved_q = require('./value_ext_dose_queries');
 const vrg_q = require('./value_ratio_git_queries');
 const rad_t = require('./radiation_type_queries');
+const dep_f = require('./deposition_fraction_queries');
 
 const { Pool } = require('pg');
 //var msg = 'a';
@@ -277,6 +278,12 @@ app.put('/value_ratio_git/:id', (req, res) => {vrg_q.updateValueRatioGit(req, re
 app.post('/value_ratio_git', (req, res) => {vrg_q.createValueRatioGit(req, res, 'value_ratio_git')});    //create
 app.delete('/value_ratio_git/:id', (req, res) => {vrg_q.deleteValueRatioGit(req, res, 'value_ratio_git')});  //delete 
 app.get('/ratio_git_attr/', (req, res) => {vrg_q.getRatioGitAttr(req, res)});
+
+app.get('/deposition_fraction', (req, res) => {dep_f.getValueDepositionFraction(req, res, 'deposition_fraction')}); 
+app.put('/deposition_fraction/:id', (req, res) => {dep_f.updateValueDepositionFraction(req, res, 'deposition_fraction')}); //update
+app.post('/deposition_fraction', (req, res) => {dep_f.createValueDepositionFraction(req, res, 'deposition_fraction')});    //create
+app.delete('/deposition_fraction/:id', (req, res) => {dep_f.deleteValueDepositionFraction(req, res, 'deposition_fraction')});  //delete 
+app.get('/deposition_fraction_attr/', (req, res) => {dep_f.getDepositionFractionAttr(req, res)});
 
 //GENERIC QUERIES on radiation_type 
 app.get('/radiation_type', (req, res) => {rad_t.getRadiationType(req, res, 'radiation_type')});           //list all

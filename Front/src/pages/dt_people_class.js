@@ -82,10 +82,12 @@ const DataTablePeopleClass = (props) => {
     setIsEmpty((''===valueTitle)&&(''===valueNameRus)&&(''===valueNameEng)&&(''===valueDescrEng)&&(''===valueDescrRus));
     }, [ valueTitle, valueNameRus, valueNameEng, valueDescrEng, valueDescrRus, ]); 
      */
+
+  function isValueSet(valueId) {
+    return valueId !== null && valueId !== undefined && valueId !== '';
+  }  
       
   useEffect(() => {
-/*     console.log('editStarted currentId', currentId)
- */
     if (typeof currentId !== 'number') {
       setEditStarted(false);
       return;
@@ -116,8 +118,7 @@ const DataTablePeopleClass = (props) => {
         editStarted = true;
       }
     }
-  
-//    console.log('editStarted', editStarted)
+ 
     setEditStarted(editStarted);      
   
   }, [valueTitleInitial, valueTitle, valueNameRusInitial, valueNameRus, valueNameEngInitial, valueNameEng, 
@@ -127,26 +128,11 @@ const DataTablePeopleClass = (props) => {
       valueIndoorInitial, valueIndoor, valueExtCloudInitial, valueExtCloud,
       valueExtGroundInitial, valueExtGround]);
 
-/*   useEffect(() => {
-    console.log('editStarted currentId', currentId)
-    if (typeof currentId !== 'number') {
-      setEditStarted(false);
-      return;
-    }  
-    const editStarted1 = (valueTitleInitial!==valueTitle)||(valueNameRusInitial!==valueNameRus)||(valueNameEngInitial!==valueNameEng)
-    ||(valueDescrEngInitial!==valueDescrEng)||(valueDescrRusInitial!==valueDescrRus);
-    console.log('editStarted1', editStarted1)
-    
-    setEditStarted(editStarted1);      
-
-  }, [valueTitleInitial, valueTitle, valueNameRusInitial, valueNameRus, valueNameEngInitial, valueNameEng, 
-      valueDescrEngInitial, valueDescrEng, valueDescrRusInitial, valueDescrRus, currentId]);  */
-
   useEffect(() => {
     if ((!isLoading) && (tableData) && (tableData.length) /* && tableData[0].id>-1 */) {
       if (typeof currentId !== 'number') 
       {
-        //console.log('Выбрано ', tableData[0].id);
+        console.log('Выбрано ', tableData[0].id);
         setCurrentId(tableData[0].id);
         setValueID(tableData[0].id);
         setRowSelectionModel([tableData[0].id]);
@@ -185,6 +171,7 @@ const DataTablePeopleClass = (props) => {
     } 
     else 
     {
+      console.log('setValueId', params.row.id );
       setValueID(params.row.id);
     }
   }; 
@@ -195,6 +182,7 @@ const DataTablePeopleClass = (props) => {
     if (editStarted/* &&(!isEmpty) */) {
       setDialogType('save');
     } else {
+      console.log('setValueID(``);');
       setValueID(``);
       setValueTitle(``);
       setValueNameRus(``);
@@ -248,10 +236,8 @@ const saveRec = async () => {
     };
     
     setIsLoading(true);
-    
-    const url = `/${props.table_name}/` + (valueId !== undefined && valueId !== null ? valueId : '');
-    const method = (valueId !== undefined && valueId !== null) ? 'PUT' : 'POST';
-
+    const url = `/${props.table_name}/` + (isValueSet(valueId) ? valueId : '');
+    const method = isValueSet(valueId) ? 'PUT' : 'POST';
     
     try {
       const response = await fetch(url, {
@@ -285,6 +271,7 @@ const saveRec = async () => {
       
       // Если это POST запрос, получаем и устанавливаем новый ID
       if (method === 'POST') {
+        
         const newId = responseData.id;
         
         if (clickedRowId===null) {
@@ -293,13 +280,15 @@ const saveRec = async () => {
         }
         else {
           setValueID(clickedRowId);
+          setClickedRowId(null);
         }
           
         setAlertText(`Добавлена запись с кодом ${newId}`);
 
       } else {
-        if (clickedRowId>=0) {
+        if  (clickedRowId!==null) {
           setValueID(clickedRowId);
+          setClickedRowId(null);
         }
         setAlertText(responseData || 'Success');
       }
@@ -375,11 +364,11 @@ const delRec = async () => {
   } catch (err) {
     setAlertSeverity('error');
     setAlertText(err.message);
+    setRowSelectionModel([valueId]);
+    
   } finally {
     setIsLoading(false);
     setOpenAlert(true);
-    
- 
     reloadData();
   }
 };
@@ -438,7 +427,7 @@ const delRec = async () => {
             Вы желаете удалить указанную запись?
           </>);
       case 'save':
-        if (typeof valueId !== 'number') { // если это новая запись
+        if (!isValueSet(valueId)) { // если это новая запись
           if (allRequiredFieldsFilled) {
             return `Создана новая запись, сохранить?`;
           } else {
@@ -718,7 +707,7 @@ const delRec = async () => {
             style={{ width: 570, height: 500, border: '1px solid rgba(0, 0, 0, 0.23)', borderRadius: '4px' }}
             sx={{
               "& .MuiDataGrid-row.Mui-selected": {
-                backgroundColor: dialogType !== ''||!(valueId >=0) ? "transparent" : "rgba(0, 0, 0, 0.11)",
+                backgroundColor: dialogType !== ''||!isValueSet(valueId)||isLoading? "transparent" : "rgba(0, 0, 0, 0.11)",
               },
               "& .MuiDataGrid-cell:focus-within": {
                 outline: "none !important",
@@ -756,11 +745,11 @@ const delRec = async () => {
               fullWidth 
               label="Код"  
               variant="outlined" 
-              value={valueId !== null && valueId !== undefined ? valueId : ''} 
+              value={isValueSet(valueId) ? valueId : ''} 
               size="small" />
             </Grid>  
             <Grid item xs={10}>
-              <TextField id="ch_name" inputRef={inputRef} disabled={valueId!==''} fullWidth label="Обозначение" required size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
+              <TextField id="ch_name" inputRef={inputRef} disabled={isValueSet(valueId)} fullWidth label="Обозначение" required size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
             </Grid>
             <Grid item xs={6}>
               <TextField  id="ch_name_rus" fullWidth size="small" label="Название (рус.яз)" required variant="outlined"  value={valueNameRus || ''} onChange={e => setValueNameRus(e.target.value)} />
