@@ -602,7 +602,7 @@ const delRec = async () => {
             localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
             rowHeight={25}
             pageSize={tableData.length}
-            /* paginationMode="server" */
+            paginationMode="server"
             hideFooterPagination
             rows={tableData}
             columns={columns}
