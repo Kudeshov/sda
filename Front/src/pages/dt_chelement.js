@@ -29,6 +29,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Backdrop from '@mui/material/Backdrop';
 import { useGridScrollPagination } from './../helpers/gridScrollHelper';
 import { ReactComponent as EditLightIcon } from "./../icons/edit.svg";
+import Divider from '@mui/material/Divider';
 
 const DataTableChelement = (props) => {
   const apiRef = useGridApiRef(); // init DataGrid API for scrolling
@@ -613,9 +614,12 @@ const delRec = async () => {
 
   const CustomFooter = props => {
     return (
-      <GridToolbarContainer style={{ justifyContent: 'flex-end' }}>
-        Всего строк: {tableData.length}
-      </GridToolbarContainer>
+      <>
+        <Divider /> {/* Этот элемент создаст горизонтальную линию */}
+        <GridToolbarContainer style={{ justifyContent: 'flex-end' }}>
+          Всего строк: {tableData.length}
+        </GridToolbarContainer>
+      </>
     );
   };  
 

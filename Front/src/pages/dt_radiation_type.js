@@ -29,6 +29,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Backdrop from '@mui/material/Backdrop';
 import { useGridScrollPagination } from './../helpers/gridScrollHelper';
 import { DataTableDataSourceClass } from './dt_data_source_class';
+import Divider from '@mui/material/Divider';
 
 const DataTableRadiationType = (props) => {
   const apiRef = useGridApiRef(); // init DataGrid API for scrolling
@@ -58,6 +59,9 @@ const DataTableRadiationType = (props) => {
   const [editStarted, setEditStarted] = useState(false);  
   
   const [addedId, setAddedId] = useState(null);  
+  function isValueSet(valueId) {
+    return valueId !== null && valueId !== undefined && valueId !== '';
+  }  
        
   useEffect(() => {
     console.log('editStarted currentId', currentId)
@@ -176,9 +180,8 @@ const saveRec = async () => {
     };
     
     setIsLoading(true);
-    
-    const url = `/${props.table_name}/` + (valueId ? valueId : '');
-    const method = valueId ? 'PUT' : 'POST';
+    const url = `/${props.table_name}/` + (isValueSet(valueId) ? valueId : '');
+    const method = isValueSet(valueId) ? 'PUT' : 'POST';
     
     try {
       const response = await fetch(url, {
@@ -282,17 +285,12 @@ const delRec = async () => {
     if (!response.ok) {
       throw new Error(await response.text());
     }
-
+    //очищаем фильтр, если там только одна (удаленная) запись
+    if (sortedAndFilteredRowIds.length === 1) {
+      apiRef.current.setFilterModel({ items: [] });
+    }
     setAlertSeverity('success');
     setAlertText(await response.text());
-
-  } catch (err) {
-    setAlertSeverity('error');
-    setAlertText(err.message);
-  } finally {
-    setIsLoading(false);
-    setOpenAlert(true);
-    
     // Переключаемся на предыдущую запись после удаления
     if (previousRowId)
     {
@@ -305,7 +303,15 @@ const delRec = async () => {
         setValueId(tableData[0].id);
         setAddedId(tableData[0].id);
       }
-    }     
+    }    
+  } catch (err) {
+    setAlertSeverity('error');
+    setAlertText(err.message);
+    setRowSelectionModel([valueId]);
+    
+  } finally {
+    setIsLoading(false);
+    setOpenAlert(true);
     reloadData();
   }
 };
@@ -364,7 +370,7 @@ const delRec = async () => {
             Вы желаете удалить указанную запись?
           </>);
       case 'save':
-        if (!valueId) { // если это новая запись
+        if (!isValueSet(valueId)) { // если это новая запись
           if (allRequiredFieldsFilled) {
             return `Создана новая запись, сохранить?`;
           } else {
@@ -447,7 +453,7 @@ const delRec = async () => {
     
     setDialogType('');
 
-    if (clickedRowId>0) {
+    if (clickedRowId>=0) {
       setEditStarted(false);
       setRowSelectionModel([clickedRowId]);
       const rowData = tableData.find(row => row.id === clickedRowId);
@@ -550,9 +556,12 @@ const delRec = async () => {
 
   const CustomFooter = props => {
     return (
-      <GridToolbarContainer style={{ justifyContent: 'flex-end' }}>
-        Всего строк: {tableData.length}
-      </GridToolbarContainer>
+      <>
+        <Divider /> {/* Этот элемент создаст горизонтальную линию */}
+        <GridToolbarContainer style={{ justifyContent: 'flex-end' }}>
+          Всего строк: {tableData.length}
+        </GridToolbarContainer>
+      </>
     );
   };
 
@@ -591,7 +600,7 @@ const delRec = async () => {
             style={{ width: 570, height: 500, border: '1px solid rgba(0, 0, 0, 0.23)', borderRadius: '4px' }}
             sx={{
               "& .MuiDataGrid-row.Mui-selected": {
-                backgroundColor: dialogType !== ''||!(valueId >=0) ? "transparent" : "rgba(0, 0, 0, 0.11)",
+                backgroundColor: dialogType !== ''||!isValueSet(valueId)||isLoading? "transparent" : "rgba(0, 0, 0, 0.11)",
               },
               "& .MuiDataGrid-cell:focus-within": {
                 outline: "none !important",
