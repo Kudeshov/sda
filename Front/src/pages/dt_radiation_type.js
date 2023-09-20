@@ -557,8 +557,15 @@ const delRec = async () => {
   const CustomFooter = props => {
     return (
       <>
-        <Divider /> {/* Этот элемент создаст горизонтальную линию */}
-        <GridToolbarContainer style={{ justifyContent: 'flex-end' }}>
+        <Divider />
+        <GridToolbarContainer 
+          style={{ 
+            justifyContent: 'flex-end', 
+            alignItems: 'center', // Выравнивание по вертикали по центру
+            paddingRight: '20px', // Отступ справа
+            height: '56px' // Пример высоты, настройте под ваш случай
+          }}
+        >
           Всего строк: {tableData.length}
         </GridToolbarContainer>
       </>

@@ -787,16 +787,23 @@ const delRec = async () => {
     { title: 'Нет', id: 'false' },
     { title: 'Да', id: 'true' } ];
 
-  const CustomFooter = props => {
-    return (
-      <>
-        <Divider /> {/* Этот элемент создаст горизонтальную линию */}
-        <GridToolbarContainer style={{ justifyContent: 'flex-end' }}>
-          Всего строк: {tableData.length}
-        </GridToolbarContainer>
-      </>
-    );
-  };
+    const CustomFooter = props => {
+      return (
+        <>
+          <Divider />
+          <GridToolbarContainer 
+            style={{ 
+              justifyContent: 'flex-end', 
+              alignItems: 'center', // Выравнивание по вертикали по центру
+              paddingRight: '20px', // Отступ справа
+              height: '56px' // Пример высоты, настройте под ваш случай
+            }}
+          >
+            Всего строк: {tableData.length}
+          </GridToolbarContainer>
+        </>
+      );
+    };
   
   const formRef = React.useRef();
 

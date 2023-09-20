@@ -585,14 +585,21 @@ const delRec = async () => {
 
   const CustomFooter = props => {
     return (
-      <>
-        <Divider /> {/* Этот элемент создаст горизонтальную линию */}
-        <GridToolbarContainer style={{ justifyContent: 'flex-end' }}>
-          Всего строк: {tableData.length}
-        </GridToolbarContainer>
-      </>
-    );
-  };
+      <span/*  style={{ height: '56px' }} */>
+        <Divider />
+        <GridToolbarContainer 
+          style={{ 
+            justifyContent: 'flex-end', 
+            paddingRight: '20px', // Отступ справа
+            alignItems: 'center', 
+            height: '56px' // Фиксированная высота
+        }}
+      >
+        Всего строк: {tableData.length}
+      </GridToolbarContainer>
+    </span>
+  );
+};
 
   const formRef = React.useRef();
   return (
@@ -600,28 +607,31 @@ const delRec = async () => {
       <Grid container spacing={1}>
         <Grid item sx={{width: 583, border: '0px solid green', ml: 1 }}>
           <DataGrid
-            components={{ Footer: CustomFooter, Toolbar: GridToolbar }}
+            components={{  Footer: CustomFooter,   Toolbar: GridToolbar }}
             apiRef={apiRef}
-            /* hideFooterSelectedRowCount={true} */
-            localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
+            hideFooterSelectedRowCount={true}
+            localeText={ruRU.components.MuiDataGrid.defaultProps.localeText} 
             rowHeight={25}
             pageSize={tableData.length}
             paginationMode="server"
             hideFooterPagination
             rows={tableData}
             columns={columns}
-            /* paginationModel={paginationModel} */
-            onPaginationModelChange={setPaginationModel}
+            paginationModel={paginationModel} 
+            onPaginationModelChange={setPaginationModel} 
             onRowSelectionModelChange={(newRowSelectionModel) => {
               setRowSelectionModel(newRowSelectionModel);
             }}
             rowSelectionModel={rowSelectionModel}
-            
-            initialState={{
+            componentsProps={{
+              footer: {
+                rowCount: tableData.length,
+              },
+            }}            
+            initialState={{ 
               columns: {
             columnVisibilityModel: {
-              //half_life_value: false,
-              //decayconst: false,
+ 
               half_life_period: true,
             },
               },
@@ -668,7 +678,7 @@ const delRec = async () => {
               <TextField id="ch_id" fullWidth disabled={true} label="Код" variant="outlined" value={valueId || ''} size="small"  onChange={e => setValueID(e.target.value)}/>
             </Grid>  
             <Grid item xs={6}>
-              <TextField id="ch_name" fullWidth disabled={true} label="Обозначение" required size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
+              <TextField id="ch_name" fullWidth disabled={isValueSet(valueId)} label="Обозначение" required size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
             </Grid>
             <Grid item xs={2}>
               <Autocomplete

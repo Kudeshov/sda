@@ -26,6 +26,7 @@ function DataTableDataSourceClassRef(props)  {
   const [alertText, setAlertText] = useState("Сообщение");
   const [alertSeverity, setAlertSeverity] = useState("info");
   const [addedId, setAddedId] = useState(null);
+  const [originalTableData, setOriginalTableData] = useState([]);
   const [tableData, setTableData] = useState([]); 
   const [rowSelectionModel, setRowSelectionModel] = React.useState([]);   
   const {paginationModel, setPaginationModel, scrollToIndexRef} = useGridScrollPagination(apiRef, tableData, setRowSelectionModel);
@@ -66,10 +67,10 @@ function DataTableDataSourceClassRef(props)  {
   const columns_src = [
     { field: 'id', headerName: 'Код', width: 60 },
     { field: 'data_source_id', headerName: 'Код источника данных', width: 100 },
-    { field: 'table_name_verbose', headerName: 'Имя классификатора', width: 230 },
-    { field: 'title_src', headerName: 'Обозначение', width: 150, hideable: false },
-    { field: 'name_src', headerName: 'Название', width: 150 },
     { field: 'ref_title', headerName: 'Запись классификатора', width: 170 },
+    /* { field: 'table_name_verbose', headerName: 'Имя классификатора', width: 230 },
+   */  { field: 'title_src', headerName: 'Обозначение', width: 150, hideable: false },
+    { field: 'name_src', headerName: 'Название', width: 150 },
   ]
 
   useEffect(() => {
@@ -83,7 +84,8 @@ function DataTableDataSourceClassRef(props)  {
         ...item,
         table_name_verbose: table_names[item.table_name] || 'Неизвестно'
       }));
-      setTableData(updatedData);
+      setOriginalTableData(updatedData);  // обновляем исходные данные
+      //setTableData(updatedData);  // обновляем отображаемые данные
     });    
     setlastSrcClassID(0);
     setIsLoading(false);
@@ -100,15 +102,19 @@ const [openAlert, setOpenAlert] = React.useState(false, '');
 const [selectionModel, setSelectionModel] = React.useState([]);
 const [lastSrcClassID, setlastSrcClassID] = React.useState([0]);
 const [tableRef, setTableRef] = useState([]);
+const [selectedClassifier, setSelectedClassifier] = useState(null);  
 
 useEffect(() => {
-  if(valueTableName) {
-    fetch(`/ref_table?table_name=${valueTableName}`)
+
+  console.log('selectedClassifier', `/ref_table?table_name=${selectedClassifier}`);
+  if(selectedClassifier) {
+    setValueTableName(selectedClassifier[0]);
+     fetch(`/ref_table?table_name=${selectedClassifier[0]}`)
     .then(response => response.json())
     .then(data => setTableRef(data))
-    .catch(error => console.log(error));
-  }
-}, [valueTableName]);
+    .catch(error => console.log(error)); 
+  }  
+}, [selectedClassifier]);
 
 useEffect(() => {
   if ((!isLoading) && (tableData) )
@@ -134,7 +140,9 @@ const reloadDataSrcClass = async () => {
       table_name_verbose: table_names[item.table_name] || 'Неизвестно'
     }));
     setlastSrcClassID(0);
-    setTableData(updatedData);
+    setOriginalTableData(updatedData);  // обновляем исходные данные
+
+    //setTableData(updatedData);
   } catch (err) {
     setAlertText('Ошибка при обновлении данных');
     setAlertSeverity('error')
@@ -195,7 +203,7 @@ const saveRec = async () => {
     const data = {
       id: valueId,
       data_source_id: valueId ? valueDataSourceId : props.rec_id,
-      table_name: valueTableName,
+      table_name: selectedClassifier[0],
       rec_id: valueRecId,
       title_src: valueTitleSrc,
       name_src: valueNameSrc         
@@ -286,6 +294,29 @@ const allowedRefs = [
 const optionsRefs = Object.entries(table_names)
   .filter(([key, value]) => allowedRefs.includes(key));
 
+
+
+const [isFirstLoad, setIsFirstLoad] = useState(true);
+ 
+// Инициализация selectedClassifier
+useEffect(() => {
+  if (optionsRefs.length > 0 && isFirstLoad) {
+    const firstClassifier = optionsRefs[0];
+    setSelectedClassifier(firstClassifier);
+    setIsFirstLoad(false);
+  }
+}, [optionsRefs, isFirstLoad]);
+
+// Фильтрация данных
+useEffect(() => {
+  if (selectedClassifier) {
+    const filteredData = originalTableData.filter(row => row.table_name === selectedClassifier[0]);
+    setTableData(filteredData);
+  } else if (!isFirstLoad) {
+    reloadDataSrcClass();
+  }
+}, [selectedClassifier, originalTableData, isFirstLoad]);
+
 const formRef = React.useRef();
   return (
     <div style={{ height: 270, width: 886 }}>
@@ -293,49 +324,68 @@ const formRef = React.useRef();
       <Box sx={{ border: '0px solid purple', height: 250, width: 886 }}>
         <Grid container spacing={1}>
           <Grid item sx={{ width: 780, border: '0px solid black', ml: 0 }}>
-            <DataGrid
-              sx={{
-                border: '1px solid rgba(0, 0, 0, 0.23)',
-                borderRadius: '4px',
-                "& .MuiDataGrid-row.Mui-selected": {
-                  backgroundColor: ((valueId || '')==='') ? "transparent" : "rgba(0, 0, 0, 0.11)",
-                },
-                "& .MuiDataGrid-cell:focus-within": {
-                  outline: "none !important",
-                },
-              }}          
-              localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
-              rowHeight={25}
-              apiRef={apiRef}
-              columns={columns_src}
-              rows={tableData}
-              disableMultipleSelection={true}
-              onPaginationModelChange={setPaginationModel}
-              onRowClick={handleRowClick} {...tableData} 
-              hideFooterSelectedRowCount={true}
-              selectionModel={selectionModel}
-              paginationModel={paginationModel}
-              onSelectionModelChange={(newSelectionModel) => {
-                setSelectionModel(newSelectionModel);
-              }}
-              rowSelectionModel={rowSelectionModel}
-              loading={isLoading}        
-              pageSize={25} // number of rows per page
-              style={{ height: '270px', width: '786px' }} // set height of the DataGrid
-              initialState={{
-                columns: {
-                  columnVisibilityModel: {
-                    data_source_id: false,
-                    table_name: false,
-                    rec_id: false,
-                    fullname: false,
-                    shortname: false,
-                    external_ds: false,
-                    descr: false,
-                  },
-                },
-              }}             
-            />
+            <Grid container direction="column" spacing={1.5}>
+              <Grid item>
+
+                <Autocomplete
+                  sx={{ width: 400, marginTop: 1 }} 
+                  options={optionsRefs}
+                  size="small"
+                  getOptionLabel={(option) => option[1]} // Предполагается, что option[1] содержит имя классификатора
+                  value={selectedClassifier}
+                  onChange={(event, newValue) => {
+                    setSelectedClassifier(newValue);
+                  }}
+                  renderInput={(params) => <TextField {...params} label="Выберите классификатор" />}
+                  disableClearable 
+                />
+              </Grid>
+              <Grid item>
+                <DataGrid
+                  sx={{
+                    border: '1px solid rgba(0, 0, 0, 0.23)',
+                    borderRadius: '4px',
+                    "& .MuiDataGrid-row.Mui-selected": {
+                      backgroundColor: ((valueId || '')==='') ? "transparent" : "rgba(0, 0, 0, 0.11)",
+                    },
+                    "& .MuiDataGrid-cell:focus-within": {
+                      outline: "none !important",
+                    },
+                  }}          
+                  localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
+                  rowHeight={25}
+                  apiRef={apiRef}
+                  columns={columns_src}
+                  rows={tableData}
+                  disableMultipleSelection={true}
+                  onPaginationModelChange={setPaginationModel}
+                  onRowClick={handleRowClick} {...tableData} 
+                  hideFooterSelectedRowCount={true}
+                  selectionModel={selectionModel}
+                  paginationModel={paginationModel}
+                  onSelectionModelChange={(newSelectionModel) => {
+                    setSelectionModel(newSelectionModel);
+                  }}
+                  rowSelectionModel={rowSelectionModel}
+                  loading={isLoading}        
+                  pageSize={25} // number of rows per page
+                  style={{ height: '270px', width: '786px' }} // set height of the DataGrid
+                  initialState={{
+                    columns: {
+                      columnVisibilityModel: {
+                        data_source_id: false,
+                        table_name: false,
+                        rec_id: false,
+                        fullname: false,
+                        shortname: false,
+                        external_ds: false,
+                        descr: false,
+                      },
+                    },
+                  }}             
+                />
+              </Grid>
+            </Grid>
           </Grid>
 
           <Grid item sx={{width: 45, border: '0px solid green', ml: 1 }}> 
@@ -382,30 +432,31 @@ const formRef = React.useRef();
           <Autocomplete
             size="small"
             id="table-name-autocomplete"
-            options={optionsRefs} 
+            options={optionsRefs}
             getOptionLabel={(option) => option[1]}
-            onChange={(event, newValue) => {
-              setValueTableName(newValue ? newValue[0] : "");
-            }}
-            value={optionsRefs.find(([key, value]) => key === valueTableName) || null}
+            value={selectedClassifier} // Устанавливаем значение на основе выбранного классификатора
+            disabled={true} // Делаем поле неизменяемым
+            //value={optionsRefs.find(([key, value]) => key === selectedClassifier) || null}  
             renderInput={(params) => <TextField {...params} variant="outlined" label="Классификатор" size="small" required />}
-          />
+          />          
           <Autocomplete
             size="small"
-            disabled={!valueTableName}
+            //disabled={!valueTableName}
+            disabled={valueId !== null || !selectedClassifier}
+            //disabled={!selectedClassifier}
             id="table-ref-autocomplete"
             options={tableRef}
-            getOptionLabel={(option) => option.name_rus}
+            getOptionLabel={(option) => `${option.name_rus} (${option.title})`} // Обновлено
             value={tableRef.find((item) => item.id === valueRecId) || null}
             onChange={(event, newValue) => {
               setValueRecID(newValue ? newValue.id : null);
             }}
-            renderInput={(params) => <TextField {...params} variant="outlined" label="Запись классификатора" size="small" required/>}
+            renderInput={(params) => <TextField {...params} variant="outlined" label="Запись классификатора" size="small" required />}
             renderOption={(props, option) => (
               <li {...props}>
                 <Tooltip title={option.name_eng}>
                   <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
-                    <span>{option.name_rus}</span>
+                    <span>{`${option.name_rus} (${option.title})`}</span> {/* Обновлено */}
                   </div>
                 </Tooltip>
               </li>
@@ -413,7 +464,8 @@ const formRef = React.useRef();
           />
           <TextField
             variant="outlined"
-            disabled={!valueRecId}
+            disabled={!selectedClassifier}
+            //disabled={!valueRecId}
             id="title"
             label="Обозначение" required
             value={valueTitleSrc || ''}
@@ -423,7 +475,8 @@ const formRef = React.useRef();
           />
           <TextField
             variant="outlined"
-            disabled={!valueRecId}
+            disabled={!selectedClassifier}
+            //disabled={!valueRecId}
             id="name_src"
             label="Название"
             value={valueNameSrc || ''}
@@ -434,7 +487,7 @@ const formRef = React.useRef();
         </Box>
       </DialogContent>
       <DialogActions>
-        <Button variant="outlined" disabled={!valueTitleSrc||!valueTableName} onClick={handleCloseYes}>Сохранить</Button>
+        <Button variant="outlined" disabled={!valueTitleSrc||!selectedClassifier} onClick={handleCloseYes}>Сохранить</Button>
         <Button variant="outlined" onClick={handleCloseNo}>Отмена</Button>
       </DialogActions>
     </Dialog>

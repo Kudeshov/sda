@@ -24,6 +24,7 @@ import { table_names } from './table_names';
 import { useGridScrollPagination } from './../helpers/gridScrollHelper';
 import { Typography } from '@mui/material';
 import Tooltip from '@mui/material/Tooltip';
+import Divider from '@mui/material/Divider';
 
 function DataTableDataSourceClass(props)  {
   const apiRef = useGridApiRef(); // init DataGrid API for scrolling
@@ -185,12 +186,21 @@ const handleCloseConfirmDeleteYes = () => {
 
 const CustomFooter = props => {
   return (
-    <GridToolbarContainer style={{ justifyContent: 'flex-end' }}>
-      Всего строк: {tableData.length}
-    </GridToolbarContainer>
+    <>
+      <Divider />
+      <GridToolbarContainer 
+        style={{ 
+          justifyContent: 'flex-end', 
+          alignItems: 'center', // Выравнивание по вертикали по центру
+          paddingRight: '20px', // Отступ справа
+          height: '56px' // Пример высоты, настройте под ваш случай
+        }}
+      >
+        Всего строк: {tableData.length}
+      </GridToolbarContainer>
+    </>
   );
 };
-
 /////////////////////////////////////////////////////////////////// DELETE /////////////////////
 const delRec = async () => {
   const sortedAndFilteredRowIds = gridFilteredSortedRowIdsSelector(apiRef);
