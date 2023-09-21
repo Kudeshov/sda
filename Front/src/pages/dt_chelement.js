@@ -509,7 +509,7 @@ const delRec = async () => {
     { field: 'name_rus', headerName: 'Название (рус.яз)', width: 250 },
     { field: 'name_eng', headerName: 'Название (англ.яз)', width: 180 },
     { field: 'atomic_num', headerName: 'Атомный номер', width: 180 },
-    { field: 'mass_numbers', headerName: 'Радионуклиды элемента', width: 300 }
+    { field: 'mass_numbers', headerName: 'Радиоизотопы элемента', width: 300 }
   ]
 
   /*
@@ -612,23 +612,24 @@ const delRec = async () => {
     );
   }
 
+
   const CustomFooter = props => {
     return (
-      <>
+      <span>
         <Divider />
         <GridToolbarContainer 
           style={{ 
             justifyContent: 'flex-end', 
-            alignItems: 'center', // Выравнивание по вертикали по центру
             paddingRight: '20px', // Отступ справа
-            height: '56px' // Пример высоты, настройте под ваш случай
-          }}
-        >
-          Всего строк: {tableData.length}
-        </GridToolbarContainer>
-      </>
+            alignItems: 'center', 
+            height: '56px' // Фиксированная высота
+        }}
+      >
+        Всего строк: {tableData.length}
+      </GridToolbarContainer>
+    </span>
     );
-  };
+  };  
 
   const CustomFooterNuclide = props => {
     return (
@@ -1043,7 +1044,7 @@ const delRec = async () => {
             </Grid>            */} 
             <Grid item sx={{ width: 747, border: '0px solid black', ml: 0 }}> 
 
-                Радионуклиды элемента
+                Радиоизотопы элемента
                 <DataGrid
                 components={{Footer: CustomFooterNuclide }}
 
