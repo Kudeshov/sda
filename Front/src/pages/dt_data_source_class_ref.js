@@ -1,5 +1,11 @@
 import React,  { useState, useEffect } from 'react'
-import { DataGrid, useGridApiRef, ruRU } from '@mui/x-data-grid'
+import {
+  DataGrid, 
+  ruRU,
+  GridToolbarContainer,
+  useGridApiRef,
+  gridFilteredSortedRowIdsSelector,
+} from '@mui/x-data-grid';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
 import Dialog from '@mui/material/Dialog';
@@ -15,10 +21,11 @@ import { ReactComponent as EditLightIcon } from "./../icons/edit.svg";
 import { ReactComponent as PlusLightIcon } from "./../icons/plus.svg";
 import { ReactComponent as TrashLightIcon } from "./../icons/trash.svg";
 import { table_names } from './table_names';
+import { Typography } from '@mui/material';
 import Autocomplete from '@mui/material/Autocomplete';
 import Tooltip from '@mui/material/Tooltip';
 import { useGridScrollPagination } from './../helpers/gridScrollHelper';
-import { Typography } from '@mui/material';
+import Divider from '@mui/material/Divider';
 
 function DataTableDataSourceClassRef(props)  {
   const apiRef = useGridApiRef(); // init DataGrid API for scrolling
@@ -252,6 +259,24 @@ const saveRec = async () => {
   }
 };
 
+  const CustomFooter = props => {
+    return (
+      <span>
+        <Divider />
+        <GridToolbarContainer 
+          style={{ 
+            justifyContent: 'flex-end', 
+            paddingRight: '20px', // Отступ справа
+            alignItems: 'center', 
+            height: '56px' // Фиксированная высота
+        }}
+      >
+        Всего строк: {tableData.length}
+      </GridToolbarContainer>
+    </span>
+    );
+  };  
+
 const handleRowClick = (params) => {
   setOpenAlert(false);
   setValueID(params.row.id);
@@ -319,29 +344,30 @@ useEffect(() => {
 
 const formRef = React.useRef();
   return (
-    <div style={{ height: 270, width: 886 }}>
+    <div style={{ height: 270, width: 890 }}>
       <form ref={formRef}>
-      <Box sx={{ border: '0px solid purple', height: 250, width: 886 }}>
-        <Grid container spacing={1}>
-          <Grid item sx={{ width: 780, border: '0px solid black', ml: 0 }}>
+      <Box sx={{ border: '0px solid purple', height: 250, width: 890, marginTop: 1 }}>
+        <Grid container spacing={0}>
+          <Grid item sx={{ width: 784, border: '0px solid black', ml: 0 }}>
             <Grid container direction="column" spacing={1.5}>
-              <Grid item>
-
+              <Grid item container direction="row" justifyContent="center" alignItems="center">
+                <Typography sx={{ width: 'auto', display: 'flex', marginTop: 1.4, marginBottom: 0 }}>Классификаторы</Typography>
                 <Autocomplete
-                  sx={{ width: 400, marginTop: 1 }} 
+                  sx={{ flexGrow: 1, marginLeft: 2, marginTop: 1.4 }} 
                   options={optionsRefs}
                   size="small"
-                  getOptionLabel={(option) => option[1]} // Предполагается, что option[1] содержит имя классификатора
+                  getOptionLabel={(option) => option[1]}
                   value={selectedClassifier}
                   onChange={(event, newValue) => {
                     setSelectedClassifier(newValue);
                   }}
-                  renderInput={(params) => <TextField {...params} label="Выберите классификатор" />}
+                  renderInput={(params) => <TextField {...params} label="Выбрать классификатор" fullWidth />}
                   disableClearable 
                 />
               </Grid>
               <Grid item>
                 <DataGrid
+		              components={{Footer: CustomFooter }}
                   sx={{
                     border: '1px solid rgba(0, 0, 0, 0.23)',
                     borderRadius: '4px',
@@ -356,20 +382,22 @@ const formRef = React.useRef();
                   rowHeight={25}
                   apiRef={apiRef}
                   columns={columns_src}
+                  pageSize={tableData.length}
+                  paginationMode="server"
+                  hideFooterPagination
                   rows={tableData}
                   disableMultipleSelection={true}
                   onPaginationModelChange={setPaginationModel}
                   onRowClick={handleRowClick} {...tableData} 
                   hideFooterSelectedRowCount={true}
                   selectionModel={selectionModel}
-                  paginationModel={paginationModel}
+                  /* paginationModel={paginationModel} */
                   onSelectionModelChange={(newSelectionModel) => {
                     setSelectionModel(newSelectionModel);
                   }}
                   rowSelectionModel={rowSelectionModel}
                   loading={isLoading}        
-                  pageSize={25} // number of rows per page
-                  style={{ height: '270px', width: '786px' }} // set height of the DataGrid
+                  style={{ height: '270px', width: '784px' }} // set height of the DataGrid
                   initialState={{
                     columns: {
                       columnVisibilityModel: {
@@ -389,7 +417,7 @@ const formRef = React.useRef();
           </Grid>
 
           <Grid item sx={{width: 45, border: '0px solid green', ml: 1 }}> 
-            <Box sx={{ border: '0px solid purple', display: 'flex', flexDirection: 'column', gap: 0.1, alignItems: 'center', justifyContent: 'center' }}>
+{/*             <Box sx={{ border: '0px solid purple', display: 'flex', flexDirection: 'column', gap: 0.1, alignItems: 'center', justifyContent: 'center' }}>
               <IconButton onClick={handleClickAdd} disabled={!props.rec_id} color="primary" size="small" title="Добавить связь с классификатором">
                 <SvgIcon fontSize="small" component={PlusLightIcon} inheritViewBox />
               </IconButton>
@@ -399,7 +427,7 @@ const formRef = React.useRef();
               <IconButton onClick={handleClickDelete} disabled={!props.rec_id||noRecords} color="primary" size="small" title="Удалить связь с классификатором">
                 <SvgIcon fontSize="small" component={TrashLightIcon} inheritViewBox />
               </IconButton>
-            </Box>
+            </Box> */}
           </Grid>
         </Grid>
 

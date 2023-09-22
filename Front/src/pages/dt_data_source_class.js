@@ -184,23 +184,6 @@ const handleCloseConfirmDeleteYes = () => {
   delRec();
 };
 
-const CustomFooter = props => {
-  return (
-    <>
-      <Divider />
-      <GridToolbarContainer 
-        style={{ 
-          justifyContent: 'flex-end', 
-          alignItems: 'center', // Выравнивание по вертикали по центру
-          paddingRight: '20px', // Отступ справа
-          height: '56px' // Пример высоты, настройте под ваш случай
-        }}
-      >
-        Всего строк: {tableData.length}
-      </GridToolbarContainer>
-    </>
-  );
-};
 /////////////////////////////////////////////////////////////////// DELETE /////////////////////
 const delRec = async () => {
   const sortedAndFilteredRowIds = gridFilteredSortedRowIdsSelector(apiRef);
@@ -337,6 +320,25 @@ useEffect(() => {
 }, [tableData, valueId]);
 
 const [noRecords, setNoRecords] = useState(true);
+
+
+  const CustomFooter = props => {
+    return (
+      <span>
+        <Divider />
+        <GridToolbarContainer 
+          style={{ 
+            justifyContent: 'flex-end', 
+            paddingRight: '20px', // Отступ справа
+            alignItems: 'center', 
+            height: '56px' // Фиксированная высота
+        }}
+      >
+        Всего строк: {tableData.length}
+      </GridToolbarContainer>
+    </span>
+    );
+  };  
 
 const formRef = React.useRef();
 

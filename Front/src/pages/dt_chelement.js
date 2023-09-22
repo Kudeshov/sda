@@ -633,19 +633,19 @@ const delRec = async () => {
 
   const CustomFooterNuclide = props => {
     return (
-      <>
+      <span>
         <Divider />
         <GridToolbarContainer 
           style={{ 
             justifyContent: 'flex-end', 
-            alignItems: 'center', // Выравнивание по вертикали по центру
             paddingRight: '20px', // Отступ справа
-            height: '56px' // Пример высоты, настройте под ваш случай
-          }}
-        >
-          Всего строк: {tableNuclide.length}
-        </GridToolbarContainer>
-      </>
+            alignItems: 'center', 
+            height: '56px' // Фиксированная высота
+        }}
+      >
+        Всего строк: {tableData.length}
+      </GridToolbarContainer>
+    </span>
     );
   };
 

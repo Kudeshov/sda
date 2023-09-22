@@ -33,6 +33,7 @@ import CircularProgress from '@mui/material/CircularProgress';
 import Backdrop from '@mui/material/Backdrop';
 import { useGridScrollPagination } from './../helpers/gridScrollHelper';
 import { DataTableDataSourceClassRef } from './dt_data_source_class_ref';
+import Divider from '@mui/material/Divider';
 
 const DataTableDataSource = (props) => {
   const apiRef = useGridApiRef(); // init DataGrid API for scrolling
@@ -546,6 +547,24 @@ const delRec = async () => {
     );
   }
 
+
+  const CustomFooter = props => {
+    return (
+      <span>
+        <Divider />
+        <GridToolbarContainer 
+          style={{ 
+            justifyContent: 'flex-end', 
+            paddingRight: '20px', // Отступ справа
+            alignItems: 'center', 
+            height: '56px' // Фиксированная высота
+        }}
+      >
+        Всего строк: {tableData.length}
+      </GridToolbarContainer>
+    </span>
+    );
+  };  
   const formRef = React.useRef();
 
 
@@ -554,15 +573,17 @@ const delRec = async () => {
       <Grid container spacing={1}>
         <Grid item sx={{width: 583, border: '0px solid green', ml: 1 }}>
           <DataGrid
-            components={{ Toolbar: GridToolbar }}
+            components={{Footer: CustomFooter, Toolbar: GridToolbar }}
             apiRef={apiRef}
             hideFooterSelectedRowCount={true}
             localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
             rowHeight={25}
-            pageSize={5}
+            pageSize={tableData.length}
+            paginationMode="server"
+            hideFooterPagination
             rows={tableData}
             columns={columns}
-            paginationModel={paginationModel}
+            /* paginationModel={paginationModel} */
             onPaginationModelChange={setPaginationModel}
             onRowSelectionModelChange={(newRowSelectionModel) => {
               setRowSelectionModel(newRowSelectionModel);
@@ -644,7 +665,8 @@ const delRec = async () => {
           </Grid>  
           </form>
           <Box sx={{ marginTop: '0.4rem' }}>
-            Связанные с источником классификаторы<br/>
+           {/*  Связанные с источником классификаторы<br/> */}
+            {/* <Divider/> */}
             <DataTableDataSourceClassRef rec_id={valueId||0} />
           </Box>
         </Grid>

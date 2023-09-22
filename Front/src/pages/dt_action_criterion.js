@@ -1,5 +1,11 @@
-import React,  { useState, useEffect } from 'react'
-import { DataGrid, useGridApiRef, ruRU, gridFilteredSortedRowIdsSelector, } from '@mui/x-data-grid'
+import React, { useState, useEffect } from 'react';
+import {
+  DataGrid, 
+  ruRU,
+  GridToolbarContainer,
+  useGridApiRef,
+  gridFilteredSortedRowIdsSelector,
+} from '@mui/x-data-grid';
 import Button from '@mui/material/Button';
 import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
@@ -22,6 +28,7 @@ import { ReactComponent as TrashLightIcon } from "./../icons/trash.svg";
 import { table_names } from './table_names';
 import { useGridScrollPagination } from './../helpers/gridScrollHelper';
 import { Typography } from '@mui/material';
+import Divider from '@mui/material/Divider';
 
 function DataTableActionCriterion(props)  {
   const apiRef = useGridApiRef(); // init DataGrid API for scrolling
@@ -306,6 +313,25 @@ useEffect(() => {
 const [noRecords, setNoRecords] = useState(true);
 
 
+
+  const CustomFooter = props => {
+    return (
+      <span>
+        <Divider />
+        <GridToolbarContainer 
+          style={{ 
+            justifyContent: 'flex-end', 
+            paddingRight: '20px', // Отступ справа
+            alignItems: 'center', 
+            height: '56px' // Фиксированная высота
+        }}
+      >
+        Всего строк: {tableData.length}
+      </GridToolbarContainer>
+    </span>
+    );
+  };  
+
 const formRef = React.useRef();
   return (
     
@@ -315,6 +341,7 @@ const formRef = React.useRef();
         <Grid container spacing={1}>
           <Grid item sx={{ width: 780, border: '0px solid black', ml: 0 }}>
             <DataGrid
+	      components={{ Footer: CustomFooter }}
               sx={{
                 border: '1px solid rgba(0, 0, 0, 0.23)',
                 borderRadius: '4px',
@@ -329,6 +356,9 @@ const formRef = React.useRef();
               rowHeight={25}
               apiRef={apiRef}              
               columns={columns_src}
+              pageSize={tableData.length}
+              paginationMode="server"
+              hideFooterPagination
               rows={tableData}
               disableMultipleSelection={true}
               onPaginationModelChange={setPaginationModel}

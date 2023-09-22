@@ -585,7 +585,7 @@ const delRec = async () => {
 
   const CustomFooter = props => {
     return (
-      <span/*  style={{ height: '56px' }} */>
+      <span>
         <Divider />
         <GridToolbarContainer 
           style={{ 
@@ -598,8 +598,8 @@ const delRec = async () => {
         Всего строк: {tableData.length}
       </GridToolbarContainer>
     </span>
-  );
-};
+    );
+  };
 
   const formRef = React.useRef();
   return (
