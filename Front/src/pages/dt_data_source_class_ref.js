@@ -74,12 +74,15 @@ function DataTableDataSourceClassRef(props)  {
   const columns_src = [
     { field: 'id', headerName: 'Код', width: 60 },
     { field: 'data_source_id', headerName: 'Код источника данных', width: 100 },
-    { field: 'ref_title', headerName: 'Запись классификатора', width: 170 },
+    { field: 'ref_title', headerName: 'Обозначение (классификатор)', width: 230 },
     /* { field: 'table_name_verbose', headerName: 'Имя классификатора', width: 230 },
-   */  { field: 'title_src', headerName: 'Обозначение', width: 150, hideable: false },
-    { field: 'name_src', headerName: 'Название', width: 150 },
+   */  { field: 'title_src', headerName: 'Обозначение (источник)', width: 230, hideable: false },
+    { field: 'name_src', headerName: 'Название (источник)', width: 230 },
   ]
-
+/*   Обозначение (классификатор)
+  Обозначение (источник)
+  Название (источник) */
+  
   useEffect(() => {
     setOpenAlert(false);
     setlastSrcClassID(0);
@@ -351,7 +354,7 @@ const formRef = React.useRef();
           <Grid item sx={{ width: 785, border: '0px solid black', ml: 0 }}>
             <Grid container direction="column" spacing={1.5}>
               <Grid item container direction="row" justifyContent="center" alignItems="center">
-                <Typography sx={{ width: 'auto', display: 'flex', marginTop: 1.4, marginBottom: 0 }}>Классификаторы</Typography>
+                <Typography sx={{ width: 'auto', display: 'flex', marginTop: 1.4, marginBottom: 0 }}>Классификатор источника</Typography>
                 <Autocomplete
                   sx={{ flexGrow: 1, marginLeft: 2, marginTop: 1.4 }} 
                   options={optionsRefs}
