@@ -348,7 +348,7 @@ const formRef = React.useRef();
       <form ref={formRef}>
       <Box sx={{ border: '0px solid purple', height: 250, width: 890, marginTop: 1 }}>
         <Grid container spacing={0}>
-          <Grid item sx={{ width: 784, border: '0px solid black', ml: 0 }}>
+          <Grid item sx={{ width: 785, border: '0px solid black', ml: 0 }}>
             <Grid container direction="column" spacing={1.5}>
               <Grid item container direction="row" justifyContent="center" alignItems="center">
                 <Typography sx={{ width: 'auto', display: 'flex', marginTop: 1.4, marginBottom: 0 }}>Классификаторы</Typography>
@@ -397,7 +397,7 @@ const formRef = React.useRef();
                   }}
                   rowSelectionModel={rowSelectionModel}
                   loading={isLoading}        
-                  style={{ height: '270px', width: '784px' }} // set height of the DataGrid
+                  style={{ height: '270px', width: '785px' }} // set height of the DataGrid
                   initialState={{
                     columns: {
                       columnVisibilityModel: {
