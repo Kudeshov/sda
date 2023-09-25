@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   DataGrid, 
   ruRU,
@@ -52,34 +52,35 @@ const DataTableDataSource = (props) => {
   const [valueDescrInitial, setValueDescrInitial] = React.useState();
   const [valueExternalDSInitial, setValueExternalDSInitial] = React.useState();
 
+  const [alertText, setAlertText] = useState("Сообщение");
+  const [alertSeverity, setAlertSeverity] = useState("info");
+  const [currentId, setCurrentId] = useState(null);  
+
   const [isLoading, setIsLoading] = React.useState(false);
   const [tableData, setTableData] = useState([]); 
   const [rowSelectionModel, setRowSelectionModel] = React.useState([]);
   const [editStarted, setEditStarted] = useState(false);
 
-  const [isEmpty, setIsEmpty] = useState(false);
-
-  const [alertText, setAlertText] = useState("Сообщение");
-  const [alertSeverity, setAlertSeverity] = useState("info");
-  const [currentId, setCurrentId] = useState(null);  
-
   const [addedId, setAddedId] = useState(null);  
-
+  const [addedIdFilt, setAddedIdFilt] = useState(null);  
   const valuesExtDS = [
     { label: 'Целевая БД', value: 'false' },
     { label: 'Внешний источник', value: 'true' } ];
 
-  useEffect(() => {
+/*   useEffect(() => {
     setIsEmpty((''===valueTitle)&&(''===valueShortName)&&(''===valueFullName)&&(''===valueDescr)&&(''===valueExternalDS)   );
     }, [ valueTitle, valueShortName, valueFullName, valueDescr, valueExternalDS]); 
-
-    useEffect(() => {
+ */
+  function isValueSet(valueId) {
+    return valueId !== null && valueId !== undefined && valueId !== '';
+  }  
       
-      if (typeof currentId !== 'number') {
-        setEditStarted(false);
-        return;
-      }  
-
+  useEffect(() => {
+    if (typeof currentId !== 'number') {
+      setEditStarted(false);
+      return;
+    }  
+  
       const editStarted1 = (valueTitleInitial !== valueTitle) || (valueShortNameInitial !== valueShortName) || 
                           (valueFullNameInitial !== valueFullName) || (valueDescrInitial !== valueDescr) || 
                           (valueExternalDSInitial !== valueExternalDS);
@@ -101,13 +102,13 @@ const DataTableDataSource = (props) => {
     
 
   useEffect(() => {
-    if ((!isLoading) && (tableData) && (tableData.length) && tableData[0].id) {
-      if (typeof currentId !== 'number')
+    if ((!isLoading) && (tableData) && (tableData.length)) {
+      if (typeof currentId !== 'number') 
       {
         console.log('Выбрано ', tableData[0].id);
-        setRowSelectionModel([tableData[0].id]);
         setCurrentId(tableData[0].id);
         setValueID(tableData[0].id);
+        setRowSelectionModel([tableData[0].id]);
       }
     }
     }, [ isLoading, tableData, currentId] );
@@ -131,7 +132,10 @@ const DataTableDataSource = (props) => {
       return;
     }
     setOpenAlert(false);
-    if (editStarted&&(!isEmpty))
+
+    //console.log('editStarted isEmpty', editStarted, isEmpty);
+    //if (editStarted&&(!isEmpty))
+    if (editStarted)
     {
       setClickedRowId(params.row.id);
       setDialogType('save');
@@ -145,8 +149,7 @@ const DataTableDataSource = (props) => {
   const inputRef = React.useRef();
 
   const handleClearClick = (params) => {
-    if (editStarted&&(!isEmpty))
-    {
+    if (editStarted) {
       setDialogType('save');
     } 
     else 
@@ -157,10 +160,17 @@ const DataTableDataSource = (props) => {
       setValueFullName('');
       setValueExternalDS(true);
       setValueDescr('');
-      // Даем фокус TextField после обновления состояния
-      inputRef.current.focus();
+
     }
   }; 
+
+  useEffect(() => {
+    // Если valueId пуст (и поле "Обозначение" доступно), устанавливаем на него фокус
+    if (!isValueSet(valueId)&&!isLoading&&currentId) {
+      // Даем фокус TextField после обновления состояния
+      inputRef.current && inputRef.current.focus(); 
+    }
+  }, [valueId, currentId, isLoading]);
 
   useEffect(() => {
     fetch(`/${props.table_name}`)
@@ -168,8 +178,9 @@ const DataTableDataSource = (props) => {
       .then((data) => setTableData(data)); 
   }, [props.table_name])
 
-// Функция saveRec
 const saveRec = async () => {
+
+  let responseData;
   if (formRef.current.reportValidity()) {
     const data = {
       title: valueTitle,
@@ -180,9 +191,8 @@ const saveRec = async () => {
     };
     
     setIsLoading(true);
-    
-    const url = `/${props.table_name}/` + (valueId ? valueId : '');
-    const method = valueId ? 'PUT' : 'POST';
+    const url = `/${props.table_name}/` + (isValueSet(valueId) ? valueId : '');
+    const method = isValueSet(valueId) ? 'PUT' : 'POST';
     
     try {
       const response = await fetch(url, {
@@ -198,7 +208,7 @@ const saveRec = async () => {
       const contentType = response.headers.get('content-type');
       const isJson = contentType && contentType.includes('application/json');
       
-      let responseData;
+
       
       // Обрабатываем ответ в зависимости от типа контента
       if (isJson) {
@@ -217,20 +227,22 @@ const saveRec = async () => {
       // Если это POST запрос, получаем и устанавливаем новый ID
       if (method === 'POST') {
         const newId = responseData.id;
-        
+        setAddedIdFilt(newId);
         if (clickedRowId===null) {
           setValueID(newId);
           setAddedId(newId);
         }
         else {
           setValueID(clickedRowId);
+          setClickedRowId(null);
         }
           
         setAlertText(`Добавлена запись с кодом ${newId}`);
 
       } else {
-        if (clickedRowId) {
+        if  (clickedRowId!==null) {
           setValueID(clickedRowId);
+          setClickedRowId(null);
         }
         setAlertText(responseData || 'Success');
       }
@@ -249,17 +261,48 @@ const saveRec = async () => {
       await reloadData();
     }
   }
-};
+}
+
+  const setValues = useCallback((row) => {
+    setValueTitle(row.title);
+    setValueShortName(row.shortname);
+    setValueFullName(row.fullname);
+    setValueExternalDS(row.external_ds);
+    setValueDescr(row.descr);
+  
+    setValueTitleInitial(row.title);
+    setValueShortNameInitial(row.shortname);
+    setValueFullNameInitial(row.fullname);
+    setValueExternalDSInitial(row.external_ds);
+    setValueDescrInitial(row.descr);
+  }, []);
+
 
 useEffect(() => {
-  const rowData = tableData.find(row => row.id === valueId);
+  let newId = valueId;
+  if (addedIdFilt&&(newId!==addedIdFilt)) {
+    newId=addedIdFilt;
+  }
+  if (!isValueSet(newId)) 
+    return;
+  const rowData = tableData.find(row => Number(row.id) === Number(newId));
   if (rowData) {
+    setAddedIdFilt(null);
+    // Проверяем, отображается ли новая запись с учетом текущего фильтра
+    const sortedAndFilteredRowIds = gridFilteredSortedRowIdsSelector(apiRef);
+    const isAddedRowVisible = sortedAndFilteredRowIds.includes(Number(newId));
+    // Если новая запись не отображается из-за фильтрации, сбрасываем фильтр
+    if (!isAddedRowVisible) {
+      apiRef.current.setFilterModel({ items: [] });
+    } 
+    //Установка значений 
     setValues(rowData);
   }
-}, [tableData, valueId]);
+}, [tableData, addedIdFilt, valueId, apiRef, setValues]);
 
 // Функция delRec
 const delRec = async () => {
+
   const sortedAndFilteredRowIds = gridFilteredSortedRowIdsSelector(apiRef);
   const deletingRowIndex = sortedAndFilteredRowIds.indexOf(Number(valueId));
   let previousRowId = 0;
@@ -305,6 +348,8 @@ const delRec = async () => {
   } catch (err) {
     setAlertSeverity('error');
     setAlertText(err.message);
+    setRowSelectionModel([valueId]);
+    
   } finally {
     setIsLoading(false);
     setOpenAlert(true);
@@ -367,7 +412,7 @@ const delRec = async () => {
             Вы желаете удалить указанную запись?
           </>);
       case 'save':
-        if (!valueId) { // если это новая запись
+        if (!isValueSet(valueId)) { // если это новая запись
           if (allRequiredFieldsFilled) {
             return `Создана новая запись, сохранить?`;
           } else {
@@ -397,19 +442,6 @@ const delRec = async () => {
     }
   };
 
-  const setValues = (row) => {
-    setValueTitle(row.title);
-    setValueShortName(row.shortname);
-    setValueFullName(row.fullname);
-    setValueExternalDS(row.external_ds);
-    setValueDescr(row.descr);
-  
-    setValueTitleInitial(row.title);
-    setValueShortNameInitial(row.shortname);
-    setValueFullNameInitial(row.fullname);
-    setValueExternalDSInitial(row.external_ds);
-    setValueDescrInitial(row.descr);
-  };
 
   const handleCloseNo = () => {
     switch (dialogType) {
@@ -448,7 +480,7 @@ const delRec = async () => {
     
     setDialogType('');
 
-    if (clickedRowId>0) {
+    if (clickedRowId>=0) {
       setEditStarted(false);
       setRowSelectionModel([clickedRowId]);
       const rowData = tableData.find(row => row.id === clickedRowId);
@@ -513,7 +545,7 @@ const delRec = async () => {
   }
 
   // Scrolling and positionning
-  const { paginationModel, setPaginationModel, scrollToIndexRef } = useGridScrollPagination(apiRef, tableData, setRowSelectionModel);
+  const { /* paginationModel,  */setPaginationModel, scrollToIndexRef } = useGridScrollPagination(apiRef, tableData, setRowSelectionModel);
 
   useEffect(() => {
     if (addedId !== null){  
@@ -530,7 +562,7 @@ const delRec = async () => {
 
     return (
       <GridToolbarContainer>
-        <IconButton onClick={()=>{setClickedRowId(null); handleClearClick()}} disabled={editStarted} color="primary" size="small" title="Создать запись">
+        <IconButton onClick={()=>handleClearClick()} disabled={editStarted} color="primary" size="small" title="Создать запись">
           <SvgIcon fontSize="small" component={PlusLightIcon} inheritViewBox /></IconButton>
         <IconButton onClick={()=>{setClickedRowId(null); saveRec(true)}}  color="primary" size="small" title="Сохранить запись в БД">
           <SvgIcon fontSize="small" component={SaveLightIcon} inheritViewBox/></IconButton>
@@ -602,7 +634,7 @@ const delRec = async () => {
             style={{ width: 570, height: 500, border: '1px solid rgba(0, 0, 0, 0.23)', borderRadius: '4px' }}
             sx={{
               "& .MuiDataGrid-row.Mui-selected": {
-                backgroundColor: dialogType !== ''||((valueId || '')==='') ? "transparent" : "rgba(0, 0, 0, 0.11)",
+                backgroundColor: dialogType !== ''||!isValueSet(valueId)||isLoading? "transparent" : "rgba(0, 0, 0, 0.11)",
               },
               "& .MuiDataGrid-cell:focus-within": {
                 outline: "none !important",
@@ -634,10 +666,16 @@ const delRec = async () => {
         <form ref={formRef}>
           <Grid container spacing={1.5}>
             <Grid item xs={2}>
-              <TextField id="ch_id" disabled={true} label="Код" variant="outlined" value={valueId || ''} size="small" />
+            <TextField id="ch_id" 
+              disabled={true} 
+              fullWidth 
+              label="Код"  
+              variant="outlined" 
+              value={isValueSet(valueId) ? valueId : ''} 
+              size="small" />
             </Grid>  
             <Grid item xs={10}>
-              <TextField id="ch_name" fullWidth label="Обозначение" disabled={valueId!==''}  required size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)} inputRef={inputRef} />
+              <TextField id="ch_name" inputRef={inputRef} disabled={isValueSet(valueId)} fullWidth label="Обозначение" required size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
             </Grid>
             <Grid item xs={12}>
               <TextField id="ch_shortname" fullWidth label="Краткое название" required size="small" variant="outlined" value={valueShortName || ''} onChange={e => setValueShortName(e.target.value)} />
@@ -666,7 +704,6 @@ const delRec = async () => {
           </form>
           <Box sx={{ marginTop: '0.4rem' }}>
            {/*  Связанные с источником классификаторы<br/> */}
-            {/* <Divider/> */}
             <DataTableDataSourceClassRef rec_id={valueId||0} />
           </Box>
         </Grid>

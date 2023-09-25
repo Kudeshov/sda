@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   DataGrid, 
   ruRU,
@@ -90,7 +90,7 @@ const DataTableDoseRatio = (props) => {
   const [currentId, setCurrentId] = useState(null);  
 
   const [addedId, setAddedId] = useState(null);  
-
+  const [addedIdFilt, setAddedIdFilt] = useState(null);  
   const valuesDrTypeList = [
     { label: 'e - внешнее облучение', value: 'e' },
     { label: 'i - внутреннее облучение', value: 'i' },
@@ -313,9 +313,17 @@ const DataTableDoseRatio = (props) => {
         setValueParameters(``);
       }
       setValueDrType(``);
-      inputRef.current.focus();  
+
     }
   }; 
+  
+  useEffect(() => {
+    // Если valueId пуст (и поле "Обозначение" доступно), устанавливаем на него фокус
+    if (!isValueSet(valueId)&&!isLoading&&currentId) {
+      // Даем фокус TextField после обновления состояния
+      inputRef.current && inputRef.current.focus(); 
+    }
+  }, [valueId, currentId, isLoading]);
 
   useEffect(() => {
     fetch(`/${props.table_name}`)
@@ -386,7 +394,7 @@ const saveRec = async () => {
       // Если это POST запрос, получаем и устанавливаем новый ID
       if (method === 'POST') {
         const newId = responseData.id;
-        
+        setAddedIdFilt(newId);
         if (clickedRowId===null) {
           setValueID(newId);
           setAddedId(newId);
@@ -429,12 +437,58 @@ const handleCloseDSInfo = () => {
   setOpenDSInfo(false);
 };
 
+const setValues = useCallback((row) => {
+    setValueTitle(row.title);
+    setValueTitleInitial(row.title);
+    setValueNameRus(row.name_rus);
+    setValueNameRusInitial(row.name_rus);
+    setValueNameEng(row.name_eng);
+    setValueNameEngInitial(row.name_eng);
+    setValueDescrRus(row.descr_rus);
+    setValueDescrRusInitial(row.descr_rus);
+    setValueDescrEng(row.descr_eng);
+    setValueDescrEngInitial(row.descr_eng);
+
+    setValueRespRate(row.resp_rate);
+    setValueRespRateInitial(row.resp_rate);
+    setValueRespYear(row.resp_year);
+    setValueRespYearInitial(row.resp_year);
+    setValueIndoor(row.indoor);
+    setValueIndoorInitial(row.indoor);
+    setValueExtCloud(row.ext_cloud);
+    setValueExtCloudInitial(row.ext_cloud);
+    setValueExtGround(row.ext_ground);
+    setValueExtGroundInitial(row.ext_ground);
+    setValuePhysParamId(row.physparam_id);
+    setValuePhysParamIdInitial(row.physparam_id); 
+
+    setValueParameters(row.parameters);
+    setValueParametersInitial(row.parameters);
+    setValueDrType(row.dr_type);
+    setValueDrTypeInitial(row.dr_type);
+}, []);
+
 useEffect(() => {
-  const rowData = tableData.find(row => row.id === valueId);
+  let newId = valueId;
+  if (addedIdFilt&&(newId!==addedIdFilt)) {
+    newId=addedIdFilt;
+  }
+  if (!isValueSet(newId)) 
+    return;
+  const rowData = tableData.find(row => Number(row.id) === Number(newId));
   if (rowData) {
+    setAddedIdFilt(null);
+    // Проверяем, отображается ли новая запись с учетом текущего фильтра
+    const sortedAndFilteredRowIds = gridFilteredSortedRowIdsSelector(apiRef);
+    const isAddedRowVisible = sortedAndFilteredRowIds.includes(Number(newId));
+    // Если новая запись не отображается из-за фильтрации, сбрасываем фильтр
+    if (!isAddedRowVisible) {
+      apiRef.current.setFilterModel({ items: [] });
+    } 
+    //Установка значений 
     setValues(rowData);
   }
-}, [tableData, valueId]);
+}, [tableData, addedIdFilt, valueId, apiRef, setValues]);
 
 // Функция delRec
 const delRec = async () => {
@@ -489,8 +543,6 @@ const delRec = async () => {
   } finally {
     setIsLoading(false);
     setOpenAlert(true);
-    
- 
     reloadData();
   }
 };
@@ -595,36 +647,6 @@ const delRec = async () => {
     }
   };
 
-  const setValues = (row) => {
-    setValueTitle(row.title);
-    setValueTitleInitial(row.title);
-    setValueNameRus(row.name_rus);
-    setValueNameRusInitial(row.name_rus);
-    setValueNameEng(row.name_eng);
-    setValueNameEngInitial(row.name_eng);
-    setValueDescrRus(row.descr_rus);
-    setValueDescrRusInitial(row.descr_rus);
-    setValueDescrEng(row.descr_eng);
-    setValueDescrEngInitial(row.descr_eng);
-
-    setValueRespRate(row.resp_rate);
-    setValueRespRateInitial(row.resp_rate);
-    setValueRespYear(row.resp_year);
-    setValueRespYearInitial(row.resp_year);
-    setValueIndoor(row.indoor);
-    setValueIndoorInitial(row.indoor);
-    setValueExtCloud(row.ext_cloud);
-    setValueExtCloudInitial(row.ext_cloud);
-    setValueExtGround(row.ext_ground);
-    setValueExtGroundInitial(row.ext_ground);
-    setValuePhysParamId(row.physparam_id);
-    setValuePhysParamIdInitial(row.physparam_id); 
-
-    setValueParameters(row.parameters);
-    setValueParametersInitial(row.parameters);
-    setValueDrType(row.dr_type);
-    setValueDrTypeInitial(row.dr_type);
-  };
 
   const handleCloseNo = () => {
     switch (dialogType) {
@@ -663,7 +685,7 @@ const delRec = async () => {
     
     setDialogType('');
 
-    if (clickedRowId>0) {
+    if (clickedRowId>=0) {
       setEditStarted(false);
       setRowSelectionModel([clickedRowId]);
       const rowData = tableData.find(row => row.id === clickedRowId);
@@ -749,7 +771,7 @@ const delRec = async () => {
   }
 
   // Scrolling and positionning
-  const { paginationModel, setPaginationModel, scrollToIndexRef } = useGridScrollPagination(apiRef, tableData, setRowSelectionModel);
+  const { /* paginationModel, */ setPaginationModel, scrollToIndexRef } = useGridScrollPagination(apiRef, tableData, setRowSelectionModel);
 
   useEffect(() => {
     if (addedId !== null){  

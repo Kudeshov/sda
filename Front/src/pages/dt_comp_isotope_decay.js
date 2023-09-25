@@ -376,8 +376,8 @@ useEffect(() => {
     i_id = props.rec_id;
   fetch(`/isotope_nodes/`+i_id)
     .then((data) => data.json())
-    .then((data) => setNodes(data))
-    .then((data) => {console.log('useEffect nodes');/*  console.log(data); */} ); 
+    .then((data) => setNodes(data));
+    //.then((data) => {console.log('useEffect nodes');/*  console.log(data); */} ); 
 }, [props.rec_id, tableDecay]);  
 
 useEffect(() => {
@@ -386,8 +386,8 @@ useEffect(() => {
     i_id = props.rec_id;
   fetch(`/isotope_edges/`+i_id)
     .then((data) => data.json())
-    .then((data) => setEdges(data))
-    .then((data) => {console.log('useEffect edges'); /* console.log(data); */} ); 
+    .then((data) => setEdges(data));
+    //.then((data) => {console.log('useEffect edges'); /* console.log(data); */} ); 
 }, [props.rec_id, tableDecay]);  
  
  useEffect(() => {

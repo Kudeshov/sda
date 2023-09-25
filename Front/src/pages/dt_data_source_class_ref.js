@@ -3,8 +3,7 @@ import {
   DataGrid, 
   ruRU,
   GridToolbarContainer,
-  useGridApiRef,
-  gridFilteredSortedRowIdsSelector,
+  useGridApiRef
 } from '@mui/x-data-grid';
 import Button from '@mui/material/Button';
 import TextField from '@mui/material/TextField';
@@ -16,10 +15,6 @@ import { Box, Grid, IconButton } from '@mui/material';
 import Alert from '@mui/material/Alert';
 import Collapse from '@mui/material/Collapse';
 import CloseIcon from '@mui/icons-material/Close';
-import SvgIcon from '@mui/material/SvgIcon';
-import { ReactComponent as EditLightIcon } from "./../icons/edit.svg";
-import { ReactComponent as PlusLightIcon } from "./../icons/plus.svg";
-import { ReactComponent as TrashLightIcon } from "./../icons/trash.svg";
 import { table_names } from './table_names';
 import { Typography } from '@mui/material';
 import Autocomplete from '@mui/material/Autocomplete';
@@ -36,7 +31,7 @@ function DataTableDataSourceClassRef(props)  {
   const [originalTableData, setOriginalTableData] = useState([]);
   const [tableData, setTableData] = useState([]); 
   const [rowSelectionModel, setRowSelectionModel] = React.useState([]);   
-  const {paginationModel, setPaginationModel, scrollToIndexRef} = useGridScrollPagination(apiRef, tableData, setRowSelectionModel);
+  const {/* paginationModel, */ setPaginationModel, scrollToIndexRef} = useGridScrollPagination(apiRef, tableData, setRowSelectionModel);
   const [clickedRowId, setClickedRowId] = useState(null);
 
   useEffect(() => {
@@ -47,7 +42,7 @@ function DataTableDataSourceClassRef(props)  {
     }
   }, [addedId, scrollToIndexRef]);
 
-  const handleClickEdit = () => {
+/*   const handleClickEdit = () => {
     setOpen(true);
   };
 
@@ -55,12 +50,12 @@ function DataTableDataSourceClassRef(props)  {
     setValueID(null);
     setValueDataSourceId(null);
     setValueRecID(null);
-    setValueTableName(null);
+   // setValueTableName(null);
     setValueTitleSrc("");
     setValueNameSrc("");
     setOpen(true);
   };
-
+ */
   const handleCloseYes = () => {
     setOpen(false);
     saveRec();
@@ -79,13 +74,10 @@ function DataTableDataSourceClassRef(props)  {
    */  { field: 'title_src', headerName: 'Обозначение (источник)', width: 230, hideable: false },
     { field: 'name_src', headerName: 'Название (источник)', width: 230 },
   ]
-/*   Обозначение (классификатор)
-  Обозначение (источник)
-  Название (источник) */
-  
+
   useEffect(() => {
     setOpenAlert(false);
-    setlastSrcClassID(0);
+    //setlastSrcClassID(0);
     setIsLoading(true);
     fetch(`/data_source_class_ref/${props.rec_id||0}`)  
     .then((data) => data.json())
@@ -95,30 +87,38 @@ function DataTableDataSourceClassRef(props)  {
         table_name_verbose: table_names[item.table_name] || 'Неизвестно'
       }));
       setOriginalTableData(updatedData);  // обновляем исходные данные
-      //setTableData(updatedData);  // обновляем отображаемые данные
     });    
-    setlastSrcClassID(0);
+    //setlastSrcClassID(0);
     setIsLoading(false);
   }, [props.rec_id])
 
 const [valueId, setValueID] = React.useState();
 const [valueDataSourceId, setValueDataSourceId] = React.useState();
 const [valueRecId, setValueRecID] = React.useState();
-const [valueTableName, setValueTableName] = React.useState();
+//const [valueTableName, setValueTableName] = React.useState();
 const [valueTitleSrc, setValueTitleSrc] = React.useState();
 const [valueNameSrc, setValueNameSrc] = React.useState();
 const [isLoading, setIsLoading] = React.useState(false);
 const [openAlert, setOpenAlert] = React.useState(false, '');
 const [selectionModel, setSelectionModel] = React.useState([]);
-const [lastSrcClassID, setlastSrcClassID] = React.useState([0]);
+//const [lastSrcClassID, setlastSrcClassID] = React.useState([0]);
 const [tableRef, setTableRef] = useState([]);
 const [selectedClassifier, setSelectedClassifier] = useState(null);  
+const [optionsRefsState, setOptionsRefsState] = useState([]);
 
 useEffect(() => {
+  // Обновить optionsRefsState на основе  
+  const uniqueTableNames = Array.from(new Set(originalTableData.map(item => item.table_name)));
+  const newOptionsRefs = Object.entries(table_names)
+      .filter(([key, value]) => uniqueTableNames.includes(key))
+      .sort((a, b) => a[1].localeCompare(b[1]));  // Добавляем сортировку по алфавиту
+  setOptionsRefsState(newOptionsRefs);
+}, [originalTableData]); // обновить при изменении table_names или uniqueTableNames
 
+useEffect(() => {
   console.log('selectedClassifier', `/ref_table?table_name=${selectedClassifier}`);
   if(selectedClassifier) {
-    setValueTableName(selectedClassifier[0]);
+    //setValueTableName(selectedClassifier[0]);
      fetch(`/ref_table?table_name=${selectedClassifier[0]}`)
     .then(response => response.json())
     .then(data => setTableRef(data))
@@ -126,13 +126,13 @@ useEffect(() => {
   }  
 }, [selectedClassifier]);
 
-useEffect(() => {
+/* useEffect(() => {
   if ((!isLoading) && (tableData) )
   {
     //обновить блокировку кнопок "Редактировать" и "Удалить" в зависимости от наличия записей в таблице
     setNoRecords(tableData.length===0);
   }
-}, [isLoading, tableData, lastSrcClassID]); 
+}, [isLoading, tableData, lastSrcClassID]);  */
 
 const reloadDataSrcClass = async () => {
   setIsLoading(true);
@@ -149,10 +149,8 @@ const reloadDataSrcClass = async () => {
       ...item,
       table_name_verbose: table_names[item.table_name] || 'Неизвестно'
     }));
-    setlastSrcClassID(0);
+    //setlastSrcClassID(0);
     setOriginalTableData(updatedData);  // обновляем исходные данные
-
-    //setTableData(updatedData);
   } catch (err) {
     setAlertText('Ошибка при обновлении данных');
     setAlertSeverity('error')
@@ -163,10 +161,10 @@ const reloadDataSrcClass = async () => {
 };
 
 const [openConfirmDelete, setOpenConfirmDelete] = React.useState(false); 
-const handleClickDelete = () => {
+/* const handleClickDelete = () => {
   setOpenConfirmDelete(true);
 };
-
+ */
 const handleCloseConfirmDelete = () => {
   setOpenConfirmDelete(false);
 };
@@ -289,61 +287,52 @@ const handleRowClick = (params) => {
 
 const setValues = (row) => {
   setValueDataSourceId(row.data_source_id);
-  setValueTableName(row.table_name);
+  //setValueTableName(row.table_name);
   setValueRecID(row.rec_id);
   setValueTitleSrc(row.title_src);
   setValueNameSrc(row.name_src);
 };
 
 useEffect(() => {
-  const rowData = tableData.find(row => row.id === valueId);
+  const rowData = tableData.find(row => row.id === Number(valueId));
   if (rowData) {
+    //console.log( 'rowData', rowData, valueId);
     setValues(rowData);
   }
 }, [tableData, valueId]);
 
-const [noRecords, setNoRecords] = useState(true);
+useEffect(() => {
+  if (optionsRefsState.length > 0) {
+      const existsInOptions = selectedClassifier && optionsRefsState.some(option => option[0] === selectedClassifier[0]);
+      if (!existsInOptions) {
+          setSelectedClassifier(optionsRefsState[0]);
+      }
+  } else {
+      setSelectedClassifier(null);
+  }
+}, [optionsRefsState, selectedClassifier]);
 
-const allowedRefs = [
-  'dose_ratio',
-  'irradiation',
-  'organ',
-  'integral_period',
-  'subst_form',
-  'chem_comp_gr',
-  'people_class',
-  'aerosol_sol',
-  'aerosol_amad',
-  'let_level',
-  'exp_scenario',
-  'agegroup',
-];
-
-const optionsRefs = Object.entries(table_names)
-  .filter(([key, value]) => allowedRefs.includes(key));
-
-
-
+//const [noRecords, setNoRecords] = useState(true);
 const [isFirstLoad, setIsFirstLoad] = useState(true);
  
 // Инициализация selectedClassifier
 useEffect(() => {
-  if (optionsRefs.length > 0 && isFirstLoad) {
-    const firstClassifier = optionsRefs[0];
+  if (optionsRefsState.length > 0 && isFirstLoad) {
+    const firstClassifier = optionsRefsState[0];
     setSelectedClassifier(firstClassifier);
     setIsFirstLoad(false);
   }
-}, [optionsRefs, isFirstLoad]);
+}, [optionsRefsState, isFirstLoad]);
 
 // Фильтрация данных
 useEffect(() => {
   if (selectedClassifier) {
     const filteredData = originalTableData.filter(row => row.table_name === selectedClassifier[0]);
     setTableData(filteredData);
-  } else if (!isFirstLoad) {
+  }/*  else if (!isFirstLoad) {
     reloadDataSrcClass();
-  }
-}, [selectedClassifier, originalTableData, isFirstLoad]);
+  } */
+}, [selectedClassifier, originalTableData, isFirstLoad]); 
 
 const formRef = React.useRef();
   return (
@@ -357,7 +346,7 @@ const formRef = React.useRef();
                 <Typography sx={{ width: 'auto', display: 'flex', marginTop: 1.4, marginBottom: 0 }}>Классификатор источника</Typography>
                 <Autocomplete
                   sx={{ flexGrow: 1, marginLeft: 2, marginTop: 1.4 }} 
-                  options={optionsRefs}
+                  options={optionsRefsState}
                   size="small"
                   getOptionLabel={(option) => option[1]}
                   value={selectedClassifier}
@@ -365,7 +354,8 @@ const formRef = React.useRef();
                     setSelectedClassifier(newValue);
                   }}
                   renderInput={(params) => <TextField {...params} label="Выбрать классификатор" fullWidth />}
-                  disableClearable 
+                  disableClearable
+                  disabled={optionsRefsState.length === 0} 
                 />
               </Grid>
               <Grid item>
@@ -463,7 +453,7 @@ const formRef = React.useRef();
           <Autocomplete
             size="small"
             id="table-name-autocomplete"
-            options={optionsRefs}
+            options={optionsRefsState}
             getOptionLabel={(option) => option[1]}
             value={selectedClassifier} // Устанавливаем значение на основе выбранного классификатора
             disabled={true} // Делаем поле неизменяемым

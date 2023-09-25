@@ -25,7 +25,7 @@ const getDataSourceClass = (request, response) => {
     //return;
     rec_id=0;  
   }
-  console.log( request.query );  
+  console.log( 'aa '+request.query );  
   pool.query(
     'SELECT data_source_class.*, data_source.title, data_source.shortname, '+
     'data_source.fullname, data_source.descr, data_source.external_ds FROM nucl.data_source_class '+  
@@ -227,12 +227,21 @@ const getRefTable = (request, response, table_name) => {
     let query;
     if (table_name === 'isotope') {
       query = `SELECT pc.id, pc.title, pc.title as name_rus, pc.title as name_eng FROM nucl.${table_name} pc ORDER BY pc.id ASC`;
-    } else {
-      query = `SELECT pc.id, pc.title, pcn1.name name_rus, pcn2.name name_eng FROM nucl.${table_name} pc `+
-      `left join nucl.${table_name}_nls pcn1 on pc.id=pcn1.${table_name}_id and pcn1.lang_id=1 `+
-      `left join nucl.${table_name}_nls pcn2 on pc.id=pcn2.${table_name}_id and pcn2.lang_id=2 `+
-      `ORDER BY pc.id ASC`;
-    }
+    } 
+      else 
+      if (table_name === 'radiation_type') {
+        query = `SELECT rt.id, rt.title, rtn1.name name_rus, rtn2.name name_eng FROM nucl.radiation_type rt 
+        left join nucl.radiation_type_nls rtn1 on rt.code=rtn1.rad_type_code and rtn1.lang_id=1 
+        left join nucl.radiation_type_nls rtn2 on rt.code=rtn2.rad_type_code and rtn2.lang_id=2 
+        ORDER BY rt.id asc`;
+      }
+      else 
+      {
+        query = `SELECT pc.id, pc.title, pcn1.name name_rus, pcn2.name name_eng FROM nucl.${table_name} pc `+
+        `left join nucl.${table_name}_nls pcn1 on pc.id=pcn1.${table_name}_id and pcn1.lang_id=1 `+
+        `left join nucl.${table_name}_nls pcn2 on pc.id=pcn2.${table_name}_id and pcn2.lang_id=2 `+
+        `ORDER BY pc.id ASC`;
+      }
     pool.query(query, (error, results) => {
       if (error) {
         response.status(500).json({message: 'An error occurred during the query', error: error});

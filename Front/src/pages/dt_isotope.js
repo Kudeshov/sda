@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   DataGrid, 
   ruRU,
@@ -67,13 +67,7 @@ const DataTableIsotope = (props) => {
   const [editStarted, setEditStarted] = useState(false);  
 
   const [addedId, setAddedId] = useState(null);  
-
-  /* const [isEmpty, setIsEmpty] = useState([false]); // я думаю это ненужно
-   useEffect(() => {
-    setIsEmpty((''===valueTitle)&&(''===valueNameRus)&&(''===valueNameEng)&&(''===valueDescrEng)&&(''===valueDescrRus));
-    }, [ valueTitle, valueNameRus, valueNameEng, valueDescrEng, valueDescrRus, ]); 
-     */
-
+  const [addedIdFilt, setAddedIdFilt] = useState(null);  
   function isValueSet(valueId) {
     return valueId !== null && valueId !== undefined && valueId !== '';
   }  
@@ -86,11 +80,10 @@ const DataTableIsotope = (props) => {
 
     setEditStarted((valueTitleInitial!==valueTitle)||(valueNIndexInitial!==valueNIndex)||(valueHalfLifeValueInitial!==valueHalfLifeValue)
       ||(valueHalfLifePeriodInitial!==valueHalfLifePeriod)||(valueDecayConstInitial!==valueDecayConst)||(valueNuclideIdInitial!==valueNuclideId));
-    }, [valueTitleInitial, valueTitle, valueNIndexInitial, valueNIndex, valueHalfLifeValueInitial, valueHalfLifeValue, 
+    }, [currentId, valueTitleInitial, valueTitle, valueNIndexInitial, valueNIndex, valueHalfLifeValueInitial, valueHalfLifeValue, 
         valueHalfLifePeriodInitial, valueHalfLifePeriod, valueDecayConstInitial, valueDecayConst, valueNuclideIdInitial, valueNuclideId]); 
 
   useEffect(() => {
-    console.log('Инициализация ', currentId );
     if ((!isLoading) && (tableData) && (tableData.length) /* && tableData[0].id>-1 */) {
       if (typeof currentId !== 'number') 
       {
@@ -98,7 +91,6 @@ const DataTableIsotope = (props) => {
         setCurrentId(tableData[0].id);
         setValueID(tableData[0].id);
         setRowSelectionModel([tableData[0].id]);
-        console.log(rowSelectionModel);
       }
     }
     }, [ isLoading, tableData, currentId] );
@@ -106,7 +98,7 @@ const DataTableIsotope = (props) => {
   const [prevRowSelectionModel, setPrevRowSelectionModel] = useState([]);
   const [clickedRowId, setClickedRowId] = useState(null);
 
-  useEffect(() => {
+   useEffect(() => {
     // Если редактирование начато, не меняем выбранную строку
     if (editStarted) {
       setRowSelectionModel(prevRowSelectionModel);
@@ -117,7 +109,8 @@ const DataTableIsotope = (props) => {
   }, [rowSelectionModel, prevRowSelectionModel, editStarted]);    
 
   const handleRowClick = (params) => {
-    console.log('handleRowClick', params.row.id, valueId);
+
+    //console.log('handleRowClick', params.row.id, valueId);
     if (params.row.id === valueId  ) {
       // Если данные не изменились, просто выходим из функции
       return;
@@ -133,6 +126,7 @@ const DataTableIsotope = (props) => {
     } 
     else 
     {
+      console.log('setValueId', params.row.id );
       setValueID(params.row.id);
     }
   }; 
@@ -151,7 +145,7 @@ const DataTableIsotope = (props) => {
       setValueHalfLifePeriod(`` );
       setValueNuclideId(`` );
       // Даем фокус TextField после обновления состояния
-      inputRef.current.focus();
+      //inputRef.current.focus();
     }
   }; 
 
@@ -176,6 +170,14 @@ const DataTableIsotope = (props) => {
   }, [valueId, currentNuclide, valueNIndex]);   
 
   useEffect(() => {
+    // Если valueId пуст (и поле "Обозначение" доступно), устанавливаем на него фокус
+    if (!isValueSet(valueId)&&!isLoading&&currentId) {
+      // Даем фокус TextField после обновления состояния
+      inputRef.current && inputRef.current.focus(); 
+    }
+  }, [valueId, currentId, isLoading]);
+
+  useEffect(() => {
     fetch(`/nuclide`)
       .then((data) => data.json())
       .then((data) => setTableNuclide(data));
@@ -190,17 +192,21 @@ const DataTableIsotope = (props) => {
     { title: 'us', id: 'us' },
     { title: 'ms', id: 'ms' },
     { title: 'h', id: 'h' } ];
+
 const saveRec = async () => {
+
+  let responseData;
   if (formRef.current.reportValidity()) {
     const data = {
       id: valueId,
       title: valueTitle,
       nuclide_id: valueNuclideId,     
-      n_index: valueNIndex,
+      n_index: valueNIndex === '' ? null : valueNIndex,
       half_life_value: valueHalfLifeValue,
       half_life_period: valueHalfLifePeriod,
       decayconst: valueDecayConst   
     };
+    
     setIsLoading(true);
     const url = `/${props.table_name}/` + (isValueSet(valueId) ? valueId : '');
     const method = isValueSet(valueId) ? 'PUT' : 'POST';
@@ -219,7 +225,7 @@ const saveRec = async () => {
       const contentType = response.headers.get('content-type');
       const isJson = contentType && contentType.includes('application/json');
       
-      let responseData;
+
       
       // Обрабатываем ответ в зависимости от типа контента
       if (isJson) {
@@ -239,7 +245,7 @@ const saveRec = async () => {
       if (method === 'POST') {
         
         const newId = responseData.id;
-        
+        setAddedIdFilt(newId);
         if (clickedRowId===null) {
           setValueID(newId);
           setAddedId(newId);
@@ -275,12 +281,50 @@ const saveRec = async () => {
   }
 }
 
+const setValues = useCallback((row) => {
+    if (!row) {
+      console.error('Row is not defined!');
+      return;
+    }
+    
+    console.log('row', row);
+    setValueTitle(row.title);
+    setValueNIndex(row.n_index);
+    setValueHalfLifeValue(row.half_life_value);
+    setValueDecayConst(row.decayconst);
+    setValueHalfLifePeriod(row.half_life_period);
+    setValueNuclideId(row.nuclide_id);
+
+    setValueTitleInitial(row.title);       
+    setValueNIndexInitial(row.n_index);
+    setValueHalfLifeValueInitial(row.half_life_value);
+    setValueDecayConstInitial(row.decayconst);
+    setValueHalfLifePeriodInitial(row.half_life_period);
+    setValueNuclideIdInitial(row.nuclide_id);
+}, [setValueTitle, setValueNIndex, setValueHalfLifeValue, setValueDecayConst, setValueHalfLifePeriod, setValueNuclideId, 
+    setValueTitleInitial, setValueNIndexInitial, setValueHalfLifeValueInitial, setValueDecayConstInitial, setValueHalfLifePeriodInitial, setValueNuclideIdInitial]);
+  
 useEffect(() => {
-  const rowData = tableData.find(row => row.id === valueId);
+  let newId = valueId;
+  if (addedIdFilt&&(newId!==addedIdFilt)) {
+    newId=addedIdFilt;
+  }
+  if (!isValueSet(newId)) 
+    return;
+  const rowData = tableData.find(row => Number(row.id) === Number(newId));
   if (rowData) {
+    setAddedIdFilt(null);
+    // Проверяем, отображается ли новая запись с учетом текущего фильтра
+    const sortedAndFilteredRowIds = gridFilteredSortedRowIdsSelector(apiRef);
+    const isAddedRowVisible = sortedAndFilteredRowIds.includes(Number(newId));
+    // Если новая запись не отображается из-за фильтрации, сбрасываем фильтр
+    if (!isAddedRowVisible) {
+      apiRef.current.setFilterModel({ items: [] });
+    } 
+    //Установка значений 
     setValues(rowData);
   }
-}, [tableData, valueId]);
+}, [tableData, addedIdFilt, valueId, apiRef, setValues]);
 
 // Функция delRec
 const delRec = async () => {
@@ -426,22 +470,6 @@ const delRec = async () => {
     }
   };
 
-  const setValues = (row) => {
-    setValueTitle(row.title);
-    setValueNIndex(row.n_index);
-    setValueHalfLifeValue(row.half_life_value);
-    setValueDecayConst(row.decayconst);
-    setValueHalfLifePeriod(row.half_life_period);
-    setValueNuclideId(row.nuclide_id);
-
-    setValueTitleInitial(row.title);       
-    setValueNIndexInitial(row.n_index);
-    setValueHalfLifeValueInitial(row.half_life_value);
-    setValueDecayConstInitial(row.decayconst);
-    setValueHalfLifePeriodInitial(row.half_life_period);
-    setValueNuclideIdInitial(row.nuclide_id);
-  };
-  
 
   const handleCloseNo = () => {
     switch (dialogType) {
@@ -549,7 +577,7 @@ const delRec = async () => {
 
 
   // Scrolling and positionning
-  const { paginationModel, setPaginationModel, scrollToIndexRef } = useGridScrollPagination(apiRef, tableData, setRowSelectionModel);
+  const { /* paginationModel, */ setPaginationModel, scrollToIndexRef } = useGridScrollPagination(apiRef, tableData, setRowSelectionModel);
 
   useEffect(() => {
     if (addedId !== null){  
@@ -563,7 +591,6 @@ const delRec = async () => {
   function GridToolbar() {
     const handleExport = (options) =>
        apiRef.current.exportDataAsCsv(options);
-
     return (
       <GridToolbarContainer>
         <IconButton onClick={()=>handleClearClick()} disabled={editStarted} color="primary" size="small" title="Создать запись">
@@ -583,6 +610,7 @@ const delRec = async () => {
     );
   }
 
+
   const CustomFooter = props => {
     return (
       <span>
@@ -599,7 +627,8 @@ const delRec = async () => {
       </GridToolbarContainer>
     </span>
     );
-  };
+  };  
+
 
   const formRef = React.useRef();
   return (
@@ -607,28 +636,23 @@ const delRec = async () => {
       <Grid container spacing={1}>
         <Grid item sx={{width: 583, border: '0px solid green', ml: 1 }}>
           <DataGrid
-            components={{  Footer: CustomFooter,   Toolbar: GridToolbar }}
+            components={{ Footer: CustomFooter, Toolbar: GridToolbar }}
             apiRef={apiRef}
             hideFooterSelectedRowCount={true}
-            localeText={ruRU.components.MuiDataGrid.defaultProps.localeText} 
+            localeText={ruRU.components.MuiDataGrid.defaultProps.localeText}
             rowHeight={25}
             pageSize={tableData.length}
             paginationMode="server"
             hideFooterPagination
             rows={tableData}
             columns={columns}
-            paginationModel={paginationModel} 
-            onPaginationModelChange={setPaginationModel} 
+            /* paginationModel={paginationModel} */
+            onPaginationModelChange={setPaginationModel}
             onRowSelectionModelChange={(newRowSelectionModel) => {
               setRowSelectionModel(newRowSelectionModel);
             }}
             rowSelectionModel={rowSelectionModel}
-            componentsProps={{
-              footer: {
-                rowCount: tableData.length,
-              },
-            }}            
-            initialState={{ 
+            initialState={{
               columns: {
             columnVisibilityModel: {
  
@@ -650,9 +674,7 @@ const delRec = async () => {
 
           <Collapse in={openAlert}>
             <Alert
-/*               item 
- */              
-              sx={{width: 571}}
+              item sx={{width: 571}}
               severity={alertSeverity}
               action={
                 <IconButton
@@ -678,10 +700,11 @@ const delRec = async () => {
               <TextField id="ch_id" fullWidth disabled={true} label="Код" variant="outlined" value={valueId || ''} size="small"  onChange={e => setValueID(e.target.value)}/>
             </Grid>  
             <Grid item xs={6}>
-              <TextField id="ch_name" fullWidth disabled={isValueSet(valueId)} label="Обозначение" required size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
+              <TextField id="ch_name" fullWidth disabled={true} label="Обозначение" required size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
             </Grid>
             <Grid item xs={2}>
               <Autocomplete
+                
                 fullWidth
                 size="small"
                 disablePortal
@@ -692,7 +715,7 @@ const delRec = async () => {
                 onChange={(event, newValueAC) => {setValueNuclideId(newValueAC?newValueAC.id:-1) } }
                 options={tableNuclide}
                 getOptionLabel={option => option?option.title:""}
-                renderInput={(params) => <TextField {...params} label="Радиоизотоп" required/>}
+                renderInput={(params) => <TextField inputRef={inputRef} {...params} label="Радиоизотоп" required/>}
               />
             </Grid>            
             <Grid item xs={2}>

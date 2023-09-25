@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   DataGrid, 
   ruRU,
@@ -55,22 +55,20 @@ const DataTableChelement = (props) => {
 /*   const [tablePhchForm, setTablePhchForm] = useState([]); 
   const [tablePhchFormFiltered, setTablePhchFormFiltered] = useState([]);  */
   const [rowSelectionModel, setRowSelectionModel] = React.useState([]);
-  const [rowSelectionModelNuclide, setRowSelectionModelNuclide] = React.useState([]);
+  /* const [rowSelectionModelNuclide, setRowSelectionModelNuclide] = React.useState([]); */
   const [editStarted, setEditStarted] = useState(false);  
 
   const [addedId, setAddedId] = useState(null);  
-  const [addedIdNuclide, setAddedIdNuclide] = useState(null);  
+  const [addedIdFilt, setAddedIdFilt] = useState(null);  
+
+/*   const [addedIdNuclide, setAddedIdNuclide] = useState(null);   */
 
   const [tableNuclide, setTableNuclide] = useState([]); 
   const [valueMassNumber, setValueMassNumber] = React.useState();
-  const [isEmpty, setIsEmpty] = useState([false]);
   const [valueNuclideId, setValueNuclideID] = React.useState();
 
   //const [reportValid, setReportValid] = React.useState([true]);
 
-  useEffect(() => {
-    setIsEmpty((''===valueTitle)&&(''===valueNameRus)&&(''===valueNameEng)&&(''===valueAtomicNum)&&(''===valueMassNumber));
-    }, [ valueTitle, valueNameRus, valueNameEng, valueAtomicNum, valueMassNumber]); 
   function isValueSet(valueId) {
     return valueId !== null && valueId !== undefined && valueId !== '';
   }  
@@ -153,6 +151,14 @@ const DataTableChelement = (props) => {
       setValueAtomicNum(``);
     }
   }; 
+  
+  useEffect(() => {
+    // Если valueId пуст (и поле "Обозначение" доступно), устанавливаем на него фокус
+    if (!isValueSet(valueId)&&!isLoading&&currentId) {
+      // Даем фокус TextField после обновления состояния
+      inputRef.current && inputRef.current.focus(); 
+    }
+  }, [valueId, currentId, isLoading]);
 
   useEffect(() => {
     fetch(`/${props.table_name}`)
@@ -184,7 +190,7 @@ const DataTableChelement = (props) => {
         setValueMassNumber(data[0].mass_number);
       }
     })
-    .then(() => console.log('грузим нуклиды'));
+    .then(() => console.log('грузим изотопы'));
   }, [valueId])
 
 /*   useEffect(() => {
@@ -276,12 +282,38 @@ const saveRec = async () => {
   }
 }
 
+
+const setValues = useCallback((row) => {
+    setValueTitle(row.title);
+    setValueTitleInitial(row.title);
+    setValueNameRus(row.name_rus);
+    setValueNameRusInitial(row.name_rus);
+    setValueNameEng(row.name_eng);
+    setValueNameEngInitial(row.name_eng);
+    setValueAtomicNum(row.atomic_num);         
+    setValueAtomicNumInitial(row.atomic_num);         
+}, []);
 useEffect(() => {
-  const rowData = tableData.find(row => row.id === valueId);
+  let newId = valueId;
+  if (addedIdFilt&&(newId!==addedIdFilt)) {
+    newId=addedIdFilt;
+  }
+  if (!isValueSet(newId)) 
+    return;
+  const rowData = tableData.find(row => Number(row.id) === Number(newId));
   if (rowData) {
+    setAddedIdFilt(null);
+    // Проверяем, отображается ли новая запись с учетом текущего фильтра
+    const sortedAndFilteredRowIds = gridFilteredSortedRowIdsSelector(apiRef);
+    const isAddedRowVisible = sortedAndFilteredRowIds.includes(Number(newId));
+    // Если новая запись не отображается из-за фильтрации, сбрасываем фильтр
+    if (!isAddedRowVisible) {
+      apiRef.current.setFilterModel({ items: [] });
+    } 
+    //Установка значений 
     setValues(rowData);
   }
-}, [tableData, valueId]);
+}, [tableData, addedIdFilt, valueId, apiRef, setValues]);
 
 // Функция delRec
 const delRec = async () => {
@@ -424,16 +456,6 @@ const delRec = async () => {
     }
   };
 
-  const setValues = (row) => {
-    setValueTitle(row.title);
-    setValueTitleInitial(row.title);
-    setValueNameRus(row.name_rus);
-    setValueNameRusInitial(row.name_rus);
-    setValueNameEng(row.name_eng);
-    setValueNameEngInitial(row.name_eng);
-    setValueAtomicNum(row.atomic_num);         
-    setValueAtomicNumInitial(row.atomic_num);         
-  };
 
   const handleCloseNo = () => {
     switch (dialogType) {
@@ -568,10 +590,10 @@ const delRec = async () => {
   }
 
   // Scrolling and positionning
-  const { paginationModel, setPaginationModel, scrollToIndexRef } = useGridScrollPagination(apiRef, tableData, setRowSelectionModel);
-  const { paginationModeNuclide, setPaginationModelNuclide, scrollToIndexRefNuclide } = 
+  const { /* paginationModel, */ setPaginationModel, scrollToIndexRef } = useGridScrollPagination(apiRef, tableData, setRowSelectionModel);
+/*   const { paginationModeNuclide,  setPaginationModelNuclide,  scrollToIndexRefNuclide } = 
     useGridScrollPagination(apiRefNuclide, tableNuclide, setRowSelectionModelNuclide);
-
+ */
   useEffect(() => {
     if (addedId !== null){  
         scrollToIndexRef.current = addedId;
@@ -581,13 +603,16 @@ const delRec = async () => {
     }
   }, [addedId, scrollToIndexRef]);
 
-  useEffect(() => {
-    if (addedId !== null){  
-        scrollToIndexRef.current = addedId;
+/*   useEffect(() => {
+    if (!scrollToIndexRefNuclide?.current) {
+      return;
+  }    
+    if (addedIdNuclide !== null){  
+        scrollToIndexRefNuclide.current = addedIdNuclide;
         setAddedId(null);
-         setRowSelectionModelNuclide([addedId]);
+         setRowSelectionModelNuclide([addedIdNuclide]);
     }
-  }, [addedIdNuclide, scrollToIndexRefNuclide]);  
+  }, [addedIdNuclide, scrollToIndexRefNuclide]);   */
 
   function GridToolbar() {
     const handleExport = (options) =>
@@ -702,7 +727,7 @@ const delRec = async () => {
       const response = await fetch(`/nuclide/`+valueId);
 
       if (!response.ok) {
-        setAlertNuclideText('Ошибка при обновлении нуклидов');
+        setAlertNuclideText('Ошибка при обновлении радиоизотопов');
         setAlertNuclideSeverity('error');
         setOpenAlertNuclide(true);  
         throw new Error(`Error! status: ${response.status}`);
@@ -755,13 +780,13 @@ const delRec = async () => {
               
         const newId = responseData.id;
         console.log('newId', newId);
-        setAlertNuclideText(`Добавлен нуклид с кодом ${newId}`);
+        setAlertNuclideText(`Добавлен радиоизотоп с кодом ${newId}`);
         //lastAddedId = parseInt( alertText.substr(alertText.lastIndexOf('ID:') + 3, 20)); 
         //setValueID(lastAddedId);
         setValueNuclideID(newId);
         setValueMassNumber(valueMassNumber);
         setSelectionModelNuclide([newId]);  
-        setAddedIdNuclide(newId);
+        //setAddedIdNuclide(newId);
         setOpenAlertNuclide(true);  
       }
     } catch (err) {
@@ -976,7 +1001,7 @@ const delRec = async () => {
               <TextField id="ch_id" disabled={true} fullWidth label="Код"  variant="outlined" value={valueId || ''} size="small" />
             </Grid>  
             <Grid item xs={8}>
-              <TextField id="ch_title" disabled={valueId} inputRef={inputRef} fullWidth label="Обозначение" inputProps={{ maxLength: 3 }}  required size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
+              <TextField id="ch_title" disabled={isValueSet(valueId)} inputRef={inputRef} fullWidth label="Обозначение" inputProps={{ maxLength: 3 }}  required size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
             </Grid>
             <Grid item xs={2}>
               <TextField 
@@ -1065,6 +1090,7 @@ const delRec = async () => {
                 rowHeight={25}
                 pageSize={tableNuclide.length}
                 paginationMode="server"
+                /* onPaginationModelChange={setPaginationModelNuclide} */
                 hideFooterPagination
                 rows={tableNuclide}
                 loading={isLoading}
@@ -1072,7 +1098,7 @@ const delRec = async () => {
                 onSelectionModelChange={(newSelectionModel) => {
                   setSelectionModelNuclide(newSelectionModel);
                 }}        
-                /* rowSelectionModel={rowSelectionModelNuclide} */
+/*                 rowSelectionModel={rowSelectionModelNuclide} */
                 selectionModel={selectionModelNuclide} 
                 initialState={{
                   columns: {
@@ -1111,11 +1137,11 @@ const delRec = async () => {
             <Box sx={{ border: '0px solid purple', display: 'flex', flexDirection: 'column', gap: 0.1, alignItems: 'center', justifyContent: 'center' }}>
               <br/>
             
-              <IconButton onClick={()=>handleClickAddNuclide()}  disabled={false} color="primary" size="small" title="Добавить нуклид">
+              <IconButton onClick={()=>handleClickAddNuclide()}  disabled={false} color="primary" size="small" title="Добавить радиоизотоп">
               <SvgIcon fontSize="small" component={PlusLightIcon} inheritViewBox /></IconButton> 
-              <IconButton onClick={()=>handleClickEditNuclide()} disabled={false} color="primary" size="small" title="Редактировать нуклид">
+              <IconButton onClick={()=>handleClickEditNuclide()} disabled={false} color="primary" size="small" title="Редактировать радиоизотоп">
               <SvgIcon fontSize="small" component={EditLightIcon} inheritViewBox /></IconButton> 
-              <IconButton onClick={()=>handleClickDelNuclide()} disabled={false} color="primary" size="small" title="Удалить нуклид">
+              <IconButton onClick={()=>handleClickDelNuclide()} disabled={false} color="primary" size="small" title="Удалить радиоизотоп">
               <SvgIcon fontSize="small" component={TrashLightIcon} inheritViewBox /></IconButton> 
             </Box>  
             </Grid>
@@ -1148,10 +1174,10 @@ const delRec = async () => {
 
 
       <Dialog open={openNuclide} onClose={handleCloseNuclideNo} fullWidth={false} maxWidth="800px">
-      <DialogTitle>Нуклид</DialogTitle>  
+      <DialogTitle>Радиоизотоп</DialogTitle>  
         <DialogContent style={{height:'280px', width: '700px'}}>
 {/*           <DialogContentText>
-            Ввести нуклид
+            Ввести радиоизотоп
           </DialogContentText> */}
           <p></p>        
           <TextField
@@ -1177,7 +1203,7 @@ const delRec = async () => {
           </DialogTitle>
           <DialogContent>
             <DialogContentText>
-            В таблице "Нуклиды" предложена к удалению следующая запись:<p></p><b>{valueMassNumber}</b>; Код в БД = <b>{valueNuclideId}</b><p></p>
+            В таблице "Радиоизотопы" предложена к удалению следующая запись:<p></p><b>{valueMassNumber}</b>; Код в БД = <b>{valueNuclideId}</b><p></p>
             Вы желаете удалить указанную запись?
             </DialogContentText>
           </DialogContent>

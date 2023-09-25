@@ -97,16 +97,21 @@ function DataTableDataSourceClass(props)  {
       .then((data) => {
         setTableData(data);
         // Если массив данных не пустой, обновляем состояния
-        if (data.length > 0 && !addedId) {
+        if (data.length > 0 && (addedId !== data[0]?.id)) {
+          setAddedId(data[0]?.id);
+          setValueID(data[0]?.id);
+        }        
+/*         if (data.length > 0 && !addedId) {
           //console.log('После загрузки выставляем ', data[0]?.id, addedId)
           setAddedId(data[0]?.id);
           setValueID(data[0]?.id);
           //console.log('После загрузки выставили ', data[0]?.id)
-        }
+        } */
       });
     }
     setlastSrcClassID(0);
     setIsLoading(false);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [props.table_name, props.rec_id]);
 
   useEffect(() => {

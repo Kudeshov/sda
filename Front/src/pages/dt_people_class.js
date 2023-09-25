@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   DataGrid, 
   ruRU,
@@ -71,19 +71,9 @@ const DataTablePeopleClass = (props) => {
   const [tableData, setTableData] = useState([]); 
   const [rowSelectionModel, setRowSelectionModel] = React.useState([]);
   const [editStarted, setEditStarted] = useState(false);  
- 
-/*   const [ExampleComponent, ExampleComponentInitial] = React.useState();
-  const [inputValue, inputValueInitial] = React.useState();
-  const [formattedRespRateValue, formattedRespRateValueInitial] = React.useState();
- */
+  
   const [addedId, setAddedId] = useState(null);  
-
-  /* const [isEmpty, setIsEmpty] = useState([false]); // я думаю это ненужно
-   useEffect(() => {
-    setIsEmpty((''===valueTitle)&&(''===valueNameRus)&&(''===valueNameEng)&&(''===valueDescrEng)&&(''===valueDescrRus));
-    }, [ valueTitle, valueNameRus, valueNameEng, valueDescrEng, valueDescrRus, ]); 
-     */
-
+  const [addedIdFilt, setAddedIdFilt] = useState(null);  
   function isValueSet(valueId) {
     return valueId !== null && valueId !== undefined && valueId !== '';
   }  
@@ -112,10 +102,12 @@ const DataTablePeopleClass = (props) => {
     let editStarted = false;
     
     for (let i = 0; i < fields.length; i++) {
-      const [initialName, initialValue, currentName, currentValue] = fields[i];
+      const initialValue = fields[i][1];
+      const currentValue = fields[i][3];
+      //const [initialName, initialValue, currentName, currentValue] = fields[i];
       
       if (initialValue !== currentValue) {
-//        console.log(`Variable ${currentName} ${initialName} changed from ${initialValue} to ${currentValue}`);
+        //console.log(`Variable ${currentName} ${initialName} changed from ${initialValue} to ${currentValue}`);
         editStarted = true;
       }
     }
@@ -155,8 +147,6 @@ const DataTablePeopleClass = (props) => {
   }, [rowSelectionModel, prevRowSelectionModel, editStarted]);    
 
   const handleRowClick = (params) => {
-
-    //console.log('handleRowClick', params.row.id, valueId);
     if (params.row.id === valueId  ) {
       // Если данные не изменились, просто выходим из функции
       return;
@@ -172,7 +162,6 @@ const DataTablePeopleClass = (props) => {
     } 
     else 
     {
-      console.log('setValueId', params.row.id );
       setValueID(params.row.id);
     }
   }; 
@@ -205,10 +194,16 @@ const DataTablePeopleClass = (props) => {
       setValueExtGround(``);
       setValueExtGroundInitial(``);
       
-      // Даем фокус TextField после обновления состояния
-      inputRef.current.focus();
     }
   }; 
+  
+  useEffect(() => {
+    // Если valueId пуст (и поле "Обозначение" доступно), устанавливаем на него фокус
+    if (!isValueSet(valueId)&&!isLoading&&currentId) {
+      // Даем фокус TextField после обновления состояния
+      inputRef.current && inputRef.current.focus(); 
+    }
+  }, [valueId, currentId, isLoading]);
 
   useEffect(() => {
     fetch(`/${props.table_name}`)
@@ -217,6 +212,8 @@ const DataTablePeopleClass = (props) => {
   }, [props.table_name])
 
 const saveRec = async () => {
+
+  let responseData;
   if (formRef.current.reportValidity()) {
     const data = {
       id: valueId,
@@ -254,8 +251,6 @@ const saveRec = async () => {
       const contentType = response.headers.get('content-type');
       const isJson = contentType && contentType.includes('application/json');
       
-      let responseData;
-      
       // Обрабатываем ответ в зависимости от типа контента
       if (isJson) {
         responseData = await response.json();
@@ -274,7 +269,7 @@ const saveRec = async () => {
       if (method === 'POST') {
         
         const newId = responseData.id;
-        
+        setAddedIdFilt(newId);
         if (clickedRowId===null) {
           setValueID(newId);
           setAddedId(newId);
@@ -310,12 +305,63 @@ const saveRec = async () => {
   }
 }
 
+const setValues = useCallback((row) => {
+  setValueTitle(row.title);
+  setValueTitleInitial(row.title);
+  setValueNameRus(row.name_rus);
+  setValueNameRusInitial(row.name_rus);
+  setValueNameEng(row.name_eng);
+  setValueNameEngInitial(row.name_eng);
+  setValueDescrRus(row.descr_rus);
+  setValueDescrRusInitial(row.descr_rus);
+  setValueDescrEng(row.descr_eng);
+  setValueDescrEngInitial(row.descr_eng);
+
+  if (props.table_name === 'agegroup') {
+    setValueRespRate(formatExp(row.resp_rate));
+    setValueRespRateInitial(formatExp(row.resp_rate));
+    setValueRespRateNight(formatExp(row.resp_rate_night));
+    setValueRespRateNightInitial(formatExp(row.resp_rate_night));
+    setValueRespRateDay(formatExp(row.resp_rate_day));
+    setValueRespRateDayInitial(formatExp(row.resp_rate_day));
+    setValueRespYear(row.resp_year);
+    setValueRespYearInitial(row.resp_year);
+    setValueIndoor(row.indoor);
+    setValueIndoorInitial(row.indoor);
+    setValueExtCloud(row.ext_cloud);
+    setValueExtCloudInitial(row.ext_cloud);
+    setValueExtGround(row.ext_ground);
+    setValueExtGroundInitial(row.ext_ground);
+  }
+}, [setValueTitle, setValueTitleInitial, setValueNameRus, setValueNameRusInitial, setValueNameEng, setValueNameEngInitial, 
+  setValueDescrRus, setValueDescrRusInitial, setValueDescrEng, setValueDescrEngInitial, props.table_name, 
+  setValueRespRate, setValueRespRateInitial, setValueRespRateNight, setValueRespRateNightInitial, 
+  setValueRespRateDay, setValueRespRateDayInitial, setValueRespYear, setValueRespYearInitial, 
+  setValueIndoor, setValueIndoorInitial, setValueExtCloud, setValueExtCloudInitial, 
+  setValueExtGround, setValueExtGroundInitial]);
+
+
 useEffect(() => {
-  const rowData = tableData.find(row => row.id === valueId);
+  let newId = valueId;
+  if (addedIdFilt&&(newId!==addedIdFilt)) {
+    newId=addedIdFilt;
+  }
+  if (!isValueSet(newId)) 
+    return;
+  const rowData = tableData.find(row => Number(row.id) === Number(newId));
   if (rowData) {
+    setAddedIdFilt(null);
+    // Проверяем, отображается ли новая запись с учетом текущего фильтра
+    const sortedAndFilteredRowIds = gridFilteredSortedRowIdsSelector(apiRef);
+    const isAddedRowVisible = sortedAndFilteredRowIds.includes(Number(newId));
+    // Если новая запись не отображается из-за фильтрации, сбрасываем фильтр
+    if (!isAddedRowVisible) {
+      apiRef.current.setFilterModel({ items: [] });
+    } 
+    //Установка значений 
     setValues(rowData);
   }
-}, [tableData, valueId]);
+}, [tableData, addedIdFilt, valueId, apiRef, setValues]);
 
 // Функция delRec
 const delRec = async () => {
@@ -468,36 +514,7 @@ const delRec = async () => {
     return number.toExponential();
   };
 
-  const setValues = (row) => {
-    setValueTitle(row.title);
-    setValueTitleInitial(row.title);
-    setValueNameRus(row.name_rus);
-    setValueNameRusInitial(row.name_rus);
-    setValueNameEng(row.name_eng);
-    setValueNameEngInitial(row.name_eng);
-    setValueDescrRus(row.descr_rus);
-    setValueDescrRusInitial(row.descr_rus);
-    setValueDescrEng(row.descr_eng);
-    setValueDescrEngInitial(row.descr_eng);
-  
-    if (props.table_name === 'agegroup') {
-      setValueRespRate(formatExp(row.resp_rate));
-      setValueRespRateInitial(formatExp(row.resp_rate));
-      setValueRespRateNight(formatExp(row.resp_rate_night));
-      setValueRespRateNightInitial(formatExp(row.resp_rate_night));
-      setValueRespRateDay(formatExp(row.resp_rate_day));
-      setValueRespRateDayInitial(formatExp(row.resp_rate_day));
-      setValueRespYear(row.resp_year);
-      setValueRespYearInitial(row.resp_year);
-      setValueIndoor(row.indoor);
-      setValueIndoorInitial(row.indoor);
-      setValueExtCloud(row.ext_cloud);
-      setValueExtCloudInitial(row.ext_cloud);
-      setValueExtGround(row.ext_ground);
-      setValueExtGroundInitial(row.ext_ground);
-    }
-  };
-  
+
 
   const handleCloseNo = () => {
     switch (dialogType) {
@@ -631,10 +648,9 @@ const delRec = async () => {
 
 
   // Scrolling and positionning
-  const { paginationModel, setPaginationModel, scrollToIndexRef } = useGridScrollPagination(apiRef, tableData, setRowSelectionModel);
+  const { /* paginationModel, */ setPaginationModel, scrollToIndexRef } = useGridScrollPagination(apiRef, tableData, setRowSelectionModel);
 
   useEffect(() => {
-    console.log('added id scroll to ', addedId);
     if (addedId !== null){  
         scrollToIndexRef.current = addedId;
         setAddedId(null);

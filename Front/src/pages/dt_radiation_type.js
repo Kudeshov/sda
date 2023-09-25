@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import {
   DataGrid, 
   ruRU,
@@ -59,12 +59,12 @@ const DataTableRadiationType = (props) => {
   const [editStarted, setEditStarted] = useState(false);  
   
   const [addedId, setAddedId] = useState(null);  
+  const [addedIdFilt, setAddedIdFilt] = useState(null);  
   function isValueSet(valueId) {
     return valueId !== null && valueId !== undefined && valueId !== '';
   }  
        
   useEffect(() => {
-    console.log('editStarted currentId', currentId)
     if (typeof currentId !== 'number') {
       setEditStarted(false);
       return;
@@ -82,14 +82,16 @@ const DataTableRadiationType = (props) => {
     let editStarted = false;
     
     for (let i = 0; i < fields.length; i++) {
-      const [initialName, initialValue, currentName, currentValue] = fields[i];
+      const initialValue = fields[i][1];
+      const currentValue = fields[i][3];
+      //const [initialName, initialValue, currentName, currentValue] = fields[i];
+      
       if (initialValue !== currentValue) {
-        console.log(`Variable ${currentName} ${initialName} changed from ${initialValue} to ${currentValue}`);
+        //console.log(`Variable ${currentName} ${initialName} changed from ${initialValue} to ${currentValue}`);
         editStarted = true;
       }
     }
-  
-//    console.log('editStarted', editStarted)
+
     setEditStarted(editStarted);      
   
   }, [valueCodeInitial, valueCode,
@@ -122,8 +124,6 @@ const DataTableRadiationType = (props) => {
   }, [rowSelectionModel, prevRowSelectionModel, editStarted]);    
 
   const handleRowClick = (params) => {
-
-    console.log('handleRowClick', params.row.id, valueId);
     if (params.row.id === valueId  ) {
       // Если данные не изменились, просто выходим из функции
       return;
@@ -156,10 +156,16 @@ const DataTableRadiationType = (props) => {
       setValueNameEng(``);
       setValueDescrRus(``);
       setValueDescrEng(``);
-      // Даем фокус TextField после обновления состояния
-      inputRef.current.focus();
     }
   }; 
+  
+  useEffect(() => {
+    // Если valueId пуст (и поле "Обозначение" доступно), устанавливаем на него фокус
+    if (!isValueSet(valueId)&&!isLoading&&currentId) {
+      // Даем фокус TextField после обновления состояния
+      inputRef.current && inputRef.current.focus(); 
+    }
+  }, [valueId, currentId, isLoading]);
 
   useEffect(() => {
     fetch(`/${props.table_name}`)
@@ -168,6 +174,8 @@ const DataTableRadiationType = (props) => {
   }, [props.table_name])
 
 const saveRec = async () => {
+
+  let responseData;
   if (formRef.current.reportValidity()) {
     const data = {
       id: valueId,
@@ -197,7 +205,7 @@ const saveRec = async () => {
       const contentType = response.headers.get('content-type');
       const isJson = contentType && contentType.includes('application/json');
       
-      let responseData;
+
       
       // Обрабатываем ответ в зависимости от типа контента
       if (isJson) {
@@ -216,20 +224,22 @@ const saveRec = async () => {
       // Если это POST запрос, получаем и устанавливаем новый ID
       if (method === 'POST') {
         const newId = responseData.id;
-        
+        setAddedIdFilt(newId);
         if (clickedRowId===null) {
           setValueId(newId);
           setAddedId(newId);
         }
         else {
           setValueId(clickedRowId);
+          setClickedRowId(null);
         }
           
         setAlertText(`Добавлена запись с кодом ${newId}`);
 
       } else {
-        if (clickedRowId) {
+        if  (clickedRowId!==null) {
           setValueId(clickedRowId);
+          setClickedRowId(null);
         }
         setAlertText(responseData || 'Success');
       }
@@ -250,14 +260,43 @@ const saveRec = async () => {
   }
 }
 
+const setValues = useCallback((row) => {
+    setValueCode(row.code);
+    setValueCodeInitial(row.code);
+    setValueTitle(row.title);
+    setValueTitleInitial(row.title);
+    setValueNameRus(row.name_rus);
+    setValueNameRusInitial(row.name_rus);
+    setValueNameEng(row.name_eng);
+    setValueNameEngInitial(row.name_eng);
+    setValueDescrRus(row.descr_rus);
+    setValueDescrRusInitial(row.descr_rus);
+    setValueDescrEng(row.descr_eng);
+    setValueDescrEngInitial(row.descr_eng);
+}, [setValueCode, setValueCodeInitial, setValueTitle, setValueTitleInitial, setValueNameRus, setValueNameRusInitial, 
+    setValueNameEng, setValueNameEngInitial, setValueDescrRus, setValueDescrRusInitial, setValueDescrEng, setValueDescrEngInitial]);
+
 useEffect(() => {
-  const rowData = tableData.find(row => row.id === valueId);
+  let newId = valueId;
+  if (addedIdFilt&&(newId!==addedIdFilt)) {
+    newId=addedIdFilt;
+  }
+  if (!isValueSet(newId)) 
+    return;
+  const rowData = tableData.find(row => Number(row.id) === Number(newId));
   if (rowData) {
+    setAddedIdFilt(null);
+    // Проверяем, отображается ли новая запись с учетом текущего фильтра
+    const sortedAndFilteredRowIds = gridFilteredSortedRowIdsSelector(apiRef);
+    const isAddedRowVisible = sortedAndFilteredRowIds.includes(Number(newId));
+    // Если новая запись не отображается из-за фильтрации, сбрасываем фильтр
+    if (!isAddedRowVisible) {
+      apiRef.current.setFilterModel({ items: [] });
+    } 
+    //Установка значений 
     setValues(rowData);
   }
-}, [tableData, valueId]);
-
-const [previousRowBeforeDeletion, setPreviousRowBeforeDeletion] = useState(null);
+}, [tableData, addedIdFilt, valueId, apiRef, setValues]);
 
 // Функция delRec
 const delRec = async () => {
@@ -400,21 +439,6 @@ const delRec = async () => {
     }
   };
 
-  const setValues = (row) => {
-    setValueCode(row.code);
-    setValueCodeInitial(row.code);
-    setValueTitle(row.title);
-    setValueTitleInitial(row.title);
-    setValueNameRus(row.name_rus);
-    setValueNameRusInitial(row.name_rus);
-    setValueNameEng(row.name_eng);
-    setValueNameEngInitial(row.name_eng);
-    setValueDescrRus(row.descr_rus);
-    setValueDescrRusInitial(row.descr_rus);
-    setValueDescrEng(row.descr_eng);
-    setValueDescrEngInitial(row.descr_eng);
-  };
-  
 
   const handleCloseNo = () => {
     switch (dialogType) {
@@ -520,7 +544,7 @@ const delRec = async () => {
   }
 
   // Scrolling and positionning
-  const { paginationModel, setPaginationModel, scrollToIndexRef } = useGridScrollPagination(apiRef, tableData, setRowSelectionModel);
+  const { /* paginationModel, */ setPaginationModel, scrollToIndexRef } = useGridScrollPagination(apiRef, tableData, setRowSelectionModel);
 
   useEffect(() => {
     if (addedId !== null){  
