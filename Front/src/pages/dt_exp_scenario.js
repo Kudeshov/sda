@@ -38,7 +38,7 @@ import { table_names } from './table_names';
 import Backdrop from '@mui/material/Backdrop';
 import { InputAdornment } from "@material-ui/core";
 import Tooltip from '@mui/material/Tooltip';
-import { listToTree } from '../helpers/treeHelper';
+import { listToTree, findNextIdAfterDelete } from '../helpers/treeHelper';
 import { Grid } from '@mui/material';
 
 var lastId = 0;
@@ -66,6 +66,9 @@ const DataTableExpScenario = (props) => {
   const [treeData, setTreeData] = useState([]); 
   const [editStarted, setEditStarted] = useState(false);
 
+  function isValueSet(valueId) {
+    return valueId !== null && valueId !== undefined && valueId !== '';
+  }  
   const [alertText, setAlertText] = useState("Сообщение");
   const [alertSeverity, setAlertSeverity] = useState("info");
 
@@ -92,7 +95,7 @@ const DataTableExpScenario = (props) => {
       const [initialValue, currentValue] = fieldsToCheck[key];
       if (initialValue !== currentValue) {
         isEditStarted = true;
-        console.log('Field changed:', key);
+        //console.log('Field changed:', key);
       }
     });
   
@@ -187,21 +190,48 @@ const DataTableExpScenario = (props) => {
     const scrollContainerRef = React.useRef();
 
     useEffect(() => {
+      console.log("useEffect triggered with updated:", updated, "selected:", selected);
+  
+      if (updated && selected && nodeRefs.current[selected]) {
+          const node = nodeRefs.current[selected];
+          const scrollContainer = scrollContainerRef.current;
+  
+          console.log("Node found:", node);
+          console.log("Scroll container found:", scrollContainer);
+  
+          if (node && scrollContainer) {
+              const nodePosition = node.offsetTop;
+              console.log("Node position:", nodePosition);
+  
+              if (nodePosition < scrollContainer.scrollTop || nodePosition > (scrollContainer.scrollTop + scrollContainer.clientHeight)) {
+                  console.log("Adjusting scroll position...");
+                  scrollContainer.scrollTop = nodePosition - scrollContainer.clientHeight / 2;
+              } else {
+                  console.log("No need to adjust scroll position.");
+              }
+          }
+          //setUpdated(false); // Reset the updated state to false after scrolling
+      } else {
+          console.log("Conditions not met. No scrolling performed.");
+      }
+      setUpdated(false); // Reset the updated state to false after scrolling  
+    }, [updated, selected]);
+  
+
+/*     useEffect(() => {
       if (updated && selected && nodeRefs.current[selected]) {
         const node = nodeRefs.current[selected];
         const scrollContainer = scrollContainerRef.current;
 
         if (node && scrollContainer) {
-
           const nodePosition = node.offsetTop;
-         
           if (nodePosition < scrollContainer.scrollTop || nodePosition > (scrollContainer.scrollTop + scrollContainer.clientHeight)) {
             scrollContainer.scrollTop = nodePosition - scrollContainer.clientHeight / 2;
           } 
         }
         setUpdated(false); // Reset the updated state to false after scrolling
       }
-    }, [updated, selected]);
+    }, [updated, selected]); */
     
 
     const DataTreeView = ({ treeItems }) => {
@@ -279,10 +309,10 @@ const DataTableExpScenario = (props) => {
   useEffect(() => {
     // Здесь код, который будет выполняться после каждого обновления treeData
     setUpdated(true);
-  }, [treeData]);    
+  }, [treeData]);
 
 
-  const setValues = (row) => {
+  const setValues = useCallback((row) => {
     const valueSetters = {
       title: setValueTitle,
       name_rus: setValueNameRus,
@@ -330,22 +360,23 @@ const DataTableExpScenario = (props) => {
         console.log("Ключа " + key + " не существует в объекте row");
       }
     });
-  };
+  }, [setValueTitle, setValueNameRus, setValueNameEng, setValueDescrRus, setValueDescrEng, setValueParentID, setValueNormativID,
+    setValueTitleInitial, setValueNameRusInitial, setValueNameEngInitial, setValueDescrRusInitial, setValueDescrEngInitial, setValueParentIDInitial, setValueNormativIDInitial, props.table_name]);
   
 
   useEffect(() => {
     const rowData = tableData.find(row => row.id === valueId);
-    console.log('if (rowData) {', valueId, rowData);
+    //console.log('if (rowData) {', valueId, rowData);
     if (rowData) {
       setValues(rowData);
     }
-  }, [tableData, valueId]);
+  }, [tableData, valueId, setValues]);
 
   const handleSelect = (event, nodeIds) => {
     setSelected(nodeIds);
     setOpenAlert(false);  
     const id = Number(nodeIds); // преобразуем id в число
-    console.log('setClickedRowId id = ' + id);
+    //console.log('setClickedRowId id = ' + id);
     setClickedRowId(id);
   
     if (editStarted) {
@@ -358,6 +389,8 @@ const DataTableExpScenario = (props) => {
     }
   };
 
+  const inputRef = React.useRef();
+
   const handleClearClick = (params) => {
     if (editStarted/* &&(!isEmpty) */)
     {
@@ -365,6 +398,7 @@ const DataTableExpScenario = (props) => {
     } 
     else 
     {
+      setClickedRowId(null); 
       setValueID(``);
       setValueTitle(``);
       setValueNameRus(``);
@@ -375,6 +409,14 @@ const DataTableExpScenario = (props) => {
       setValueNormativID(valueNormativID);
     }
   }; 
+
+  useEffect(() => {
+    // Если valueId пуст (и поле "Обозначение" доступно), устанавливаем на него фокус
+    if (!isValueSet(valueId)&&!isLoading) {
+      // Даем фокус TextField после обновления состояния
+      inputRef.current && inputRef.current.focus(); 
+    }
+  }, [valueId, isLoading]);
 
   useEffect(() => {
     fetch(`/${props.table_name}`)
@@ -466,15 +508,18 @@ const DataTableExpScenario = (props) => {
   
   ///////////////////////////////////////////////////////////////////  SAVE  /////////////////////
   const saveRec = async ( fromToolbar ) => {
-    // Проверка на то, что нормативная база у родителя и ребенка совпадает
-    if (valueParentID !== -1) { // если запись не на верхнем уровне
-      const parentNormativ = tableData.find(item => item.id === valueParentID).normativ_id;
-      if (parentNormativ !== valueNormativID) {
-          handleClickOpen();
-          //alert("Нормативная база у дочерней записи и родительской записи должна быть одинаковой!");
-          return; // выйти из функции, не продолжая сохранение
-      }
-    }    
+
+    if (props.table_name === 'criterion_gr') {
+      // Проверка на то, что нормативная база у родителя и ребенка совпадает
+      if (valueParentID !== -1) { // если запись не на верхнем уровне
+        const parentNormativ = tableData.find(item => item.id === valueParentID).normativ_id;
+        if (parentNormativ !== valueNormativID) {
+            handleClickOpen();
+            //alert("Нормативная база у дочерней записи и родительской записи должна быть одинаковой!");
+            return; // выйти из функции, не продолжая сохранение
+        }
+      } 
+    }   
     if (formRef.current.reportValidity() )
     {
     const js = JSON.stringify({
@@ -519,6 +564,19 @@ const DataTableExpScenario = (props) => {
           setExpanded(prevExpanded => [...prevExpanded, valueParentID.toString()]);
         }
         await reloadData();
+        console.log('clickedRowId',clickedRowId);
+
+        if (clickedRowId===null) {
+          setValueID(valueId.toString());
+          setSelected(null);
+          setSelected(valueId.toString());
+        }
+        else {
+          setValueID(clickedRowId.toString());
+          setSelected(clickedRowId.toString());
+          setClickedRowId(null);
+        }
+
       }
       setOpenAlert(true); 
     } catch (err) {
@@ -590,10 +648,16 @@ const DataTableExpScenario = (props) => {
         setAlertSeverity('success');
         setAlertText(`Добавлена запись с кодом ${id}`);        
         lastId = id;         
-        console.log('setSelected lastId' + lastId);
-        setValueID(lastId);
-        console.log('setSelected toString' + lastId.toString());
-        setSelected(lastId.toString());
+        console.log('clickedRowId',clickedRowId);
+        if (clickedRowId===null) {
+          setValueID(lastId);
+          setSelected(lastId.toString());
+        }
+        else {
+          setValueID(clickedRowId.toString());
+          setSelected(clickedRowId.toString());
+          setClickedRowId(null);
+        }
 
         if (valueParentID) {
           const parentIds = getParentIds(treeData, valueParentID).map(String); // получите список всех родительских элементов
@@ -632,6 +696,11 @@ const DataTableExpScenario = (props) => {
 
 /////////////////////////////////////////////////////////////////// DELETE /////////////////////
   const delRec =  async () => {
+    let previousRowId = 0;
+    console.log('findNextIdAfterDelete', valueId, treeData);
+    previousRowId = findNextIdAfterDelete(valueId, treeData); 
+    console.log('previousRowId', previousRowId);
+
     const js = JSON.stringify({
         id: valueId,
         title: valueTitle,
@@ -654,22 +723,35 @@ const DataTableExpScenario = (props) => {
       {
         setAlertSeverity('success');
         setAlertText(await response.text());        
-        reloadData();
-        setValueID(tableData[0].id);
-        setValueTitle(tableData[0].title);
-        setValueNameRus(tableData[0].name_rus);
-        setValueNameEng(tableData[0].name_eng);
-        setValueDescrRus(tableData[0].descr_rus);
-        setValueDescrEng(tableData[0].descr_eng);
-        setValueTitleInitial(tableData[0].title);
-        setValueNameRusInitial(tableData[0].name_rus);
-        setValueNameEngInitial(tableData[0].name_eng);
-        setValueDescrRusInitial(tableData[0].descr_rus);
-        setValueDescrEngInitial(tableData[0].descr_eng);
-        setValueParentID(tableData[0].parent_id||-1);
-        setValueParentIDInitial(tableData[0].parent_id||-1);
-        setValueNormativID(tableData[0].normativ_id);
-        setValueNormativIDInitial(tableData[0].normativ_id);
+        await reloadData();
+        //console.log('previousRowId', previousRowId);
+
+        const rowData = tableData.find(row => row.id === previousRowId);
+        console.log('tableData.find', previousRowId, rowData);
+        if (rowData) {
+          //setValues(rowData);
+          setValueID(previousRowId);
+          setSelected(previousRowId.toString());
+          //setUpdated(true);
+        }
+        //console.log('tableData[previousRowId].id', tableData[previousRowId].id);
+        //setValues( previousRowId ); 
+
+/*         setValueID(tableData[previousRowId].id);
+        setValueTitle(tableData[previousRowId].title);
+        setValueNameRus(tableData[previousRowId].name_rus);
+        setValueNameEng(tableData[previousRowId].name_eng);
+        setValueDescrRus(tableData[previousRowId].descr_rus);
+        setValueDescrEng(tableData[previousRowId].descr_eng);
+        setValueTitleInitial(tableData[previousRowId].title);
+        setValueNameRusInitial(tableData[previousRowId].name_rus);
+        setValueNameEngInitial(tableData[previousRowId].name_eng);
+        setValueDescrRusInitial(tableData[previousRowId].descr_rus);
+        setValueDescrEngInitial(tableData[previousRowId].descr_eng);
+        setValueParentID(tableData[previousRowId].parent_id||-1);
+        setValueParentIDInitial(tableData[previousRowId].parent_id||-1);
+        setValueNormativID(tableData[previousRowId].normativ_id);
+        setValueNormativIDInitial(tableData[previousRowId].normativ_id); */
       }
       setOpenAlert(true);  
     } catch (err) {
@@ -713,7 +795,7 @@ const DataTableExpScenario = (props) => {
       {  
         const result = await response.json();
         setTableData(result);
-        console.log('after reload');
+        //console.log('after reload');
       }
     } catch (err) {
       throw err;
@@ -726,17 +808,17 @@ const DataTableExpScenario = (props) => {
   const [dialogType, setDialogType] = useState('');
   const [clickedRowId, setClickedRowId] = useState(null);
 
-  const setValuesById = (id) => {
+/*   const setValuesById = (id) => {
     //console.log( 'id = '+id);
     //if (id)
     //  lastId = id;
     var res = tableData.filter(function(item) {
       return item.id === id;
     });
-    console.log('console ', id, res[0]);
+    //console.log('console ', id, res[0]);
     setValues(res[0]);
   };   
-
+ */
   const getDialogContentText = () => {
     const allRequiredFieldsFilled = formRef.current?.checkValidity();
     switch (dialogType) {
@@ -819,11 +901,13 @@ const DataTableExpScenario = (props) => {
 
     if (clickedRowId>0) {
       setEditStarted(false);
-      console.log('yes', clickedRowId);
+      //console.log('yes', clickedRowId);
       setSelected(clickedRowId.toString());
       //setRowSelectionModel([clickedRowId]);
       const rowData = tableData.find(row => row.id === clickedRowId);
-      setValues(rowData);
+      if (rowData) {
+        setValues(rowData);
+      }
       setValueID(clickedRowId);
       setEditStarted(false);
     }
@@ -855,7 +939,13 @@ const DataTableExpScenario = (props) => {
   const handleCancelClick = () => 
   {
     setEditStarted(false);
-    setValuesById(clickedRowId);
+    setValueID(clickedRowId.toString());
+    const rowData = tableData.find(row => row.id === clickedRowId);
+    if (rowData) {
+      setValues(rowData);
+    }
+    console.log('valueId.toString()', clickedRowId );
+    setSelected(clickedRowId.toString());
   }
 
   function getHeaders(atable)
@@ -907,7 +997,7 @@ const DataTableExpScenario = (props) => {
 
   const exportDataCSV = async () => {
     const csvExporter = new ExportToCsv(optionsCSV);
-    console.log(treeFilterString);
+    //console.log(treeFilterString);
     const filteredData = tableData.filter(item =>
       item.title.toLowerCase().includes(treeFilterString.toLowerCase())
     );
@@ -950,7 +1040,6 @@ const DataTableExpScenario = (props) => {
   const formRef = React.useRef();
   return (
     <>
-    
     <Box sx={{ width: 1445, height: 650, padding: 1 }}>
       <Grid container spacing={1}>
         <Grid item sx={{width: 570, border: '0px solid green', ml: 1 }}>
@@ -1066,7 +1155,8 @@ const DataTableExpScenario = (props) => {
             </Grid>
             <Grid item xs={4}>
               <TextField  
-                id="ch_name" 
+                id="ch_name"
+                inputRef={inputRef}  
                 label="Обозначение"
                 disabled={valueId!==''}  
                 required 

@@ -37,4 +37,44 @@ export function listToTree(list, filterString = '') {
     // Фильтруем узлы из дерева
     return filterTree(roots, filterString.toLowerCase());
   }
-  
+
+  export function findNextIdAfterDelete(currentId, treeData) {
+    let previousNode = null;
+
+    function traverseTree(nodes) {
+        for (let i = 0; i < nodes.length; i++) {
+            console.log(`Checking node with ID: ${nodes[i].id}`);
+            if (Number(nodes[i].id) === Number(currentId)) {
+                console.log(`Found node with ID: ${nodes[i].id}`);
+                
+                if (i === 0 && previousNode) {
+                    console.log(`Current node is the first child but not root. Returning previous node ID: ${previousNode.id}`);
+                    return previousNode.id;
+                } else if (i !== 0) {
+                    console.log(`Returning previous node with ID: ${previousNode.id}`);
+                    return previousNode.id;
+                } else {
+                    console.log(`Node is the root or an unmatched condition. Returning null.`);
+                    return null;
+                }
+            }
+
+            previousNode = nodes[i];
+
+            if (nodes[i].children && nodes[i].children.length > 0) {
+                console.log(`Node with ID: ${nodes[i].id} has children. Recursing...`);
+                const result = traverseTree(nodes[i].children);
+                if (result !== undefined) {
+                    console.log(`Returning from child recursion with result: ${result}`);
+                    return result;
+                }
+            }
+        }
+        console.log(`Finished checking all nodes at this level. Returning to parent level.`);
+    }
+
+    const finalResult = traverseTree(treeData);
+    console.log(`Final result: ${finalResult}`);
+    return finalResult;
+}
+

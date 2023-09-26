@@ -514,8 +514,6 @@ const delRec = async () => {
     return number.toExponential();
   };
 
-
-
   const handleCloseNo = () => {
     switch (dialogType) {
       case 'save':
