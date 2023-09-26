@@ -78,3 +78,33 @@ export function listToTree(list, filterString = '') {
     return finalResult;
 }
 
+export function findPreviousIdAfterDeleteChemComp(currentId, treeData) {
+  let previousNode = null;
+  let parentNode = null;
+
+  function traverseTree(nodes) {
+      for (let i = 0; i < nodes.length; i++) {
+          if (Number(nodes[i].id) === Number(currentId)) {
+              if (i === 0 && parentNode) {
+                  // If it's the first child, return the parent's ID
+                  return parentNode.id;
+              } else if (i !== 0) {
+                  // Return the ID of the previous node
+                  return previousNode.id;
+              }
+          }
+
+          previousNode = nodes[i];
+
+          if (nodes[i].children && nodes[i].children.length > 0) {
+              parentNode = nodes[i];
+              const result = traverseTree(nodes[i].children);
+              if (result !== undefined) {
+                  return result;
+              }
+          }
+      }
+  }
+
+  return traverseTree(treeData);
+}

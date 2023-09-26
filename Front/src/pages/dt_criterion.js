@@ -27,10 +27,6 @@ import TreeView from "@material-ui/lab/TreeView";
 import TreeItem from "@material-ui/lab/TreeItem";
 import ExpandMoreIcon from "@material-ui/icons/ExpandMore";
 import ChevronRightIcon from "@material-ui/icons/ChevronRight";
-/* import { Select } from "@mui/material";
-import { MenuItem } from "@mui/material";
-import { FormControl } from "@mui/material";
-import { InputLabel } from "@mui/material"; */
 import CircularProgress from '@material-ui/core/CircularProgress';
 import { ExportToCsv } from 'export-to-csv-fix-source-map';
 import { table_names } from './table_names';
@@ -39,14 +35,13 @@ import { InputAdornment } from "@material-ui/core";
 import Autocomplete from '@mui/material/Autocomplete';
 import Tooltip from '@mui/material/Tooltip';
 import { DataTableActionCriterion } from './dt_action_criterion';
-import { listToTree } from '../helpers/treeHelper';
+import { listToTree, findPreviousIdAfterDeleteChemComp } from '../helpers/treeHelper';
 import { Grid } from '@mui/material';
 import Typography from '@mui/material/Typography';
 import HierarchicalAutocomplete, { transformData } from '../component/HierarchicalAutocomplete';
 
 
 var lastId = 0;
-//var clickedId = 0;
 var clickAfterReload = false;
 
 const DataTableCriterion = (props) => {
@@ -117,9 +112,11 @@ const DataTableCriterion = (props) => {
   const [tableData, setTableData] = useState([]); 
   const [treeData, setTreeData] = useState([]); 
   const [editStarted, setEditStarted] = useState(false);
-  //const [isEmpty, setIsEmpty] = useState([false]);
-  const [valueCrit, setValueCrit] = React.useState(0);
 
+  const [valueCrit, setValueCrit] = React.useState(0);
+  function isValueSet(valueId) {
+    return valueId !== null && valueId !== undefined && valueId !== '';
+  }  
   const [alertText, setAlertText] = useState("Сообщение");
   const [alertSeverity, setAlertSeverity] = useState("info");
 
@@ -325,32 +322,19 @@ const DataTableCriterion = (props) => {
 
     useEffect(() => {
       if (updated && selected && nodeRefs.current[selected]) {
-        const node = nodeRefs.current[selected];
-        const scrollContainer = scrollContainerRef.current;
-
-        if (node && scrollContainer) {
-
-          const nodePosition = node.offsetTop;
-          //const scrollContainerPosition = scrollContainer.offsetTop;
-          
-          //console.log('Node position:', nodePosition);
-          //console.log('Scroll container position:', scrollContainerPosition);
-          //console.log('Scroll container client height:', scrollContainer.clientHeight);
-          
-          if (nodePosition < scrollContainer.scrollTop || nodePosition > (scrollContainer.scrollTop + scrollContainer.clientHeight)) {
-              //console.log('Node is outside of the visible scroll container area. Scrolling...');
-
-            scrollContainer.scrollTop = nodePosition - scrollContainer.clientHeight / 2;
-              // console.log('New scroll container scrollTop value:', scrollContainer.scrollTop);
-          } else {
-              //console.log('Node is within the visible scroll container area. No scrolling needed.');
+          const node = nodeRefs.current[selected];
+          const scrollContainer = scrollContainerRef.current;
+ 
+          if (node && scrollContainer) {
+              const nodePosition = node.offsetTop;
+              if (nodePosition < scrollContainer.scrollTop || nodePosition > (scrollContainer.scrollTop + scrollContainer.clientHeight)) {
+                  scrollContainer.scrollTop = nodePosition - scrollContainer.clientHeight / 2;
+              }
           }
-        }
-        setUpdated(false); // Reset the updated state to false after scrolling
       }
+      setUpdated(false); // Reset the updated state to false after scrolling  
     }, [updated, selected]);
-    
-
+  
     const DataTreeView = ({ treeItems }) => {
       const getTreeItemsFromData = treeItems => {
       
@@ -429,8 +413,7 @@ const DataTableCriterion = (props) => {
   }, [treeData]);    
 
 
-  const setValues = (row) => {
-
+  const setValues = useCallback((row) => {
     const valueSetters = {
       title: setValueTitle,
       name_rus: setValueNameRus,
@@ -499,87 +482,95 @@ const DataTableCriterion = (props) => {
             console.log("Ключа " + key + " не существует в объекте row"); // выводим имя ключа в консоль
         }
     });
-  };
-
-  useEffect(() => {
-    const rowData = tableData.find(row => row.id === valueId);
-    console.log('if (rowData) {', valueId, rowData);
+  }, [
+    setValueTitle,
+    setValueNameRus,
+    setValueNameEng,
+    setValueDescrRus,
+    setValueDescrEng,
+    setValueParentID,
+    setValueCalcfunctionID,
+    setValueIrradiation,
+    setValueAgegroup,
+    setValueExpScenario,
+    setValueIntegralPeriod,
+    setValueOrgan,
+    setValueDataSource,
+    setValueAerosolAmad,
+    setValueAerosolSol,
+    setValueChemCompGr,
+    setValueSubstForm,
+    setValueIsotope,
+    setValueActionLevel,
+    setValuePeopleClass,
+    setValueCrValue,
+    setValueTimeend,
+    setValueCrit,
+    setValueTitleInitial,
+    setValueNameRusInitial,
+    setValueNameEngInitial,
+    setValueDescrRusInitial,
+    setValueDescrEngInitial,
+    setValueParentIDInitial,
+    setValueCalcfunctionIDInitial,
+    setValueIrradiationInitial,
+    setValueAgegroupInitial,
+    setValueExpScenarioInitial,
+    setValueIntegralPeriodInitial,
+    setValueOrganInitial,
+    setValueDataSourceInitial,
+    setValueAerosolAmadInitial,
+    setValueAerosolSolInitial,
+    setValueChemCompGrInitial,
+    setValueSubstFormInitial,
+    setValueIsotopeInitial,
+    setValueActionLevelInitial,
+    setValuePeopleClassInitial,
+    setValueCrValueInitial,
+    setValueTimeendInitial
+]);
+    
+  const setValuesById = useCallback((id) => {
+    const rowData = tableData.find(row => Number(row.id) === Number(id));
     if (rowData) {
       setValues(rowData);
-    }
-  }, [tableData, valueId]);
+    }    
+  }, [tableData, setValues]);
 
+  useEffect(() => {
+
+    setValuesById( valueId );
+
+  }, [ valueId, setValuesById]);
   const handleSelect = (event, nodeIds) => {
     setSelected(nodeIds);
     setOpenAlert(false);  
     const id = Number(nodeIds); // преобразуем id в число
-    //clickedId = id;
-    console.log('setClickedRowId id = ' + id);
     setClickedRowId(id);
   
-    if (editStarted && valueCrit===1/* && (!isEmpty) */) {
+    if (editStarted && valueCrit===1) {
 
       setDialogType('save');
-      //handleClickSave(id);
     } else {
       if (id) {
         lastId = id;
       }
-  
-/*       var res = tableData.filter(function(item) {
-        return item.id === id;
-      });
-      const newNode = nodes.find(node => node.value === res[0].parent_id);
-      setSelectedNode(newNode);
- */
       setValueID(id);
-      // setBranch(newNode);
     }
   };
 
-  //const treeDataCriterionGr = transformData(tableCriterionGr);
   const treeDataCriterionGr = React.useMemo(() => transformData(tableCriterionGr,tableCriterionGr), [tableCriterionGr]);
   const treeDataOrgan = React.useMemo(() => transformData(tableOrgan,tableOrgan), [tableOrgan]);
-  //const treeDataChemCompGr = React.useMemo(() => transformData(tableChemCompGr), [tableChemCompGr]);
-  //const [selectedValueCriterionGr, setSelectedValueCriterionGr] = useState(null); 
-/* 
-  const handleSelect = (event, nodeIds) => {
-    setSelected(nodeIds);
-    handleItemClick(nodeIds);
-  };  
-
-  const handleItemClick = (id) => {
-    setOpenAlert(false);  
-    console.log( 'isEmpty = '+isEmpty);
-    clickedId = id;
-    if (editStarted&&(!isEmpty)) {
-      handleClickSave(id);
-    } else {
-      if (id)
-        lastId = id;
-  
-      var res = tableData.filter(function(item) {
-        return item.id.toString() === id;
-      });
-      console.log('id', id);
-      console.log('type of id:', typeof id);
-      setValueID(id);
-  
-      const newNode = nodes.find(node => node.value === res[0].parent_id);
-      setSelectedNode(newNode);
-      // setBranch(newNode);
-    }   
-  };  */
- 
-
+  const inputRef = React.useRef();
 
   const handleClearClick = (params) => {
-    if (editStarted/* &&(!isEmpty) */)
+    if (editStarted)
     {
       setDialogType('save');
     } 
     else 
     {
+      setClickedRowId(null); 
       setValueID(``);
       setValueTitle(``);
       setValueNameRus(``);
@@ -608,13 +599,20 @@ const DataTableCriterion = (props) => {
   }; 
 
   useEffect(() => {
+    // Если valueId пуст (и поле "Обозначение" доступно), устанавливаем на него фокус
+    if (!isValueSet(valueId)&&!isLoading) {
+      // Даем фокус TextField после обновления состояния
+      inputRef.current && inputRef.current.focus(); 
+    }
+  }, [valueId, isLoading]);
+
+  useEffect(() => {
     fetch(`/${props.table_name}`)
       .then((data) => data.json())
       .then((data) => setTableData(data)); 
   }, [props.table_name])
 
   useEffect(() => {
-
     function updateCurrentRec (id)  {
       if (id)
         lastId = id;
@@ -705,11 +703,23 @@ const DataTableCriterion = (props) => {
   }, []);
 
   ///////////////////////////////////////////////////////////////////  Tree load functions and hook  /////////////////////
+  const [filter, setFilter] = useState(""); //значение фильтра
+  const [filterApplied, setFilterApplied] = useState(false); //состояние применен фильтр или нет
+
+  const clearFilter = useCallback(() => {
+    setFilter("");
+    setFilterApplied(false);
+    setTreeFilter("");
+  }, []);
+
   useEffect(() => {
     // Преобразуем tableData из списка в структуру дерева и обновляем состояние treeData
     const arr = listToTree(tableData, treeFilterString);
     setTreeData(arr);
-  }, [tableData, treeFilterString]);
+    if ((arr.length===0)&& filterApplied) {
+      clearFilter();
+    }
+  }, [tableData, treeFilterString, clearFilter, filterApplied]);
 
   function getParentIds(tree, targetId) {
     const result = [];
@@ -779,8 +789,6 @@ const DataTableCriterion = (props) => {
       {
         setAlertSeverity('success');
         setAlertText(await response.text());        
-        //console.log('reloadData');
-        //console.log(treeData);
         if (valueParentID) {
           const parentIds = getParentIds(treeData, valueParentID).map(String); // получите список всех родительских элементов
           const newExpanded = new Set([...expanded, ...parentIds]); // добавьте их к уже раскрытым элементам, убрав дубликаты
@@ -789,7 +797,23 @@ const DataTableCriterion = (props) => {
         if (valueParentID && !expanded.includes(valueParentID.toString())) {
           setExpanded(prevExpanded => [...prevExpanded, valueParentID.toString()]);
         }
+
+        // После успешного добавления или обновления записи:
+        if (!valueTitle.includes(filter) && !valueNameRus.includes(filter) && filterApplied) {
+          clearFilter();
+        }
         await reloadData();
+        if (clickedRowId===null) {
+          setValueID(valueId.toString());
+          setSelected(null);
+          setSelected(valueId.toString());
+        }
+        else {
+          setValueID(clickedRowId.toString());
+          setSelected(clickedRowId.toString());
+          setClickedRowId(null);
+        }
+
       }
       setOpenAlert(true); 
     } catch (err) {
@@ -902,10 +926,22 @@ const DataTableCriterion = (props) => {
         setAlertSeverity('success');
         setAlertText(`Добавлена запись с кодом ${id}`);        
         lastId = id;         
-        console.log('setSelected lastId' + lastId);
-        setValueID(lastId);
-        console.log('setSelected toString' + lastId.toString());
-        setSelected(lastId.toString());
+        console.log('filter', filter, 'valueTitle', valueTitle, 'valueNameRus', valueNameRus );
+
+        // После успешного добавления или обновления записи:
+        if (!valueTitle.includes(filter) && !valueNameRus.includes(filter) && filterApplied) {
+          clearFilter();
+        }
+        
+        if (clickedRowId===null) {
+          setValueID(lastId);
+          setSelected(lastId.toString());
+        }
+        else {
+          setValueID(clickedRowId.toString());
+          setSelected(clickedRowId.toString());
+          setClickedRowId(null);
+        }
 
         if (valueParentID) {
           const parentIds = getParentIds(treeData, valueParentID).map(String); // получите список всех родительских элементов
@@ -978,6 +1014,8 @@ const DataTableCriterion = (props) => {
 
 /////////////////////////////////////////////////////////////////// DELETE /////////////////////
   const delRec =  async () => {
+    let previousRowId = 0;
+    previousRowId = findPreviousIdAfterDeleteChemComp(valueId, treeData); 
     const js = JSON.stringify({
         id: valueId,
         title: valueTitle,
@@ -1000,53 +1038,12 @@ const DataTableCriterion = (props) => {
       {
         setAlertSeverity('success');
         setAlertText(await response.text());        
-        reloadData();
-        setValueID(tableData[0].id);
-        setValueTitle(tableData[0].title);
-        setValueNameRus(tableData[0].name_rus);
-        setValueNameEng(tableData[0].name_eng);
-        setValueDescrRus(tableData[0].descr_rus);
-        setValueDescrEng(tableData[0].descr_eng);
-        setValueTitleInitial(tableData[0].title);
-        setValueNameRusInitial(tableData[0].name_rus);
-        setValueNameEngInitial(tableData[0].name_eng);
-        setValueDescrRusInitial(tableData[0].descr_rus);
-        setValueDescrEngInitial(tableData[0].descr_eng);
-        setValueParentID(tableData[0].parent_id||-1);
-        setValueParentIDInitial(tableData[0].parent_id||-1);
-        setValueCalcfunctionID(tableData[0].calcfunction_id);
-        setValueIrradiation(tableData[0].irradiation_id);
-        setValueAgegroup(tableData[0].agegroup_id);
-        setValueExpScenario(tableData[0].exp_scenario_id);
-        setValueIntegralPeriod(tableData[0].integral_period_id);
-        setValueOrgan(tableData[0].organ_id);
-        setValueDataSource(tableData[0].data_source_id);
-        setValueAerosolAmad(tableData[0].aerosol_amad_id);
-        setValueAerosolSol(tableData[0].aerosol_sol_id);
-        setValueChemCompGr(tableData[0].chem_comp_gr_id);
-        setValueSubstForm(tableData[0].subst_form_id);
-        setValueIsotope(tableData[0].isotope_id);
-        setValueActionLevel(tableData[0].action_level_id);
-        setValuePeopleClass(tableData[0].people_class_id);
-        setValueCrValue(tableData[0].cr_value);
-        setValueTimeend(tableData[0].timeend);
-
-        setValueCalcfunctionIDInitial(tableData[0].calcfunction_id);
-        setValueIrradiationInitial(tableData[0].irradiation_id);
-        setValueAgegroupInitial(tableData[0].agegroup_id);
-        setValueExpScenarioInitial(tableData[0].exp_scenario_id);
-        setValueIntegralPeriodInitial(tableData[0].integral_period_id);
-        setValueOrganInitial(tableData[0].organ_id);
-        setValueDataSourceInitial(tableData[0].data_source_id);
-        setValueAerosolAmadInitial(tableData[0].aerosol_amad_id);
-        setValueAerosolSolInitial(tableData[0].aerosol_sol_id);
-        setValueChemCompGrInitial(tableData[0].chem_comp_gr_id);
-        setValueSubstFormInitial(tableData[0].subst_form_id);
-        setValueIsotopeInitial(tableData[0].isotope_id);
-        setValueActionLevelInitial(tableData[0].action_level_id);
-        setValuePeopleClassInitial(tableData[0].people_class_id);
-        setValueCrValueInitial(tableData[0].cr_value);
-        setValueTimeendInitial(tableData[0].timeend);
+        await reloadData();
+        const rowData = tableData.find(row => row.id === previousRowId);
+        if (rowData) {
+          setValueID(previousRowId);
+          setSelected(previousRowId.toString());
+        }
       }
       setOpenAlert(true);  
     } catch (err) {
@@ -1090,7 +1087,7 @@ const DataTableCriterion = (props) => {
       {  
         const result = await response.json();
         setTableData(result);
-        console.log('after reload');
+        //console.log('after reload');
       }
     } catch (err) {
       throw err;
@@ -1099,99 +1096,9 @@ const DataTableCriterion = (props) => {
     }
   };
 
-  /////////////////////////////////////////
-  /* const [openDel, setOpenDel] = React.useState(false); 
-  const [openSave, setOpenSave] = React.useState(false); 
-  const [openSaveWhenNew, setOpenSaveWhenNew] = React.useState(false); 
-
-  const handleClickDelete = () => {
-    setOpenDel(true);
-  };
-
-  const handleCloseDelNo = () => {
-    setOpenDel(false);
-  };
-
-  const handleCloseDelYes = () => {
-    setOpenDel(false);
-    delRec();
-  };
-
-  const handleClickSave = () => {
-    setOpenSave(true);
-  };
-
-  function updateCurrentRecHandles (id)  {
-    if (id)
-      lastId = id;
-    var res = tableData.filter(function(item) {
-      return item.id.toString() === id;
-    });
-    setValueID(res[0].id); 
-    setValueTitle(res[0].title);
-    setValueNameRus(res[0].name_rus);
-    setValueNameEng(res[0].name_eng);
-    setValueDescrRus(res[0].descr_rus);
-    setValueDescrEng(res[0].descr_eng);    
-    setValueParentID(res[0].parent_id||-1);    
- 
-    setValueTitleInitial(res[0].title);
-    setValueNameRusInitial(res[0].name_rus);
-    setValueNameEngInitial(res[0].name_eng);
-    setValueDescrRusInitial(res[0].descr_rus);
-    setValueDescrEngInitial(res[0].descr_eng);
-    setValueParentIDInitial(res[0].parent_id||-1); 
-    setValueNormativInitial(res[0].normativ_id);     
-    setValueCalcfunctionID(res[0].calcfunction_id);
-    setValueIrradiation(res[0].irradiation_id);
-    setValueAgegroup(res[0].agegroup_id);
-    setValueExpScenario(res[0].exp_scenario_id);
-    setValueIntegralPeriod(res[0].integral_period_id);
-    setValueOrgan(res[0].organ_id);
-    setValueDataSource(res[0].data_source_id);
-    setValueAerosolAmad(res[0].aerosol_amad_id);
-    setValueAerosolSol(res[0].aerosol_sol_id);
-    setValueChemCompGr(res[0].chem_comp_gr_id);
-    setValueSubstForm(res[0].subst_form_id);
-    setValueIsotope(res[0].isotope_id);
-    setValueActionLevel(res[0].action_level_id);
-    setValuePeopleClass(res[0].people_class_id);
-    setValueCrValue(res[0].cr_value);
-    setValueTimeend(res[0].timeend);
-
-    
-    setValueCalcfunctionIDInitial(res[0].calcfunction_id);
-    setValueIrradiationInitial(res[0].irradiation_id);
-    setValueAgegroupInitial(res[0].agegroup_id);
-    setValueExpScenarioInitial(res[0].exp_scenario_id);
-    setValueIntegralPeriodInitial(res[0].integral_period_id);
-    setValueOrganInitial(res[0].organ_id);
-    setValueDataSourceInitial(res[0].data_source_id);
-    setValueAerosolAmadInitial(res[0].aerosol_amad_id);
-    setValueAerosolSolInitial(res[0].aerosol_sol_id);
-    setValueChemCompGrInitial(res[0].chem_comp_gr_id);
-    setValueSubstFormInitial(res[0].subst_form_id);
-    setValueIsotopeInitial(res[0].isotope_id);
-    setValueActionLevelInitial(res[0].action_level_id);
-    setValuePeopleClassInitial(res[0].people_class_id);
-    setValueCrValueInitial(res[0].cr_value);
-    setValueTimeendInitial(res[0].timeend);
-  };
-   */
   ///////////////////////////////////////// DIALOG
   const [dialogType, setDialogType] = useState('');
   const [clickedRowId, setClickedRowId] = useState(null);
-
-  const setValuesById = (id) => {
-    //console.log( 'id = '+id);
-    //if (id)
-    //  lastId = id;
-    var res = tableData.filter(function(item) {
-      return item.id === id;
-    });
-    console.log('console ', id, res[0]);
-    setValues(res[0]);
-  };   
 
   const getDialogContentText = () => {
     const allRequiredFieldsFilled = formRef.current?.checkValidity();
@@ -1317,11 +1224,9 @@ const DataTableCriterion = (props) => {
   const [openAlert, setOpenAlert] = React.useState(false, '');
   const handleCancelClick = () => 
   {
-    setValuesById(clickedRowId);
-    //setValueID(null);
-    //setValueID(valueId);  
+    setEditStarted(false);
     setValueID(clickedRowId);
-    //setBranch(newNode);
+    setValuesById(clickedRowId);
   }
 
   function getHeaders(atable)
@@ -1367,9 +1272,7 @@ const DataTableCriterion = (props) => {
     useBom: true,
     useKeysAsHeaders: false,
     headers: getHeaders(props.table_name)
-    // headers: ['Column 1', 'Column 2', etc...] <-- Won't work with useKeysAsHeaders present!
   };
-
 
   const exportDataCSV = async () => {
     const csvExporter = new ExportToCsv(optionsCSV);
@@ -1417,15 +1320,6 @@ const DataTableCriterion = (props) => {
     const filter = value.trim();
     setTreeFilterString(filter);
   }  
-
-  const [filter, setFilter] = useState(""); //значение фильтра
-  const [filterApplied, setFilterApplied] = useState(false); //состояние применен фильтр или нет
-
-  const clearFilter = useCallback(() => {
-    setFilter("");
-    setFilterApplied(false);
-    setTreeFilter("");
-  }, []);
 
   const applyFilter = useCallback(() => {
     if (filter.trim() === "") return;
@@ -1508,21 +1402,6 @@ const DataTableCriterion = (props) => {
               }}
             />
 
-    {/*         <TextField label="Фильтр ..." size = "small" variant="standard" value={filter}
-                    onChange={(e) => setFilter(e.target.value)} 
-                    InputProps={{
-                      endAdornment: (
-                        <InputAdornment position="end">
-                          <IconButton onClick={applyFilter} edge="end" size="small" color="primary" disabled={!filter} title="Применить фильтр">
-                            <SvgIcon fontSize="small" component={SearchIcon} inheritViewBox />
-                          </IconButton>
-                          <IconButton onClick={clearFilter} edge="end" size="small" color="primary" disabled={!filter && !filterApplied} title={filterApplied ? "Сбросить фильтр" : "Очистить поле ввода"}>
-                            <SvgIcon fontSize="small" component={TimesCircleIcon} inheritViewBox />
-                          </IconButton>
-                        </InputAdornment>
-                      ),
-                    }}
-            /> */}
             <Box sx={{ height: 415, overflowY: 'false' }}>
               {(isLoading==="true") && 
               <Backdrop sx={{ color: '#fff', zIndex: (theme) => theme.zIndex.drawer + 1 }} open={true}>
@@ -1564,7 +1443,6 @@ const DataTableCriterion = (props) => {
         {( valueCrit === 1) &&
           <>
           <form ref={formRef}> 
-
           <Grid container spacing={1.5}>
             <Grid item xs={2}>
               <TextField  
@@ -1579,7 +1457,8 @@ const DataTableCriterion = (props) => {
             </Grid>
             <Grid item xs={4}>
               <TextField  
-                id="ch_name" 
+                id="ch_name"
+                inputRef={inputRef}  
                 label="Обозначение"
                 disabled={valueId!==''}  
                 required 
@@ -1601,78 +1480,6 @@ const DataTableCriterion = (props) => {
                 placeholder="Группа критериев"
               />
             </Grid>
-
-    {/*       <TextField  id="ch_id" disabled={true} label="Код" sx={{ width: '12ch' }} variant="outlined" value={ valueId ||''} size="small" />
-          &nbsp;&nbsp;&nbsp;&nbsp;
-          <TextField  id="ch_name" sx={{ width: '40ch' }} label="Обозначение" required size="small" variant="outlined" value={valueTitle || ''} onChange={e => setValueTitle(e.target.value)}/>
-          &nbsp;&nbsp;&nbsp;&nbsp;
-
-          <HierarchicalAutocomplete
-            data={treeDataCriterionGr}
-            value={treeDataCriterionGr.find(item => item.id === valueParentID) || null}
-            onChange={(event, newValue) => setValueParentID(newValue ? newValue.id : null)}
-            size="small"
-          /> */}
-    {/* 
-          <FormControl sx={{ width: '44ch' }} size="small">
-            <TreeSelect
-              size="small"
-              enterText=""
-              exitText=""
-              currentPath= "" 
-              valuePath= ""
-              getChildren={(node) => node ? node.getChildren() : nodes.filter(node => node.parent === null)}
-              getParent={(node) => node.getParent()}
-              isBranch={(node) => node.isBranch()}
-              //isOptionEqualToValue={(option, value) => option.isEqual(value)}
-              //renderInput={(params) => <TextField {...params} />}
-              renderInput={(params) => 
-                <Tooltip enterDelay={1000} title={selectedNode?.name_rus || ""}>
-                  <TextField label="Группа критериев" {...params} />
-                </Tooltip>
-              }
-              getOptionLabel={option => option ? option.title : ""}
-              onChange={(event, newValue) => {
-                setSelectedNode(newValue);
-                //setBranch(newValue);
-                if (newValue) {
-                  setValueParentID(newValue.value);
-                } else {
-                  setValueParentID(null);
-                }
-              }}
-              renderOption={(props, option, state) => (
-                <Tooltip enterDelay={1000} title={option.name_rus}> 
-                  <li {...props} style={{ margin: 0, padding: 0 }}>
-                    <DefaultOption {...getDefaultOptionProps(props, option, state)} />
-                  </li>
-                </Tooltip>  
-              )}
-              disableClearable={true}
-              value={selectedNode}
-              branch={branch}
-              onBranchChange={(_, branch) => void setBranch(branch)} 
-            />
-
-          </FormControl>  */}
-          {/* <FormControl sx={{ width: '30ch' }} size="small">
-            <InputLabel id="ch_parent_id"required>Группа критериев</InputLabel>
-              <Select labelId="ch_parent_id" id="ch_parent_id1" label="Группа критериев" value={valueParentID  || "" } onChange={e => setValueParentID(e.target.value) }  >
-              <MenuItem key={-1} value={-1}>
-                {'Не задан'}
-                </MenuItem>
-                {tableCriterionGr?.map(option => {
-                return (
-                <MenuItem key={option.id} value={option.id}>
-                  {option.title ?? option.id}
-                </MenuItem>
-                );
-              })}
-            </Select>
-          </FormControl>  
-    */}
-
-
             <Grid item xs={6}>
               <TextField  
                 id="ch_name_rus" 
@@ -1722,7 +1529,6 @@ const DataTableCriterion = (props) => {
                 fullWidth
               />
             </Grid>
-
             <Grid item xs={4}>
               <Autocomplete
                 fullWidth
@@ -1923,28 +1729,6 @@ const DataTableCriterion = (props) => {
                 label="Орган / ткань" 
                 placeholder="Орган / ткань" 
               />              
-{/*               <Autocomplete
-                fullWidth
-                size="small"
-                disablePortal
-                id="combo-box-organ"
-                value={tableOrgan.find((option) => option.id === valueOrgan) || ''}
-                isOptionEqualToValue={(option, value) => option.id === value.id}
-                onChange={(event, newValueAC) => { setValueOrgan(newValueAC ? newValueAC.id : null) }}
-                options={tableOrgan}
-                getOptionLabel={option => option ? option.title : ""}
-                renderInput={(params) => <TextField {...params} label="Орган / ткань"  />}
-                renderOption={(props, option) => (
-                  <li {...props}>
-                    <Tooltip title={option.name_rus}>
-                      <div style={{ display: "flex", justifyContent: "space-between", width: "100%" }}>
-                        <span>{option.title}</span>
-                        <span></span>
-                      </div>
-                    </Tooltip>
-                  </li>
-                )}
-              />   */}
             </Grid>
             <Grid item xs={6}>
               <Autocomplete
@@ -1995,16 +1779,6 @@ const DataTableCriterion = (props) => {
               />  
             </Grid>
             <Grid item xs={6}>
-
-{/*               <HierarchicalAutocomplete
-                data={treeDataChemCompGr}
-                value={treeDataChemCompGr.find(item => item.id === valueChemCompGr) || null}
-                onChange={(event, newValue) => setValueChemCompGr(newValue ? newValue.id : null)}
-                size="small"
-                fullWidth
-                label="Химические соединения (группа)" 
-                placeholder="Химические соединения (группа)" 
-              />    */}             
               <Autocomplete
                 fullWidth
                 size="small"

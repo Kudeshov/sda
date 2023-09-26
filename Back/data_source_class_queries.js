@@ -25,7 +25,7 @@ const getDataSourceClass = (request, response) => {
     //return;
     rec_id=0;  
   }
-  console.log( 'aa '+request.query );  
+  console.log( request.query );  
   pool.query(
     'SELECT data_source_class.*, data_source.title, data_source.shortname, '+
     'data_source.fullname, data_source.descr, data_source.external_ds FROM nucl.data_source_class '+  

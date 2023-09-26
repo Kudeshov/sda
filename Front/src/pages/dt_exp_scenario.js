@@ -95,7 +95,6 @@ const DataTableExpScenario = (props) => {
       const [initialValue, currentValue] = fieldsToCheck[key];
       if (initialValue !== currentValue) {
         isEditStarted = true;
-        //console.log('Field changed:', key);
       }
     });
   
@@ -190,50 +189,20 @@ const DataTableExpScenario = (props) => {
     const scrollContainerRef = React.useRef();
 
     useEffect(() => {
-      console.log("useEffect triggered with updated:", updated, "selected:", selected);
-  
       if (updated && selected && nodeRefs.current[selected]) {
           const node = nodeRefs.current[selected];
           const scrollContainer = scrollContainerRef.current;
-  
-          console.log("Node found:", node);
-          console.log("Scroll container found:", scrollContainer);
-  
+ 
           if (node && scrollContainer) {
               const nodePosition = node.offsetTop;
-              console.log("Node position:", nodePosition);
-  
               if (nodePosition < scrollContainer.scrollTop || nodePosition > (scrollContainer.scrollTop + scrollContainer.clientHeight)) {
-                  console.log("Adjusting scroll position...");
                   scrollContainer.scrollTop = nodePosition - scrollContainer.clientHeight / 2;
-              } else {
-                  console.log("No need to adjust scroll position.");
               }
           }
-          //setUpdated(false); // Reset the updated state to false after scrolling
-      } else {
-          console.log("Conditions not met. No scrolling performed.");
       }
       setUpdated(false); // Reset the updated state to false after scrolling  
     }, [updated, selected]);
   
-
-/*     useEffect(() => {
-      if (updated && selected && nodeRefs.current[selected]) {
-        const node = nodeRefs.current[selected];
-        const scrollContainer = scrollContainerRef.current;
-
-        if (node && scrollContainer) {
-          const nodePosition = node.offsetTop;
-          if (nodePosition < scrollContainer.scrollTop || nodePosition > (scrollContainer.scrollTop + scrollContainer.clientHeight)) {
-            scrollContainer.scrollTop = nodePosition - scrollContainer.clientHeight / 2;
-          } 
-        }
-        setUpdated(false); // Reset the updated state to false after scrolling
-      }
-    }, [updated, selected]); */
-    
-
     const DataTreeView = ({ treeItems }) => {
       const getTreeItemsFromData = treeItems => {
       
@@ -363,20 +332,23 @@ const DataTableExpScenario = (props) => {
   }, [setValueTitle, setValueNameRus, setValueNameEng, setValueDescrRus, setValueDescrEng, setValueParentID, setValueNormativID,
     setValueTitleInitial, setValueNameRusInitial, setValueNameEngInitial, setValueDescrRusInitial, setValueDescrEngInitial, setValueParentIDInitial, setValueNormativIDInitial, props.table_name]);
   
-
-  useEffect(() => {
-    const rowData = tableData.find(row => row.id === valueId);
-    //console.log('if (rowData) {', valueId, rowData);
+  const setValuesById = useCallback((id) => {
+    const rowData = tableData.find(row => Number(row.id) === Number(id));
     if (rowData) {
       setValues(rowData);
-    }
-  }, [tableData, valueId, setValues]);
+    }    
+  }, [tableData, setValues]);
+
+  useEffect(() => {
+
+    setValuesById( valueId );
+
+  }, [ valueId, setValuesById]);
 
   const handleSelect = (event, nodeIds) => {
     setSelected(nodeIds);
     setOpenAlert(false);  
     const id = Number(nodeIds); // преобразуем id в число
-    //console.log('setClickedRowId id = ' + id);
     setClickedRowId(id);
   
     if (editStarted) {
@@ -392,7 +364,7 @@ const DataTableExpScenario = (props) => {
   const inputRef = React.useRef();
 
   const handleClearClick = (params) => {
-    if (editStarted/* &&(!isEmpty) */)
+    if (editStarted)
     {
       setDialogType('save');
     } 
@@ -471,11 +443,23 @@ const DataTableExpScenario = (props) => {
   }, []);
 
   ///////////////////////////////////////////////////////////////////  Tree load functions and hook  /////////////////////
+  const [filter, setFilter] = useState(""); //значение фильтра
+  const [filterApplied, setFilterApplied] = useState(false); //состояние применен фильтр или нет
+
+  const clearFilter = useCallback(() => {
+    setFilter("");
+    setFilterApplied(false);
+    setTreeFilter("");
+  }, []);
+
   useEffect(() => {
     // Преобразуем tableData из списка в структуру дерева и обновляем состояние treeData
     const arr = listToTree(tableData, treeFilterString);
     setTreeData(arr);
-  }, [tableData, treeFilterString]);
+    if ((arr.length===0)&& filterApplied) {
+      clearFilter();
+    }
+  }, [tableData, treeFilterString, clearFilter, filterApplied]);
 
   function getParentIds(tree, targetId) {
     const result = [];
@@ -563,9 +547,12 @@ const DataTableExpScenario = (props) => {
         if (valueParentID && !expanded.includes(valueParentID.toString())) {
           setExpanded(prevExpanded => [...prevExpanded, valueParentID.toString()]);
         }
-        await reloadData();
-        console.log('clickedRowId',clickedRowId);
 
+        // После успешного добавления или обновления записи:
+        if (!valueTitle.includes(filter) && !valueNameRus.includes(filter) && filterApplied) {
+          clearFilter();
+        }
+        await reloadData();
         if (clickedRowId===null) {
           setValueID(valueId.toString());
           setSelected(null);
@@ -648,7 +635,13 @@ const DataTableExpScenario = (props) => {
         setAlertSeverity('success');
         setAlertText(`Добавлена запись с кодом ${id}`);        
         lastId = id;         
-        console.log('clickedRowId',clickedRowId);
+        console.log('filter', filter, 'valueTitle', valueTitle, 'valueNameRus', valueNameRus );
+
+        // После успешного добавления или обновления записи:
+        if (!valueTitle.includes(filter) && !valueNameRus.includes(filter) && filterApplied) {
+          clearFilter();
+        }
+        
         if (clickedRowId===null) {
           setValueID(lastId);
           setSelected(lastId.toString());
@@ -697,9 +690,7 @@ const DataTableExpScenario = (props) => {
 /////////////////////////////////////////////////////////////////// DELETE /////////////////////
   const delRec =  async () => {
     let previousRowId = 0;
-    console.log('findNextIdAfterDelete', valueId, treeData);
     previousRowId = findNextIdAfterDelete(valueId, treeData); 
-    console.log('previousRowId', previousRowId);
 
     const js = JSON.stringify({
         id: valueId,
@@ -724,34 +715,11 @@ const DataTableExpScenario = (props) => {
         setAlertSeverity('success');
         setAlertText(await response.text());        
         await reloadData();
-        //console.log('previousRowId', previousRowId);
-
         const rowData = tableData.find(row => row.id === previousRowId);
-        console.log('tableData.find', previousRowId, rowData);
         if (rowData) {
-          //setValues(rowData);
           setValueID(previousRowId);
           setSelected(previousRowId.toString());
-          //setUpdated(true);
         }
-        //console.log('tableData[previousRowId].id', tableData[previousRowId].id);
-        //setValues( previousRowId ); 
-
-/*         setValueID(tableData[previousRowId].id);
-        setValueTitle(tableData[previousRowId].title);
-        setValueNameRus(tableData[previousRowId].name_rus);
-        setValueNameEng(tableData[previousRowId].name_eng);
-        setValueDescrRus(tableData[previousRowId].descr_rus);
-        setValueDescrEng(tableData[previousRowId].descr_eng);
-        setValueTitleInitial(tableData[previousRowId].title);
-        setValueNameRusInitial(tableData[previousRowId].name_rus);
-        setValueNameEngInitial(tableData[previousRowId].name_eng);
-        setValueDescrRusInitial(tableData[previousRowId].descr_rus);
-        setValueDescrEngInitial(tableData[previousRowId].descr_eng);
-        setValueParentID(tableData[previousRowId].parent_id||-1);
-        setValueParentIDInitial(tableData[previousRowId].parent_id||-1);
-        setValueNormativID(tableData[previousRowId].normativ_id);
-        setValueNormativIDInitial(tableData[previousRowId].normativ_id); */
       }
       setOpenAlert(true);  
     } catch (err) {
@@ -808,17 +776,6 @@ const DataTableExpScenario = (props) => {
   const [dialogType, setDialogType] = useState('');
   const [clickedRowId, setClickedRowId] = useState(null);
 
-/*   const setValuesById = (id) => {
-    //console.log( 'id = '+id);
-    //if (id)
-    //  lastId = id;
-    var res = tableData.filter(function(item) {
-      return item.id === id;
-    });
-    //console.log('console ', id, res[0]);
-    setValues(res[0]);
-  };   
- */
   const getDialogContentText = () => {
     const allRequiredFieldsFilled = formRef.current?.checkValidity();
     switch (dialogType) {
@@ -904,10 +861,11 @@ const DataTableExpScenario = (props) => {
       //console.log('yes', clickedRowId);
       setSelected(clickedRowId.toString());
       //setRowSelectionModel([clickedRowId]);
-      const rowData = tableData.find(row => row.id === clickedRowId);
+      setValuesById( clickedRowId );
+/*       const rowData = tableData.find(row => row.id === clickedRowId);
       if (rowData) {
         setValues(rowData);
-      }
+      } */
       setValueID(clickedRowId);
       setEditStarted(false);
     }
@@ -940,10 +898,11 @@ const DataTableExpScenario = (props) => {
   {
     setEditStarted(false);
     setValueID(clickedRowId.toString());
-    const rowData = tableData.find(row => row.id === clickedRowId);
+    setValuesById(clickedRowId);
+/*     const rowData = tableData.find(row => row.id === clickedRowId);
     if (rowData) {
       setValues(rowData);
-    }
+    } */
     console.log('valueId.toString()', clickedRowId );
     setSelected(clickedRowId.toString());
   }
@@ -997,7 +956,6 @@ const DataTableExpScenario = (props) => {
 
   const exportDataCSV = async () => {
     const csvExporter = new ExportToCsv(optionsCSV);
-    //console.log(treeFilterString);
     const filteredData = tableData.filter(item =>
       item.title.toLowerCase().includes(treeFilterString.toLowerCase())
     );
@@ -1009,15 +967,6 @@ const DataTableExpScenario = (props) => {
     const filter = value.trim();
     setTreeFilterString(filter);
   }  
-
-  const [filter, setFilter] = useState(""); //значение фильтра
-  const [filterApplied, setFilterApplied] = useState(false); //состояние применен фильтр или нет
-
-  const clearFilter = useCallback(() => {
-    setFilter("");
-    setFilterApplied(false);
-    setTreeFilter("");
-  }, []);
 
   const applyFilter = useCallback(() => {
     if (filter.trim() === "") return;
