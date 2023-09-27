@@ -224,6 +224,7 @@ const BigTableDepositionFraction = (props) => {
   const [tableDataSourceFilteredEdit, settableDataSourceFilteredEdit] = useState([]); 
   const [tableOrgan, setTableOrgan] = useState([]);
   const [tableOrganFiltered, settableOrganFiltered] = useState([]);
+  const [tableOrganFilteredNP, settableOrganFilteredNP] = useState([]); //without parents
   const [tableAgeGroup, setTableAgeGroup] = useState([]); //возрастные группы населения
   const [tableAgeGroupFiltered, settableAgeGroupFiltered] = useState([]);
 
@@ -358,7 +359,7 @@ const BigTableDepositionFraction = (props) => {
 
     let ids_organ = tableDataSourceClass.filter(item => ((item.table_name === 'organ' )&&(ids.includes(item.data_source_id))) ).map(item => item.rec_id);
     let filteredOrgan = tableOrgan.filter(item => ((ids_organ.includes(item.id))) );
-    // Добавление родительских элементов
+    settableOrganFilteredNP([...filteredOrgan]);  // используем spread operator, чтобы передать копию массива
     filteredOrgan.forEach(item => {
       addParentItems(item, tableOrgan, filteredOrgan);
     });
@@ -1166,20 +1167,18 @@ const reloadDataHandler = async () => {
                   limitTags={7}
                   id="autocomplete-organ"
                   options={treeTableOrgan}
-                  /* getOptionDisabled={(option) => !tableOrganFiltered.some(item => item.id === option.id)} */
+                  getOptionDisabled={(option) => !tableOrganFilteredNP.some(item => item.id === option.id)}
                   getOptionLabel={(option) => option.name_rus}
                   disableCloseOnSelect
                   renderOption={(props, option, { selected }) => (
                     <div
                       {...props}
                       style={{
-                        /* height: '35px', */
                         display: 'flex',
                         alignItems: 'center',
-                        paddingLeft: `${(option.level + (option.children.length === 0 ? 1 : 0)) * 20}px`,
+                        paddingLeft: `${10 + option.level * 20}px`,
                       }}
                     >
-                      {option.children.length > 0 && <ExpandMoreIcon fontSize="small" />}
                       <Checkbox
                         size="small"
                         icon={icon}
@@ -1207,7 +1206,7 @@ const reloadDataHandler = async () => {
                                 <LightTooltip title="Добавить найденные">
                                 <StyledIconButton
                                   onClick={() => {
-                                    const filteredOptions = filterOptionsNameRus(tableOrganFiltered, { inputValue: searchValueOrgan });
+                                    const filteredOptions = filterOptionsNameRus(tableOrganFilteredNP, { inputValue: searchValueOrgan });
                                     const newValues = [...currFlt.selOrganValues, ...filteredOptions];
                                     setCurrFlt({
                                       ...currFlt,
@@ -1244,7 +1243,7 @@ const reloadDataHandler = async () => {
                   onClick={async () => {
                     setCurrFlt({
                       ...currFlt,
-                      selOrganValues: tableOrganFiltered,
+                      selOrganValues: tableOrganFilteredNP,
                     });
                   }}                
                   color="primary"

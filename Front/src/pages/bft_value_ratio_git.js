@@ -48,7 +48,7 @@ import { ReactComponent as CheckDoubleIcon } from "./../icons/check-double.svg";
 import { InputAdornment } from '@mui/material';
 import { styled } from '@mui/system';
 import CheckIcon from '@mui/icons-material/Check';
-import HierarchicalAutocomplete, { transformData } from '../component/HierarchicalAutocomplete';
+import { transformData } from '../component/HierarchicalAutocomplete';
 
 const MAX_ROWS = 50000;
 
@@ -1179,10 +1179,10 @@ const reloadDataHandler = async () => {
   }, []);
 
 
-  const treeDataOrganFilteredEdit = React.useMemo(() => {
+/*   const treeDataOrganFilteredEdit = React.useMemo(() => {
     const transformedData = transformData(tableOrgan, tableOrganFilteredEdit);
     return transformedData;
-  }, [tableOrgan, tableOrganFilteredEdit]);
+  }, [tableOrgan, tableOrganFilteredEdit]); */
 
   const treeTableOrgan = React.useMemo(() => 
     transformData(tableOrganFiltered, tableOrganFiltered), [tableOrganFiltered]);
@@ -1327,11 +1327,11 @@ const reloadDataHandler = async () => {
           <Grid item xs={1} display="flex" alignItems="center">
           </Grid>          
           </Grid>
-          <Grid item xs={3}>
+          <Grid item xs={3}>{/*
             { organVisible && ( 
             <Grid container spacing={1}> 
               <Grid item xs={11}>
-                <Autocomplete
+                 <Autocomplete
                   size="small"
                   value={currFlt.selOrganValues}
                   isOptionEqualToValue={(option, value) => option.id === value.id}
@@ -1352,20 +1352,19 @@ const reloadDataHandler = async () => {
                   limitTags={7}
                   id="autocomplete-organ"
                   options={treeTableOrgan}
-                  /* getOptionDisabled={(option) => !tableOrganFiltered.some(item => item.id === option.id)} */
+                  getOptionDisabled={(option) => !tableOrganFilteredNP.some(item => item.id === option.id)}
                   getOptionLabel={(option) => option.name_rus}
                   disableCloseOnSelect
                   renderOption={(props, option, { selected }) => (
                     <div
                       {...props}
                       style={{
-                        /* height: '35px', */
+                         
                         display: 'flex',
                         alignItems: 'center',
-                        paddingLeft: `${(option.level + (option.children.length === 0 ? 1 : 0)) * 20}px`,
+                        paddingLeft: `${10 + option.level * 20}px`,
                       }}
                     >
-                      {option.children.length > 0 && <ExpandMoreIcon fontSize="small" />}
                       <Checkbox
                         size="small"
                         icon={icon}
@@ -1393,7 +1392,7 @@ const reloadDataHandler = async () => {
                                 <LightTooltip title="Добавить найденные">
                                 <StyledIconButton
                                   onClick={() => {
-                                    const filteredOptions = filterOptionsNameRus(tableOrganFiltered, { inputValue: searchValueOrgan });
+                                    const filteredOptions = filterOptionsNameRus(tableOrganFilteredNP, { inputValue: searchValueOrgan });
                                     const newValues = [...currFlt.selOrganValues, ...filteredOptions];
                                     setCurrFlt({
                                       ...currFlt,
@@ -1422,7 +1421,7 @@ const reloadDataHandler = async () => {
                       required 
                     />
                   )}
-                /> 
+                />  
 
               </Grid>
               <Grid item xs={1} display="flex" alignItems="center">
@@ -1430,7 +1429,7 @@ const reloadDataHandler = async () => {
                   onClick={async () => {
                     setCurrFlt({
                       ...currFlt,
-                      selOrganValues: tableOrganFiltered,
+                      selOrganValues: tableOrganFilteredNP,
                     });
                   }}                
                   color="primary"
@@ -1442,7 +1441,7 @@ const reloadDataHandler = async () => {
                 </IconButton>      
               </Grid>
             </Grid> 
-            )}  {/* container spacing={1} */}
+            )} */} {/* container spacing={1} */}
           </Grid>
           <Grid item xs={3}>
           </Grid>

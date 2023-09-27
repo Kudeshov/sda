@@ -99,9 +99,9 @@ const BigTableValueExtDose = (props) => {
   const [valueDoseRatioID, setValueDoseRatioID] = React.useState();
   const [valueIrradiationID, setValueIrradiationID] = React.useState();
   const [valuePeopleClassID, setValuePeopleClassID] = React.useState();
-  const [valueSubstFormID, setValueSubstFormID] = React.useState();
+  //const [valueSubstFormID, setValueSubstFormID] = React.useState();
   const [valueIsotopeID, setValueIsotopeID] = React.useState();
-  const [valueIntegralPeriodID, setValueIntegralPeriodID] = React.useState();
+  //const [valueIntegralPeriodID, setValueIntegralPeriodID] = React.useState();
   const [valueOrganID, setValueOrganID] = React.useState();
   const [valueAgeGroupID, setValueAgeGroupID] = React.useState();
   const [valueDataSourceID, setValueDataSourceID] = React.useState();
@@ -142,12 +142,12 @@ const BigTableValueExtDose = (props) => {
     setValueDataSourceID(params.row.data_source_id);
     setValueDrValue(params.row.dr_value);
     setValueRadTypeCode(params.row.rad_type_code);
-    setValueSubstFormID(params.row.subst_form_id);
+    //setValueSubstFormID(params.row.subst_form_id);
     setValueIrradiationID(params.row.irradiation_id);
     setValueUpdateTime( formatDate(params.row.updatetime) ); 
   }, [setValueID, setValueIDInitial, setValueDoseRatioID, setValuePeopleClassID, setValueIsotopeID, 
-    setValueIntegralPeriodID, setValueOrganID, setValueAgeGroupID, 
-    setValueDataSourceID, setValueDrValue, setValueRadTypeCode, setValueSubstFormID, setValueIrradiationID, setValueUpdateTime]); 
+    /* setValueIntegralPeriodID, */ setValueOrganID, setValueAgeGroupID, 
+    setValueDataSourceID, setValueDrValue, setValueRadTypeCode, /* setValueSubstFormID, */ setValueIrradiationID, setValueUpdateTime]); 
 
   const handleRowClickAndCloseAlert = (rowParams) => {
     handleRowClick(rowParams);
@@ -266,6 +266,7 @@ const BigTableValueExtDose = (props) => {
   const [tableDataSourceFilteredEdit, settableDataSourceFilteredEdit] = useState([]); 
   const [tableOrgan, setTableOrgan] = useState([]);
   const [tableOrganFiltered, settableOrganFiltered] = useState([]);
+  const [tableOrganFilteredNP, settableOrganFilteredNP] = useState([]); //without parents
   const [tableIrradiation, setTableIrradiation] = useState([]);
   const [tableIrradiationFiltered, settableIrradiationFiltered] = useState([]);  
   const [tableIsotope, setTableIsotope] = useState([]);
@@ -456,13 +457,11 @@ const BigTableValueExtDose = (props) => {
 
     let ids_organ = tableDataSourceClass.filter(item => ((item.table_name === 'organ' )&&(ids.includes(item.data_source_id))) ).map(item => item.rec_id);
     let filteredOrgan = tableOrgan.filter(item => ((ids_organ.includes(item.id))) );
-
-    // Добавление родительских элементов
+    settableOrganFilteredNP([...filteredOrgan]);  // используем spread operator, чтобы передать копию массива
     filteredOrgan.forEach(item => {
       addParentItems(item, tableOrgan, filteredOrgan);
     });
-
-    settableOrganFiltered( filteredOrgan );     
+    settableOrganFiltered(filteredOrgan);
     //удалить недоступные значения из фильтра
     let newOrganValues = [];
     if (organVisible) {
@@ -942,18 +941,18 @@ useEffect(() => {
 
 const [tablePeopleClassFilteredEdit, settablePeopleClassFilteredEdit] = useState([]);
 const [tableAgeGroupFilteredEdit, settableAgeGroupFilteredEdit] = useState([]);
-const [tableIntegralPeriodFilteredEdit, settableIntegralPeriodFilteredEdit] = useState([]);
+//const [tableIntegralPeriodFilteredEdit, settableIntegralPeriodFilteredEdit] = useState([]);
 const [tableOrganFilteredEdit, settableOrganFilteredEdit] = useState([]); //список органов в окне редактирования записи
 const [tableIsotopeFilteredEdit, settableIsotopeFilteredEdit] = useState([]);
-const [tableRadTypeFilteredEdit, settableRadTypeFilteredEdit] = useState([]);
+//const [tableRadTypeFilteredEdit, settableRadTypeFilteredEdit] = useState([]);
 
 useEffect(() => { settableDataSourceFilteredEdit(applFlt.selDataSourceValues); }, [applFlt.selDataSourceValues]);
 useEffect(() => { settableOrganFilteredEdit(applFlt.selOrganValues); }, [applFlt.selOrganValues]);
 useEffect(() => { settablePeopleClassFilteredEdit(applFlt.selPeopleClassValues); }, [applFlt.selPeopleClassValues]);
 useEffect(() => { settableAgeGroupFilteredEdit(applFlt.selAgeGroupValues); }, [applFlt.selAgeGroupValues]);
-useEffect(() => { settableIntegralPeriodFilteredEdit(applFlt.selIntegralPeriodValues); }, [applFlt.selIntegralPeriodValues]);
+//useEffect(() => { settableIntegralPeriodFilteredEdit(applFlt.selIntegralPeriodValues); }, [applFlt.selIntegralPeriodValues]);
 useEffect(() => { settableIsotopeFilteredEdit(applFlt.selIsotopeValues); }, [applFlt.selIsotopeValues]);
-useEffect(() => { settableRadTypeFilteredEdit(applFlt.selRadTypeValues); }, [applFlt.selRadTypeValues]);
+//useEffect(() => { settableRadTypeFilteredEdit(applFlt.selRadTypeValues); }, [applFlt.selRadTypeValues]);
 
 useEffect(() => {
   if (!valueDataSourceID) 
@@ -1364,20 +1363,18 @@ const reloadDataHandler = async () => {
                   limitTags={7}
                   id="autocomplete-organ"
                   options={treeTableOrgan}
-                  /* getOptionDisabled={(option) => !tableOrganFiltered.some(item => item.id === option.id)} */
+                  getOptionDisabled={(option) => !tableOrganFilteredNP.some(item => item.id === option.id)}
                   getOptionLabel={(option) => option.name_rus}
                   disableCloseOnSelect
                   renderOption={(props, option, { selected }) => (
                     <div
                       {...props}
                       style={{
-                        /* height: '35px', */
                         display: 'flex',
                         alignItems: 'center',
-                        paddingLeft: `${(option.level + (option.children.length === 0 ? 1 : 0)) * 20}px`,
+                        paddingLeft: `${10 + option.level * 20}px`,
                       }}
                     >
-                      {option.children.length > 0 && <ExpandMoreIcon fontSize="small" />}
                       <Checkbox
                         size="small"
                         icon={icon}
@@ -1405,7 +1402,7 @@ const reloadDataHandler = async () => {
                                 <LightTooltip title="Добавить найденные">
                                 <StyledIconButton
                                   onClick={() => {
-                                    const filteredOptions = filterOptionsNameRus(tableOrganFiltered, { inputValue: searchValueOrgan });
+                                    const filteredOptions = filterOptionsNameRus(tableOrganFilteredNP, { inputValue: searchValueOrgan });
                                     const newValues = [...currFlt.selOrganValues, ...filteredOptions];
                                     setCurrFlt({
                                       ...currFlt,
@@ -1442,7 +1439,7 @@ const reloadDataHandler = async () => {
                   onClick={async () => {
                     setCurrFlt({
                       ...currFlt,
-                      selOrganValues: tableOrganFiltered,
+                      selOrganValues: tableOrganFilteredNP,
                     });
                   }}                
                   color="primary"

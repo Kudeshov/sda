@@ -331,8 +331,11 @@ const BigTableValueIntDose = (props) => {
   const [tableDataSource, setTableDataSource] = useState([]); 
   const [tableDataSourceFiltered, setTableDataSourceFiltered] = useState([]);    
   const [tableDataSourceFilteredEdit, settableDataSourceFilteredEdit] = useState([]); 
+
   const [tableOrgan, setTableOrgan] = useState([]);
   const [tableOrganFiltered, settableOrganFiltered] = useState([]);
+  const [tableOrganFilteredNP, settableOrganFilteredNP] = useState([]); //without parents
+
   const [tableIrradiation, setTableIrradiation] = useState([]);
   const [tableIrradiationFiltered, settableIrradiationFiltered] = useState([]);  
   const [tableIsotope, setTableIsotope] = useState([]);
@@ -353,10 +356,13 @@ const BigTableValueIntDose = (props) => {
   const [tableAerosolAMADFiltered, settableAerosolAMADFiltered] = useState([]); //АМАД аэрозолей
   const [tableExpScenario, setTableExpScenario] = useState([]); //Сценарии поступления
   const [tableExpScenarioFiltered, settableExpScenarioFiltered] = useState([]); //Сценарии поступления
+  const [tableExpScenarioFilteredNP, settableExpScenarioFilteredNP] = useState([]); //Сценарии поступления
   const [tablePeopleClass, setTablePeopleClass] = useState([]); //Типы облучаемых лиц
   const [tablePeopleClassFiltered, settablePeopleClassFiltered] = useState([]); //Типы облучаемых лиц  
+
   const [tableRegionRT, setTableRegionRT] = useState([]); //Регион РТ
   const [tableRegionRTFiltered, settableRegionRTFiltered] = useState([]); //Регион РТ
+  const [tableRegionRTFilteredNP, settableRegionRTFilteredNP] = useState([]); //without parents
 
   //это только для добавления в автокомплит
   const [tableChemCompGr, setTableChemCompGr] = useState([]);  
@@ -427,7 +433,7 @@ const BigTableValueIntDose = (props) => {
     const filteredDataSource = tableDataSource.filter(item => uniqueDataSourceIds.includes(item.id));
     // Устанавливаем отфильтрованные данные в состояние
     setTableDataSourceFiltered(filteredDataSource);      
-  }, [ tableIntDoseAttr, currFlt.selDoseRatioValue, currFlt.selDataSourceValues ]);
+  }, [ tableIntDoseAttr, tableDataSource, currFlt.selDoseRatioValue, currFlt.selDataSourceValues ]);
   
   
   useEffect(() => { 
@@ -575,6 +581,7 @@ const BigTableValueIntDose = (props) => {
 
     let ids_region_rt = tableDataSourceClass.filter(item => ((item.table_name === 'organ' )&&(ids.includes(item.data_source_id))) ).map(item => item.rec_id);
     let filteredRegionRT = tableRegionRT.filter(item => ((ids_region_rt.includes(item.id))) );
+    settableRegionRTFilteredNP([...filteredRegionRT]);  // используем spread operator, чтобы передать копию массива
     // Добавление родительских элементов
     filteredRegionRT.forEach(item => {
       addParentItems(item, tableRegionRT, filteredRegionRT);
@@ -614,13 +621,11 @@ const BigTableValueIntDose = (props) => {
 
     let ids_organ = tableDataSourceClass.filter(item => ((item.table_name === 'organ' )&&(ids.includes(item.data_source_id))) ).map(item => item.rec_id);
     let filteredOrgan = tableOrgan.filter(item => ((ids_organ.includes(item.id))) );
-
-    // Добавление родительских элементов
+    settableOrganFilteredNP([...filteredOrgan]);  // используем spread operator, чтобы передать копию массива
     filteredOrgan.forEach(item => {
       addParentItems(item, tableOrgan, filteredOrgan);
     });
-
-    settableOrganFiltered( filteredOrgan );     
+    settableOrganFiltered(filteredOrgan);
     //удалить недоступные значения из фильтра
     let newOrganValues = [];
     if (organVisible) {
@@ -672,7 +677,7 @@ const BigTableValueIntDose = (props) => {
     
     let ids_exp_scenario = tableDataSourceClass.filter(item => ((item.table_name === 'exp_scenario' )&&(ids.includes(item.data_source_id))) ).map(item => item.rec_id);
     let filteredExpScenario = tableExpScenario.filter(item => ((ids_exp_scenario.includes(item.id))) );
-
+    settableExpScenarioFilteredNP([...filteredExpScenario]);  // используем spread operator, чтобы передать копию массива
     // Добавление родительских элементов
     filteredExpScenario.forEach(item => {
       addParentItems(item, tableExpScenario, filteredExpScenario);
@@ -1161,7 +1166,7 @@ const checkColumns = React.useCallback((data, flt) => {
     } finally {
       setIsLoading(false);
     }
-  }, [applFlt, pageState, checkColumns]);
+  }, [applFlt, pageState, checkColumns, scrollToIndexRef]);
 
 
   useEffect(() => {
@@ -1667,20 +1672,18 @@ const treeDataOrganFilteredEdit = React.useMemo(() => {
                   limitTags={7}
                   id="autocomplete-organ"
                   options={treeTableOrgan}
-                  /* getOptionDisabled={(option) => !tableOrganFiltered.some(item => item.id === option.id)} */
+                  getOptionDisabled={(option) => !tableOrganFilteredNP.some(item => item.id === option.id)}
                   getOptionLabel={(option) => option.name_rus}
                   disableCloseOnSelect
                   renderOption={(props, option, { selected }) => (
                     <div
                       {...props}
                       style={{
-                        /* height: '35px', */
                         display: 'flex',
                         alignItems: 'center',
-                        paddingLeft: `${(option.level + (option.children.length === 0 ? 1 : 0)) * 20}px`,
+                        paddingLeft: `${10 + option.level * 20}px`,
                       }}
                     >
-                      {option.children.length > 0 && <ExpandMoreIcon fontSize="small" />}
                       <Checkbox
                         size="small"
                         icon={icon}
@@ -1708,7 +1711,7 @@ const treeDataOrganFilteredEdit = React.useMemo(() => {
                                 <LightTooltip title="Добавить найденные">
                                 <StyledIconButton
                                   onClick={() => {
-                                    const filteredOptions = filterOptionsNameRus(tableOrganFiltered, { inputValue: searchValueOrgan });
+                                    const filteredOptions = filterOptionsNameRus(tableOrganFilteredNP, { inputValue: searchValueOrgan });
                                     const newValues = [...currFlt.selOrganValues, ...filteredOptions];
                                     setCurrFlt({
                                       ...currFlt,
@@ -1745,7 +1748,7 @@ const treeDataOrganFilteredEdit = React.useMemo(() => {
                   onClick={async () => {
                     setCurrFlt({
                       ...currFlt,
-                      selOrganValues: tableOrganFiltered,
+                      selOrganValues: tableOrganFilteredNP,
                     });
                   }}                
                   color="primary"
@@ -2240,17 +2243,17 @@ const treeDataOrganFilteredEdit = React.useMemo(() => {
                   options={treeTableRegionRT}
                   getOptionLabel={(option) => option.name_rus}
                   disableCloseOnSelect
+                  getOptionDisabled={(option) => !tableRegionRTFilteredNP.some(item => item.id === option.id)}
                   renderOption={(props, option, { selected }) => (
                     <div
                       {...props}
                       style={{
-                        /* height: '35px', */
                         display: 'flex',
                         alignItems: 'center',
-                        paddingLeft: `${(option.level + (option.children.length === 0 ? 1 : 0)) * 20}px`,
+                        paddingLeft: `${10 + option.level * 20}px`,
                       }}
                     >
-                      {option.children.length > 0 && <ExpandMoreIcon fontSize="small" />}
+                      {/* {option.children.length > 0 && <ExpandMoreIcon fontSize="small" />} */}
                       <Checkbox
                         size="small"
                         icon={icon}
@@ -2278,7 +2281,7 @@ const treeDataOrganFilteredEdit = React.useMemo(() => {
                                 <LightTooltip title="Добавить найденные">
                                 <StyledIconButton
                                   onClick={() => {
-                                    const filteredOptions = filterOptionsNameRus(tableRegionRTFiltered, { inputValue: searchValueRegionRT });
+                                    const filteredOptions = filterOptionsNameRus(tableRegionRTFilteredNP, { inputValue: searchValueRegionRT });
                                     const newValues = [...currFlt.selRegionRTValues, ...filteredOptions];
                                     setCurrFlt({
                                       ...currFlt,
@@ -2314,7 +2317,7 @@ const treeDataOrganFilteredEdit = React.useMemo(() => {
                   onClick={async () => {
                     setCurrFlt({
                       ...currFlt,
-                      selRegionRTValues: tableRegionRTFiltered,
+                      selRegionRTValues: tableRegionRTFilteredNP,
                     });
                   }}                
                   color="primary"
@@ -2688,18 +2691,18 @@ const treeDataOrganFilteredEdit = React.useMemo(() => {
                   id="autocomplete-exp_scenario"
                   options={treeTableExpScenario}
                   getOptionLabel={(option) => option.name_rus}
+                  getOptionDisabled={(option) => !tableExpScenarioFilteredNP.some(item => item.id === option.id)}
                   disableCloseOnSelect
                   renderOption={(props, option, { selected }) => (
                     <div
                       {...props}
                       style={{
-                        /* height: '35px', */
                         display: 'flex',
                         alignItems: 'center',
-                        paddingLeft: `${(option.level + (option.children.length === 0 ? 1 : 0)) * 20}px`,
+                        paddingLeft: `${10 + option.level * 20}px`,
                       }}
                     >
-                      {option.children.length > 0 && <ExpandMoreIcon fontSize="small" />}
+                      {/* {option.children.length > 0 && <ExpandMoreIcon fontSize="small" />} */}
                       <Checkbox
                         size="small"
                         icon={icon}
@@ -2727,7 +2730,7 @@ const treeDataOrganFilteredEdit = React.useMemo(() => {
                                 <LightTooltip title="Добавить найденные">
                                 <StyledIconButton
                                   onClick={() => {
-                                    const filteredOptions = filterOptionsNameRus(tableExpScenarioFiltered, { inputValue: searchValueExpScenario });
+                                    const filteredOptions = filterOptionsNameRus(tableExpScenarioFilteredNP, { inputValue: searchValueExpScenario });
                                     const newValues = [...currFlt.selExpScenarioValues, ...filteredOptions];
                                     setCurrFlt({
                                       ...currFlt,
@@ -2763,7 +2766,7 @@ const treeDataOrganFilteredEdit = React.useMemo(() => {
                   onClick={async () => {
                     setCurrFlt({
                       ...currFlt,
-                      selExpScenarioValues: tableExpScenarioFiltered,
+                      selExpScenarioValues: tableExpScenarioFilteredNP,
                     });
                   }}                
                   color="primary"
@@ -3229,7 +3232,7 @@ const treeDataOrganFilteredEdit = React.useMemo(() => {
               label="Регион РТ"
               placeholder="Регион РТ"
               displayField="name_rus"
-              getOptionDisabled={(option) => !tableRegionRTFilteredEdit.some(item => item.id === option.id)}
+              getOptionDisabled={(option) => !tableRegionRTFiltered.some(item => item.id === option.id)}
               />
             )}
           </Grid>        
