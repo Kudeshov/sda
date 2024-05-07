@@ -69,16 +69,17 @@ function Navbar() {
       setMenuNorm(false);
   }
   
+ /* 
   const [menuDb, setMenuDb] = useState(false);
   const [anchorE4, setAnchorE4] = useState()
 
-  const recordButtonPositionDb = (event/* : any */) => {
+   const recordButtonPositionDb = (event) => {
       setAnchorE4(event.currentTarget);
       setMenuDb(true);
   }
   let closeMenuDb = () => {
       setMenuDb(false);
-  }
+  } */
 
   const [menuSubstance, setMenuSubstance] = useState(false);
   const [anchorE5, setAnchorE5] = useState()
@@ -92,7 +93,7 @@ function Navbar() {
   }
 
   return (
-    <AppBar position="static" style={{ backgroundColor: 'maroon' }}> 
+    <AppBar position="static" /* style={{ backgroundColor: 'maroon' }} */> 
       <CssBaseline />
       <Toolbar>
         <Typography variant="h4" className={classes.logo}>
@@ -152,10 +153,10 @@ function Navbar() {
             </Link>
 {/*             <Link onClick={recordButtonPositionDb}  className={classes.link}>
               Целевые БД
-            </Link>   */}   
+            </Link>     
             <Menu anchorEl={anchorE4} open={menuDb} onClose={closeMenuDb}>
               <MenuItem onClick={closeMenuDb} component={Link} to="/db_struct">Состав и структура</MenuItem>
-            </Menu>            
+            </Menu>  */}          
           </div>
         }
       </Toolbar>

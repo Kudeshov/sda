@@ -1,6 +1,7 @@
 {
   "name": "sda",
-  "version": "0.1.0",
+  "homepage": "/dk/",
+  "version": "0.1.1",
   "private": true,
   "proxy": "http://localhost:3001/",
   "dependencies": {

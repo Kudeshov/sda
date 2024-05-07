@@ -33,39 +33,41 @@ import DepositionFraction from "./pages/deposition_fraction";
 //import ServerPaginationGrid from "./pages/pagination_test";
 
 function App() {
+  // Получение подкаталога из URL, в котором запущено приложение
+  const basename = process.env.REACT_APP_BASENAME || '/dk/';
   return (
-    <Router>
+    <Router basename={basename}>
       <Navbar />
       <Routes>
-        <Route exact path="/" element={<Isotope/>} />
-        <Route path="/substance" element={<Substance/>} />
-        <Route path="/chelement" element={<Chelement/>} />
-        <Route path="/data_source" element={<Sources/>} />
-        <Route path="/norms" element={<Norms/>} />
-        <Route path="/class_func" element={<ClassFunctions/>} />
-        <Route path="/people_class" element={<PeopleClass />} />
-        <Route path="/irradiation" element={<Irradiation/>} />
-        <Route path="/integral_period" element={<IntegralPeriod/>} />        
-        <Route path="/aerosol_sol" element={<AerosolSol />} />
-        <Route path="/aerosol_amad" element={<AerosolAmad/>} />
-        <Route path="/let_level" element={<LetLevel/>} />       
-        <Route path="/exp_scenario" element={<ExpScenario/>} />               
-        <Route path="/agegroup" element={<AgeGroup/>} />
-        <Route path="/subst_form" element={<SubstForm/>} />
-        <Route path="/dose_ratio" element={<DoseRatio/>} />
-        <Route path="/calcfunction" element={<CalcFunction/>} />
-        <Route path="/criterion_gr" element={<GriterionGr/>} />
-        <Route path="/action_level" element={<ActionLevel/>} />
-        <Route path="/action" element={<Action/>} />
-        <Route path="/organ" element={<Organ/>} />
-        <Route path="/chem_comp_gr" element={<ChemCompGr/>} />
-        <Route path="/isotope" element={<Isotope/>} />
-        <Route path="/criterion" element={<Griterion/>} />  
-        <Route path="/value_int_dose" element={<ValueIntDose/>} />
-        <Route path="/radiation_type" element={<RadiationType/>} />          
-        <Route path="/value_ext_dose" element={<ValueExtDose/>} />
-        <Route path="/value_ratio_git" element={<ValueRatioGit/>} />
-        <Route path="/deposition_fraction" element={<DepositionFraction/>} />
+        <Route exact path="" element={<Isotope/>} />
+        <Route path="substance" element={<Substance/>} />
+        <Route path="chelement" element={<Chelement/>} />
+        <Route path="data_source" element={<Sources/>} />
+        <Route path="norms" element={<Norms/>} />
+        <Route path="class_func" element={<ClassFunctions/>} />
+        <Route path="people_class" element={<PeopleClass />} />
+        <Route path="irradiation" element={<Irradiation/>} />
+        <Route path="integral_period" element={<IntegralPeriod/>} />        
+        <Route path="aerosol_sol" element={<AerosolSol />} />
+        <Route path="aerosol_amad" element={<AerosolAmad/>} />
+        <Route path="let_level" element={<LetLevel/>} />       
+        <Route path="exp_scenario" element={<ExpScenario/>} />               
+        <Route path="agegroup" element={<AgeGroup/>} />
+        <Route path="subst_form" element={<SubstForm/>} />
+        <Route path="dose_ratio" element={<DoseRatio/>} />
+        <Route path="calcfunction" element={<CalcFunction/>} />
+        <Route path="criterion_gr" element={<GriterionGr/>} />
+        <Route path="action_level" element={<ActionLevel/>} />
+        <Route path="action" element={<Action/>} />
+        <Route path="organ" element={<Organ/>} />
+        <Route path="chem_comp_gr" element={<ChemCompGr/>} />
+        <Route path="isotope" element={<Isotope/>} />
+        <Route path="criterion" element={<Griterion/>} />  
+        <Route path="value_int_dose" element={<ValueIntDose/>} />
+        <Route path="radiation_type" element={<RadiationType/>} />          
+        <Route path="value_ext_dose" element={<ValueExtDose/>} />
+        <Route path="value_ratio_git" element={<ValueRatioGit/>} />
+        <Route path="deposition_fraction" element={<DepositionFraction/>} />
    {/*  <Route path="/db" element={<ServerPaginationGrid/>} />  */}          
       </Routes>
     </Router>

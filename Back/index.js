@@ -74,12 +74,6 @@ app.post('/people_class', (req, res) => {gn_q.createGenericNLS(req, res, 'people
 app.put('/people_class/:id', (req, res) => {gn_q.updateGenericNLS(req, res, 'people_class')});    //update
 app.delete('/people_class/:id', (req, res) => {gn_q.deleteGenericNLS(req, res, 'people_class')}); //delete
 
-/* app.get('/people_class', pc_q.getPeopleClass);           //list all
-app.get('/people_class/:id', pc_q.getPeopleClassById);   //list 1
-app.post('/people_class', pc_q.createPeopleClass);       //create
-app.put('/people_class/:id', pc_q.updatePeopleClass);    //update
-app.delete('/people_class/:id', pc_q.deletePeopleClass); //delete */
-
 //GENERIC QUERIES on PEOPLE_CLASS 
 app.get('/subst_form', (req, res) => {gn_q.getGenericNLS(req, res, 'subst_form')});           //list all
 app.get('/subst_form/:id', (req, res) => {gn_q.getGenericNLSById(req, res, 'subst_form')});   //list 1
@@ -184,7 +178,6 @@ app.post('/action_criterion', ac_q.createActionCriterion);       //create
 app.put('/action_criterion/:id', ac_q.updateActionCriterion);    //update
 app.delete('/action_criterion/:id', ac_q.deleteActionCriterion); //delete 
 
-
 //GENERIC QUERIES on calcfunction
 app.get('/calcfunction', (req, res) => {cf_q.getCalcFunction(req, res, 'calcfunction')});           //list all
 app.get('/calcfunction/:id', (req, res) => {cf_q.getCalcFunctionById(req, res, 'calcfunction')});   //list 1
@@ -216,11 +209,6 @@ app.post('/chem_comp_gr', (req, res) => {ccg_q.createChemCompGr(req, res, 'chem_
 app.delete('/chem_comp_gr/:id', (req, res) => {ccg_q.deleteChemCompGr(req, res, 'chem_comp_gr')});  //delete
 app.get('/chem_comp_gr_min', (req, res) => {ccg_q.getChemCompGrMin(req, res, 'chem_comp_gr_min')});            //list for autocomplete
 
-//GENERIC QUERIES on phchform_chelem 
-//app.get('/phchform_chelem', (req, res) => {pcm_q.getPhchFormChelem(req, res, 'phchform_chelem')});  //list all
-
-//GENERIC QUERIES on ACTION 
-
 //GENERIC QUERIES on chem_comp_gr 
 app.get('/isotope', (req, res) => {i_q.getIsotope(req, res, 'isotope')});                         //list all
 app.get('/isotope_tree/:id', (req, res) => {i_q.getIsotopeTree(req, res, 'isotope')});            //list recursive decay tree
@@ -229,7 +217,6 @@ app.get('/isotope_min', function(req, resp){
     if(error) {
        return console.error('error running query', error);
     }
-   //console.log(res.rows);
    resp.json(res.rows);
    });
 });
@@ -264,7 +251,6 @@ app.put('/value_int_dose/:id', (req, res) => {vid_q.updateValueIntDose(req, res,
 app.post('/value_int_dose', (req, res) => {vid_q.createValueIntDose(req, res, 'value_int_dose')});    //create
 app.delete('/value_int_dose/:id', (req, res) => {vid_q.deleteValueIntDose(req, res, 'value_int_dose')});  //delete
 //связи в таблице value_int_dose
-//app.get('/value_relation/:tableName', (req, res) => {vid_q.getValueRelation(req, res, req.params.tableName)});
 app.get('/int_dose_attr/', (req, res) => {vid_q.getIntDoseAttr(req, res)});
 
 app.get('/value_ext_dose', (req, res) => {ved_q.getValueExtDose(req, res, 'value_ext_dose')}); 
